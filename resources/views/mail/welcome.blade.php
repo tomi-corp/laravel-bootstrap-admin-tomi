@@ -68,10 +68,7 @@
                                                                     <td bgcolor="#ffffff" align="left"
                                                                         style="padding:20px 30px 10px 30px;color:#666666;font-family:'Lato',Helvetica,Arial,sans-serif;font-size:16px;font-weight:400;line-height:25px">
                                                                         <p style="margin:0">Untuk memastikan
-                                                                            emailmu aktif, langsung klik <a
-                                                                                href="{{ route('') }}">tautan
-                                                                                ini</a>
-                                                                            ya.
+                                                                            emailmu aktif, Silahkan masukan OTP ini Ya.
                                                                             Terima kasih sudah bantu konfirmasi!
                                                                         </p>
                                                                     </td>
@@ -90,9 +87,8 @@
                                                                                             <tbody>
                                                                                                 <tr>
                                                                                                     <td align="center">
-                                                                                                        {{-- <a href="{{ route('') }}" --}}
-                                                                                                        {{-- <h3>{{ $data['token'] }}
-                                                                                                        </h3> --}}
+                                                                                                        <h3>{{ $data['token'] }}
+                                                                                                        </h3>
                                                                                                     </td>
                                                                                                 </tr>
                                                                                             </tbody>

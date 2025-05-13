@@ -27,24 +27,6 @@ use PhpParser\Node\Stmt\TryCatch;
 
 class AuthController extends Controller
 {
-    public function cekUsername(Request $req)
-    {
-        $user = User::where('username', $req->username)->first();
-        if (isset($user)) {
-            return response()->json([
-                'status' => false,
-                'message' => '',
-            ], 400);
-        } else {
-            return response()->json([
-                'status' => true,
-                'message' => '',
-            ], 200);
-        }
-    }
-
-    public function cekReff(Request $req) {}
-
 
     public function lang($lang)
     {
@@ -68,7 +50,7 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        $credentials = $request->only('username', 'password');
+        $credentials = $request->only('email', 'password');
         if ($token = auth('api')->attempt($credentials)) {
             return $this->respondWithToken($token);
         } else {
@@ -113,33 +95,26 @@ class AuthController extends Controller
 
     public function register(RegisterRequest $req)
     {
+        $verifEmail = verif_email::where('email', $req->email)->first();
 
-        while (true) {
-            $str = Str::random(8);
-            $userrr = User::where('ref_code', $str)->first();
-            if (!isset($userrr)) {
-                break;
-            }
+        if ($verifEmail !== null) {
+            $verifEmail->email = $req->email;
+            $verifEmail->code_rand = rand(1000, 9999);;
+            $verifEmail->expired = Carbon::now()->addMinute(15);
+        } else {
+            $verifEmail = new verif_email();
+            $verifEmail->email = $req->email;
+            $verifEmail->code_rand = rand(1000, 9999);;
+            $verifEmail->expired = Carbon::now()->addMinute(15);
         }
-
-        $userx = User::where('ref_code', $req->referral)
-            ->where('ref_code', '!=', null)->first();
-
-        $verifEmail = new verif_email();
-        $verifEmail->email = $req->email;
-        $verifEmail->code_rand = Str::random(32);
-        $verifEmail->expired = Carbon::now()->addMinute(15);
 
         $user = new User();
         $user->name = $req->name;
-        $user->username = $req->username;
+        $user->nohp = $req->nohp;
         $user->email = $req->email;
-        $user->ref_code = $str;
-        $user->referral_id = $userx ? $userx->id : null;
         $user->password = Hash::make($req->password);
         $user->save();
         $verifEmail->save();
-
         // send email
         $data = [
             'subject' => 'Yeay! Kamu Resmi Bergabung dengan TOMI!',
@@ -147,7 +122,6 @@ class AuthController extends Controller
             'to' => $req->email,
             'token' => $verifEmail->code_rand,
         ];
-
         Mail::to($req->email)->send(new WelcomeEmail($data));
 
         return response()->json([
@@ -186,7 +160,7 @@ class AuthController extends Controller
         $email = User::where('email', '=', $req->email)->first();
 
         if (isset($email)) {
-            $random =  rand(0, 99999);
+            $random =  rand(1000, 9999);;
 
             $token =  password_reset_user::firstOrNew();
             $token->email = $email->email;
@@ -242,11 +216,69 @@ class AuthController extends Controller
         ], 200);
     }
 
-    public function validasiEmail($valid)
+    public function verifOtp(Request $req)
     {
-        // $verif = verif_email::where('code_rand', $valid)->first();
-        // if (isset($verif)) {
-        // } else {
-        // }
+        $verifEmail = verif_email::where('code_rand', $req->otp)
+            ->where('email', auth('api')->user()->email)
+            ->first();
+        if (isset($verifEmail)) {
+            if ($verifEmail->expired > Carbon::now()) {
+                $user = User::where('email', $verifEmail->email)->first();
+                $user->email_verified_at = Carbon::now();
+                $user->save();
+                $verifEmail->delete();
+                return response()->json([
+                    'status' => 200,
+                    'message' => 'Berhasil verifikasi email',
+                ], 200);
+            } else {
+                return response()->json([
+                    'status' => 400,
+                    'message' => 'Kode OTP Expired',
+                ], 400);
+            }
+        } else {
+            return response()->json([
+                'status' => 400,
+                'message' => 'Data tidak ditemukan',
+            ], 400);
+        }
+    }
+
+    public function kirimUlangOtp(Request $req)
+    {
+        $user = User::where('email', auth('api')->user()->email)->first();
+
+        if ($user->email_verified_at == null) {
+            $verifEmail = verif_email::where('email', $user->email)->first();
+            if ($verifEmail !== null) {
+                $verifEmail->email = $user->email;
+                $verifEmail->code_rand = rand(1000, 9999);;
+                $verifEmail->expired = Carbon::now()->addMinute(15);
+            } else {
+                $verifEmail = new verif_email();
+                $verifEmail->email = $user->email;
+                $verifEmail->code_rand = rand(1000, 9999);;
+                $verifEmail->expired = Carbon::now()->addMinute(15);
+            }
+            $verifEmail->save();
+            // send email
+            $data = [
+                'subject' => 'Yeay! Kamu Resmi Bergabung dengan TOMI!',
+                'title' => 'Welcome',
+                'to' => $user->email,
+                'token' => $verifEmail->code_rand,
+            ];
+            Mail::to($user->email)->send(new WelcomeEmail($data));
+            return response()->json([
+                'status' => 200,
+                'message' => 'Email berhasil dikirim',
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => 200,
+                'message' => 'Email telah terverifikasi',
+            ], 200);
+        }
     }
 }

@@ -1,35 +1,45 @@
-   .bg-clear {
-        background-color: #ffff;
-        padding: 6px;
-        border-radius: 5px;
-    }
+.bg-clear {
+    background-color: #ffff;
+    padding: 6px;
+    border-radius: 5px;
+}
 
-    .bg-icon-primary {
-        background-color: #e6fdff;
-        padding: 6px;
-        border-radius: 5px;
-    }
+.bg-icon-primary {
+    background-color: #e6fdff;
+    padding: 6px;
+    border-radius: 5px;
+}
 
-    .bg-custom-primary {
-        background-color: #ebf3ff;
-        color: #002152;
-    }
+.bg-custom-primary {
+    background-color: #ebf3ff;
+    color: #002152;
+}
 
-    .bg-custom-success {
-        background-color: #d2ffe8;
-        color: #00391c;
-    }
+.bg-custom-success {
+    background-color: #d2ffe8;
+    color: #00391c;
+}
 
-    .bg-custom-info {
-        background-color: #e6fdff;
-        color: #00474d;
-    }
+.bg-custom-info {
+    background-color: #e6fdff;
+    color: #00474d;
+}
 
-    .bg-custom-danger {
-        background-color: #ffdede;
-        color: #450000;
-    }
+.bg-custom-danger {
+    background-color: #ffdede;
+    color: #450000;
+}
 
-    .btn-action-size {
-        font-size: 20px;
-    }
+.btn-action-size {
+    font-size: 20px;
+}
+
+.spinner-border {
+    width: 1rem;
+    height: 1rem;
+}
+
+.nav-tabs .nav-item.show .nav-link, .nav-tabs .nav-link.active{
+    color: #ffff;
+    background-color: #188ae2;
+}

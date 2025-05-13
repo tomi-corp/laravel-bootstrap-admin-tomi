@@ -16,10 +16,11 @@ class ProfileDetailResource extends JsonResource
     {
         return [
             'name' => $this->name,
-            'username' => $this->username,
+            'nohp' => $this->nohp,
             'email' => $this->email,
             'dob' => $this->dob,
-            'referral_code' => $this->ref_code ? $this->ref_code : null,
+            'point' => $this->point,
+            'status_akun' => $this->email_verified_at === null ? "belum verifikasi" : "terverifikasi",
         ];
     }
 }

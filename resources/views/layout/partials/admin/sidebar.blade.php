@@ -25,6 +25,22 @@
                 </li>
 
 
+                <li>
+                    <a href="{{ route('admin.pengajuan.index') }}">
+                        <i class=" dripicons-document"></i>
+                        <span> Pengajuan Pinjaman </span>
+                    </a>
+                </li>
+
+                <li class="menu-title">Menu Mobile</li>
+                <li>
+                    <a href="{{ route('admin.menumobile.index') }}">
+                        <i class=" dripicons-device-mobile"></i>
+                        <span> Menu Mobile </span>
+                    </a>
+                </li>
+
+
                 {{-- <li>
                     <a href="{{ route('regis.view') }}">
                         <i class="dripicons-user-group"></i>

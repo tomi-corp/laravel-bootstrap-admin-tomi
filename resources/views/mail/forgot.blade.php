@@ -67,8 +67,9 @@
                                                                 <tr>
                                                                     <td bgcolor="#ffffff" align="left"
                                                                         style="padding:20px 30px 10px 30px;color:#666666;font-family:'Lato',Helvetica,Arial,sans-serif;font-size:16px;font-weight:400;line-height:25px">
-                                                                        <p style="margin:0">Buka link berikut untuk
-                                                                            mereset password anda</p>
+                                                                        <p style="margin:0">Salin kode OTP Berikut untuk
+                                                                            mereset password anda, Jangan berikan Kode
+                                                                            berikut pada siapapun Terimakasih</p>
                                                                     </td>
                                                                 </tr>
                                                                 <tr>
