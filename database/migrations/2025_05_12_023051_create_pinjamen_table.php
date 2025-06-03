@@ -28,7 +28,7 @@ return new class extends Migration
             $table->double('total_biaya_admin');
             $table->double('total_angsuran_perbulan');
             $table->double('jumlah_yang_diterima');
-            $table->enum('status', ['pending', 'exported', 'approve', 'reject'])->default('pending');
+            $table->enum('status', ['on_proses', 'exported', 'approve', 'reject'])->default('on_proses');
             $table->enum('status_otp', ['pending', 'success'])->default('pending');
             $table->longText('note')->nullable();
             $table->softDeletes();

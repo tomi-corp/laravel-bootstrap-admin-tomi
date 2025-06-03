@@ -5,7 +5,6 @@ use App\Http\Controllers\Admin\DailyCheckinController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\KspController;
 use App\Http\Controllers\Admin\MenuMobileController;
-use App\Http\Controllers\Admin\PengajuanPinjamanController;
 use App\Http\Controllers\Admin\PpobController;
 use Illuminate\Support\Facades\Route;
 
@@ -36,6 +35,9 @@ Route::middleware(['AdminMiddleware'])->group(
         Route::post('/mobile/menu/detail', [MenuMobileController::class, 'detailMenu'])->name('admin.menumobile.detail');
         // KSP => Perusahaan
         Route::get('/ksp/pinjaman', [KspController::class, 'index'])->name('admin.ksp.index');
+        Route::post('/ksp/pinjaman/kabupaten', [KspController::class, 'kabupaten'])->name('admin.ksp.kabupaten');
+
+
         Route::post('/ksp/add/perusahaan', [KspController::class, 'addPerusahaan'])->name('admin.ksp.add.perusahaan');
         Route::post('/ksp/detail/perusahaan', [KspController::class, 'detailPerusahaan'])->name('admin.ksp.detail.perusahaan');
         Route::post('/ksp/edit/perusahaan', [KspController::class, 'editPerusahaan'])->name('admin.ksp.edit.perusahaan');

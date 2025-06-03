@@ -23,7 +23,7 @@ class HistoryDetailRequest extends FormRequest
     {
         return [
             'id' => 'required',
-            'type' => 'required'
+            'path' => 'required'
         ];
     }
 }

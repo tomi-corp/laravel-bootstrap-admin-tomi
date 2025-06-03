@@ -73,7 +73,7 @@
                         </div>
                         <div class="col-3 mb-3">
                             <h3 class="font-weight-light" id="pendingCount"></h3>
-                            <p class="text-muted text-overflow">Pending</p>
+                            <p class="text-muted text-overflow">On Proses</p>
                         </div>
                         <div class="col-3 mb-3">
                             <h3 class="font-weight-light" id="exportedCount"></h3>
@@ -103,7 +103,7 @@
                     <ul class="nav nav-tabs">
                         <li class="nav-item">
                             <a href="#pending" data-toggle="tab" aria-expanded="false" class="nav-link active">
-                                Pending
+                                On Proses
                             </a>
                         </li>
                         <li class="nav-item">
@@ -353,6 +353,7 @@
                             // These labels appear in the legend and in the tooltips when hovering different arcs
                             labels: [
                                 'Belum Validasi WA',
+                                'On Proses',
                                 'Exported',
                                 'Approve',
                                 'Reject',

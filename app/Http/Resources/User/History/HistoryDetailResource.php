@@ -17,7 +17,7 @@ class HistoryDetailResource extends JsonResource
     {
         return [
             'id_pinjaman' => $this->id_pinjaman,
-            'nominal' => "Rp." . number_format($this->nominal),
+            'nominal' => "Rp  " . number_format($this->nominal),
             'biaya_admin' => $this->biaya_admin . "%",
             'rate' => $this->rate . "%",
             'tenor' => $this->tenor . " bulan",

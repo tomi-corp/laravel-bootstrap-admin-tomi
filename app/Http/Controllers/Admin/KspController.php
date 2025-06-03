@@ -19,11 +19,13 @@ use App\Imports\ExportImportData;
 use App\Imports\KaryawanPendingImport;
 use App\Models\amount_pinjaman;
 use App\Models\invoicing_pinjaman;
+use App\Models\kota;
 use App\Models\list_data_ksp;
 use App\Models\list_data_ksp_pending;
 use App\Models\ListPerusahaan;
 use App\Models\notification;
 use App\Models\pinjaman;
+use App\Models\provinsi;
 use App\Models\tenor_pinjaman;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
@@ -37,8 +39,14 @@ class KspController extends Controller
 {
     public function index()
     {
-        return view('admin.ksp.perusahaan.index');
-        // return view('admin.ksp.invoicing.index');
+        $provinsis = provinsi::get();
+        return view('admin.ksp.perusahaan.index', compact('provinsis'));
+    }
+
+    public function kabupaten(Request $req)
+    {
+        $kabupaten = kota::where('provinsi', $req->provinsi)->get();
+        return $kabupaten;
     }
 
     public function addPerusahaan(AddPerusahaanRequest $req)
@@ -228,7 +236,8 @@ class KspController extends Controller
         }
 
 
-        $pengajuan = pinjaman::where('status', 'pending')->with('user')->get();
+        $pengajuan = pinjaman::where('status', 'on_proses')
+            ->with('user')->get();
 
         return DataTables::of($pengajuan)
             ->addIndexColumn()
@@ -348,7 +357,7 @@ class KspController extends Controller
             ->addIndexColumn()
 
             ->addColumn('tenor', function ($row) {
-                return $row->tenor . ' Bulan';
+                return $row->tenor . ' bulan';
             })
             ->addColumn('rate', function ($row) {
                 return $row->rate . ' %';
@@ -429,7 +438,7 @@ class KspController extends Controller
     public function pengajuanPendingTable(Request $req)
     {
         $pinjaman = pinjaman::where('id_perusahaan', $req->id)
-            ->where('status', 'pending')
+            ->where('status', 'on_proses')
             ->where('status_otp', 'success')
             ->with('data_karyawan')
             ->get();
@@ -445,7 +454,7 @@ class KspController extends Controller
             })
 
             ->addColumn('tenor', function ($row) {
-                return $row->tenor . " Bulan";
+                return $row->tenor . " bulan";
             })
             ->addColumn('biaya_admin', function ($row) {
                 return $row->biaya_admin . " %";
@@ -488,7 +497,7 @@ class KspController extends Controller
             })
 
             ->addColumn('tenor', function ($row) {
-                return $row->tenor . " Bulan";
+                return $row->tenor . " bulan";
             })
             ->addColumn('biaya_admin', function ($row) {
                 return $row->biaya_admin . " %";
@@ -532,7 +541,7 @@ class KspController extends Controller
             })
 
             ->addColumn('tenor', function ($row) {
-                return $row->tenor . " Bulan";
+                return $row->tenor . " bulan";
             })
             ->addColumn('biaya_admin', function ($row) {
                 return $row->biaya_admin . " %";
@@ -576,7 +585,7 @@ class KspController extends Controller
             })
 
             ->addColumn('tenor', function ($row) {
-                return $row->tenor . " Bulan";
+                return $row->tenor . " bulan";
             })
             ->addColumn('biaya_admin', function ($row) {
                 return $row->biaya_admin . " %";
@@ -608,7 +617,7 @@ class KspController extends Controller
     {
         $perusahaan = ListPerusahaan::where('id', $req->id)->first();
         $pinjaman = pinjaman::where('id_perusahaan', $perusahaan->id)
-            ->where('status', 'pending')
+            ->where('status', 'on_proses')
             ->where('status_otp', 'success')
             ->with('data_karyawan')
             ->get();
@@ -620,7 +629,7 @@ class KspController extends Controller
     public function pengajuanProsesToExport(Request $req)
     {
         $pinjamans = pinjaman::where('id_perusahaan', $req->id)
-            ->where('status', 'pending')
+            ->where('status', 'on_proses')
             ->where('status_otp', 'success')
             ->get();
 
@@ -635,7 +644,7 @@ class KspController extends Controller
         }
 
         $pinjamans = pinjaman::where('id_perusahaan', $req->id)
-            ->where('status', 'pending')
+            ->where('status', 'on_proses')
             ->where('status_otp', 'success')
             ->update(['status' => 'exported']);
         // 
@@ -679,7 +688,7 @@ class KspController extends Controller
         return response()->json([
             'status' => 200,
             'belum_validasi_wa' => $pengajuan->where('status_otp', 'pending')->count(),
-            'pending' => $pengajuan->where('status_otp', 'success')->where('status', 'pending')->count(),
+            'pending' => $pengajuan->where('status_otp', 'success')->where('status', 'on_proses')->count(),
             'exported' => $pengajuan->where('status_otp', 'success')->where('status', 'exported')->count(),
             'approve' => $pengajuan->where('status_otp', 'success')->where('status', 'approve')->count(),
             'reject' => $pengajuan->where('status_otp', 'success')->where('status', 'reject')->count(),

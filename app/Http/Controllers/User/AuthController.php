@@ -318,6 +318,7 @@ class AuthController extends Controller
         $verifEmail = verif_whatsapp::where('code_rand', $req->otp)
             ->where('email', auth('api')->user()->email)
             ->first();
+
         if (isset($verifEmail)) {
             if ($verifEmail->expired > Carbon::now()) {
                 $user = User::where('email', $verifEmail->email)->first();

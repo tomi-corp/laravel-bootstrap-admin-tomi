@@ -67,13 +67,13 @@ class PinjamanController extends Controller
     public function actionPinjaman(ActionPinjamRequest $req)
     {
         $cekPinjaman = pinjaman::where('user_id', auth('api')->user()->id)
-            ->where('status', 'pending')
+            ->where('status', 'on_proses')
             ->where('status_otp', 'success')
             ->first();
 
 
         $cekPinjamanPendingOTP = pinjaman::where('user_id', auth('api')->user()->id)
-            ->where('status', 'pending')
+            ->where('status', 'on_proses')
             ->where('status_otp', 'pending')
             ->first();
 
@@ -124,7 +124,7 @@ class PinjamanController extends Controller
         $pinjaman->rate = $tenor->rate;
         $pinjaman->biaya_admin = $tenor->biaya_admin;
         $pinjaman->iuran_anggota = $tenor->iuran_anggota;
-        $pinjaman->status = 'pending';
+        $pinjaman->status = 'on_proses';
         $pinjaman->status_otp = 'pending';
 
         $data = [
@@ -208,13 +208,13 @@ class PinjamanController extends Controller
         } else {
 
             $cekPinjaman = pinjaman::where('user_id', auth('api')->user()->id)
-                ->where('status', 'pending')
+                ->where('status', 'on_proses')
                 ->where('status_otp', 'success')
                 ->first();
 
 
             $cekPinjamanPendingOTP = pinjaman::where('user_id', auth('api')->user()->id)
-                ->where('status', 'pending')
+                ->where('status', 'on_proses')
                 ->where('status_otp', 'pending')
                 ->first();
 
