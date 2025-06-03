@@ -17,7 +17,7 @@ class HistoryResource extends JsonResource
     {
         return [
             "id" => $this->id,
-            "nominal" => number_format($this->nominal),
+            "nominal" => "Rp  " . number_format($this->nominal),
             "status" => $this->status,
             "datetime" => Carbon::parse($this->created_at)->format('Y-m-d H:i:s'),
             "type" => $this->type,
