@@ -155,7 +155,7 @@ class KspController extends Controller
             ->addIndexColumn()
 
             ->addColumn('penghasilan', function ($row) {
-                return 'Rp' . number_format($row->penghasilan);
+                return 'Rp  ' . number_format($row->penghasilan);
             })
             ->addColumn('action', function ($row) {
                 return '<button class="btn btn-sm btn-primary mr-2" onclick="edit(' . $row->id . ')"><i class="mdi mdi-pencil"></i></button>
