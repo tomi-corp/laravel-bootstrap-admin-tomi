@@ -39,7 +39,7 @@
                     </div>
 
                     <div class="d-flex justify-content-between">
-                        <span>Nama PIC Internal :</span>
+                        <span>Alamat :</span>
                         <span>{{ $perusahaan->alamat }}</span>
                     </div>
 

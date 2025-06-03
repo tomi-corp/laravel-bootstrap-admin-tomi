@@ -246,7 +246,7 @@ class KspController extends Controller
             })
 
             ->addColumn('plafon', function ($row) {
-                $plafon = "Rp" . number_format($row->nominal);
+                $plafon = "Rp  " . number_format($row->nominal);
                 return $plafon;
             })
 
@@ -358,7 +358,7 @@ class KspController extends Controller
             })
 
             ->addColumn('iuran_anggota', function ($row) {
-                return "Rp" . number_format($row->iuran_anggota);
+                return "Rp  " . number_format($row->iuran_anggota);
             })
 
             ->addColumn('action', function ($row) {
@@ -441,7 +441,7 @@ class KspController extends Controller
                 return $row->data_karyawan->nama_karyawan;
             })
             ->addColumn('nominal', function ($row) {
-                return "Rp" . number_format($row->nominal);
+                return "Rp  " . number_format($row->nominal);
             })
 
             ->addColumn('tenor', function ($row) {
@@ -456,15 +456,15 @@ class KspController extends Controller
             })
 
             ->addColumn('iuran_anggota', function ($row) {
-                return "Rp" . number_format($row->iuran_anggota);
+                return "Rp  " . number_format($row->iuran_anggota);
             })
 
             ->addColumn('total_biaya_admin', function ($row) {
-                return "Rp" . number_format($row->total_biaya_admin);
+                return "Rp  " . number_format($row->total_biaya_admin);
             })
 
             ->addColumn('jumlah_yang_diterima', function ($row) {
-                return "Rp" . number_format($row->jumlah_yang_diterima);
+                return "Rp  " . number_format($row->jumlah_yang_diterima);
             })
             // ->rawColumns(['action'])
             ->toJson();
@@ -484,7 +484,7 @@ class KspController extends Controller
                 return $row->data_karyawan->nama_karyawan;
             })
             ->addColumn('nominal', function ($row) {
-                return "Rp" . number_format($row->nominal);
+                return "Rp  " . number_format($row->nominal);
             })
 
             ->addColumn('tenor', function ($row) {
@@ -499,15 +499,15 @@ class KspController extends Controller
             })
 
             ->addColumn('iuran_anggota', function ($row) {
-                return "Rp" . number_format($row->iuran_anggota);
+                return "Rp  " . number_format($row->iuran_anggota);
             })
 
             ->addColumn('total_biaya_admin', function ($row) {
-                return "Rp" . number_format($row->total_biaya_admin);
+                return "Rp  " . number_format($row->total_biaya_admin);
             })
 
             ->addColumn('jumlah_yang_diterima', function ($row) {
-                return "Rp" . number_format($row->jumlah_yang_diterima);
+                return "Rp  " . number_format($row->jumlah_yang_diterima);
             })
             // ->rawColumns(['action'])
             ->toJson();
@@ -528,7 +528,7 @@ class KspController extends Controller
                 return $row->data_karyawan->nama_karyawan;
             })
             ->addColumn('nominal', function ($row) {
-                return "Rp" . number_format($row->nominal);
+                return "Rp  " . number_format($row->nominal);
             })
 
             ->addColumn('tenor', function ($row) {
@@ -543,15 +543,15 @@ class KspController extends Controller
             })
 
             ->addColumn('iuran_anggota', function ($row) {
-                return "Rp" . number_format($row->iuran_anggota);
+                return "Rp  " . number_format($row->iuran_anggota);
             })
 
             ->addColumn('total_biaya_admin', function ($row) {
-                return "Rp" . number_format($row->total_biaya_admin);
+                return "Rp  " . number_format($row->total_biaya_admin);
             })
 
             ->addColumn('jumlah_yang_diterima', function ($row) {
-                return "Rp" . number_format($row->jumlah_yang_diterima);
+                return "Rp  " . number_format($row->jumlah_yang_diterima);
             })
             // ->rawColumns(['action'])
             ->toJson();
@@ -572,7 +572,7 @@ class KspController extends Controller
                 return $row->data_karyawan->nama_karyawan;
             })
             ->addColumn('nominal', function ($row) {
-                return "Rp" . number_format($row->nominal);
+                return "Rp  " . number_format($row->nominal);
             })
 
             ->addColumn('tenor', function ($row) {
@@ -587,15 +587,15 @@ class KspController extends Controller
             })
 
             ->addColumn('iuran_anggota', function ($row) {
-                return "Rp" . number_format($row->iuran_anggota);
+                return "Rp  " . number_format($row->iuran_anggota);
             })
 
             ->addColumn('total_biaya_admin', function ($row) {
-                return "Rp" . number_format($row->total_biaya_admin);
+                return "Rp  " . number_format($row->total_biaya_admin);
             })
 
             ->addColumn('jumlah_yang_diterima', function ($row) {
-                return "Rp" . number_format($row->jumlah_yang_diterima);
+                return "Rp  " . number_format($row->jumlah_yang_diterima);
             })
             // ->rawColumns(['action'])
             ->toJson();
@@ -718,15 +718,15 @@ class KspController extends Controller
             })
 
             ->addColumn('total_fee_base', function ($row) {
-                return "Rp." . number_format($row->total_fee_base);
+                return "Rp  " . number_format($row->total_fee_base);
             })
 
             ->addColumn('income_ksp', function ($row) {
-                return "Rp." . number_format($row->income_ksp);
+                return "Rp  " . number_format($row->income_ksp);
             })
 
             ->addColumn('iuran_anggota', function ($row) {
-                return "Rp." . number_format($row->iuran_anggota);
+                return "Rp  " . number_format($row->iuran_anggota);
             })
 
 
