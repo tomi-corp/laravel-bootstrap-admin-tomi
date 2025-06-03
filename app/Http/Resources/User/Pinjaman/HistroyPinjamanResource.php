@@ -16,7 +16,7 @@ class HistroyPinjamanResource extends JsonResource
     {
         return [
             'id_pinjaman' => $this->id_pinjaman,
-            'nominal_pinjaman' => "Rp" . number_format($this->nominal),
+            'nominal_pinjaman' => "Rp  " . number_format($this->nominal),
             'tenor' => $this->tenor . " Bulan",
             'biaya_admin' => $this->biaya_admin . " %",
             'status' => $this->status,

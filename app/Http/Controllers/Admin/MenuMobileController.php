@@ -1,14 +1,16 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\MobileMenu\AddMobileMenuRequest;
 use App\Http\Requests\Admin\MobileMenu\UpdateMobileMenuRequest;
 use App\Http\Resources\Admin\MobileMenu\ShowMenuResource;
 use App\Models\menu_mobile;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\File;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
+
 
 class MenuMobileController extends Controller
 {

@@ -20,6 +20,16 @@ class ProfileDetailResource extends JsonResource
             'email' => $this->email,
             'dob' => $this->dob,
             'point' => $this->point,
+
+            'nik' => $this->nik,
+            'nip' => $this->nip,
+            'nama_perusahaan' => $this->nama_perusahaan,
+            'jabatan' => $this->jabatan,
+            'penghasilan' => $this->penghasilan,
+            'slip_gaji' => $this->slip_gaji,
+            'ktp' => $this->ktp,
+            'selfie_ktp' => $this->selfie_ktp,
+
             'status_akun' => $this->email_verified_at === null ? "belum verifikasi" : "terverifikasi",
         ];
     }

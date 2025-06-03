@@ -14,7 +14,9 @@ return new class extends Migration
         Schema::create('tenor_pinjamen', function (Blueprint $table) {
             $table->id();
             $table->integer('tenor');
+            $table->double('rate');
             $table->double('biaya_admin');
+            $table->double('iuran_anggota');
             $table->timestamps();
         });
     }

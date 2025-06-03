@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('pin');
             $table->string('email');
             $table->string('password');
+            $table->enum('type', ['admin', 'master']);
             $table->timestamps();
         });
     }

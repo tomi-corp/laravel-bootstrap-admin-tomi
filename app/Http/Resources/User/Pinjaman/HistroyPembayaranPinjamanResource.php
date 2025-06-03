@@ -16,7 +16,7 @@ class HistroyPembayaranPinjamanResource extends JsonResource
     {
         return [
             'pembayaran_ke' => $this->pembayaran_ke,
-            'nominal' => "Rp" . number_format($this->nominal),
+            'nominal' => "Rp  " . number_format($this->nominal),
             'tanggal_pembayaran' => $this->created_at,
         ];
     }

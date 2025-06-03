@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\User\Pinjaman;
 
+use App\Models\amount_pinjaman;
 use Illuminate\Foundation\Http\FormRequest;
 
 class SimulationRequest extends FormRequest
@@ -21,8 +22,10 @@ class SimulationRequest extends FormRequest
      */
     public function rules(): array
     {
+        $amount = amount_pinjaman::first();
+
         return [
-            'nominal' => 'required|integer|max:5000000',
+            'nominal' => 'required|integer|max:' . $amount->maximal . '|min:' . $amount->minimal,
             'id_tenor_pinjaman' => 'required|exists:tenor_pinjamen,id'
         ];
     }

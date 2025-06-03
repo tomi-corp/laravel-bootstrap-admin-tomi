@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\User\Pinjaman;
 
+use App\Models\amount_pinjaman;
 use Illuminate\Foundation\Http\FormRequest;
 
 class ActionPinjamRequest extends FormRequest
@@ -21,10 +22,11 @@ class ActionPinjamRequest extends FormRequest
      */
     public function rules(): array
     {
+        $amount = amount_pinjaman::first();
         return [
-            'nominal' => 'required|integer|max:5000000',
+            'nominal' => 'required|integer|max:' . $amount->maximal . '|min:' . $amount->minimal,
             'id_tenor_pinjaman' => 'required|exists:tenor_pinjamen,id',
-            'tujuan' => 'required'
+            'nip' => 'required|exists:list_data_ksps,nip',
         ];
     }
 }

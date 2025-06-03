@@ -9,7 +9,7 @@
 
                 <li>
                     <a href="{{ route('admin.dashboard.index') }}">
-                        <i class="dripicons-meter"></i>
+                        <i class=" dripicons-align-center"></i>
                         <span> Dashboard </span>
                     </a>
                 </li>
@@ -26,16 +26,31 @@
 
 
                 <li>
-                    <a href="{{ route('admin.pengajuan.index') }}">
-                        <i class=" dripicons-document"></i>
-                        <span> Pengajuan Pinjaman </span>
+                    <a href="javascript: void(0);">
+                        <i class=" dripicons-network-3"></i>
+                        <span> KSP DUMI </span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <ul class="nav-second-level" aria-expanded="false">
+                        <li><a href="{{ route('admin.ksp.index') }}">List Perusahaan</a></li>
+                        <li><a href="{{ route('admin.ksp.konfigurasi') }}">Konfigurasi Pinjaman</a></li>
+                    </ul>
+                </li>
+
+                <li class="menu-title">Daily</li>
+
+                <li>
+                    <a href="{{ route('admin.daily.index') }}">
+                        <i class=" dripicons-brightness-low"></i>
+                        <span> Daily Checkin </span>
                     </a>
                 </li>
+
 
                 <li class="menu-title">Menu Mobile</li>
                 <li>
                     <a href="{{ route('admin.menumobile.index') }}">
-                        <i class=" dripicons-device-mobile"></i>
+                        <i class=" dripicons-view-apps"></i>
                         <span> Menu Mobile </span>
                     </a>
                 </li>

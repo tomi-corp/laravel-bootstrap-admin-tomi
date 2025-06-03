@@ -25,7 +25,6 @@ class ApiMiddleware
                 'message' => 'unautorized'
             ], 401);
         }
-
         return $next($request);
     }
 }

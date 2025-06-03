@@ -19,6 +19,7 @@ class LanguangeMiddleware
     {
         $header = $request->header();
         App::setLocale($header['lang'][0]);
+        App::setFallbackLocale($header['lang'][0]);
         return $next($request);
     }
 }

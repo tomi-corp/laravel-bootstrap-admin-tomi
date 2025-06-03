@@ -46,12 +46,12 @@
                                                                     <td bgcolor="#ffffff" align="center" valign="top"
                                                                         style="padding:40px 20px 20px 20px;border-radius:4px 4px 0px 0px;color:#111111;font-family:'Lato',Helvetica,Arial,sans-serif;font-size:48px;font-weight:400;letter-spacing:4px;line-height:48px">
                                                                         <img src="{{ asset('assets/images/logo.jpg') }}"
-                                                                            alt="Digis" width="225" height="225"
+                                                                            alt="Tomi" width="225" height="225"
                                                                             data-image-whitelisted="" class="CToWUd"
                                                                             data-bit="iit"><br>
                                                                         <h1
                                                                             style="font-size:42px;font-weight:400;margin:0">
-                                                                            Hi, SOBAT TOMI </h1>
+                                                                            Hi, {{ $data['nama'] }} </h1>
                                                                     </td>
                                                                 </tr>
                                                             </tbody>
@@ -67,45 +67,23 @@
                                                                 <tr>
                                                                     <td bgcolor="#ffffff" align="left"
                                                                         style="padding:20px 30px 10px 30px;color:#666666;font-family:'Lato',Helvetica,Arial,sans-serif;font-size:16px;font-weight:400;line-height:25px">
-                                                                        <p style="margin:0">Untuk memastikan
-                                                                            emailmu aktif, Silahkan masukan OTP ini Ya.
-                                                                            Terima kasih sudah bantu konfirmasi!
+                                                                        <p style="margin:0">Selamat anda telah terdaftar
+                                                                            di dalam Aplikasi TOMI, selanjutnya Anda
+                                                                            dapat mulai mengakses fitur fitur yang
+                                                                            tersedia dalam aplikasi TOMI sesuai
+                                                                            kebutuhan Anda.
                                                                         </p>
                                                                     </td>
                                                                 </tr>
-                                                                <tr>
-                                                                    <td bgcolor="#ffffff" align="left">
-                                                                        <table width="100%" border="0"
-                                                                            cellspacing="0" cellpadding="0">
-                                                                            <tbody>
-                                                                                <tr>
-                                                                                    <td bgcolor="#ffffff" align="center"
-                                                                                        style="padding:20px 30px 60px 30px">
-                                                                                        <table border="0"
-                                                                                            cellspacing="0"
-                                                                                            cellpadding="0">
-                                                                                            <tbody>
-                                                                                                <tr>
-                                                                                                    <td align="center">
-                                                                                                        <h3>{{ $data['token'] }}
-                                                                                                        </h3>
-                                                                                                    </td>
-                                                                                                </tr>
-                                                                                            </tbody>
-                                                                                        </table>
-                                                                                    </td>
-                                                                                </tr>
-                                                                            </tbody>
-                                                                        </table>
-                                                                    </td>
-                                                                </tr>
+
                                                                 <tr>
                                                                     <td bgcolor="#ffffff" align="left"
                                                                         style="padding:0 30px 10px 20px;color:#666666;font-family:'Lato',Helvetica,Arial,sans-serif;font-size:16px;font-weight:400;line-height:25px">
-                                                                        <p style="margin:0">Mohon untuk tidak membalas
-                                                                            email ini.</p>
-                                                                        <p>Terima Kasih atas
-                                                                            kepercayaan Anda terhadap layanan kami.</p>
+                                                                        <p style="margin:0">Terima kasih. Selamat
+                                                                            menikmati pengalaman baru Anda bersama
+                                                                            TOMI!.</p>
+                                                                        <p>Salam,
+                                                                            Tim Support TOMI.</p>
                                                                     </td>
                                                                 </tr>
                                                                 <tr>

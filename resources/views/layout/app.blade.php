@@ -89,6 +89,7 @@
     <script src="{{ asset('assets/js/app.min.js') }}"></script>
     <script src="{{ asset('assets/libs/chart-js/Chart.bundle.min.js') }}"></script>
     <script src="{{ asset('assets/libs/select2/select2.min.js') }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.3.0/jquery.form.min.js"></script>
     <!-- Init js -->
     {{-- <script src="{{ asset('assets/js/pages/chartjs.init.js') }}"></script> --}}
 

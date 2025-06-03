@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('nik');
+            $table->string('nik')->nullable()->unique();
             $table->string('email')->unique();
             $table->string('nohp')->unique();
             $table->string('gauth_id')->nullable();
@@ -24,6 +24,14 @@ return new class extends Migration
             $table->string('selfie')->nullable();
             $table->string('ktp')->nullable();
             $table->string('stnk')->nullable();
+
+            $table->string('nip')->nullable();
+            $table->string('nama_perusahaan')->nullable();
+            $table->string('jabatan')->nullable();
+            $table->double('penghasilan')->nullable();
+            $table->string('slip_gaji')->nullable();
+            $table->string('selfie_ktp')->nullable();
+
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();

@@ -19,7 +19,7 @@
                                 <div class="form-group mb-3">
                                     <label for="username">Username or Email</label>
                                     <input class="form-control" type="text" id="username" name="identity" required=""
-                                        placeholder="Username or Password">
+                                        placeholder="Username or Email">
                                 </div>
 
                                 <div class="form-group mb-3">

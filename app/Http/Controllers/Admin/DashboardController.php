@@ -11,10 +11,21 @@ class DashboardController extends Controller
 {
     public function dashboard()
     {
-        $registerBulanIni = User::whereMonth('created_at', Carbon::now()->month)->count();
-        $registerBulanKemarin = User::whereMonth('created_at', Carbon::now()->subMonth()->month)->count();
+        // register
+        $registerBulanIni = User::whereMonth('created_at', Carbon::now()->month)
+            ->count();
+        $registerBulanKemarin = User::whereMonth('created_at', Carbon::now()->subMonth()->month)
+            ->count();
 
-        // dd($registerBulanKemarin);
-        return view('admin.dashboard.index');
+        $persentase =  ($registerBulanIni / $registerBulanKemarin) * 100 / 100;
+        $register = [
+            'persentase' => $persentase,
+            'registerBulanIni' => $registerBulanIni,
+        ];
+        // transaction
+
+
+
+        return view('admin.dashboard.index', compact('register'));
     }
 }

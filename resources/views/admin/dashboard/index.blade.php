@@ -29,7 +29,7 @@
                 </div>
                 <div class="col-md-6">
                     <div class="row">
-                        <div class="col-md-6">
+                        {{-- <div class="col-md-6">
                             <div class="card bg-custom-primary">
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between">
@@ -48,7 +48,7 @@
                                     <small>-15% more earning usualy from tommorow</small>
                                 </div>
                             </div>
-                        </div>
+                        </div> --}}
                         <div class="col-md-6">
                             <div class="card bg-custom-danger">
                                 <div class="card-body">
@@ -62,12 +62,12 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <h5>1555 <i class="mdi mdi-trending-up"></i></h5>
-                                    <small>-15% more earning usualy from tommorow</small>
+                                    <h5>{{ $register['registerBulanIni'] }} <i class="mdi mdi-trending-up"></i></h5>
+                                    <small>{{ $register['persentase'] }}% perbandingan registrasi dari bulan kemarin</small>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        {{-- <div class="col-md-6">
                             <div class="card bg-custom-info">
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between">
@@ -84,8 +84,8 @@
                                     <small>-15% more earning usualy from tommorow</small>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-md-6">
+                        </div> --}}
+                        {{-- <div class="col-md-6">
                             <div class="card bg-custom-success">
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between">
@@ -105,7 +105,7 @@
                                     <small>-15% more earning usualy from tommorow</small>
                                 </div>
                             </div>
-                        </div>
+                        </div> --}}
                     </div>
                 </div>
 

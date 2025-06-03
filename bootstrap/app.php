@@ -38,6 +38,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'LanguangeMiddleware' => \App\Http\Middleware\LanguangeMiddleware::class,
             'ApiMiddleware' => \App\Http\Middleware\ApiMiddleware::class,
             'AdminMiddleware' => \App\Http\Middleware\AdminMiddleware::class,
+            'LoginAdminMiddleware' => \App\Http\Middleware\LoginAdminMiddleware::class,
+            'EmailMiddleware' => \App\Http\Middleware\VerifEmailMiddleware::class,
+            'DataKasbonMiddleware' => \App\Http\Middleware\DataKasbonMiddleware::class,
+            'LimitRequestMiddleware' => \App\Http\Middleware\LimitRequestMiddelware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

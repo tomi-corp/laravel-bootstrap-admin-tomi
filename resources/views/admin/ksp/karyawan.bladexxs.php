@@ -1,5 +1,5 @@
 @extends('layout.app')
-@section('title', 'Pengajuan Pinjaman')
+@section('title', 'KSP')
 @section('content')
     <div class="row">
         <div class="col-12">
@@ -7,10 +7,10 @@
                 <div class="page-title-right">
                     <ol class="breadcrumb m-0">
                         <li class="breadcrumb-item"><a href="javascript: void(0);">Tomi</a></li>
-                        <li class="breadcrumb-item active">Pengajuan Pinjaman</li>
+                        <li class="breadcrumb-item active">KSP Perusahaan</li>
                     </ol>
                 </div>
-                <h4 class="page-title">Pengajuan Pinjaman</h4>
+                <h4 class="page-title">KSP Perusahaan</h4>
             </div>
         </div>
 
@@ -281,7 +281,7 @@
             },
             ajax: {
                 "type": "POST",
-                "url": '{!! route('admin.pengajuan.pending.table') !!}',
+                "url": '{!! route('admin.ksp.pending.table') !!}',
                 "data": function(xx) {
                     return $.extend(xx, dataTable);
                 },
@@ -305,7 +305,7 @@
 
         detail = (id) => {
             $.ajax({
-                url: '{!! route('admin.pengajuan.detail') !!}',
+                url: '{!! route('admin.ksp.detail') !!}',
                 data: {
                     '_token': "{{ csrf_token() }}",
                     'id': id,
@@ -338,7 +338,7 @@
 
         $('#saveVerif').on('click', function() {
             $.ajax({
-                url: '{!! route('admin.pengajuan.verifikasi') !!}',
+                url: '{!! route('admin.ksp.verifikasi') !!}',
                 data: {
                     '_token': "{{ csrf_token() }}",
                     'id': edit,
