@@ -273,18 +273,18 @@ class KspController extends Controller
 
     public function listKaryawanUpload(UploadListKaryawanRequest $req)
     {
-        try {
-            Excel::import(new KaryawanPendingImport(), $req->file('file'));
-            return response()->json([
-                'status' => 200,
-                'message' => 'Berhasil Upload Data Karyawan',
-            ], 200);
-        } catch (\Throwable $th) {
-            return response()->json([
-                'status' => 400,
-                'message' => 'Duplicate Data NIK, NIP / Kode ID Perusahaan tidak benar, Harap periksa kembali',
-            ], 400);
-        }
+        // try {
+        Excel::import(new KaryawanPendingImport(), $req->file('file'));
+        return response()->json([
+            'status' => 200,
+            'message' => 'Berhasil Upload Data Karyawan',
+        ], 200);
+        // } catch (\Throwable $th) {
+        //     return response()->json([
+        //         'status' => 400,
+        //         'message' => 'Duplicate Data NIK, NIP / Kode ID Perusahaan tidak benar, Harap periksa kembali',
+        //     ], 400);
+        // }
     }
 
 
