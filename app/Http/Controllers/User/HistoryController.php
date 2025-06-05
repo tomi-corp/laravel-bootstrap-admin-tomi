@@ -13,29 +13,37 @@ use Illuminate\Http\Request;
 
 class HistoryController extends Controller
 {
-    public function history()
+    public function history(Request $req)
     {
-        $historyPinjam = pinjaman::where('user_id', auth('api')->user()->id)
-            ->select(['nominal', 'status', 'created_at', 'id'])
-            ->get();
-
-        $menu = menu_mobile::where('path', 'pinjaman-payroll')->first();
 
         $menuMobile = menu_mobile::get();
+        if ($req->path == "pinjaman-payroll") {
+            $historyPinjam = pinjaman::where('user_id', auth('api')->user()->id)
+                ->select(['nominal', 'status', 'created_at', 'id'])
+                ->get();
 
-        $historyPinjam->map(function ($order) use ($menu) {
-            $order['type'] =  $menu->title;
-            $order['path'] =  $menu->path;
-            $order['img'] = $menu->icon;
-            return $order;
-        });
+            $menu = menu_mobile::where('path', 'pinjaman-payroll')->first();
 
-        return response()->json([
-            'status' => 200,
-            'message' => 'success',
-            'menu_mobile' => HistoryMenuTabResource::collection($menuMobile),
-            'history' => HistoryResource::collection($historyPinjam)
-        ], 200);
+            $historyPinjam->map(function ($order) use ($menu) {
+                $order['type'] =  $menu->title;
+                $order['path'] =  $menu->path;
+                $order['img'] = $menu->icon;
+                return $order;
+            });
+            return response()->json([
+                'status' => 200,
+                'message' => 'success',
+                'menu_mobile' => HistoryMenuTabResource::collection($menuMobile),
+                'history' => HistoryResource::collection($historyPinjam)
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => 200,
+                'message' => 'success',
+                'menu_mobile' => HistoryMenuTabResource::collection($menuMobile),
+                'history' => HistoryResource::collection([])
+            ], 200);
+        }
     }
 
     public function historyDetail(HistoryDetailRequest $req)
