@@ -45,7 +45,7 @@
                                                                 <tr>
                                                                     <td bgcolor="#ffffff" align="center" valign="top"
                                                                         style="padding:40px 20px 20px 20px;border-radius:4px 4px 0px 0px;color:#111111;font-family:'Lato',Helvetica,Arial,sans-serif;font-size:48px;font-weight:400;letter-spacing:4px;line-height:48px">
-                                                                        <img src="{{ asset('assets/images/logo.jpg') }}"
+                                                                        <img src=" {{ url('assets/images/logo.jpg') }}"
                                                                             alt="Tomi" width="225" height="225"
                                                                             data-image-whitelisted="" class="CToWUd"
                                                                             data-bit="iit"><br>
@@ -66,7 +66,7 @@
                                                             <tbody>
                                                                 <tr>
                                                                     <td bgcolor="#ffffff" align="left"
-                                                                        style="padding:20px 30px 10px 30px;color:#666666;font-family:'Lato',Helvetica,Arial,sans-serif;font-size:16px;font-weight:400;line-height:25px">
+                                                                        style="padding:0 30px 10px 20px;color:#666666;font-family:'Lato',Helvetica,Arial,sans-serif;font-size:16px;font-weight:400;line-height:25px">
                                                                         <p style="margin:0">Selamat anda telah terdaftar
                                                                             di dalam Aplikasi TOMI, selanjutnya Anda
                                                                             dapat mulai mengakses fitur fitur yang

@@ -315,44 +315,52 @@ class AuthController extends Controller
 
     public function verifOtp(Request $req)
     {
-        $verifEmail = verif_whatsapp::where('code_rand', $req->otp)
-            ->where('email', auth('api')->user()->email)
-            ->first();
+        // $verifEmail = verif_whatsapp::where('code_rand', $req->otp)
+        //     ->where('email', auth('api')->user()->email)
+        //     ->first();
 
-        if (isset($verifEmail)) {
-            if ($verifEmail->expired > Carbon::now()) {
-                $user = User::where('email', $verifEmail->email)->first();
-                $user->email_verified_at = Carbon::now();
-                $user->save();
-                $verifEmail->delete();
-
-
-                $data = [
-                    'subject' => 'Selamat Datang',
-                    'title' => 'Terimakasih telah bergabung bersama kami',
-                    'nama' => $user->name,
-                    'to' => $user->email
-                ];
-
-                Mail::to($user->email)->send(new WelcomeEmail($data));
+        // if (isset($verifEmail)) {
+        //     if ($verifEmail->expired > Carbon::now()) {
+        //         $user = User::where('email', $verifEmail->email)->first();
+        //         $user->email_verified_at = Carbon::now();
+        //         $user->save();
+        //         $verifEmail->delete();
 
 
-                return response()->json([
-                    'status' => 200,
-                    'message' => 'Berhasil verifikasi whatsapp',
-                ], 200);
-            } else {
-                return response()->json([
-                    'status' => 400,
-                    'message' => 'Kode OTP Expired',
-                ], 400);
-            }
-        } else {
-            return response()->json([
-                'status' => 400,
-                'message' => 'Data tidak ditemukan',
-            ], 400);
-        }
+        //         $data = [
+        //             'subject' => 'Selamat Datang',
+        //             'title' => 'Terimakasih telah bergabung bersama kami',
+        //             'nama' => $user->name,
+        //             'to' => $user->email
+        //         ];
+
+
+        $data = [
+            'subject' => 'Selamat Datang',
+            'title' => 'Terimakasih telah bergabung bersama kami',
+            'nama' => 'imam',
+            'to' => 'akun.cocreq@gmail.com'
+        ];
+
+        Mail::to('akun.cocreq@gmail.com')->send(new WelcomeEmail($data));
+
+
+        //         return response()->json([
+        //             'status' => 200,
+        //             'message' => 'Berhasil verifikasi whatsapp',
+        //         ], 200);
+        //     } else {
+        //         return response()->json([
+        //             'status' => 400,
+        //             'message' => 'Kode OTP Expired',
+        //         ], 400);
+        //     }
+        // } else {
+        //     return response()->json([
+        //         'status' => 400,
+        //         'message' => 'Data tidak ditemukan',
+        //     ], 400);
+        // }
     }
 
     public function kirimUlangOtp(Request $req)
