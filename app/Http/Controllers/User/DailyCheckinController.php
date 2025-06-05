@@ -12,17 +12,13 @@ use Illuminate\Http\Request;
 
 class DailyCheckinController extends Controller
 {
-    public function getList()
+
+    private function getHari()
     {
-        // $absen = "belum";
-        $absenSelanjutnya = '';
-        $hariSeharusNyaClaim = '';
-        // ambil history checkin terakhir
         $now = Carbon::now();
-        // $weekStartDate = $now->startOfWeek();
 
         $x = 1;
-        $cars = array(
+        $hari = array(
             "senin" => array(
                 'tanggal' => '',
                 'reward' => '',
@@ -61,7 +57,7 @@ class DailyCheckinController extends Controller
         );
 
         $weekStartDate = $now->startOfWeek()->format('Y-m-d');
-        $weekEndDate = $now->endOfWeek()->format('Y-m-d');
+        // $weekEndDate = $now->endOfWeek()->format('Y-m-d');
         $tanggal = '';
         $kumpulanSatuMinggu = [];
         $x = 1;
@@ -69,7 +65,7 @@ class DailyCheckinController extends Controller
         $daily_checkin = daily_checkin::get();
 
 
-        foreach ($cars as &$yyy) {
+        foreach ($hari as &$yyy) {
             if ($x == 1) {
                 $tanggal = $weekStartDate;
             } else {
@@ -106,94 +102,54 @@ class DailyCheckinController extends Controller
             $x++;
         }
 
+        return $hari;
+    }
+
+    public function getList()
+    {
+        $hari = $this->getHari();
 
         return response()->json([
             'status' => 200,
-            // 'absenToday' =>  $absen,
-            'hariSeharusNyaClaim' => $hariSeharusNyaClaim,
-            'dailyCheckin' => $cars,
+            'dailyCheckin' => $hari,
         ], 200);
     }
 
     public function doDailyCheckin()
     {
-        $history = daily_checkin_history::where('user_id', auth('api')->user()->id)
-            ->orderBy('created_at', 'desc')->with('dailyCheckin')->first();
+        $hari = $this->getHari();
 
-        if (isset($history)) {
-            if (Carbon::parse($history->created_at)->format('Y-m-d') == Carbon::now()->format('Y-m-d')) {
-                return response()->json([
-                    'status' => 400,
-                    'message' => "Daily checkin sudah dilakukan",
-                ], 400);
-            } elseif (Carbon::parse($history->created_at)->format('Y-m-d') < Carbon::now()->format('Y-m-d')) {
-                $tanggalAbsenTerkahir = Carbon::parse($history->created_at)->toDateString();
-                $now = Carbon::now()->toDateString();
-                // perbandingan absen terkahir dengan hari ini
-                $absenSelanjutnya = Carbon::parse($tanggalAbsenTerkahir)->diffInDays($now);
-                $hariSeharusNyaClaim = $history->dailyCheckin->hari_ke + $absenSelanjutnya;
-
-                if ($hariSeharusNyaClaim <= 7) {
-                    $dailyCheckin = daily_checkin::where('hari_ke', $hariSeharusNyaClaim)->first();
-                    $dailyCheckinHistory = new daily_checkin_history();
-                    $dailyCheckinHistory->daily_checkin_id = $dailyCheckin->id;
-                    $dailyCheckinHistory->user_id = auth('api')->user()->id;
-                    $dailyCheckinHistory->ticket = $dailyCheckin->reward;
-                    $dailyCheckinHistory->description = "Daily checkin";
-                    $dailyCheckinHistory->expired = Carbon::now()->addMonth(1)->format('Y-m-d');
-                    // add point history
-                    $point = new pointHistory();
-                    $point->user_id = auth('api')->user()->id;
-                    $point->description = "get Point Daily Checkin";
-                    $point->point = $dailyCheckin->reward;
-                    $point->type = "daily_checkin";
-                    $point->save();
-                    $dailyCheckinHistory->save();
-                } else {
-                    $dailyCheckin = daily_checkin::where('hari_ke', 1)->first();
-                    $dailyCheckinHistory = new daily_checkin_history();
-                    $dailyCheckinHistory->daily_checkin_id = $dailyCheckin->id;
-                    $dailyCheckinHistory->user_id = auth('api')->user()->id;
-                    $dailyCheckinHistory->ticket = $dailyCheckin->reward;
-                    $dailyCheckinHistory->description = "Daily checkin";
-                    $dailyCheckinHistory->expired = Carbon::now()->addMonth(1)->format('Y-m-d');
-                    $dailyCheckinHistory->save();
-                    // add point history
-                    $point = new pointHistory();
-                    $point->user_id = auth('api')->user()->id;
-                    $point->description = "get Point Daily Checkin";
-                    $point->point = $dailyCheckin->reward;
-                    $point->type = "daily_checkin";
-                    $point->save();
-                }
-
+        $hitunganHari = 1;
+        foreach ($hari as $key => $value) {
+            if ($value['status'] == "avaiable absen") {
+                echo $key;
+                $dailyCheckin = daily_checkin::where('hari_ke', $hitunganHari)->first();
+                $dailyCheckinHistory = new daily_checkin_history();
+                $dailyCheckinHistory->daily_checkin_id = $dailyCheckin->id;
+                $dailyCheckinHistory->user_id = auth('api')->user()->id;
+                $dailyCheckinHistory->ticket = $dailyCheckin->reward;
+                $dailyCheckinHistory->description = "Daily checkin";
+                $dailyCheckinHistory->expired = Carbon::now()->addMonth(1)->format('Y-m-d');
+                // add point history
+                $point = new pointHistory();
+                $point->user_id = auth('api')->user()->id;
+                $point->description = "get Point Daily Checkin";
+                $point->point = $dailyCheckin->reward;
+                $point->type = "daily_checkin";
+                $point->save();
+                $dailyCheckinHistory->save();
                 return response()->json([
                     'status' => 200,
                     'message' => "succes claim daily checkin",
                 ], 200);
             }
-        } else {
-            $dailyCheckin = daily_checkin::where('hari_ke', 1)->first();
-            $dailyCheckinHistory = new daily_checkin_history();
-            $dailyCheckinHistory->daily_checkin_id = $dailyCheckin->id;
-            $dailyCheckinHistory->user_id = auth('api')->user()->id;
-            $dailyCheckinHistory->ticket = $dailyCheckin->reward;
-            $dailyCheckinHistory->description = "Daily checkin";
-            $dailyCheckinHistory->expired = Carbon::now()->addMonth(1)->format('Y-m-d');
-
-            // add point history
-            $point = new pointHistory();
-            $point->user_id = auth('api')->user()->id;
-            $point->description = "get Point Daily Checkin";
-            $point->point = $dailyCheckin->reward;
-            $point->type = "daily_checkin";
-            $point->save();
-            $dailyCheckinHistory->save();
-
-            return response()->json([
-                'status' => 200,
-                'message' => "succes claim daily checkin",
-            ], 200);
+            $hitunganHari++;
         }
+
+        // ini ga avaiable untuk absen
+        return response()->json([
+            'status' => 400,
+            'message' => "Daily checkin sudah dilakukan",
+        ], 400);
     }
 }
