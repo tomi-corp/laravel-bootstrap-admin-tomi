@@ -16,6 +16,7 @@ class list_data_ksp extends Model
         'whatsapp',
         'nama_karyawan',
         'whatsapp',
+        'divisi',
         'alamat',
         'jabatan',
         'penghasilan',
