@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('whatsapp')->unique();
             $table->string('nama_karyawan');
             $table->string('alamat');
+            $table->string('divisi');
             $table->string('jabatan');
             $table->string('penghasilan');
             $table->string('departement');

@@ -34,7 +34,12 @@
                                 <th>PIC Internal</th>
                                 <th>Nama Perusahaan</th>
                                 <th>Telepon</th>
-                                <th>Alamat</th>
+                                <th>Provinsi</th>
+                                <th>Kabupaten / Kota</th>
+                                <th>Kecamatan</th>
+                                <th>Desa</th>
+                                <th>Alamat Lengkap</th>
+                                <th>Payment Date</th>
                                 <th>Nomor PKS</th>
                                 <th>List Karyawan</th>
                                 <th>Proses Pengajuan</th>
@@ -54,8 +59,7 @@
 
 
     {{-- modal tambah --}}
-    <div class="modal fade" id="modalAdd" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
-        aria-hidden="true">
+    <div class="modal fade" id="modalAdd" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
         <div class=" modal-dialog modal-dialog-centered modal-dialog-centered modal-dialog-scrollable" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -90,10 +94,98 @@
                         <small class="text-danger" id="errTelepon"></small>
                     </div>
 
+
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label>Provinsi</label>
+                                <select class="form-control" id="provinsiSelect" style="width: 100%">
+                                    <option disabled>Select</option>
+                                    @foreach ($provinsis as $provinsi)
+                                        <option value="{{ $provinsi->provinsi }}">{{ $provinsi->provinsi }}</option>
+                                    @endforeach
+                                </select>
+                                <small class="text-danger" id="errProvinsi"></small>
+                            </div>
+                        </div>
+
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label>Kabupaten / Kota</label>
+                                <select class="form-control" id="kabupatenSelect" style="width: 100%">
+                                    <option disabled>Select</option>
+                                </select>
+                                <small class="text-danger" id="errKabupaten_kota"></small>
+                            </div>
+                        </div>
+
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label>Kecamatan</label>
+                                <select class="form-control" id="kecamatanSelect" style="width: 100%">
+                                    <option disabled>Select</option>
+                                </select>
+                                <small class="text-danger" id="errKecamatan"></small>
+                            </div>
+                        </div>
+
+
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label>Desa</label>
+                                <select class="form-control" id="desaSelect" style="width: 100%">
+                                    <option disabled>Select</option>
+                                </select>
+                                <small class="text-danger" id="errDesa"></small>
+                            </div>
+                        </div>
+
+                    </div>
+
+
                     <div class="form-group">
-                        <label>Alamat</label>
-                        <textarea class="form-control" id="alamat" style="height: 70px;" placeholder="Alamat Lengkap"></textarea>
-                        <small class="text-danger" id="errAlamat"></small>
+                        <label>Alamat Lengkap</label>
+                        <textarea class="form-control" id="alamatLengkap" style="height: 70px;" placeholder="Alamat Lengkap"></textarea>
+                        <small class="text-danger" id="errAlamatLengkap"></small>
+                    </div>
+
+
+                    <div class="form-group">
+                        <label>Payment Date</label>
+                        <select class="form-control" id="paymentDate" placeholder="Alamat Lengkap" type="date">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8">8</option>
+                            <option value="9">9</option>
+                            <option value="10">10</option>
+                            <option value="11">11</option>
+                            <option value="12">12</option>
+                            <option value="13">13</option>
+                            <option value="14">14</option>
+                            <option value="15">15</option>
+                            <option value="16">16</option>
+                            <option value="17">17</option>
+                            <option value="18">18</option>
+                            <option value="19">19</option>
+                            <option value="20">20</option>
+                            <option value="21">21</option>
+                            <option value="22">22</option>
+                            <option value="23">23</option>
+                            <option value="24">24</option>
+                            <option value="25">25</option>
+                            <option value="26">26</option>
+                            <option value="27">27</option>
+                            <option value="28">28</option>
+                            <option value="29">29</option>
+                            <option value="30">30</option>
+                            <option value="31">31</option>
+                        </select>
+                        <small class="text-danger" id="errPaymentDate"></small>
                     </div>
 
                     <div class="form-group">
@@ -119,7 +211,7 @@
         <div class=" modal-dialog modal-dialog-centered modal-dialog-centered modal-dialog-scrollable" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalCenterTitle">Tambah Perusahaan
+                    <h5 class="modal-title" id="exampleModalCenterTitle">Ubah Perusahaan
                     </h5>
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
 
@@ -149,15 +241,110 @@
                         <label>Telepon</label>
                         <input class="form-control" id="teleponEdit" placeholder="62535252" type="number"></input>
                         <small class="text-danger" id="errTeleponEdit"></small>
+                    </div>
+
+
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label>Provinsi</label>
+                                <select class="form-control" id="provinsiSelectEdit" style="width: 100%">
+                                    <option disabled>Select</option>
+                                    @foreach ($provinsis as $provinsi)
+                                        <option value="{{ $provinsi->provinsi }}">{{ $provinsi->provinsi }}</option>
+                                    @endforeach
+                                </select>
+                                <small class="text-danger" id="errProvinsiEdit"></small>
+                            </div>
+                        </div>
+
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label>Kabupaten / Kota</label>
+                                <select class="form-control" id="kabupatenSelectEdit" style="width: 100%">
+                                    <option disabled>Select</option>
+                                    {{-- @foreach ($kotas as $kota)
+                                        <option value="{{ $kota->kabupaten }}">{{ $kota->kabupaten }}</option>
+                                    @endforeach --}}
+                                </select>
+                                <small class="text-danger" id="errKabupaten_kotaEdit"></small>
+                            </div>
+                        </div>
+
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label>Kecamatan</label>
+                                <select class="form-control" id="kecamatanSelectEdit" style="width: 100%">
+                                    <option disabled>Select</option>
+                                    {{-- @foreach ($kecamatans as $kecamatan)
+                                        <option value="{{ $kecamatan->kecamatan }}-{{ $kecamatan->kodepos }}">
+                                            {{ $kecamatan->kecamatan }} - {{ $kecamatan->kodepos }}</option>
+                                    @endforeach --}}
+                                </select>
+                                <small class="text-danger" id="errKecamatanEdit"></small>
+                            </div>
+                        </div>
+
+
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label>Desa</label>
+                                <select class="form-control" id="desaSelectEdit" style="width: 100%">
+                                    <option disabled>Select</option>
+                                    {{-- @foreach ($kelurahans as $kelurahan)
+                                        <option value="{{ $kelurahan->kecamatan }}">{{ $kelurahan->kecamatan }}</option>
+                                    @endforeach --}}
+                                </select>
+                                <small class="text-danger" id="errDesaEdit"></small>
+                            </div>
+                        </div>
 
                     </div>
 
 
                     <div class="form-group">
-                        <label>Alamat</label>
+                        <label>Alamat Lengkap</label>
                         <textarea class="form-control" id="alamatEdit" style="height: 70px;" placeholder="Alamat Lengkap"></textarea>
                         <small class="text-danger" id="errAlamatEdit"></small>
 
+                    </div>
+
+                    <div class="form-group">
+                        <label>Payment Date</label>
+                        <select class="form-control" id="paymentDateEdit" placeholder="Alamat Lengkap" type="date">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8">8</option>
+                            <option value="9">9</option>
+                            <option value="10">10</option>
+                            <option value="11">11</option>
+                            <option value="12">12</option>
+                            <option value="13">13</option>
+                            <option value="14">14</option>
+                            <option value="15">15</option>
+                            <option value="16">16</option>
+                            <option value="17">17</option>
+                            <option value="18">18</option>
+                            <option value="19">19</option>
+                            <option value="20">20</option>
+                            <option value="21">21</option>
+                            <option value="22">22</option>
+                            <option value="23">23</option>
+                            <option value="24">24</option>
+                            <option value="25">25</option>
+                            <option value="26">26</option>
+                            <option value="27">27</option>
+                            <option value="28">28</option>
+                            <option value="29">29</option>
+                            <option value="30">30</option>
+                            <option value="31">31</option>
+                        </select>
+                        <small class="text-danger" id="errPaymentDateEdit"></small>
                     </div>
 
 
@@ -166,6 +353,9 @@
                         <input class="form-control" id="nomor_pksEdit" placeholder="42151231" type="number"></input>
                         <small class="text-danger" id="errNomor_pksEdit"></small>
                     </div>
+
+
+
 
                     <div class="form-group">
                         <label>Status </label>
@@ -225,6 +415,137 @@
         var dataTable = {
             "_token": "{{ csrf_token() }}",
         };
+
+        $('#provinsiSelect').select2();
+        $('#kabupatenSelect').select2();
+        $('#kecamatanSelect').select2();
+        $('#desaSelect').select2();
+
+
+        $('#provinsiSelectEdit').select2();
+        $('#kabupatenSelectEdit').select2();
+        $('#kecamatanSelectEdit').select2();
+        $('#desaSelectEdit').select2();
+
+        $('#provinsiSelect').on('change', function() {
+            $.ajax({
+                url: '{!! route('admin.ksp.kabupaten') !!}',
+                data: {
+                    '_token': "{{ csrf_token() }}",
+                    'provinsi': this.value,
+                },
+                type: 'POST',
+                dataType: 'json',
+                success: function(result) {
+                    result.map(item => {
+                        var option = new Option(item.kabupaten, item.kabupaten, true, true);
+                        $('#kabupatenSelect').append(option);
+                    })
+                }
+            });
+        });
+
+        $('#kabupatenSelect').on('change', function() {
+            $.ajax({
+                url: '{!! route('admin.ksp.kecamatan') !!}',
+                data: {
+                    '_token': "{{ csrf_token() }}",
+                    'kabupaten': this.value,
+                },
+                type: 'POST',
+                dataType: 'json',
+                success: function(result) {
+                    result.map(item => {
+                        var option = new Option(item.kecamatan, item.kecamatan, true, true);
+                        $('#kecamatanSelect').append(option);
+                    })
+                }
+            });
+        });
+
+        $('#kecamatanSelect').on('change', function() {
+            $.ajax({
+                url: '{!! route('admin.ksp.desa') !!}',
+                data: {
+                    '_token': "{{ csrf_token() }}",
+                    'kecamatan': this.value,
+                },
+                type: 'POST',
+                dataType: 'json',
+                success: function(result) {
+                    result.map(item => {
+                        var option = new Option(item.desa + ' - ' + item.kodepos, item.desa +
+                            '-' + item.kodepos,
+                            true,
+                            true);
+                        $('#desaSelect').append(option);
+                    })
+                }
+            });
+        });
+
+
+
+        $('#provinsiSelectEdit').on('change', function() {
+            $.ajax({
+                url: '{!! route('admin.ksp.kabupaten') !!}',
+                data: {
+                    '_token': "{{ csrf_token() }}",
+                    'provinsi': this.value,
+                },
+                type: 'POST',
+                dataType: 'json',
+                success: function(result) {
+                    result.map(item => {
+                        var option = new Option(item.kabupaten, item.kabupaten, true, true);
+                        $('#kabupatenSelectEdit').append(option);
+                    })
+                }
+            });
+        });
+
+        $('#kabupatenSelectEdit').on('change', function() {
+            $.ajax({
+                url: '{!! route('admin.ksp.kecamatan') !!}',
+                data: {
+                    '_token': "{{ csrf_token() }}",
+                    'kabupaten': this.value,
+                },
+                type: 'POST',
+                dataType: 'json',
+                success: function(result) {
+                    result.map(item => {
+                        var option = new Option(item.kecamatan, item.kecamatan, true, true);
+                        $('#kecamatanSelectEdit').append(option);
+                    })
+                }
+            });
+        });
+
+        $('#kecamatanSelectEdit').on('change', function() {
+            $.ajax({
+                url: '{!! route('admin.ksp.desa') !!}',
+                data: {
+                    '_token': "{{ csrf_token() }}",
+                    'kecamatan': this.value,
+                },
+                type: 'POST',
+                dataType: 'json',
+                success: function(result) {
+                    result.map(item => {
+                        var option = new Option(item.desa + ' - ' + item.kodepos, item.desa +
+                            '-' + item.kodepos,
+                            true,
+                            true);
+                        $('#desaSelectEdit').append(option);
+                    })
+                }
+            });
+        });
+
+
+
+
         var table = $('#tableListPerusahaan').DataTable({
             dom: 'B<"clear">lfrtip',
             buttons: [{
@@ -280,7 +601,17 @@
             }, {
                 data: 'telp'
             }, {
-                data: 'alamat'
+                data: 'provinsi'
+            }, {
+                data: 'kabupaten'
+            }, {
+                data: 'kecamatan'
+            }, {
+                data: 'desa'
+            }, {
+                data: 'alamat_lengkap'
+            }, {
+                data: 'payment_date'
             }, {
                 data: 'nomor_pks'
             }, {
@@ -362,7 +693,12 @@
                     'nama_perusahaan': $("#namaPerusahaan").val(),
                     'nama_perusahaan': $("#namaPerusahaan").val(),
                     'telepon': $("#telepon").val(),
-                    'alamat': $("#alamat").val(),
+                    'provinsi': $("#provinsiSelect").val(),
+                    'kabupaten': $("#kabupatenSelect").val(),
+                    'kecamatan': $("#kecamatanSelect").val(),
+                    'desa': $("#desaSelect").val(),
+                    'alamat_lengkap': $("#alamatLengkap").val(),
+                    'payment_date': $("#paymentDate").val(),
                     'nomor_pks': $("#nomor_pks").val(),
                 },
                 type: 'POST',
@@ -385,8 +721,13 @@
                     $('#errNamaPicInternal').text(err.responseJSON.errors.nama_perusahaan);
                     $('#errNamaPerusahaan').text(err.responseJSON.errors.nama_perusahaan);
                     $('#errTelepon').text(err.responseJSON.errors.telepon);
-                    $('#errAlamat').text(err.responseJSON.errors.alamat);
+                    $('#errAlamatLengkap').text(err.responseJSON.errors.alamat_lengkap);
                     $('#errNomor_pks').text(err.responseJSON.errors.nomor_pks);
+                    $('#errProvinsi').text(err.responseJSON.errors.provinsi);
+                    $('#errKabupaten').text(err.responseJSON.errors.kabupaten);
+                    $('#errKecamatan').text(err.responseJSON.errors.kecamatan);
+                    $('#errDesa').text(err.responseJSON.errors.desa);
+                    $('#errPaymentDate').text(err.responseJSON.errors.payment_date);
                 }
             });
         })
@@ -403,16 +744,19 @@
                 type: 'POST',
                 dataType: 'json',
                 success: function(detail) {
-
                     $("#namaPicPerusahaanEdit").val(detail.data.pic_perusahaan);
                     $("#namaPicInternalEdit").val(detail.data.pic_internal);
                     $("#namaPerusahaanEdit").val(detail.data.nama);
                     $("#teleponEdit").val(detail.data.telp);
-                    $("#alamatEdit").val(detail.data.alamat);
+                    $("#alamatEdit").val(detail.data.alamat_lengkap);
                     $("#nomor_pksEdit").val(detail.data.nomor_pks);
                     $("#statusEdit").val(detail.data.status);
+                    $("#paymentDateEdit").val(detail.data.payment_date);
+                    $("#provinsiSelectEdit").val(detail.data.provinsi).trigger('change');
+                    $("#kabupatenSelectEdit").val(detail.data.kabupaten).trigger('change');
+                    $("#kecamatanSelectEdit").val(detail.data.kecamatan).trigger('change');
+                    $("#desaSelectEdit").val(detail.data.desa).trigger('change');
                     $('#modalEdit').modal('show');
-
                 }
             });
         }
@@ -426,7 +770,12 @@
                     'id': editID,
                     'nama_perusahaan': $("#namaPerusahaanEdit").val(),
                     'telepon': $("#teleponEdit").val(),
-                    'alamat': $("#alamatEdit").val(),
+                    'provinsi': $("#provinsiSelectEdit").val(),
+                    'kabupaten': $("#kabupatenSelectEdit").val(),
+                    'kecamatan': $("#kecamatanSelectEdit").val(),
+                    'desa': $("#desaSelectEdit").val(),
+                    'alamat_lengkap': $("#alamatEdit").val(),
+                    'payment_date': $("#paymentDateEdit").val(),
                     'nomor_pks': $("#nomor_pksEdit").val(),
                     'status': $("#statusEdit").val(),
                 },

@@ -36,6 +36,9 @@ Route::middleware(['AdminMiddleware'])->group(
         // KSP => Perusahaan
         Route::get('/ksp/pinjaman', [KspController::class, 'index'])->name('admin.ksp.index');
         Route::post('/ksp/pinjaman/kabupaten', [KspController::class, 'kabupaten'])->name('admin.ksp.kabupaten');
+        Route::post('/ksp/pinjaman/kecamatan', [KspController::class, 'kecamatan'])->name('admin.ksp.kecamatan');
+        Route::post('/ksp/pinjaman/desa', [KspController::class, 'desa'])->name('admin.ksp.desa');
+
 
 
         Route::post('/ksp/add/perusahaan', [KspController::class, 'addPerusahaan'])->name('admin.ksp.add.perusahaan');

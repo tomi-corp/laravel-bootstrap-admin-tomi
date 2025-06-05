@@ -26,7 +26,12 @@ class AddPerusahaanRequest extends FormRequest
             'pic_internal' => 'required',
             'nama_perusahaan' => 'required',
             'telepon' => 'required|numeric',
-            'alamat' => 'required',
+            'provinsi' => 'required',
+            'kabupaten' => 'required',
+            'kecamatan' => 'required',
+            'desa' => 'required',
+            'alamat_lengkap' => 'required',
+            'payment_date' => 'required|numeric',
             'nomor_pks' => 'required|numeric',
         ];
     }

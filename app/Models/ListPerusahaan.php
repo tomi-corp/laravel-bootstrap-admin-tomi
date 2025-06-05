@@ -35,4 +35,24 @@ class ListPerusahaan extends Model
                 ->where('approve_dua', 'pending');
         }
     }
+
+
+    public function provinsi()
+    {
+        return $this->hasOne(provinsi::class, 'id', 'id_provinsi');
+    }
+
+    public function kabupaten()
+    {
+        return $this->hasOne(kota::class, 'id', 'id_kabupaten');
+    }
+
+    public function kecamatan()
+    {
+        return $this->hasOne(kecamatan::class, 'id', 'id_kecamatan');
+    }
+    public function desa()
+    {
+        return $this->hasOne(kelurahan::class, 'id', 'id_desa');
+    }
 }

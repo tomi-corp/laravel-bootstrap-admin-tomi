@@ -17,4 +17,10 @@ class pinjaman extends Model
     {
         return $this->hasOne(list_data_ksp::class, 'id', 'id_list_data_ksp');
     }
+
+    public function jatuh_tempo()
+    {
+        return $this->hasOne(jatuh_tempo::class, 'id', 'id_pinjaman')
+            ->orderBy('created_at', 'desc');
+    }
 }

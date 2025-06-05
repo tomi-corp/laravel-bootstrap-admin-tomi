@@ -54,7 +54,8 @@
 
 
     {{-- modal tambah --}}
-    <div class="modal fade" id="modalAdd" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal fade" id="modalAdd" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+        aria-hidden="true">
         <div class=" modal-dialog modal-dialog-centered modal-dialog-centered modal-dialog-scrollable" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -87,31 +88,6 @@
                         <label>Telepon</label>
                         <input class="form-control" id="telepon" placeholder="62535252" type="number"></input>
                         <small class="text-danger" id="errTelepon"></small>
-                    </div>
-
-
-                    <div class="form-group row">
-                        <div class="col-6">
-                            <label>Provinsi</label>
-                            <select class="form-control" id="provinsiSelect" style="width: 100%">
-                                <option disabled>Select</option>
-                                @foreach ($provinsis as $provinsi)
-                                    <option value="{{ $provinsi->provinsi }}">{{ $provinsi->provinsi }}</option>
-                                @endforeach
-                            </select>
-                            <small class="text-danger" id="errProvinsi"></small>
-                        </div>
-
-                        <div class="col-6">
-                            <label>Kabupaten / Kota</label>
-                            <select class="form-control" id="kabupatenSelect" style="width: 100%">
-                                <option disabled>Select</option>
-                                {{-- @foreach ($provinsis as $provinsi)
-                                    <option value="{{ $provinsi->provinsi }}">{{ $provinsi->provinsi }}</option>
-                                @endforeach --}}
-                            </select>
-                            <small class="text-danger" id="errAlamat"></small>
-                        </div>
                     </div>
 
                     <div class="form-group">
@@ -249,41 +225,6 @@
         var dataTable = {
             "_token": "{{ csrf_token() }}",
         };
-
-        $('#provinsiSelect').select2();
-        $('#kabupatenSelect').select2();
-
-        $('#provinsiSelect').on('change', function() {
-            $.ajax({
-                url: '{!! route('admin.ksp.kabupaten') !!}',
-                data: {
-                    '_token': "{{ csrf_token() }}",
-                    'provinsi': this.value,
-                },
-                type: 'POST',
-                dataType: 'json',
-                success: function(result) {
-                    // var option = new Option(result.kabupaten, result.kabupaten, true, true);
-                    // console.log(option);
-                    // $('#kabupatenSelect').append(option).trigger('change');
-                    // Create a DOM Option and pre-select by default
-                    var newOption = new Option(result.kabupaten, result.kabupaten, true, true);
-                    // Append it to the select
-                    console.log(newOption)
-                    $('#kabupatenSelect').append(newOption).trigger('change');
-
-                    // toastr.success(approve.message)
-                    // table.ajax.reload();
-                    // $("#modalApprove").modal('hide');
-                    // $('#saveVerif').attr("disabled", false);
-                    // $('#loadingText').removeClass("spinner-border");
-                }
-            });
-        });
-
-
-
-
         var table = $('#tableListPerusahaan').DataTable({
             dom: 'B<"clear">lfrtip',
             buttons: [{

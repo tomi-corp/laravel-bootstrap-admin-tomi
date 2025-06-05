@@ -19,6 +19,8 @@ use App\Imports\ExportImportData;
 use App\Imports\KaryawanPendingImport;
 use App\Models\amount_pinjaman;
 use App\Models\invoicing_pinjaman;
+use App\Models\kecamatan;
+use App\Models\kelurahan;
 use App\Models\kota;
 use App\Models\list_data_ksp;
 use App\Models\list_data_ksp_pending;
@@ -49,6 +51,19 @@ class KspController extends Controller
         return $kabupaten;
     }
 
+    public function kecamatan(Request $req)
+    {
+        $kecamatan = kecamatan::where('kabupaten', $req->kabupaten)->get();
+        return $kecamatan;
+    }
+
+
+    public function desa(Request $req)
+    {
+        $kelurahan = kelurahan::where('kecamatan', $req->kecamatan)->get();
+        return $kelurahan;
+    }
+
     public function addPerusahaan(AddPerusahaanRequest $req)
     {
         $perusahaan = new ListPerusahaan();
@@ -65,9 +80,25 @@ class KspController extends Controller
         $perusahaan->pic_perusahaan = $req->pic_perusahaan;
         $perusahaan->pic_internal = $req->pic_internal;
         $perusahaan->nama = $req->nama_perusahaan;
-        $perusahaan->alamat = $req->alamat;
+        $perusahaan->alamat_lengkap = $req->alamat_lengkap;
         $perusahaan->telp = $req->telepon;
+        $perusahaan->payment_date = $req->payment_date;
         $perusahaan->nomor_pks = $req->nomor_pks;
+
+
+        $provinsi = provinsi::where('provinsi', $req->provinsi)->first();
+        $kabupaten = kota::where('kabupaten', $req->kabupaten)->first();
+        $kecamatan = kecamatan::where('kecamatan', $req->kecamatan)->first();
+        $desaaa = explode("-", $req->desa);
+        $desa = kelurahan::where('desa', $desaaa[0])
+            ->where('kodepos', $desaaa[1])
+            ->first();
+
+        $perusahaan->id_provinsi = $provinsi->id;
+        $perusahaan->id_kabupaten = $kabupaten->id;
+        $perusahaan->id_kecamatan = $kecamatan->id;
+        $perusahaan->id_desa = $desa->id;
+
         $perusahaan->save();
         return response()->json([
             'status' => 200,
@@ -77,7 +108,12 @@ class KspController extends Controller
 
     public function detailPerusahaan(Request $req)
     {
-        $perusahaan =  ListPerusahaan::where('id', $req->id)->first();
+        $perusahaan =  ListPerusahaan::where('id', $req->id)->with([
+            'provinsi',
+            'kabupaten',
+            'kecamatan',
+            'desa',
+        ])->first();
         return response()->json([
             'status' => 200,
             'data' => new DetailPerusahaanResource($perusahaan),
@@ -88,9 +124,24 @@ class KspController extends Controller
     {
         $perusahaan =  ListPerusahaan::where('id', $req->id)->first();
         $perusahaan->nama = $req->nama_perusahaan;
-        $perusahaan->alamat = $req->alamat;
+        $perusahaan->alamat_lengkap = $req->alamat_lengkap;
         $perusahaan->telp = $req->telepon;
         $perusahaan->nomor_pks = $req->nomor_pks;
+
+
+        $provinsi = provinsi::where('provinsi', $req->provinsi)->first();
+        $kabupaten = kota::where('kabupaten', $req->kabupaten)->first();
+        $kecamatan = kecamatan::where('kecamatan', $req->kecamatan)->first();
+        $desaaa = explode("-", $req->desa);
+        $desa = kelurahan::where('desa', $desaaa[0])
+            ->where('kodepos', $desaaa[1])
+            ->first();
+
+        $perusahaan->id_provinsi = $provinsi->id;
+        $perusahaan->id_kabupaten = $kabupaten->id;
+        $perusahaan->id_kecamatan = $kecamatan->id;
+        $perusahaan->id_desa = $desa->id;
+
         $perusahaan->status = $req->status;
         $perusahaan->save();
         return response()->json([
@@ -101,8 +152,15 @@ class KspController extends Controller
 
     public function listPerusahaanTable()
     {
-        $perusahaan = ListPerusahaan::with(['karyawan', 'karyawanPending', 'pinjaman'])
-            ->get();
+        $perusahaan = ListPerusahaan::with([
+            'karyawan',
+            'karyawanPending',
+            'pinjaman',
+            'provinsi',
+            'kabupaten',
+            'kecamatan',
+            'desa',
+        ])->get();
 
         return DataTables::of($perusahaan)
             ->addIndexColumn()
@@ -121,6 +179,27 @@ class KspController extends Controller
                     <span class="badge badge-pink" title="Proses pengajuan dengan status reject">' . $row->pinjaman->where('status', 'reject')->count() . '</span>
                 </a>';
             })
+
+            ->addColumn('provinsi', function ($row) {
+                return $row->provinsi->provinsi;
+            })
+
+            ->addColumn('kabupaten', function ($row) {
+                return $row->kabupaten->kabupaten;
+            })
+
+            ->addColumn('kecamatan', function ($row) {
+                return $row->kecamatan->kecamatan;
+            })
+
+            ->addColumn('desa', function ($row) {
+                return $row->desa->desa . ' - ' . $row->desa->kodepos;
+            })
+
+            ->addColumn('alamat_lengkap', function ($row) {
+                return $row->alamat_lengkap;
+            })
+
 
             ->addColumn('status', function ($row) {
                 if ($row->status == "active") {
@@ -177,7 +256,14 @@ class KspController extends Controller
 
     public function listKaryawan($id)
     {
-        $perusahaan = ListPerusahaan::where('id', $id)->first();
+        $perusahaan = ListPerusahaan::where('id', $id)
+            ->with([
+                'provinsi',
+                'kabupaten',
+                'kecamatan',
+                'desa'
+            ])
+            ->first();
         if (isset($perusahaan)) {
             return view('admin.ksp.perusahaan.karyawan', compact(['id', 'perusahaan']));
         } else {
@@ -427,7 +513,14 @@ class KspController extends Controller
     }
     public function pengajuanIndex($id)
     {
-        $perusahaan = ListPerusahaan::where('id', $id)->first();
+        $perusahaan = ListPerusahaan::where('id', $id)
+            ->with([
+                'provinsi',
+                'kabupaten',
+                'kecamatan',
+                'desa'
+            ])
+            ->first();
         if (isset($perusahaan)) {
             return view('admin.ksp.pengajuan.index', compact(['id', 'perusahaan']));
         } else {

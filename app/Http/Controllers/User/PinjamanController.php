@@ -10,7 +10,9 @@ use App\Http\Resources\User\Pinjaman\DataKaryawanResource;
 use App\Http\Resources\User\Pinjaman\HistroyPinjamanResource;
 use App\Http\Resources\User\Pinjaman\ProdukPinjamanResource;
 use App\Http\Resources\User\Pinjaman\TenorPinjamanResource;
+use App\Models\jatuh_tempo;
 use App\Models\list_data_ksp;
+use App\Models\ListPerusahaan;
 use App\Models\pinjaman;
 use App\Models\produk_pinjaman;
 use App\Models\tenor_pinjaman;
@@ -103,7 +105,9 @@ class PinjamanController extends Controller
         }
 
         $tenor = tenor_pinjaman::where('id', $req->id_tenor_pinjaman)->first();
-        $data_karyawan = list_data_ksp::where('nip', $req->nip)->first();
+        $data_karyawan = list_data_ksp::where('nip', $req->nip)
+            ->with('perusahaan')
+            ->first();
 
         $codeOTP = rand(1000, 9999);
 
@@ -140,6 +144,13 @@ class PinjamanController extends Controller
 
         sendOTPWhatsapp($data_karyawan->whatsapp, $codeOTP);
         $pinjaman->save();
+
+        $jatuh_tempo = new jatuh_tempo();
+        $jatuh_tempo->id_pinjaman = $pinjaman->id;
+        $jatuh_tempo->pembayaran = 1;
+        $jatuh_tempo->jatuh_tempo =   Carbon::now()->day($data_karyawan->perusahaan->payment_date)->addMonth(1);
+        $jatuh_tempo->save();
+
         $otp->pinjaman_id = $pinjaman->id;
         $otp->save();
         return response()->json([

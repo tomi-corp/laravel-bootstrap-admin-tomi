@@ -39,8 +39,28 @@
                     </div>
 
                     <div class="d-flex justify-content-between">
-                        <span>Alamat :</span>
-                        <span>{{ $perusahaan->alamat }}</span>
+                        <span>Provinsi :</span>
+                        <span>{{ $perusahaan->provinsi->provinsi }}</span>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <span>Kabupaten/Kota :</span>
+                        <span>{{ $perusahaan->kabupaten->kabupaten }}</span>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <span>Kecamatan :</span>
+                        <span>{{ $perusahaan->kabupaten->kabupaten }}</span>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <span>Desa :</span>
+                        <span>{{ $perusahaan->desa->desa . ' - ' . $perusahaan->desa->kodepos }}</span>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <span>Alamat Lengkap :</span>
+                        <span>{{ $perusahaan->alamat_lengkap }}</span>
                     </div>
 
                     <div class="d-flex justify-content-between">
