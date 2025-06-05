@@ -20,7 +20,7 @@ class pinjaman extends Model
 
     public function jatuh_tempo()
     {
-        return $this->hasOne(jatuh_tempo::class, 'id', 'id_pinjaman')
+        return $this->hasOne(jatuh_tempo::class, 'id_pinjaman', 'id')
             ->orderBy('created_at', 'desc');
     }
 }
