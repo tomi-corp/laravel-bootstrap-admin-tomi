@@ -17,7 +17,26 @@ class HistoryController extends Controller
     {
 
         $menuMobile = menu_mobile::get();
-        if ($req->path == "pinjaman-payroll") {
+        if ($req->path == "all") {
+            $historyPinjam = pinjaman::where('user_id', auth('api')->user()->id)
+                ->select(['nominal', 'status', 'created_at', 'id'])
+                ->get();
+
+            $menu = menu_mobile::where('path', 'pinjaman-payroll')->first();
+
+            $historyPinjam->map(function ($order) use ($menu) {
+                $order['type'] =  $menu->title;
+                $order['path'] =  $menu->path;
+                $order['img'] = $menu->icon;
+                return $order;
+            });
+            return response()->json([
+                'status' => 200,
+                'message' => 'success',
+                'menu_mobile' => HistoryMenuTabResource::collection($menuMobile),
+                'history' => HistoryResource::collection($historyPinjam)
+            ], 200);
+        } elseif ($req->path ==  "pinjaman-payroll") {
             $historyPinjam = pinjaman::where('user_id', auth('api')->user()->id)
                 ->select(['nominal', 'status', 'created_at', 'id'])
                 ->get();
