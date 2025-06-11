@@ -17,7 +17,7 @@ class DashboardController extends Controller
         $registerBulanKemarin = User::whereMonth('created_at', Carbon::now()->subMonth()->month)
             ->count();
 
-        $persentase =  ($registerBulanIni / $registerBulanKemarin) * 100 / 100;
+        $persentase =  ($registerBulanIni - $registerBulanKemarin) * $registerBulanKemarin * 100 / 100;
         $register = [
             'persentase' => $persentase,
             'registerBulanIni' => $registerBulanIni,
