@@ -778,13 +778,20 @@ class KspController extends Controller
     public function pengajuanStatistic(Request $req)
     {
         $pengajuan = pinjaman::where('id_perusahaan', $req->id)->first();
+
+        $belum_validasi =  $pengajuan > 0 ? $pengajuan->where('status_otp', 'pending')->count() : 0;
+        $pending =  $pengajuan > 0 ? $pengajuan->where('status_otp', 'success')->where('status', 'on_proses')->count() : 0;
+        $exported = $pengajuan > 0 ? $pengajuan->where('status_otp', 'success')->where('status', 'exported')->count() : 0;
+        $approve = $pengajuan > 0 ? $pengajuan->where('status_otp', 'success')->where('status', 'approve')->count() : 0;
+        $reject = $pengajuan > 0 ? $pengajuan->where('status_otp', 'success')->where('status', 'reject')->count() : 0;
+
         return response()->json([
             'status' => 200,
-            'belum_validasi_wa' => $pengajuan->where('status_otp', 'pending')->count(),
-            'pending' => $pengajuan->where('status_otp', 'success')->where('status', 'on_proses')->count(),
-            'exported' => $pengajuan->where('status_otp', 'success')->where('status', 'exported')->count(),
-            'approve' => $pengajuan->where('status_otp', 'success')->where('status', 'approve')->count(),
-            'reject' => $pengajuan->where('status_otp', 'success')->where('status', 'reject')->count(),
+            'belum_validasi_wa' => $belum_validasi,
+            'pending' => $pending,
+            'exported' => $exported,
+            'approve' =>  $approve,
+            'reject' => $reject,
         ], 200);
     }
 

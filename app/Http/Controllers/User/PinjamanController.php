@@ -115,8 +115,7 @@ class PinjamanController extends Controller
         $otp->user_id = auth('api')->user()->id;
         $otp->otp = $codeOTP;
 
-        $otp->expired = Carbon::now()->addMinutes(30);
-
+        $otp->expired = Carbon::now()->addHour(12);
 
         $pinjaman = new pinjaman();
         $pinjaman->user_id = auth('api')->user()->id;

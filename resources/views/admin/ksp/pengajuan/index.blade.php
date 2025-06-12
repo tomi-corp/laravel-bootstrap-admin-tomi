@@ -15,11 +15,19 @@
                 <h4 class="page-title">KSP Pengajuan</h4>
             </div>
         </div>
+        <div class="col-12">
+            <p>
+                <button class="btn btn-primary" type="button" id="showDetailPerusahaan" onclick="showDetailPerusahaan()">
+                    <span id="textDetailPerusahaan">Show</span>
+                    <i id="iconDetailPerusahaan" class ="mdi mdi-arrow-right-bold-outline"></i>
+                </button>
+            </p>
+        </div>
+        <div class="col-md-4" id="hideDetailPerusahaan">
 
-        <div class="col-md-4">
             <div class="card">
                 <div class="card-body">
-                    <h5>Detail Perushaan KSP</h5>
+                    <h5>Detail Perusahaan KSP</h5>
                     <div class="d-flex justify-content-between">
                         <span>Kode ID Perusahaan :</span>
                         <span>{{ $perusahaan->id_code_perusahaan }}</span>
@@ -117,7 +125,8 @@
 
         </div>
 
-        <div class="col-md-8">
+
+        <div class="col-md-8" id="hideDetailPerusahaanDua">
             <div class="card">
                 <div class="card-body">
                     <ul class="nav nav-tabs">
@@ -820,5 +829,35 @@
                     }
                 ]
             });
+
+            let defaultetail = true;
+
+            showDetailPerusahaan = () => {
+                if (defaultetail) {
+                    $('#showDetailPerusahaan').removeClass('btn-primary');
+                    $('#showDetailPerusahaan').addClass('btn-warning');
+                    $('#textDetailPerusahaan').text('Hide');
+                    $('#iconDetailPerusahaan').addClass('mdi-arrow-left-bold-outline');
+                    $('#iconDetailPerusahaan').removeClass('mdi-arrow-right-bold-outline');
+                    $('#hideDetailPerusahaan').removeClass('col-md-4');
+                    $('#hideDetailPerusahaan').hide();
+
+
+                    $('#hideDetailPerusahaanDua').removeClass('col-md-8');
+                    $('#hideDetailPerusahaanDua').addClass('col-md-12');
+                    defaultetail = false;
+                } else {
+                    $('#showDetailPerusahaan').removeClass('btn-warning');
+                    $('#showDetailPerusahaan').addClass('btn-primary');
+                    $('#textDetailPerusahaan').text('Show');
+                    $('#iconDetailPerusahaan').addClass('mdi-arrow-right-bold-outline');
+                    $('#iconDetailPerusahaan').removeClass('mdi-arrow-left-bold-outline');
+                    $('#hideDetailPerusahaan').addClass('col-md-4');
+                    $('#hideDetailPerusahaan').show();
+                    $('#hideDetailPerusahaanDua').removeClass('col-md-12');
+                    $('#hideDetailPerusahaanDua').addClass('col-md-8');
+                    defaultetail = true;
+                }
+            }
         </script>
     @endpush
