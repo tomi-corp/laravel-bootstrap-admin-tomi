@@ -15,8 +15,7 @@ class WilayahKecamatanResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->id,
-            'text' => $this->kecamatan
+            'kecamatan' => $this->kecamatan
         ];
     }
 }

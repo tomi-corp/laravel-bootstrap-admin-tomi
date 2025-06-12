@@ -60,7 +60,8 @@
 
     {{-- modal tambah --}}
     <div class="modal fade" id="modalAdd" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-        <div class=" modal-dialog modal-dialog-centered modal-dialog-centered modal-dialog-scrollable" role="document">
+        <div class=" modal-dialog modal-lg modal-dialog-centered modal-dialog-centered modal-dialog-scrollable"
+            role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalCenterTitle">Tambah Perusahaan
@@ -70,33 +71,41 @@
                 </div>
                 <div class="modal-body">
 
-                    <div class="form-group">
-                        <label>Nama PIC Perusahaan</label>
-                        <input class="form-control" id="namaPicPerusahaan" placeholder="PIC Perushaan"></input>
-                        <small class="text-danger" id="errNamaPicPerusahaan"></small>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Nama PIC Internal</label>
-                        <input class="form-control" id="namaPicInternal" placeholder="PIC Internal"></input>
-                        <small class="text-danger" id="errNamaPicInternal"></small>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Nama Perusahaan</label>
-                        <input class="form-control" id="namaPerusahaan" placeholder="Nama Perusahaan"></input>
-                        <small class="text-danger" id="errNamaPerusahaan"></small>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Telepon</label>
-                        <input class="form-control" id="telepon" placeholder="62535252" type="number"></input>
-                        <small class="text-danger" id="errTelepon"></small>
-                    </div>
-
-
                     <div class="row">
-                        <div class="col-6">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Nama PIC Perusahaan</label>
+                                <input class="form-control" id="namaPicPerusahaan" placeholder="PIC Perushaan"></input>
+                                <small class="text-danger" id="errNamaPicPerusahaan"></small>
+                            </div>
+                        </div>
+
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Nama PIC Internal</label>
+                                <input class="form-control" id="namaPicInternal" placeholder="PIC Internal"></input>
+                                <small class="text-danger" id="errNamaPicInternal"></small>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Nama Perusahaan</label>
+                                <input class="form-control" id="namaPerusahaan" placeholder="Nama Perusahaan"></input>
+                                <small class="text-danger" id="errNamaPerusahaan"></small>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Telepon</label>
+                                <input class="form-control" id="telepon" placeholder="62535252" type="number"></input>
+                                <small class="text-danger" id="errTelepon"></small>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
                             <div class="form-group">
                                 <label>Provinsi</label>
                                 <select class="form-control" id="provinsiSelect" style="width: 100%">
@@ -109,7 +118,7 @@
                             </div>
                         </div>
 
-                        <div class="col-6">
+                        <div class="col-md-6">
                             <div class="form-group">
                                 <label>Kabupaten / Kota</label>
                                 <select class="form-control" id="kabupatenSelect" style="width: 100%">
@@ -119,7 +128,7 @@
                             </div>
                         </div>
 
-                        <div class="col-6">
+                        <div class="col-md-6">
                             <div class="form-group">
                                 <label>Kecamatan</label>
                                 <select class="form-control" id="kecamatanSelect" style="width: 100%">
@@ -130,7 +139,7 @@
                         </div>
 
 
-                        <div class="col-6">
+                        <div class="col-md-6">
                             <div class="form-group">
                                 <label>Desa</label>
                                 <select class="form-control" id="desaSelect" style="width: 100%">
@@ -140,60 +149,67 @@
                             </div>
                         </div>
 
+
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Alamat Lengkap</label>
+                                <textarea class="form-control" id="alamatLengkap" style="height: 70px;" placeholder="Alamat Lengkap"></textarea>
+                                <small class="text-danger" id="errAlamatLengkap"></small>
+                            </div>
+                        </div>
+
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Payment Date</label>
+                                <select class="form-control" id="paymentDate" placeholder="Alamat Lengkap"
+                                    type="date">
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                    <option value="6">6</option>
+                                    <option value="7">7</option>
+                                    <option value="8">8</option>
+                                    <option value="9">9</option>
+                                    <option value="10">10</option>
+                                    <option value="11">11</option>
+                                    <option value="12">12</option>
+                                    <option value="13">13</option>
+                                    <option value="14">14</option>
+                                    <option value="15">15</option>
+                                    <option value="16">16</option>
+                                    <option value="17">17</option>
+                                    <option value="18">18</option>
+                                    <option value="19">19</option>
+                                    <option value="20">20</option>
+                                    <option value="21">21</option>
+                                    <option value="22">22</option>
+                                    <option value="23">23</option>
+                                    <option value="24">24</option>
+                                    <option value="25">25</option>
+                                    <option value="26">26</option>
+                                    <option value="27">27</option>
+                                    <option value="28">28</option>
+                                    <option value="29">29</option>
+                                    <option value="30">30</option>
+                                    <option value="31">31</option>
+                                </select>
+                                <small class="text-danger" id="errPaymentDate"></small>
+                            </div>
+                        </div>
+
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Nomor PKS</label>
+                                <input class="form-control" id="nomor_pks" placeholder="42151231"
+                                    type="number"></input>
+                                <small class="text-danger" id="errNomor_pks"></small>
+                            </div>
+                        </div>
                     </div>
-
-
-                    <div class="form-group">
-                        <label>Alamat Lengkap</label>
-                        <textarea class="form-control" id="alamatLengkap" style="height: 70px;" placeholder="Alamat Lengkap"></textarea>
-                        <small class="text-danger" id="errAlamatLengkap"></small>
-                    </div>
-
-
-                    <div class="form-group">
-                        <label>Payment Date</label>
-                        <select class="form-control" id="paymentDate" placeholder="Alamat Lengkap" type="date">
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option value="3">3</option>
-                            <option value="4">4</option>
-                            <option value="5">5</option>
-                            <option value="6">6</option>
-                            <option value="7">7</option>
-                            <option value="8">8</option>
-                            <option value="9">9</option>
-                            <option value="10">10</option>
-                            <option value="11">11</option>
-                            <option value="12">12</option>
-                            <option value="13">13</option>
-                            <option value="14">14</option>
-                            <option value="15">15</option>
-                            <option value="16">16</option>
-                            <option value="17">17</option>
-                            <option value="18">18</option>
-                            <option value="19">19</option>
-                            <option value="20">20</option>
-                            <option value="21">21</option>
-                            <option value="22">22</option>
-                            <option value="23">23</option>
-                            <option value="24">24</option>
-                            <option value="25">25</option>
-                            <option value="26">26</option>
-                            <option value="27">27</option>
-                            <option value="28">28</option>
-                            <option value="29">29</option>
-                            <option value="30">30</option>
-                            <option value="31">31</option>
-                        </select>
-                        <small class="text-danger" id="errPaymentDate"></small>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Nomor PKS</label>
-                        <input class="form-control" id="nomor_pks" placeholder="42151231" type="number"></input>
-                        <small class="text-danger" id="errNomor_pks"></small>
-                    </div>
-
 
                 </div>
                 <div class="modal-footer">
@@ -208,7 +224,8 @@
     {{-- modal edit --}}
     <div class="modal fade" id="modalEdit" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
         aria-hidden="true">
-        <div class=" modal-dialog modal-dialog-centered modal-dialog-centered modal-dialog-scrollable" role="document">
+        <div class=" modal-dialog modal-lg modal-dialog-centered modal-dialog-centered modal-dialog-scrollable"
+            role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalCenterTitle">Ubah Perusahaan
@@ -217,35 +234,45 @@
 
                 </div>
                 <div class="modal-body">
-
-                    <div class="form-group">
-                        <label>Nama PIC Perusahaan</label>
-                        <input class="form-control" id="namaPicPerusahaanEdit" placeholder="PIC Perushaan"></input>
-                        <small class="text-danger" id="errNamaPicPerusahaanEdit"></small>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Nama PIC Internal</label>
-                        <input class="form-control" id="namaPicInternalEdit" placeholder="PIC Internal"></input>
-                        <small class="text-danger" id="errNamaPicInternalEdit"></small>
-                    </div>
-
-
-                    <div class="form-group">
-                        <label>Nama Perusahaan</label>
-                        <input class="form-control" id="namaPerusahaanEdit" placeholder="Nama Perusahaan"></input>
-                        <small class="text-danger" id="errNamaPerusahaanEdit"></small>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Telepon</label>
-                        <input class="form-control" id="teleponEdit" placeholder="62535252" type="number"></input>
-                        <small class="text-danger" id="errTeleponEdit"></small>
-                    </div>
-
-
                     <div class="row">
-                        <div class="col-6">
+                        <div class="col-md-6">
+
+                            <div class="form-group">
+                                <label>Nama PIC Perusahaan</label>
+                                <input class="form-control" id="namaPicPerusahaanEdit"
+                                    placeholder="PIC Perushaan"></input>
+                                <small class="text-danger" id="errNamaPicPerusahaanEdit"></small>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Nama PIC Internal</label>
+                                <input class="form-control" id="namaPicInternalEdit" placeholder="PIC Internal"></input>
+                                <small class="text-danger" id="errNamaPicInternalEdit"></small>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Nama Perusahaan</label>
+                                <input class="form-control" id="namaPerusahaanEdit"
+                                    placeholder="Nama Perusahaan"></input>
+                                <small class="text-danger" id="errNamaPerusahaanEdit"></small>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Telepon</label>
+                                <input class="form-control" id="teleponEdit" placeholder="62535252"
+                                    type="number"></input>
+                                <small class="text-danger" id="errTeleponEdit"></small>
+                            </div>
+                        </div>
+
+
+                        <div class="col-md-6">
                             <div class="form-group">
                                 <label>Provinsi</label>
                                 <select class="form-control" id="provinsiSelectEdit" style="width: 100%">
@@ -258,7 +285,7 @@
                             </div>
                         </div>
 
-                        <div class="col-6">
+                        <div class="col-md-6">
                             <div class="form-group">
                                 <label>Kabupaten / Kota</label>
                                 <select class="form-control" id="kabupatenSelectEdit" style="width: 100%">
@@ -271,7 +298,7 @@
                             </div>
                         </div>
 
-                        <div class="col-6">
+                        <div class="col-md-6">
                             <div class="form-group">
                                 <label>Kecamatan</label>
                                 <select class="form-control" id="kecamatanSelectEdit" style="width: 100%">
@@ -286,7 +313,7 @@
                         </div>
 
 
-                        <div class="col-6">
+                        <div class="col-md-6">
                             <div class="form-group">
                                 <label>Desa</label>
                                 <select class="form-control" id="desaSelectEdit" style="width: 100%">
@@ -299,71 +326,79 @@
                             </div>
                         </div>
 
+
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Alamat Lengkap</label>
+                                <textarea class="form-control" id="alamatEdit" style="height: 70px;" placeholder="Alamat Lengkap"></textarea>
+                                <small class="text-danger" id="errAlamatEdit"></small>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Payment Date</label>
+                                <select class="form-control" id="paymentDateEdit" placeholder="Alamat Lengkap"
+                                    type="date">
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                    <option value="6">6</option>
+                                    <option value="7">7</option>
+                                    <option value="8">8</option>
+                                    <option value="9">9</option>
+                                    <option value="10">10</option>
+                                    <option value="11">11</option>
+                                    <option value="12">12</option>
+                                    <option value="13">13</option>
+                                    <option value="14">14</option>
+                                    <option value="15">15</option>
+                                    <option value="16">16</option>
+                                    <option value="17">17</option>
+                                    <option value="18">18</option>
+                                    <option value="19">19</option>
+                                    <option value="20">20</option>
+                                    <option value="21">21</option>
+                                    <option value="22">22</option>
+                                    <option value="23">23</option>
+                                    <option value="24">24</option>
+                                    <option value="25">25</option>
+                                    <option value="26">26</option>
+                                    <option value="27">27</option>
+                                    <option value="28">28</option>
+                                    <option value="29">29</option>
+                                    <option value="30">30</option>
+                                    <option value="31">31</option>
+                                </select>
+                                <small class="text-danger" id="errPaymentDateEdit"></small>
+                            </div>
+
+                        </div>
+
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Nomor PKS</label>
+                                <input class="form-control" id="nomor_pksEdit" placeholder="42151231"
+                                    type="number"></input>
+                                <small class="text-danger" id="errNomor_pksEdit"></small>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Status </label>
+                                <select class="form-control" id="statusEdit">
+                                    <option value="active">ACTIVE</option>
+                                    <option value="nonactive">NONACTIVE</option>
+                                </select>
+                            </div>
+                        </div>
+
                     </div>
 
-
-                    <div class="form-group">
-                        <label>Alamat Lengkap</label>
-                        <textarea class="form-control" id="alamatEdit" style="height: 70px;" placeholder="Alamat Lengkap"></textarea>
-                        <small class="text-danger" id="errAlamatEdit"></small>
-
-                    </div>
-
-                    <div class="form-group">
-                        <label>Payment Date</label>
-                        <select class="form-control" id="paymentDateEdit" placeholder="Alamat Lengkap" type="date">
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option value="3">3</option>
-                            <option value="4">4</option>
-                            <option value="5">5</option>
-                            <option value="6">6</option>
-                            <option value="7">7</option>
-                            <option value="8">8</option>
-                            <option value="9">9</option>
-                            <option value="10">10</option>
-                            <option value="11">11</option>
-                            <option value="12">12</option>
-                            <option value="13">13</option>
-                            <option value="14">14</option>
-                            <option value="15">15</option>
-                            <option value="16">16</option>
-                            <option value="17">17</option>
-                            <option value="18">18</option>
-                            <option value="19">19</option>
-                            <option value="20">20</option>
-                            <option value="21">21</option>
-                            <option value="22">22</option>
-                            <option value="23">23</option>
-                            <option value="24">24</option>
-                            <option value="25">25</option>
-                            <option value="26">26</option>
-                            <option value="27">27</option>
-                            <option value="28">28</option>
-                            <option value="29">29</option>
-                            <option value="30">30</option>
-                            <option value="31">31</option>
-                        </select>
-                        <small class="text-danger" id="errPaymentDateEdit"></small>
-                    </div>
-
-
-                    <div class="form-group">
-                        <label>Nomor PKS</label>
-                        <input class="form-control" id="nomor_pksEdit" placeholder="42151231" type="number"></input>
-                        <small class="text-danger" id="errNomor_pksEdit"></small>
-                    </div>
-
-
-
-
-                    <div class="form-group">
-                        <label>Status </label>
-                        <select class="form-control" id="statusEdit">
-                            <option value="active">ACTIVE</option>
-                            <option value="nonactive">NONACTIVE</option>
-                        </select>
-                    </div>
 
 
                 </div>
@@ -389,15 +424,17 @@
                 </div>
                 <div class="modal-body">
                     <div class="text-center align-middle">
-                        <p>Apakah anda yakin menghapus perusahaan ini?, ini akan menghapus semua data karyawan dan pinjaman
+                        <p>Apakah anda yakin menghapus perusahaan ini?, ini akan menghapus semua data karyawan dan
+                            pinjaman
                             yang bersangkutan dengan perusahaan ini</p>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <button class="btn btn-danger" type="button" id="buttonDelete" onclick="buttonDelete()">Delete <div
-                            id="loadingTextDelete">
-                        </div></button>
+                    <button class="btn btn-danger" type="button" id="buttonDelete" onclick="buttonDelete()">Delete
+                        <div id="loadingTextDelete">
+                        </div>
+                    </button>
                 </div>
             </div>
         </div>
@@ -437,6 +474,7 @@
                 type: 'POST',
                 dataType: 'json',
                 success: function(result) {
+                    $("#kabupatenSelect").empty();
                     result.map(item => {
                         var option = new Option(item.kabupaten, item.kabupaten, true, true);
                         $('#kabupatenSelect').append(option);
@@ -455,6 +493,7 @@
                 type: 'POST',
                 dataType: 'json',
                 success: function(result) {
+                    $("#kecamatanSelect").empty();
                     result.map(item => {
                         var option = new Option(item.kecamatan, item.kecamatan, true, true);
                         $('#kecamatanSelect').append(option);
@@ -473,6 +512,7 @@
                 type: 'POST',
                 dataType: 'json',
                 success: function(result) {
+                    $("#desaSelect").empty();
                     result.map(item => {
                         var option = new Option(item.desa + ' - ' + item.kodepos, item.desa +
                             '-' + item.kodepos,
@@ -486,62 +526,62 @@
 
 
 
-        $('#provinsiSelectEdit').on('change', function() {
-            $.ajax({
-                url: '{!! route('admin.ksp.kabupaten') !!}',
-                data: {
-                    '_token': "{{ csrf_token() }}",
-                    'provinsi': this.value,
-                },
-                type: 'POST',
-                dataType: 'json',
-                success: function(result) {
-                    result.map(item => {
-                        var option = new Option(item.kabupaten, item.kabupaten, true, true);
-                        $('#kabupatenSelectEdit').append(option);
-                    })
-                }
-            });
-        });
+        // $('#provinsiSelectEdit').on('change', function() {
+        //     $.ajax({
+        //         url: '{!! route('admin.ksp.kabupaten') !!}',
+        //         data: {
+        //             '_token': "{{ csrf_token() }}",
+        //             'provinsi': this.value,
+        //         },
+        //         type: 'POST',
+        //         dataType: 'json',
+        //         success: function(result) {
+        //             result.map(item => {
+        //                 var option = new Option(item.kabupaten, item.kabupaten, true, true);
+        //                 $('#kabupatenSelectEdit').append(option);
+        //             })
+        //         }
+        //     });
+        // });
 
-        $('#kabupatenSelectEdit').on('change', function() {
-            $.ajax({
-                url: '{!! route('admin.ksp.kecamatan') !!}',
-                data: {
-                    '_token': "{{ csrf_token() }}",
-                    'kabupaten': this.value,
-                },
-                type: 'POST',
-                dataType: 'json',
-                success: function(result) {
-                    result.map(item => {
-                        var option = new Option(item.kecamatan, item.kecamatan, true, true);
-                        $('#kecamatanSelectEdit').append(option);
-                    })
-                }
-            });
-        });
+        // $('#kabupatenSelectEdit').on('change', function() {
+        //     $.ajax({
+        //         url: '{!! route('admin.ksp.kecamatan') !!}',
+        //         data: {
+        //             '_token': "{{ csrf_token() }}",
+        //             'kabupaten': this.value,
+        //         },
+        //         type: 'POST',
+        //         dataType: 'json',
+        //         success: function(result) {
+        //             result.map(item => {
+        //                 var option = new Option(item.kecamatan, item.kecamatan, true, true);
+        //                 $('#kecamatanSelectEdit').append(option);
+        //             })
+        //         }
+        //     });
+        // });
 
-        $('#kecamatanSelectEdit').on('change', function() {
-            $.ajax({
-                url: '{!! route('admin.ksp.desa') !!}',
-                data: {
-                    '_token': "{{ csrf_token() }}",
-                    'kecamatan': this.value,
-                },
-                type: 'POST',
-                dataType: 'json',
-                success: function(result) {
-                    result.map(item => {
-                        var option = new Option(item.desa + ' - ' + item.kodepos, item.desa +
-                            '-' + item.kodepos,
-                            true,
-                            true);
-                        $('#desaSelectEdit').append(option);
-                    })
-                }
-            });
-        });
+        // $('#kecamatanSelectEdit').on('change', function() {
+        //     $.ajax({
+        //         url: '{!! route('admin.ksp.desa') !!}',
+        //         data: {
+        //             '_token': "{{ csrf_token() }}",
+        //             'kecamatan': this.value,
+        //         },
+        //         type: 'POST',
+        //         dataType: 'json',
+        //         success: function(result) {
+        //             result.map(item => {
+        //                 var option = new Option(item.desa + ' - ' + item.kodepos, item.desa +
+        //                     '-' + item.kodepos,
+        //                     true,
+        //                     true);
+        //                 $('#desaSelectEdit').append(option);
+        //             })
+        //         }
+        //     });
+        // });
 
 
 
@@ -648,7 +688,6 @@
                     $("#biayaAdmin").text(detail.pengajuan.percent);
                     $("#angsuranPerbulan").text(detail.pengajuan.angsuran_perbulan);
                     $("#jumlahDiterima").text(detail.pengajuan.jumlah_diterima);
-
                 }
             });
         }
@@ -753,8 +792,34 @@
                     $("#statusEdit").val(detail.data.status);
                     $("#paymentDateEdit").val(detail.data.payment_date);
                     $("#provinsiSelectEdit").val(detail.data.provinsi).trigger('change');
+
+                    $("#kabupatenSelectEdit").empty();
+
+                    detail.data.list_kabupaten.map(item => {
+                        var option = new Option(item.kabupaten, item.kabupaten, true, true);
+                        $('#kabupatenSelectEdit').append(option);
+                    })
                     $("#kabupatenSelectEdit").val(detail.data.kabupaten).trigger('change');
+
+
+                    $("#kecamatanSelectEdit").empty();
+
+                    detail.data.list_kecamatan.map(item => {
+                        var option = new Option(item.kecamatan, item.kecamatan, true, true);
+                        $('#kecamatanSelectEdit').append(option);
+                    })
                     $("#kecamatanSelectEdit").val(detail.data.kecamatan).trigger('change');
+
+                    $("#desaSelectEdit").empty();
+
+                    detail.data.list_desa.map(item => {
+                        var option = new Option(item.desa + ' - ' + item.kodepos, item.desa +
+                            '-' + item.kodepos,
+                            true,
+                            true);
+                        $('#desaSelectEdit').append(option);
+                    })
+
                     $("#desaSelectEdit").val(detail.data.desa).trigger('change');
                     $('#modalEdit').modal('show');
                 }

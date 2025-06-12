@@ -16,7 +16,8 @@ class WilayahDesaResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'text' => $this->desa . "-" . $this->kodepos
+            'desa' => $this->desa,
+            'kodepos' => $this->kodepos
         ];
     }
 }
