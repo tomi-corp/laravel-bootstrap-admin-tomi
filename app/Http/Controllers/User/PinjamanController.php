@@ -55,11 +55,12 @@ class PinjamanController extends Controller
     public function maximalMinimal(CekMinimalMaximalRequest $req)
     {
         $nip = explode("-", $req->nip);
-        $perusahaan = ListPerusahaan::where('id', substr($nip[0], 4))
+        $perusahaan = ListPerusahaan::where('unique_code', $nip[0])
             ->with(['karyawanSingle' => function ($q) use ($nip) {
                 $q->where('nip', '=', $nip[1]);
                 $q->first();
             }, 'amount_pinjaman'])->first();
+
 
         if (isset($perusahaan)) {
             $pendapatan = 70 / 100 * $perusahaan->karyawanSingle->penghasilan;
@@ -85,7 +86,7 @@ class PinjamanController extends Controller
     public function getTenor(GetTenorRequest $req)
     {
         $nip = explode("-", $req->nip);
-        $perusahaan = ListPerusahaan::where('id', substr($nip[0], 4))
+        $perusahaan = ListPerusahaan::where('unique_code', $nip[0])
             ->with(['karyawanSingle' => function ($q) use ($nip) {
                 $q->where('nip', '=', $nip[1]);
                 $q->first();
@@ -147,7 +148,9 @@ class PinjamanController extends Controller
     public function actionPinjaman(ActionPinjamRequest $req)
     {
         $cekPinjaman = pinjaman::where('user_id', auth('api')->user()->id)
-            ->where('status', 'on_proses')
+            ->orWhere('status', 'on_proses')
+            ->orWhere('status', 'exported')
+            ->orWhere('status', 'approve')
             ->where('status_otp', 'success')
             ->first();
 
@@ -160,7 +163,7 @@ class PinjamanController extends Controller
         if (isset($cekPinjaman)) {
             return response()->json([
                 'status' => 400,
-                'message' => 'anda memiliki pinjaman yang belum diproses',
+                'message' => 'anda memiliki pinjaman yang belum lunas atau terselesaikan',
             ], 400);
         }
 
@@ -182,7 +185,8 @@ class PinjamanController extends Controller
             }
         }
 
-        $tenor = tenor_pinjaman::where('id', $req->id_tenor_pinjaman)->first();
+        $tenor = tenor_pinjaman::where('id', $req->id_tenor_pinjaman)
+            ->first();
         $data_karyawan = list_data_ksp::where('nip', $req->nip)
             ->with('perusahaan')
             ->first();
@@ -284,16 +288,15 @@ class PinjamanController extends Controller
     {
         $hasil = false;
         $nip = explode("-", $req->nip);
-        $perusahaan = ListPerusahaan::where('id', substr($nip[0], 4))
+
+        $perusahaan = ListPerusahaan::where('unique_code', $nip[0])
             ->with(['karyawanSingle' => function ($q) use ($nip) {
                 $q->where('nip', '=', $nip[1]);
                 $q->first();
             }])->first();
 
         if (isset($perusahaan)) {
-            if (substr($perusahaan->id_code_perusahaan, -4)  == substr($nip[0], 0, 4)) {
-                $hasil = true;
-            }
+            $hasil = true;
         }
 
         if ($hasil == false) {

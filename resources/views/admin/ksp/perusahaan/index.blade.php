@@ -74,6 +74,16 @@
                 <div class="modal-body">
 
                     <div class="row">
+
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Unique Code</label>
+                                <input class="form-control" id="uniqueCode" type="number"
+                                    placeholder="Unique Code"></input>
+                                <small class="text-danger" id="errUniqueCode"></small>
+                            </div>
+                        </div>
+
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label>Nama PIC Perusahaan</label>
@@ -755,6 +765,9 @@
                 url: '{!! route('admin.ksp.add.perusahaan') !!}',
                 data: {
                     '_token': "{{ csrf_token() }}",
+
+                    'unique_code': $("#uniqueCode").val(),
+
                     'pic_perusahaan': $("#namaPicPerusahaan").val(),
                     'pic_internal': $("#namaPicInternal").val(),
                     'nama_perusahaan': $("#namaPerusahaan").val(),
@@ -785,6 +798,7 @@
                 error: function(err) {
                     $('#buttonSubmit').attr("disabled", false);
                     $('#loadingText').removeClass("spinner-border");
+                    $('#errUniqueCode').text(err.responseJSON.errors.unique_code);
                     $('#errNamaPicPerusahaan').text(err.responseJSON.errors.nama_perusahaan);
                     $('#errNamaPicInternal').text(err.responseJSON.errors.nama_perusahaan);
                     $('#errNamaPerusahaan').text(err.responseJSON.errors.nama_perusahaan);

@@ -130,7 +130,6 @@ class KspController extends Controller
         $perusahaan->telp = $req->telepon;
         $perusahaan->nomor_pks = $req->nomor_pks;
 
-
         $provinsi = provinsi::where('provinsi', $req->provinsi)->first();
         $kabupaten = kota::where('kabupaten', $req->kabupaten)->first();
         $kecamatan = kecamatan::where('kecamatan', $req->kecamatan)->first();
@@ -192,7 +191,7 @@ class KspController extends Controller
             })
 
             ->addColumn('unique_code', function ($row) {
-                return substr($row->id_code_perusahaan, -4) . $row->id;
+                return $row->unique_code;
             })
 
             ->addColumn('kabupaten', function ($row) {

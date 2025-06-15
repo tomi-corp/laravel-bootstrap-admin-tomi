@@ -50,7 +50,7 @@ class GetTenorRequest extends FormRequest
     private function cekMinimalNominal()
     {
         $nip = explode("-", $this->nip);
-        $perusahaan = ListPerusahaan::where('id', substr($nip[0], 4))
+        $perusahaan = ListPerusahaan::where('unique_code', $nip[0])
             ->with(['karyawanSingle' => function ($q) use ($nip) {
                 $q->where('nip', '=', $nip[1]);
                 $q->first();
@@ -69,7 +69,7 @@ class GetTenorRequest extends FormRequest
     private function cekMaximalNominal()
     {
         $nip = explode("-", $this->nip);
-        $perusahaan = ListPerusahaan::where('id', substr($nip[0], 4))
+        $perusahaan = ListPerusahaan::where('unique_code', $nip[0])
             ->with(['karyawanSingle' => function ($q) use ($nip) {
                 $q->where('nip', '=', $nip[1]);
                 $q->first();
@@ -95,7 +95,7 @@ class GetTenorRequest extends FormRequest
     private function cekNipAdaAtauTidak()
     {
         $nip = explode("-", $this->nip);
-        $perusahaan = ListPerusahaan::where('id', substr($nip[0], 4))
+        $perusahaan = ListPerusahaan::where('unique_code', $nip[0])
             ->with(['karyawanSingle' => function ($q) use ($nip) {
                 $q->where('nip', '=', $nip[1]);
                 $q->first();
