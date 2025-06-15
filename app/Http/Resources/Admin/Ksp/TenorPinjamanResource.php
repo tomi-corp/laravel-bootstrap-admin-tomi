@@ -19,6 +19,9 @@ class TenorPinjamanResource extends JsonResource
             'rate' => $this->rate,
             'biaya_admin' => $this->biaya_admin,
             'iuran_anggota' => $this->iuran_anggota,
+            'biaya_layanan' => $this->biaya_layanan,
+            'minimal_nominal' => $this->minimal_nominal,
+            'maximal_nominal' => $this->maximal_nominal,
         ];
     }
 }

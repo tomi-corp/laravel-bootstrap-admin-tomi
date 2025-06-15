@@ -22,8 +22,11 @@ class AmountPinjamanRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'id' => 'required|exists:list_perusahaans,id',
+            'iuran_anggota' => 'required',
             'minimal' => 'required|numeric',
             'maximal' => 'required|numeric',
+            'maximal_persentase' => 'required|numeric',
         ];
     }
 }

@@ -6,5 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class tenor_pinjaman extends Model
 {
-    //
+    public function amount_pinjaman()
+    {
+        return $this->hasOne(amount_pinjaman::class, 'id_perusahaan', 'id_perusahaan');
+    }
 }

@@ -13,10 +13,14 @@ return new class extends Migration
     {
         Schema::create('tenor_pinjamen', function (Blueprint $table) {
             $table->id();
+            $table->bigInteger('id_perusahaan')->unsigned();
+            $table->foreign('id_perusahaan')->references('id')->on('list_perusahaans');
             $table->integer('tenor');
             $table->double('rate');
             $table->double('biaya_admin');
-            $table->double('iuran_anggota');
+            $table->double('biaya_layanan');
+            $table->double('minimal_nominal');
+            $table->double('maximal_nominal');
             $table->timestamps();
         });
     }

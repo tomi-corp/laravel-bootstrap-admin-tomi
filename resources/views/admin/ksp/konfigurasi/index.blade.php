@@ -10,7 +10,7 @@
                         <li class="breadcrumb-item active">KSP Konfigurasi</li>
                     </ol>
                 </div>
-                <h4 class="page-title">KSP Konfigurasi</h4>
+                <h4 class="page-title">KSP Konfigurasi {{ $list_perusahaan->nama }}</h4>
             </div>
         </div>
     </div>
@@ -19,18 +19,36 @@
         <div class="col-md-4">
             <div class="card">
                 <div class="card-body">
+
+                    <div class="form-group">
+                        <label>Iuran Anggota</label>
+                        <input type="number" class="form-control" id="iuran_anggota" required placeholder="Iuran Anggota"
+                            value={{ $list_perusahaan->amount_pinjaman ? $list_perusahaan->amount_pinjaman->iuran_anggota : 0 }} />
+                        <small class="text-danger" id="errIuran_anggota"></small>
+                    </div>
+
                     <div class="form-group">
                         <label>Minimal Pinjaman</label>
                         <input type="number" class="form-control" id="minimal_pinjaman" required
-                            placeholder="Minimal Pinjaman" value="{{ $amount->minimal }}" />
+                            placeholder="Minimal Pinjaman"
+                            value={{ $list_perusahaan->amount_pinjaman ? $list_perusahaan->amount_pinjaman->minimal : 0 }} />
                         <small class="text-danger" id="errMinimal_pinjaman"></small>
                     </div>
 
                     <div class="form-group">
                         <label>Maximal Pinjaman</label>
                         <input type="number" class="form-control" id="maximal_pinjaman" required
-                            placeholder="Maximal Pinjaman" value="{{ $amount->maximal }}" />
+                            placeholder="Maximal Pinjaman"
+                            value={{ $list_perusahaan->amount_pinjaman ? $list_perusahaan->amount_pinjaman->maximal : 0 }} />
                         <small class="text-danger" id="errMaximal_pinjaman"></small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Maximal Persentase</label>
+                        <input type="number" class="form-control" id="maximal_persentase" required
+                            placeholder="Maximal Persentase"
+                            value={{ $list_perusahaan->amount_pinjaman ? $list_perusahaan->amount_pinjaman->maximal_persentase : 0 }} />
+                        <small class="text-danger" id="errMaximal_persentase"></small>
                     </div>
                     <button type="button" class="btn btn-sm btn-primary float-right waves-effect waves-light"
                         onclick="amountPinjamanSave()">
@@ -56,6 +74,9 @@
                                 <th>Rate</th>
                                 <th>Biaya Admin</th>
                                 <th>Iuran Anggota</th>
+                                <th>Biaya Layanan</th>
+                                <th>Minimal Nominal</th>
+                                <th>Maximal Nominal</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -99,11 +120,33 @@
                         <small class="text-danger" id="errBiayaAdmin"></small>
                     </div>
 
+
+
                     <div class="form-group">
-                        <label>Iuran Anggota</label>
-                        <input class="form-control" id="iurananggota" placeholder="Iuran Anggota" type="number"></input>
-                        <small class="text-danger" id="errIuranAnggota"></small>
+                        <label>Biaya Layanan</label>
+                        <input class="form-control" id="biayalayanan" placeholder="Biaya Layanan" type="number"></input>
+                        <small class="text-danger" id="errBiayalayanan"></small>
                     </div>
+
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label>Minimal Nominal</label>
+                                <input class="form-control" id="minimalNominalTenor" placeholder="Minimal Nominal Tenor"
+                                    type="number"></input>
+                                <small class="text-danger" id="errMinimalNominalTenor"></small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label>Maximal Nominal</label>
+                                <input class="form-control" id="maximalNominalTenor" placeholder="Maximal Nominal Tenor"
+                                    type="number"></input>
+                                <small class="text-danger" id="errMaximalNominalTenor"></small>
+                            </div>
+                        </div>
+                    </div>
+
 
 
 
@@ -152,11 +195,32 @@
                         <small class="text-danger" id="errBiayaAdminEdit"></small>
                     </div>
 
+
                     <div class="form-group">
-                        <label>Iuran Anggota</label>
-                        <input class="form-control" id="iurananggotaEdit" placeholder="Iuran Anggota"
+                        <label>Biaya Layanan</label>
+                        <input class="form-control" id="biayalayananEdit" placeholder="Biaya Layanan"
                             type="number"></input>
-                        <small class="text-danger" id="errIuranAnggotaEdit"></small>
+                        <small class="text-danger" id="errBiayaLayananEdit"></small>
+                    </div>
+
+
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label>Minimal Nominal</label>
+                                <input class="form-control" id="minimalNominalTenorEdit"
+                                    placeholder="Minimal Nominal Tenor" type="number"></input>
+                                <small class="text-danger" id="errMinimalNominalTenorEdit"></small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label>Maximal Nominal</label>
+                                <input class="form-control" id="maximalNominalTenorEdit"
+                                    placeholder="Maximal Nominal Tenor" type="number"></input>
+                                <small class="text-danger" id="errMaximalNominalTenorEdit"></small>
+                            </div>
+                        </div>
                     </div>
 
 
@@ -217,6 +281,7 @@
 
         var dataTable = {
             "_token": "{{ csrf_token() }}",
+            "id": "{{ $list_perusahaan->id }}",
         };
         var table = $('#tableTenorPinjaman').DataTable({
             dom: 'B<"clear">lfrtip',
@@ -271,6 +336,12 @@
             }, {
                 data: 'iuran_anggota'
             }, {
+                data: 'biaya_layanan'
+            }, {
+                data: 'minimal_nominal'
+            }, {
+                data: 'maximal_nominal'
+            }, {
                 data: 'action'
             }]
         });
@@ -295,6 +366,9 @@
                     $('#rateEdit').val(detail.data.rate);
                     $('#biayaadminEdit').val(detail.data.biaya_admin);
                     $('#iurananggotaEdit').val(detail.data.iuran_anggota);
+                    $('#biayalayananEdit').val(detail.data.biaya_layanan);
+                    $('#minimalNominalTenorEdit').val(detail.data.minimal_nominal);
+                    $('#maximalNominalTenorEdit').val(detail.data.maximal_nominal);
                     $('#modalEdit').modal('show');
                 }
             });
@@ -334,10 +408,13 @@
                 url: '{!! route('admin.ksp.konfigurasi.add') !!}',
                 data: {
                     '_token': "{{ csrf_token() }}",
+                    'id': "{{ $list_perusahaan->id }}",
                     'tenor': $("#tenor").val(),
                     'rate': $("#rate").val(),
                     'biaya_admin': $("#biayaadmin").val(),
-                    'iuran_anggota': $("#iurananggota").val(),
+                    'biaya_layanan': $("#biayalayanan").val(),
+                    'minimal_nominal': $("#minimalNominalTenor").val(),
+                    'maximal_nominal': $("#maximalNominalTenor").val(),
                 },
                 type: 'POST',
                 dataType: 'json',
@@ -353,7 +430,9 @@
                     $('#errTenor').text();
                     $('#errRate').text();
                     $('#errBiayaAdmin').text();
-                    $('#errIuranAnggota').text();
+                    $('#errBiayalayanan').text();
+                    $('#errMinimalNominalTenor').text();
+                    $('#errMaximalNominalTenor').text();
                     $('#buttonSubmit').attr("disabled", false);
                     $('#loadingText').removeClass("spinner-border");
                 },
@@ -361,7 +440,9 @@
                     $('#errTenor').text(saveConfig.responseJSON.errors.tenor);
                     $('#errRate').text(saveConfig.responseJSON.errors.rate);
                     $('#errBiayaAdmin').text(saveConfig.responseJSON.errors.biaya_admin);
-                    $('#errIuranAnggota').text(saveConfig.responseJSON.errors.iuran_anggota);
+                    $('#errBiayaLayanan').text(saveConfig.responseJSON.errors.biaya_layanan);
+                    $('#errMinimalNominalTenor').text(saveConfig.responseJSON.errors.minimal_nominal);
+                    $('#errMaximalNominalTenor').text(saveConfig.responseJSON.errors.maximal_nominal);
                     $('#buttonSubmit').attr("disabled", false);
                     $('#loadingText').removeClass("spinner-border");
                 }
@@ -377,7 +458,9 @@
                     'tenor': $("#tenorEdit").val(),
                     'rate': $("#rateEdit").val(),
                     'biaya_admin': $("#biayaadminEdit").val(),
-                    'iuran_anggota': $("#iurananggotaEdit").val(),
+                    'biaya_layanan': $("#biayalayananEdit").val(),
+                    'minimal_nominal': $("#minimalNominalTenorEdit").val(),
+                    'maximal_nominal': $("#maximalNominalTenorEdit").val(),
                 },
                 type: 'POST',
                 dataType: 'json',
@@ -393,7 +476,11 @@
                     $('#errTenorEdit').text();
                     $('#errRateEdit').text();
                     $('#errBiayaAdminEdit').text();
-                    $('#errIuranAnggotaEdit').text();
+                    $('#errBiayaLayananEdit').text();
+
+                    $('#errMinimalNominalTenorEdit').text();
+                    $('#errMaximalNominalTenorEdit').text();
+
                     $('#buttonSubmitEdit').attr("disabled", false);
                     $('#loadingTextEdit').removeClass("spinner-border");
                 },
@@ -401,7 +488,9 @@
                     $('#errTenorEdit').text(saveConfig.responseJSON.errors.tenor);
                     $('#errRateEdit').text(saveConfig.responseJSON.errors.rate);
                     $('#errBiayaAdminEdit').text(saveConfig.responseJSON.errors.biaya_admin);
-                    $('#errIuranAnggotaEdit').text(saveConfig.responseJSON.errors.iuran_anggota);
+                    $('#errBiayaLayananEdit').text(saveConfig.responseJSON.errors.biaya_layanan);
+                    $('#errMinimalNominalTenorEdit').text(saveConfig.responseJSON.errors.minimal_nominal);
+                    $('#errMaximalNominalTenorEdit').text(saveConfig.responseJSON.errors.maximal_nominal);
                     $('#buttonSubmitEdit').attr("disabled", false);
                     $('#loadingTextEdit').removeClass("spinner-border");
                 }
@@ -413,8 +502,11 @@
                 url: '{!! route('admin.ksp.konfigurasi.amount') !!}',
                 data: {
                     '_token': "{{ csrf_token() }}",
+                    'id': "{{ $list_perusahaan->id }}",
+                    'iuran_anggota': $("#iuran_anggota").val(),
                     'minimal': $("#minimal_pinjaman").val(),
                     'maximal': $("#maximal_pinjaman").val(),
+                    'maximal_persentase': $("#maximal_persentase").val(),
                 },
                 type: 'POST',
                 dataType: 'json',
@@ -422,8 +514,11 @@
                     toastr.success(amountSubmit.message)
                 },
                 error: function(amountSubmitError) {
+                    $('#errIuran_anggota').text(amountSubmitError.responseJSON.errors.iuran_anggota);
                     $('#errMinimal_pinjaman').text(amountSubmitError.responseJSON.errors.minimal);
                     $('#errMaximal_pinjaman').text(amountSubmitError.responseJSON.errors.maximal);
+                    $('#errMaximal_persentase').text(amountSubmitError.responseJSON.errors
+                        .maximal_persentase);
                 }
             });
         }

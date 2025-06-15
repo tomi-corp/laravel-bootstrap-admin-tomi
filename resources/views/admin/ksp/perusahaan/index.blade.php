@@ -30,6 +30,7 @@
                         <thead>
                             <tr>
                                 <th>ID Perusahaan</th>
+                                <th>Unique Code</th>
                                 <th>PIC Perusahaan</th>
                                 <th>PIC Internal</th>
                                 <th>Nama Perusahaan</th>
@@ -43,6 +44,7 @@
                                 <th>Nomor PKS</th>
                                 <th>List Karyawan</th>
                                 <th>Proses Pengajuan</th>
+                                <th>Konfigurasi Pinjaman</th>
                                 <th>Status</th>
                                 <th>Action</th>
                             </tr>
@@ -209,6 +211,16 @@
                                 <small class="text-danger" id="errNomor_pks"></small>
                             </div>
                         </div>
+
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Password</label>
+                                <input class="form-control" id="password" placeholder="Password"
+                                    type="password"></input>
+                                <small class="text-danger" id="errPassword"></small>
+                            </div>
+                        </div>
+
                     </div>
 
                 </div>
@@ -396,6 +408,18 @@
                                 </select>
                             </div>
                         </div>
+
+
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Password</label>
+                                <input class="form-control" id="passwordEdit" placeholder="Password"
+                                    type="password"></input>
+                                <small class="text-danger" id="errPasswordEdit"></small>
+                            </div>
+                            <small>Note: Kosongkan jika tidak ingin mengubah password</small>
+                        </div>
+
 
                     </div>
 
@@ -633,6 +657,8 @@
             columns: [{
                 data: 'id_code_perusahaan'
             }, {
+                data: 'unique_code'
+            }, {
                 data: 'pic_perusahaan'
             }, {
                 data: 'pic_internal'
@@ -658,6 +684,8 @@
                 data: 'list_karyawan'
             }, {
                 data: 'proses_pengajuan'
+            }, {
+                data: 'konfigurasi_pinjaman'
             }, {
                 data: 'status'
             }, {
@@ -739,6 +767,7 @@
                     'alamat_lengkap': $("#alamatLengkap").val(),
                     'payment_date': $("#paymentDate").val(),
                     'nomor_pks': $("#nomor_pks").val(),
+                    'password': $("#password").val(),
                 },
                 type: 'POST',
                 dataType: 'json',
@@ -766,6 +795,7 @@
                     $('#errKabupaten').text(err.responseJSON.errors.kabupaten);
                     $('#errKecamatan').text(err.responseJSON.errors.kecamatan);
                     $('#errDesa').text(err.responseJSON.errors.desa);
+                    $('#errPassword').text(err.responseJSON.errors.password);
                     $('#errPaymentDate').text(err.responseJSON.errors.payment_date);
                 }
             });
@@ -843,6 +873,8 @@
                     'payment_date': $("#paymentDateEdit").val(),
                     'nomor_pks': $("#nomor_pksEdit").val(),
                     'status': $("#statusEdit").val(),
+                    'password': $("#passwordEdit").val(),
+
                 },
                 type: 'POST',
                 dataType: 'json',
@@ -864,6 +896,7 @@
                     $('#errTeleponEdit').text(err.responseJSON.errors.telepon);
                     $('#errAlamatEdit').text(err.responseJSON.errors.alamat);
                     $('#errNomor_pksEdit').text(err.responseJSON.errors.nomor_pks);
+                    $('#errPasswordEdit').text(err.responseJSON.errors.password);
                 }
             });
         })

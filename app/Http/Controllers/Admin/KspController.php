@@ -31,6 +31,7 @@ use App\Models\provinsi;
 use App\Models\tenor_pinjaman;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Hash;
 use Yajra\DataTables\Facades\DataTables;
 use Maatwebsite\Excel\Facades\Excel;
 use Psy\Readline\Hoa\Console;
@@ -98,6 +99,7 @@ class KspController extends Controller
         $perusahaan->id_kabupaten = $kabupaten->id;
         $perusahaan->id_kecamatan = $kecamatan->id;
         $perusahaan->id_desa = $desa->id;
+        $perusahaan->password = Hash::make($req->password);
 
         $perusahaan->save();
         return response()->json([
@@ -143,6 +145,11 @@ class KspController extends Controller
         $perusahaan->id_desa = $desa->id;
 
         $perusahaan->status = $req->status;
+
+        if ($req->password != "") {
+            $perusahaan->password = Hash::make($req->password);
+        }
+
         $perusahaan->save();
         return response()->json([
             'status' => 200,
@@ -173,7 +180,7 @@ class KspController extends Controller
 
             ->addColumn('proses_pengajuan', function ($row) {
                 return '<a href="' . route('admin.ksp.pengajuan', $row->id) . '" target="_blank">
-                    <span class="badge badge-warning" title="Proses pengajuan dengan status pending">' . $row->pinjaman->where('status', 'pending')->count() . '</span>
+                    <span class="badge badge-warning" title="Proses pengajuan dengan status on proses">' . $row->pinjaman->where('status', 'on_proses')->count() . '</span>
                     <span class="badge badge-purple" title="Proses pengajuan dengan status exported">' . $row->pinjaman->where('status', 'exported')->count() . '</span>
                     <span class="badge badge-info" title="Proses pengajuan dengan status approve">' . $row->pinjaman->where('status', 'approve')->count() . '</span>
                     <span class="badge badge-pink" title="Proses pengajuan dengan status reject">' . $row->pinjaman->where('status', 'reject')->count() . '</span>
@@ -182,6 +189,10 @@ class KspController extends Controller
 
             ->addColumn('provinsi', function ($row) {
                 return $row->provinsi->provinsi;
+            })
+
+            ->addColumn('unique_code', function ($row) {
+                return substr($row->id_code_perusahaan, -4) . $row->id;
             })
 
             ->addColumn('kabupaten', function ($row) {
@@ -201,6 +212,10 @@ class KspController extends Controller
             })
 
 
+            ->addColumn('konfigurasi_pinjaman', function ($row) {
+                return '<a href="' . route('admin.ksp.konfigurasi', $row->id) . '" target="_blank"><i class=" mdi mdi-settings"></i></a>';
+            })
+
             ->addColumn('status', function ($row) {
                 if ($row->status == "active") {
                     $status = '<span class="badge badge-success">ACTIVE</span>';
@@ -215,7 +230,7 @@ class KspController extends Controller
                 ';
             })
 
-            ->rawColumns(['action', 'status', 'proses_pengajuan', 'list_karyawan'])
+            ->rawColumns(['action', 'status', 'proses_pengajuan', 'list_karyawan', 'konfigurasi_pinjaman'])
             ->toJson();
     }
 
@@ -428,16 +443,22 @@ class KspController extends Controller
         ], 200);
     }
 
-    public function konfigurasi()
+    public function konfigurasi($id)
     {
-        $amount = amount_pinjaman::first();
-        return view('admin.ksp.konfigurasi.index', compact('amount'));
+        $list_perusahaan = ListPerusahaan::where('id', $id)
+            ->with('amount_pinjaman')
+            ->first();
+        if (isset($list_perusahaan)) {
+            return view('admin.ksp.konfigurasi.index', compact('list_perusahaan'));
+        } else {
+            return abort(404);
+        }
     }
 
-    public function konfigurasiTable()
+    public function konfigurasiTable(Request $req)
     {
-
-        $tenor = tenor_pinjaman::get();
+        $tenor = tenor_pinjaman::where('id_perusahaan', $req->id)->get();
+        $amount_pinjaman = amount_pinjaman::where('id_perusahaan', $req->id)->first();
 
         return DataTables::of($tenor)
             ->addIndexColumn()
@@ -452,8 +473,20 @@ class KspController extends Controller
                 return $row->biaya_admin . ' %';
             })
 
-            ->addColumn('iuran_anggota', function ($row) {
-                return "Rp  " . number_format($row->iuran_anggota);
+            ->addColumn('iuran_anggota', function ($row) use ($amount_pinjaman) {
+                return "Rp  " . number_format($row->tenor * $amount_pinjaman->iuran_anggota);
+            })
+
+            ->addColumn('biaya_layanan', function ($row) {
+                return "Rp  " . number_format($row->biaya_layanan);
+            })
+
+            ->addColumn('minimal_nominal', function ($row) {
+                return "Rp  " . number_format($row->minimal_nominal);
+            })
+
+            ->addColumn('maximal_nominal', function ($row) {
+                return "Rp  " . number_format($row->maximal_nominal);
             })
 
             ->addColumn('action', function ($row) {
@@ -469,10 +502,13 @@ class KspController extends Controller
     public function addKonfigurasi(AddKonfigurasiRequest $req)
     {
         $tenor = new tenor_pinjaman();
+        $tenor->id_perusahaan = $req->id;
         $tenor->tenor = $req->tenor;
         $tenor->rate = $req->rate;
         $tenor->biaya_admin = $req->biaya_admin;
-        $tenor->iuran_anggota = $req->iuran_anggota;
+        $tenor->biaya_layanan = $req->biaya_layanan;
+        $tenor->minimal_nominal = $req->minimal_nominal;
+        $tenor->maximal_nominal = $req->maximal_nominal;
         $tenor->save();
         return response()->json([
             'status' => 200,
@@ -504,7 +540,9 @@ class KspController extends Controller
         $tenor->tenor = $req->tenor;
         $tenor->rate = $req->rate;
         $tenor->biaya_admin = $req->biaya_admin;
-        $tenor->iuran_anggota = $req->iuran_anggota;
+        $tenor->biaya_layanan = $req->biaya_layanan;
+        $tenor->minimal_nominal = $req->minimal_nominal;
+        $tenor->maximal_nominal = $req->maximal_nominal;
         $tenor->save();
         return response()->json([
             'status' => 200,
@@ -765,9 +803,12 @@ class KspController extends Controller
 
     public function konfigurasiAmount(AmountPinjamanRequest $req)
     {
-        $amount = amount_pinjaman::FirstOrNew();
+        $amount = amount_pinjaman::where('id_perusahaan', $req->id)
+            ->FirstOrNew();
+        $amount->iuran_anggota = $req->iuran_anggota;
         $amount->minimal = $req->minimal;
         $amount->maximal = $req->maximal;
+        $amount->maximal_persentase = $req->maximal_persentase;
         $amount->save();
         return response()->json([
             'status' => 200,

@@ -4,6 +4,9 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\Pinjaman\ActionPinjamRequest;
+use App\Http\Requests\User\Pinjaman\CekMinimalMaximalRequest;
+use App\Http\Requests\User\Pinjaman\CekPegawaiRequest;
+use App\Http\Requests\User\Pinjaman\GetTenorRequest;
 use App\Http\Requests\User\Pinjaman\OTPpinjamanRequest;
 use App\Http\Requests\User\Pinjaman\SimulationRequest;
 use App\Http\Resources\User\Pinjaman\DataKaryawanResource;
@@ -24,25 +27,96 @@ class PinjamanController extends Controller
 {
     private function simulation($data)
     {
-        $tenor = tenor_pinjaman::where('id', $data['id_tenor_pinjaman'])->first();
+        $tenor = tenor_pinjaman::where('id', $data['id_tenor_pinjaman'])
+            ->with('amount_pinjaman')
+            ->first();
 
-        $rateee = $data['nominal']  * (($tenor->rate / 100 * $tenor->tenor) + $tenor->biaya_admin / 100);
-        $rateeFinal = $rateee + $tenor->iuran_anggota;
+        $biaya_admin = $tenor->biaya_admin / 100 * $data['nominal'];
+        $biaya_layanan = $tenor->biaya_layanan;
+        $iuran_anggota = $tenor->amount_pinjaman->iuran_anggota * $tenor->tenor;
+        $nilai_yang_diterima = $data['nominal'] - $biaya_admin - $biaya_layanan - $iuran_anggota;
 
-        $potonganBulanan = ceil(($data['nominal'] / $tenor->tenor) / 10000) * 10000;
+        $rate = $tenor->rate / 100;
+        $angsuran_perbulan = $data['nominal'] + $data['nominal'] * $rate * $tenor->tenor;
+        $perbulan = $angsuran_perbulan / $tenor->tenor;
+        $angsuran_perbulan_ceil = ceil($perbulan / 1000) * 1000;
 
         $returnData = [
-            'biaya_admin' => $rateeFinal,
-            'potongan_perbulan' => $potonganBulanan,
-            'jumlah_diterima' => $data['nominal'] - $rateeFinal,
+            'angsuran_perbulan' => $angsuran_perbulan_ceil,
             'tenor' => $tenor->tenor,
+            'biaya_admin' => $biaya_admin,
+            'biaya_layanan' => $biaya_layanan,
+            'iuran_anggota' => $iuran_anggota,
+            'jumlah_diterima' => $nilai_yang_diterima,
         ];
         return $returnData;
     }
 
-    public function getTenor()
+    public function maximalMinimal(CekMinimalMaximalRequest $req)
     {
-        $tenor = tenor_pinjaman::orderBy('tenor')->get();
+        $nip = explode("-", $req->nip);
+        $perusahaan = ListPerusahaan::where('id', substr($nip[0], 4))
+            ->with(['karyawanSingle' => function ($q) use ($nip) {
+                $q->where('nip', '=', $nip[1]);
+                $q->first();
+            }, 'amount_pinjaman'])->first();
+
+        if (isset($perusahaan)) {
+            $pendapatan = 70 / 100 * $perusahaan->karyawanSingle->penghasilan;
+            if ($pendapatan > $perusahaan->amount_pinjaman->maximal) {
+                $maksimal = $perusahaan->amount_pinjaman->maximal;
+            } elseif ($pendapatan < $perusahaan->amount_pinjaman->maximal) {
+                $maksimal = $pendapatan;
+            }
+
+            return response()->json([
+                'status' => 200,
+                'maximal' => "Rp  " . number_format($maksimal),
+                'minimal' => "Rp  " . number_format($perusahaan->amount_pinjaman->minimal),
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => 400,
+                'message' => 'Data NIP tidak ditemukan',
+            ], 400);
+        }
+    }
+
+    public function getTenor(GetTenorRequest $req)
+    {
+        $nip = explode("-", $req->nip);
+        $perusahaan = ListPerusahaan::where('id', substr($nip[0], 4))
+            ->with(['karyawanSingle' => function ($q) use ($nip) {
+                $q->where('nip', '=', $nip[1]);
+                $q->first();
+            }])
+            ->first();
+
+        $pendapatan = 70 / 100 * $perusahaan->karyawanSingle->penghasilan;
+
+
+        if ($req->nominal > $perusahaan->amount_pinjaman->maximal) {
+            $maksimal = $perusahaan->amount_pinjaman->maximal;
+        } elseif ($req->nominal > $pendapatan) {
+            $maksimal = $pendapatan;
+        } else {
+            $maksimal = $req->nominal;
+        }
+
+        $range = [
+            'maximal' => $maksimal,
+            'minimal' => $perusahaan->amount_pinjaman->minimal
+        ];
+
+        $tenor = tenor_pinjaman::where('id_perusahaan', $perusahaan->id)
+            ->where(function ($query) use ($range, $req) {
+                $query->where('minimal_nominal', '<=', $req->nominal);
+                $query->where('maximal_nominal', '>=',  $range['maximal']);
+            })
+            ->with('amount_pinjaman')
+            ->orderBy('tenor')
+            ->get();
+
         return response()->json([
             'status' => 200,
             'message' => 'success get tenor',
@@ -56,12 +130,16 @@ class PinjamanController extends Controller
             'id_tenor_pinjaman' => $req->id_tenor_pinjaman,
             'nominal' => $req->nominal,
         ];
+
         $simulation = $this->simulation($data);
         return response()->json([
             'status' => 200,
             'message' => 'success get simulation',
+            'tenor' => $simulation['tenor'] . " bulan",
+            'angsuran_perbulan' => "Rp  " .  number_format($simulation['angsuran_perbulan']),
             'biaya_admin' => "Rp  " .  number_format($simulation['biaya_admin']),
-            'potongan_perbulan' => "Rp  " .  number_format($simulation['potongan_perbulan']),
+            'biaya_layanan' => "Rp  " .  number_format($simulation['biaya_layanan']),
+            'iuran_anggota' => "Rp  " .  number_format($simulation['iuran_anggota']),
             'jumlah_diterima' => "Rp  " .  number_format($simulation['jumlah_diterima']),
         ], 200);
     }
@@ -202,15 +280,23 @@ class PinjamanController extends Controller
         ], 200);
     }
 
-    public function cekPegawai(Request $req)
+    public function cekPegawai(CekPegawaiRequest $req)
     {
-        $list = list_data_ksp::where('nip', $req->nip)
-            ->where('approve_satu', 'approve')
-            ->where('approve_dua', 'approve')
-            ->with('perusahaan')
-            ->first();
+        $hasil = false;
+        $nip = explode("-", $req->nip);
+        $perusahaan = ListPerusahaan::where('id', substr($nip[0], 4))
+            ->with(['karyawanSingle' => function ($q) use ($nip) {
+                $q->where('nip', '=', $nip[1]);
+                $q->first();
+            }])->first();
 
-        if (!isset($list)) {
+        if (isset($perusahaan)) {
+            if (substr($perusahaan->id_code_perusahaan, -4)  == substr($nip[0], 0, 4)) {
+                $hasil = true;
+            }
+        }
+
+        if ($hasil == false) {
             return response()->json([
                 'status' => 400,
                 'message' => 'Mohon maaf, data Anda belum ditemukan di aplikasi Tomi. Silakan hubungi HRD Anda agar data Anda dapat segera didaftarkan.',
@@ -218,7 +304,9 @@ class PinjamanController extends Controller
         } else {
 
             $cekPinjaman = pinjaman::where('user_id', auth('api')->user()->id)
-                ->where('status', 'on_proses')
+                ->orWhere('status', 'on_proses')
+                ->orWhere('status', 'exported')
+                ->orWhere('status', 'approve')
                 ->where('status_otp', 'success')
                 ->first();
 
@@ -231,7 +319,7 @@ class PinjamanController extends Controller
             if (isset($cekPinjaman)) {
                 return response()->json([
                     'status' => 400,
-                    'message' => 'anda memiliki pinjaman yang belum diproses',
+                    'message' => 'anda memiliki pinjaman yang belum selesai',
                 ], 400);
             }
 
@@ -246,7 +334,7 @@ class PinjamanController extends Controller
 
             return response()->json([
                 'status' => 200,
-                'data' => new DataKaryawanResource($list)
+                'data' => new DataKaryawanResource($perusahaan)
             ], 200);
         }
     }

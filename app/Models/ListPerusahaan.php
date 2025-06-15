@@ -18,6 +18,13 @@ class ListPerusahaan extends Model
             ->where('approve_dua', 'approve');
     }
 
+    public function karyawanSingle()
+    {
+        return $this->hasOne(list_data_ksp::class, 'id_list_perusahaan', 'id')
+            ->where('approve_satu', 'approve')
+            ->where('approve_dua', 'approve');
+    }
+
     public function pinjaman()
     {
         return $this->hasMany(pinjaman::class, 'id_perusahaan', 'id')
@@ -54,5 +61,10 @@ class ListPerusahaan extends Model
     public function desa()
     {
         return $this->hasOne(kelurahan::class, 'id', 'id_desa');
+    }
+
+    public function amount_pinjaman()
+    {
+        return $this->hasOne(amount_pinjaman::class, 'id_perusahaan', 'id');
     }
 }

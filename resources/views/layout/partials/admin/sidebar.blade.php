@@ -25,17 +25,25 @@
                 </li>
 
 
+
                 <li>
+                    <a href="{{ route('admin.ksp.index') }}">
+                        <i class="dripicons-network-3"></i>
+                        <span> KSP DUMI </span>
+                    </a>
+                </li>
+
+                {{-- <li>
                     <a href="javascript: void(0);">
-                        <i class=" dripicons-network-3"></i>
+                        <i class=" "></i>
                         <span> KSP DUMI </span>
                         <span class="menu-arrow"></span>
                     </a>
                     <ul class="nav-second-level" aria-expanded="false">
-                        <li><a href="{{ route('admin.ksp.index') }}">List Perusahaan</a></li>
+                        <li><a href="">List Perusahaan</a></li>
                         <li><a href="{{ route('admin.ksp.konfigurasi') }}">Konfigurasi Pinjaman</a></li>
                     </ul>
-                </li>
+                </li> --}}
 
                 <li class="menu-title">Daily</li>
 

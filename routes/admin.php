@@ -38,9 +38,6 @@ Route::middleware(['AdminMiddleware'])->group(
         Route::post('/ksp/pinjaman/kabupaten', [KspController::class, 'kabupaten'])->name('admin.ksp.kabupaten');
         Route::post('/ksp/pinjaman/kecamatan', [KspController::class, 'kecamatan'])->name('admin.ksp.kecamatan');
         Route::post('/ksp/pinjaman/desa', [KspController::class, 'desa'])->name('admin.ksp.desa');
-
-
-
         Route::post('/ksp/add/perusahaan', [KspController::class, 'addPerusahaan'])->name('admin.ksp.add.perusahaan');
         Route::post('/ksp/detail/perusahaan', [KspController::class, 'detailPerusahaan'])->name('admin.ksp.detail.perusahaan');
         Route::post('/ksp/edit/perusahaan', [KspController::class, 'editPerusahaan'])->name('admin.ksp.edit.perusahaan');
@@ -58,7 +55,7 @@ Route::middleware(['AdminMiddleware'])->group(
         Route::post('/ksp/detail', [KspController::class, 'detailPengajuan'])->name('admin.ksp.detail');
         Route::post('/ksp/verifikasi', [KspController::class, 'verifikasiPengajuan'])->name('admin.ksp.verifikasi');
         // KSP => configurasi
-        Route::get('/ksp/konfigurasi', [KspController::class, 'konfigurasi'])->name('admin.ksp.konfigurasi');
+        Route::get('/ksp/konfigurasi/{id}', [KspController::class, 'konfigurasi'])->name('admin.ksp.konfigurasi');
         Route::post('/ksp/konfigurasi/amount/pinjaman', [KspController::class, 'konfigurasiAmount'])->name('admin.ksp.konfigurasi.amount');
         Route::post('/ksp/konfigurasi/table', [KspController::class, 'konfigurasiTable'])->name('admin.ksp.konfigurasi.table');
         Route::post('/ksp/konfigurasi/add', [KspController::class, 'addKonfigurasi'])->name('admin.ksp.konfigurasi.add');

@@ -16,18 +16,6 @@ use Illuminate\Support\Facades\Mail;
 
 class AuthController extends Controller
 {
-    public function test()
-    {
-        $user = user::first();
-        $data = [
-            'subject' => 'Selamat Datang',
-            'title' => 'Terimakasih telah bergabung bersama kami',
-            'nama' => $user->name,
-            'to' => $user->email,
-            'token' => 44354
-        ];
-        return view('mail.katasandi', compact('data'));
-    }
 
     public function login()
     {

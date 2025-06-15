@@ -3,6 +3,8 @@
 namespace App\Http\Requests\Admin\Ksp;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Password;
+
 
 class AddPerusahaanRequest extends FormRequest
 {
@@ -33,6 +35,12 @@ class AddPerusahaanRequest extends FormRequest
             'alamat_lengkap' => 'required',
             'payment_date' => 'required|numeric',
             'nomor_pks' => 'required|numeric',
+            'password' =>  ['required', Password::min(8)
+                ->letters()
+                ->mixedCase()
+                ->numbers()
+                ->symbols()
+                ->uncompromised()]
         ];
     }
 }

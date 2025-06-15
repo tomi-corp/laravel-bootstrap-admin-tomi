@@ -3,6 +3,8 @@
 namespace App\Http\Requests\Admin\Ksp;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Password;
+
 
 class EditPerusahaanRequest extends FormRequest
 {
@@ -33,6 +35,12 @@ class EditPerusahaanRequest extends FormRequest
             'payment_date' => 'required|numeric',
             'nomor_pks' => 'required|numeric',
             'status' => 'required|in:active,nonactive',
+            'password' =>  ['sometimes', 'nullable', Password::min(8)
+                ->letters()
+                ->mixedCase()
+                ->numbers()
+                ->symbols()
+                ->uncompromised()]
         ];
     }
 }

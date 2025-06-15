@@ -22,10 +22,13 @@ class AddKonfigurasiRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'id' => 'required',
             'tenor' => 'required',
             'rate' => 'required',
             'biaya_admin' => 'required',
-            'iuran_anggota' => 'required',
+            'biaya_layanan' => 'required',
+            'minimal_nominal' => 'required',
+            'maximal_nominal' => 'required',
         ];
     }
 }

@@ -13,8 +13,12 @@ return new class extends Migration
     {
         Schema::create('amount_pinjamen', function (Blueprint $table) {
             $table->id();
+            $table->bigInteger('id_perusahaan')->unsigned();
+            $table->foreign('id_perusahaan')->references('id')->on('list_perusahaans');
+            $table->double('iuran_anggota');
             $table->double('minimal');
             $table->double('maximal');
+            $table->double('maximal_persentase');
             $table->timestamps();
         });
     }

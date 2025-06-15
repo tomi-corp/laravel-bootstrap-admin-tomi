@@ -29,6 +29,7 @@ return new class extends Migration
             $table->string('telp');
             $table->string('nomor_pks');
             $table->integer('payment_date');
+            $table->string('password');
             $table->enum('status', ['active', 'nonactive']);
             $table->softDeletes();
             $table->timestamps();

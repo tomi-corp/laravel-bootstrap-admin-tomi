@@ -134,7 +134,6 @@
                 <div class="card-body">
                     <div class="pb-2">
                         <h5>List Karyawan</h5>
-
                     </div>
 
                     <table id="tableListKaryawan" class="table dt-responsive table-hover mt-4 text-center justify-center"

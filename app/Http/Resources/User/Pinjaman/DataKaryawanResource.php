@@ -16,13 +16,13 @@ class DataKaryawanResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'nama_perusahaan' => $this->perusahaan->nama,
-            'nama' => $this->nama_karyawan,
-            'nip' => $this->nip,
-            'departement' => $this->departement,
-            'jabatan' => $this->jabatan,
-            'tanggal_bergabung' => Carbon::parse($this->tanggal_bergabung)->format('d M Y'),
-            'status' => $this->status,
+            'nama_perusahaan' => $this->nama,
+            'nama' => $this->karyawanSingle->nama_karyawan,
+            'nip' => $this->karyawanSingle->nip,
+            'departement' => $this->karyawanSingle->departement,
+            'jabatan' => $this->karyawanSingle->jabatan,
+            'tanggal_bergabung' => Carbon::parse($this->karyawanSingle->tanggal_bergabung)->format('d M Y'),
+            'status' => $this->karyawanSingle->status,
         ];
     }
 }
