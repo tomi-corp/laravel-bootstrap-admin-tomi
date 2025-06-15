@@ -43,6 +43,8 @@ class PinjamanController extends Controller
 
         $returnData = [
             'angsuran_perbulan' => $angsuran_perbulan_ceil,
+            'rate_persen' => $tenor->rate . "%",
+            'biaya_admin_persen' => $tenor->biaya_admin . "%",
             'tenor' => $tenor->tenor,
             'biaya_admin' => $biaya_admin,
             'biaya_layanan' => $biaya_layanan,
@@ -136,6 +138,8 @@ class PinjamanController extends Controller
         return response()->json([
             'status' => 200,
             'message' => 'success get simulation',
+            'rate_persen' => $simulation['rate_persen'],
+            'biaya_admin_persen' => $simulation['biaya_admin_persen'],
             'tenor' => $simulation['tenor'] . " bulan",
             'angsuran_perbulan' => "Rp  " .  number_format($simulation['angsuran_perbulan']),
             'biaya_admin' => "Rp  " .  number_format($simulation['biaya_admin']),
