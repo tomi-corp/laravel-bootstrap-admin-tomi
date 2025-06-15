@@ -586,8 +586,29 @@ class KspController extends Controller
             ->addColumn('tenor', function ($row) {
                 return $row->tenor . " bulan";
             })
-            ->addColumn('biaya_admin', function ($row) {
-                return $row->biaya_admin . " %";
+
+            ->addColumn('biaya_admin_ksp', function ($row) {
+                return "Rp  " . number_format($row->biaya_admin_ksp);
+            })
+
+            ->addColumn('dpp_adm_ksp', function ($row) {
+                return "Rp  " . number_format($row->dpp_adm_ksp);
+            })
+
+            ->addColumn('ppn_adm_ksp', function ($row) {
+                return "Rp  " . number_format($row->ppn_adm_ksp);
+            })
+
+            ->addColumn('biaya_admin_pandu', function ($row) {
+                return "Rp  " . number_format($row->biaya_admin_pandu);
+            })
+
+            ->addColumn('dpp_adm_pandu', function ($row) {
+                return "Rp  " . number_format($row->dpp_adm_pandu);
+            })
+
+            ->addColumn('ppn_adm_pandu', function ($row) {
+                return "Rp  " . number_format($row->ppn_adm_pandu);
             })
 
             ->addColumn('rate', function ($row) {
@@ -629,8 +650,29 @@ class KspController extends Controller
             ->addColumn('tenor', function ($row) {
                 return $row->tenor . " bulan";
             })
-            ->addColumn('biaya_admin', function ($row) {
-                return $row->biaya_admin . " %";
+
+            ->addColumn('biaya_admin_ksp', function ($row) {
+                return "Rp  " . number_format($row->biaya_admin_ksp);
+            })
+
+            ->addColumn('dpp_adm_ksp', function ($row) {
+                return "Rp  " . number_format($row->dpp_adm_ksp);
+            })
+
+            ->addColumn('ppn_adm_ksp', function ($row) {
+                return "Rp  " . number_format($row->ppn_adm_ksp);
+            })
+
+            ->addColumn('biaya_admin_pandu', function ($row) {
+                return "Rp  " . number_format($row->biaya_admin_pandu);
+            })
+
+            ->addColumn('dpp_adm_pandu', function ($row) {
+                return "Rp  " . number_format($row->dpp_adm_pandu);
+            })
+
+            ->addColumn('ppn_adm_pandu', function ($row) {
+                return "Rp  " . number_format($row->ppn_adm_pandu);
             })
 
             ->addColumn('rate', function ($row) {
@@ -673,8 +715,29 @@ class KspController extends Controller
             ->addColumn('tenor', function ($row) {
                 return $row->tenor . " bulan";
             })
-            ->addColumn('biaya_admin', function ($row) {
-                return $row->biaya_admin . " %";
+
+            ->addColumn('biaya_admin_ksp', function ($row) {
+                return "Rp  " . number_format($row->biaya_admin_ksp);
+            })
+
+            ->addColumn('dpp_adm_ksp', function ($row) {
+                return "Rp  " . number_format($row->dpp_adm_ksp);
+            })
+
+            ->addColumn('ppn_adm_ksp', function ($row) {
+                return "Rp  " . number_format($row->ppn_adm_ksp);
+            })
+
+            ->addColumn('biaya_admin_pandu', function ($row) {
+                return "Rp  " . number_format($row->biaya_admin_pandu);
+            })
+
+            ->addColumn('dpp_adm_pandu', function ($row) {
+                return "Rp  " . number_format($row->dpp_adm_pandu);
+            })
+
+            ->addColumn('ppn_adm_pandu', function ($row) {
+                return "Rp  " . number_format($row->ppn_adm_pandu);
             })
 
             ->addColumn('rate', function ($row) {
@@ -717,8 +780,29 @@ class KspController extends Controller
             ->addColumn('tenor', function ($row) {
                 return $row->tenor . " bulan";
             })
-            ->addColumn('biaya_admin', function ($row) {
-                return $row->biaya_admin . " %";
+
+            ->addColumn('biaya_admin_ksp', function ($row) {
+                return "Rp  " . number_format($row->biaya_admin_ksp);
+            })
+
+            ->addColumn('dpp_adm_ksp', function ($row) {
+                return "Rp  " . number_format($row->dpp_adm_ksp);
+            })
+
+            ->addColumn('ppn_adm_ksp', function ($row) {
+                return "Rp  " . number_format($row->ppn_adm_ksp);
+            })
+
+            ->addColumn('biaya_admin_pandu', function ($row) {
+                return "Rp  " . number_format($row->biaya_admin_pandu);
+            })
+
+            ->addColumn('dpp_adm_pandu', function ($row) {
+                return "Rp  " . number_format($row->dpp_adm_pandu);
+            })
+
+            ->addColumn('ppn_adm_pandu', function ($row) {
+                return "Rp  " . number_format($row->ppn_adm_pandu);
             })
 
             ->addColumn('rate', function ($row) {
@@ -819,11 +903,11 @@ class KspController extends Controller
     {
         $pengajuan = pinjaman::where('id_perusahaan', $req->id)->first();
 
-        $belum_validasi =  $pengajuan > 0 ? $pengajuan->where('status_otp', 'pending')->count() : 0;
-        $pending =  $pengajuan > 0 ? $pengajuan->where('status_otp', 'success')->where('status', 'on_proses')->count() : 0;
-        $exported = $pengajuan > 0 ? $pengajuan->where('status_otp', 'success')->where('status', 'exported')->count() : 0;
-        $approve = $pengajuan > 0 ? $pengajuan->where('status_otp', 'success')->where('status', 'approve')->count() : 0;
-        $reject = $pengajuan > 0 ? $pengajuan->where('status_otp', 'success')->where('status', 'reject')->count() : 0;
+        $belum_validasi =  isset($pengajuan) ? $pengajuan->where('status_otp', 'pending')->count() : 0;
+        $pending =  isset($pengajuan) ? $pengajuan->where('status_otp', 'success')->where('status', 'on_proses')->count() : 0;
+        $exported = isset($pengajuan) ? $pengajuan->where('status_otp', 'success')->where('status', 'exported')->count() : 0;
+        $approve = isset($pengajuan) ? $pengajuan->where('status_otp', 'success')->where('status', 'approve')->count() : 0;
+        $reject = isset($pengajuan) ? $pengajuan->where('status_otp', 'success')->where('status', 'reject')->count() : 0;
 
         return response()->json([
             'status' => 200,

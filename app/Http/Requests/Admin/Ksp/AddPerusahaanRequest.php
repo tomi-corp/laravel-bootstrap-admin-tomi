@@ -24,7 +24,7 @@ class AddPerusahaanRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'unique_code' => 'required|min:4|max:4|unique:list_perusahaans,unique_code',
+            'unique_code' => 'required|digits:4|unique:list_perusahaans,unique_code',
             'pic_perusahaan' => 'required',
             'pic_internal' => 'required',
             'nama_perusahaan' => 'required',

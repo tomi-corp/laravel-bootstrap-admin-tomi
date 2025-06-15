@@ -26,6 +26,18 @@ return new class extends Migration
             $table->double('biaya_admin');
             $table->double('iuran_anggota');
             $table->double('total_biaya_admin');
+
+            $table->double('biaya_admin_ksp');
+            $table->double('dpp_adm_ksp');
+            $table->double('ppn_adm_ksp');
+            $table->double('biaya_admin_pandu');
+            $table->double('dpp_adm_pandu');
+            $table->double('ppn_adm_pandu');
+            $table->double('pendapatan_bunga');
+            $table->double('dpp_bunga');
+            $table->double('ppn_bunga');
+            $table->double('biaya_layanan');
+
             $table->double('total_angsuran_perbulan');
             $table->double('jumlah_yang_diterima');
             $table->enum('status', ['on_proses', 'exported', 'approve', 'reject', 'done'])->default('on_proses');

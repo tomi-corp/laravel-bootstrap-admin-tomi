@@ -147,98 +147,144 @@ class PinjamanController extends Controller
 
     public function actionPinjaman(ActionPinjamRequest $req)
     {
-        $cekPinjaman = pinjaman::where('user_id', auth('api')->user()->id)
-            ->orWhere('status', 'on_proses')
-            ->orWhere('status', 'exported')
-            ->orWhere('status', 'approve')
-            ->where('status_otp', 'success')
+        $nip = explode("-", $req->nip);
+
+        $perusahaan = ListPerusahaan::where('unique_code', $nip[0])
+            ->with(['karyawanSingle' => function ($q) use ($nip) {
+                $q->where('nip', '=', $nip[1]);
+                $q->first();
+            }, 'amount_pinjaman'])
             ->first();
 
 
-        $cekPinjamanPendingOTP = pinjaman::where('user_id', auth('api')->user()->id)
-            ->where('status', 'on_proses')
-            ->where('status_otp', 'pending')
-            ->first();
-
-        if (isset($cekPinjaman)) {
+        if (!isset($perusahaan) && !isset($perusahaan->karyawanSingle)) {
             return response()->json([
                 'status' => 400,
-                'message' => 'anda memiliki pinjaman yang belum lunas atau terselesaikan',
+                'message' => 'Data NIP tidak ditemukan',
             ], 400);
-        }
+        } else {
+            $pendapatan = 70 / 100 * $perusahaan->karyawanSingle->penghasilan;
+            if ($pendapatan > $perusahaan->amount_pinjaman->maximal) {
+                $maksimal = $perusahaan->amount_pinjaman->maximal;
+            } elseif ($pendapatan < $perusahaan->amount_pinjaman->maximal) {
+                $maksimal = $pendapatan;
+            }
 
-        if (isset($cekPinjamanPendingOTP)) {
-            return response()->json([
-                'status' => 200,
-                'pinjaman' => false,
-                'message' => 'anda memiliki validasi otp yang belum diselesaikan',
-            ], 200);
-        }
+            $tenor = tenor_pinjaman::where('id_perusahaan', $perusahaan->id)
+                ->where('id', $req->id_tenor_pinjaman)
+                ->with('amount_pinjaman')
+                ->orderBy('tenor')
+                ->first();
 
-        // send otp
+            if (!($tenor->minimal_nominal <= $req->nominal) && !($maksimal <= $tenor->maximal_nominal)) {
+                return response()->json([
+                    'status' => 400,
+                    'message' => 'Maksimal nominal pinjaman Rp ' . number_format($maksimal),
+                ], 400);
+            } else {
+                $cekPinjaman = pinjaman::where('user_id', auth('api')->user()->id)
+                    ->orWhere('status', 'on_proses')
+                    ->orWhere('status', 'exported')
+                    ->orWhere('status', 'approve')
+                    ->where('status_otp', 'success')
+                    ->first();
 
-        while (true) {
-            $code = "#LOAN-" . Carbon::now()->format('Y-m-d') . "-" . auth('api')->user()->id . Carbon::now()->format('s') . rand(100, 999);
-            $pinjaman = pinjaman::where('id_pinjaman', $code)->first();
-            if (!isset($pinjaman)) {
-                break;
+                $cekPinjamanPendingOTP = pinjaman::where('user_id', auth('api')->user()->id)
+                    ->where('status', 'on_proses')
+                    ->where('status_otp', 'pending')
+                    ->first();
+
+                if (isset($cekPinjaman)) {
+                    return response()->json([
+                        'status' => 400,
+                        'message' => 'anda memiliki pinjaman yang belum lunas atau terselesaikan',
+                    ], 400);
+                }
+
+                if (isset($cekPinjamanPendingOTP)) {
+                    return response()->json([
+                        'status' => 200,
+                        'pinjaman' => false,
+                        'message' => 'anda memiliki validasi otp yang belum diselesaikan',
+                    ], 200);
+                }
+
+                while (true) {
+                    $code = "#LOAN-" . Carbon::now()->format('Y-m-d') . "-" . auth('api')->user()->id . Carbon::now()->format('s') . rand(100, 999);
+                    $pinjaman = pinjaman::where('id_pinjaman', $code)->first();
+                    if (!isset($pinjaman)) {
+                        break;
+                    }
+                }
+
+                $codeOTP = rand(1000, 9999);
+
+                $otp = new verif_otp_pengajuan();
+                $otp->user_id = auth('api')->user()->id;
+                $otp->otp = $codeOTP;
+
+                $otp->expired = Carbon::now()->addHour(24);
+
+                $pinjaman = new pinjaman();
+                $pinjaman->user_id = auth('api')->user()->id;
+                $pinjaman->id_perusahaan = $perusahaan->id;
+                $pinjaman->id_list_data_ksp = $perusahaan->karyawanSingle->id;
+                $pinjaman->id_pinjaman = $code;
+                $pinjaman->nominal = $req->nominal;
+                $pinjaman->tenor = $tenor->tenor;
+                $pinjaman->rate = $tenor->rate;
+                $pinjaman->biaya_admin =  $tenor->biaya_admin;
+                $pinjaman->status = 'on_proses';
+                $pinjaman->status_otp = 'pending';
+
+                $data = [
+                    'id_tenor_pinjaman' => $tenor->id,
+                    'nominal' => $req->nominal,
+                ];
+
+                $simulation = $this->simulation($data);
+                $pinjaman->total_biaya_admin = $simulation['biaya_admin'];
+                $pinjaman->biaya_admin_ksp = $simulation['biaya_admin'] - 50 / 100;
+                $pinjaman->dpp_adm_ksp = round($pinjaman->biaya_admin_ksp / 111 * 100);
+                $pinjaman->ppn_adm_ksp = round($pinjaman->dpp_adm_ksp * 11 / 100);
+                $pinjaman->biaya_admin_pandu = $simulation['biaya_admin'] - 50 / 100;
+                $pinjaman->dpp_adm_pandu = round($pinjaman->biaya_admin_pandu / 111 * 100);
+                $pinjaman->ppn_adm_pandu = round($pinjaman->dpp_adm_pandu * 11 / 100);
+                $pinjaman->pendapatan_bunga = $req->nominal * $tenor->rate / 100 * $tenor->tenor;
+
+                $pinjaman->dpp_bunga = round($pinjaman->pendapatan_bunga / 111 * 100);
+                $pinjaman->ppn_bunga = round($pinjaman->dpp_bunga * 11 / 100);
+
+
+                $pinjaman->total_angsuran_perbulan = $simulation['angsuran_perbulan'];
+                $pinjaman->jumlah_yang_diterima = $simulation['jumlah_diterima'];
+                $pinjaman->iuran_anggota = $simulation['iuran_anggota'];
+                $pinjaman->biaya_layanan = $simulation['biaya_layanan'];
+
+                sendOTPWhatsapp($perusahaan->karyawanSingle->whatsapp, $codeOTP);
+                $pinjaman->save();
+
+                $jatuh_tempo = new jatuh_tempo();
+                $jatuh_tempo->id_pinjaman = $pinjaman->id;
+                $jatuh_tempo->pembayaran = 1;
+
+
+                $tanggal_sekarang = Carbon::now();
+                if ($tanggal_sekarang->format('d') < $perusahaan->payment_date - 5) {
+                    $jatuh_tempo->jatuh_tempo =  $tanggal_sekarang->day($perusahaan->payment_date);
+                } else {
+                    $jatuh_tempo->jatuh_tempo =  $tanggal_sekarang->day($perusahaan->payment_date)->addMonth(1);
+                }
+                $jatuh_tempo->save();
+                $otp->pinjaman_id = $pinjaman->id;
+                $otp->save();
+                return response()->json([
+                    'status' => 200,
+                    'pinjaman' => true,
+                    'message' => 'success, harap periksa OTP yang telah dikirimkan melalui whatsapp',
+                ], 200);
             }
         }
-
-        $tenor = tenor_pinjaman::where('id', $req->id_tenor_pinjaman)
-            ->first();
-        $data_karyawan = list_data_ksp::where('nip', $req->nip)
-            ->with('perusahaan')
-            ->first();
-
-        $codeOTP = rand(1000, 9999);
-
-        $otp = new verif_otp_pengajuan();
-        $otp->user_id = auth('api')->user()->id;
-        $otp->otp = $codeOTP;
-
-        $otp->expired = Carbon::now()->addHour(12);
-
-        $pinjaman = new pinjaman();
-        $pinjaman->user_id = auth('api')->user()->id;
-        $pinjaman->id_perusahaan = $data_karyawan->id_list_perusahaan;
-        $pinjaman->id_list_data_ksp = $data_karyawan->id;
-        $pinjaman->id_pinjaman = $code;
-        $pinjaman->nominal = $req->nominal;
-        $pinjaman->tenor = $tenor->tenor;
-        $pinjaman->rate = $tenor->rate;
-        $pinjaman->biaya_admin = $tenor->biaya_admin;
-        $pinjaman->iuran_anggota = $tenor->iuran_anggota;
-        $pinjaman->status = 'on_proses';
-        $pinjaman->status_otp = 'pending';
-
-        $data = [
-            'id_tenor_pinjaman' => $tenor->id,
-            'nominal' => $req->nominal,
-        ];
-
-        $simulation = $this->simulation($data);
-        $pinjaman->total_biaya_admin = $simulation['biaya_admin'];
-        $pinjaman->total_angsuran_perbulan = $simulation['potongan_perbulan'];
-        $pinjaman->jumlah_yang_diterima = $simulation['jumlah_diterima'];
-
-
-        sendOTPWhatsapp($data_karyawan->whatsapp, $codeOTP);
-        $pinjaman->save();
-
-        $jatuh_tempo = new jatuh_tempo();
-        $jatuh_tempo->id_pinjaman = $pinjaman->id;
-        $jatuh_tempo->pembayaran = 1;
-        $jatuh_tempo->jatuh_tempo =   Carbon::now()->day($data_karyawan->perusahaan->payment_date)->addMonth(1);
-        $jatuh_tempo->save();
-
-        $otp->pinjaman_id = $pinjaman->id;
-        $otp->save();
-        return response()->json([
-            'status' => 200,
-            'pinjaman' => true,
-            'message' => 'success, harap periksa OTP yang telah dikirimkan melalui whatsapp',
-        ], 200);
     }
 
     public function actionPinjamanOTP(OTPpinjamanRequest $req)

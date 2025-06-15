@@ -184,7 +184,12 @@
                                         <th>Nominal </th>
                                         <th>Tenor</th>
                                         <th>Rate</th>
-                                        <th>Biaya Admin</th>
+                                        <th>Biaya ADM KSP {{ $perusahaan->nama }}</th>
+                                        <th>DPP KSP</th>
+                                        <th>PPN KSP</th>
+                                        <th>Biaya ADM PANDU</th>
+                                        <th>DPP PANDU</th>
+                                        <th>PPN PANDU</th>
                                         <th>Iuran Anggota</th>
                                         <th>Total Biaya Admin</th>
                                         <th>Jumlah Yang Diterima</th>
@@ -231,7 +236,12 @@
                                         <th>Nominal </th>
                                         <th>Tenor</th>
                                         <th>Rate</th>
-                                        <th>Biaya Admin</th>
+                                        <th>Biaya ADM KSP {{ $perusahaan->nama }}</th>
+                                        <th>DPP KSP</th>
+                                        <th>PPN KSP</th>
+                                        <th>Biaya ADM PANDU</th>
+                                        <th>DPP PANDU</th>
+                                        <th>PPN PANDU</th>
                                         <th>Iuran Anggota</th>
                                         <th>Total Biaya Admin</th>
                                         <th>Jumlah Yang Diterima</th>
@@ -250,7 +260,12 @@
                                         <th>Nominal </th>
                                         <th>Tenor</th>
                                         <th>Rate</th>
-                                        <th>Biaya Admin</th>
+                                        <th>Biaya ADM KSP {{ $perusahaan->nama }}</th>
+                                        <th>DPP KSP</th>
+                                        <th>PPN KSP</th>
+                                        <th>Biaya ADM PANDU</th>
+                                        <th>DPP PANDU</th>
+                                        <th>PPN PANDU</th>
                                         <th>Iuran Anggota</th>
                                         <th>Total Biaya Admin</th>
                                         <th>Jumlah Yang Diterima</th>
@@ -268,7 +283,12 @@
                                         <th>Nominal </th>
                                         <th>Tenor</th>
                                         <th>Rate</th>
-                                        <th>Biaya Admin</th>
+                                        <th>Biaya ADM KSP {{ $perusahaan->nama }}</th>
+                                        <th>DPP KSP</th>
+                                        <th>PPN KSP</th>
+                                        <th>Biaya ADM PANDU</th>
+                                        <th>DPP PANDU</th>
+                                        <th>PPN PANDU</th>
                                         <th>Iuran Anggota</th>
                                         <th>Total Biaya Admin</th>
                                         <th>Jumlah Yang Diterima</th>
@@ -485,7 +505,17 @@
                 }, {
                     data: 'rate'
                 }, {
-                    data: 'biaya_admin'
+                    data: 'biaya_admin_ksp'
+                }, {
+                    data: 'dpp_adm_ksp'
+                }, {
+                    data: 'ppn_adm_ksp'
+                }, {
+                    data: 'biaya_admin_pandu'
+                }, {
+                    data: 'dpp_adm_pandu'
+                }, {
+                    data: 'ppn_adm_pandu'
                 }, {
                     data: 'iuran_anggota'
                 }, {
@@ -551,7 +581,17 @@
                 }, {
                     data: 'rate'
                 }, {
-                    data: 'biaya_admin'
+                    data: 'biaya_admin_ksp'
+                }, {
+                    data: 'dpp_adm_ksp'
+                }, {
+                    data: 'ppn_adm_ksp'
+                }, {
+                    data: 'biaya_admin_pandu'
+                }, {
+                    data: 'dpp_adm_pandu'
+                }, {
+                    data: 'ppn_adm_pandu'
                 }, {
                     data: 'iuran_anggota'
                 }, {
@@ -617,7 +657,17 @@
                 }, {
                     data: 'rate'
                 }, {
-                    data: 'biaya_admin'
+                    data: 'biaya_admin_ksp'
+                }, {
+                    data: 'dpp_adm_ksp'
+                }, {
+                    data: 'ppn_adm_ksp'
+                }, {
+                    data: 'biaya_admin_pandu'
+                }, {
+                    data: 'dpp_adm_pandu'
+                }, {
+                    data: 'ppn_adm_pandu'
                 }, {
                     data: 'iuran_anggota'
                 }, {
@@ -683,7 +733,17 @@
                 }, {
                     data: 'rate'
                 }, {
-                    data: 'biaya_admin'
+                    data: 'biaya_admin_ksp'
+                }, {
+                    data: 'dpp_adm_ksp'
+                }, {
+                    data: 'ppn_adm_ksp'
+                }, {
+                    data: 'biaya_admin_pandu'
+                }, {
+                    data: 'dpp_adm_pandu'
+                }, {
+                    data: 'ppn_adm_pandu'
                 }, {
                     data: 'iuran_anggota'
                 }, {
@@ -846,6 +906,7 @@
                     $('#hideDetailPerusahaanDua').removeClass('col-md-8');
                     $('#hideDetailPerusahaanDua').addClass('col-md-12');
                     defaultetail = false;
+                    $($.fn.dataTable.tables(true)).DataTable().columns.adjust().responsive.recalc();
                 } else {
                     $('#showDetailPerusahaan').removeClass('btn-warning');
                     $('#showDetailPerusahaan').addClass('btn-primary');
@@ -856,8 +917,13 @@
                     $('#hideDetailPerusahaan').show();
                     $('#hideDetailPerusahaanDua').removeClass('col-md-12');
                     $('#hideDetailPerusahaanDua').addClass('col-md-8');
+                    $($.fn.dataTable.tables(true)).DataTable().columns.adjust().responsive.recalc();
                     defaultetail = true;
                 }
             }
+
+            $('a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
+                $($.fn.dataTable.tables(true)).DataTable().columns.adjust().responsive.recalc();
+            });
         </script>
     @endpush

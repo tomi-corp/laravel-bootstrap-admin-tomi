@@ -22,10 +22,9 @@ class SimulationRequest extends FormRequest
      */
     public function rules(): array
     {
-        $amount = amount_pinjaman::first();
 
         return [
-            'nominal' => 'required|integer|max:' . $amount->maximal . '|min:' . $amount->minimal,
+            'nominal' => 'required|integer',
             'id_tenor_pinjaman' => 'required|exists:tenor_pinjamen,id'
         ];
     }

@@ -24,9 +24,9 @@ class ActionPinjamRequest extends FormRequest
     {
         $amount = amount_pinjaman::first();
         return [
-            'nominal' => 'required|integer|max:' . $amount->maximal . '|min:' . $amount->minimal,
+            'nominal' => 'required|integer',
             'id_tenor_pinjaman' => 'required|exists:tenor_pinjamen,id',
-            'nip' => 'required|exists:list_data_ksps,nip',
+            'nip' => 'required',
         ];
     }
 }
