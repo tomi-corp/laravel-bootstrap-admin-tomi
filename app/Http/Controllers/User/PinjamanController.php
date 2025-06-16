@@ -364,14 +364,13 @@ class PinjamanController extends Controller
                 ->first();
 
 
-            dd($cekPinjaman);
 
             $cekPinjamanPendingOTP = pinjaman::where('user_id', auth('api')->user()->id)
                 ->where('status', 'on_proses')
                 ->where('status_otp', 'pending')
                 ->first();
 
-            if (isset($cekPinjaman)) {
+            if (!($cekPinjaman)) {
                 return response()->json([
                     'status' => 400,
                     'message' => 'anda memiliki pinjaman yang belum selesai',
