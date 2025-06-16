@@ -29,7 +29,7 @@
                 <li>
                     <a href="{{ route('admin.ksp.index') }}">
                         <i class="dripicons-network-3"></i>
-                        <span> KSP DUMI </span>
+                        <span> Pinjaman Payroll </span>
                     </a>
                 </li>
 

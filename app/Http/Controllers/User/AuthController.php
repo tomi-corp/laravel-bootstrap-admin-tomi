@@ -321,7 +321,8 @@ class AuthController extends Controller
 
         if (isset($verifEmail)) {
             if ($verifEmail->expired > Carbon::now()) {
-                $user = User::where('email', $verifEmail->email)->first();
+                $user = User::where('email', $verifEmail->email)
+                    ->first();
                 $user->email_verified_at = Carbon::now();
                 $user->save();
                 $verifEmail->delete();
@@ -360,13 +361,13 @@ class AuthController extends Controller
         $user = User::where('email', auth('api')->user()->email)->first();
 
         if ($user->email_verified_at == null) {
-            $verifEmail = verif_email::where('email', $user->email)->first();
+            $verifEmail = verif_whatsapp::where('email', $user->email)->first();
             if ($verifEmail !== null) {
                 $verifEmail->email = $user->email;
                 $verifEmail->code_rand = rand(1000, 9999);;
                 $verifEmail->expired = Carbon::now()->addMinute(15);
             } else {
-                $verifEmail = new verif_email();
+                $verifEmail = new verif_whatsapp();
                 $verifEmail->email = $user->email;
                 $verifEmail->code_rand = rand(1000, 9999);;
                 $verifEmail->expired = Carbon::now()->addMinute(15);
