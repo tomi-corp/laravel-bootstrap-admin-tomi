@@ -269,6 +269,7 @@ class AuthController extends Controller
                 'title' => 'Lupa Password',
                 'to' => $email->email,
                 'token' => $random,
+                'nama' => $email->nama,
             ];
 
             Mail::to($email->email)->send(new ForgotEmail($data));
