@@ -358,11 +358,13 @@ class PinjamanController extends Controller
             ], 400);
         } else {
 
-            $cekPinjaman = pinjaman::orWhere('status', 'on_proses')
-                ->orWhere('status', 'exported')
-                ->orWhere('status', 'approve')
+            $cekPinjaman = pinjaman::where('user_id', auth('api')->user()->id)
+                ->where(function ($q) {
+                    $q->orWhere('status', 'exported')
+                        ->orWhere('status', 'on_proses')
+                        ->orWhere('status', 'approve');
+                })
                 ->where('status_otp', 'success')
-                ->where('user_id', auth('api')->user()->id)
                 ->first();
 
 
