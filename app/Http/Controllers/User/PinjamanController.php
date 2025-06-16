@@ -114,7 +114,7 @@ class PinjamanController extends Controller
 
         $tenor = tenor_pinjaman::where('id_perusahaan', $perusahaan->id)
             ->where(function ($query) use ($range, $req) {
-                $query->where('minimal_nominal', '<', $req->nominal);
+                $query->where('minimal_nominal', '<=', $req->nominal);
                 // $query->where('maximal_nominal', '>=',  $range['maximal']);
             })
             ->with('amount_pinjaman')
@@ -188,10 +188,13 @@ class PinjamanController extends Controller
                     'message' => 'Maksimal nominal pinjaman Rp ' . number_format($maksimal),
                 ], 400);
             } else {
+
                 $cekPinjaman = pinjaman::where('user_id', auth('api')->user()->id)
-                    ->orWhere('status', 'on_proses')
-                    ->orWhere('status', 'exported')
-                    ->orWhere('status', 'approve')
+                    ->where(function ($q) {
+                        $q->orWhere('status', 'exported')
+                            ->orWhere('status', 'on_proses')
+                            ->orWhere('status', 'approve');
+                    })
                     ->where('status_otp', 'success')
                     ->first();
 
