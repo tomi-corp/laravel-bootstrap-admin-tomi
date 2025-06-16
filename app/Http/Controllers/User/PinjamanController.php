@@ -371,7 +371,7 @@ class PinjamanController extends Controller
                 ->where('status_otp', 'pending')
                 ->first();
 
-            if ($cekPinjaman != null) {
+            if (isset($cekPinjaman)) {
                 return response()->json([
                     'status' => 400,
                     'message' => 'anda memiliki pinjaman yang belum selesai',
