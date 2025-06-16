@@ -37,7 +37,15 @@ class PinjamanPendingExport implements FromCollection, WithMapping, WithHeadings
             $collection->nominal,
             $collection->tenor,
             $collection->rate,
-            $collection->biaya_admin,
+
+            $collection->biaya_admin_ksp,
+            $collection->dpp_adm_ksp,
+            $collection->ppn_adm_ksp,
+
+            $collection->biaya_admin_pandu,
+            $collection->dpp_adm_ksp,
+            $collection->ppn_adm_ksp,
+
             $collection->iuran_anggota,
             $collection->total_biaya_admin,
             $collection->total_angsuran_perbulan,
@@ -47,6 +55,24 @@ class PinjamanPendingExport implements FromCollection, WithMapping, WithHeadings
 
     public function headings(): array
     {
-        return ["ID Pinjaman", "nama", "Nominal Pinjaman", "Tenor", "Rate", "Biaya Admin", "Iuran Anggota", "Total Biaya Admin", "Total Angsuran Perbulan", "Jumlah Yang Diterima"];
+        return [
+            "ID Pinjaman",
+            "nama",
+            "Nominal Pinjaman",
+            "Tenor",
+            "Rate",
+            "Biaya adm KSP",
+            "dpp adm KSP",
+            "ppn adm KSP",
+
+            "Biaya adm PANDU",
+            "dpp adm PANDU",
+            "ppn adm PANDU",
+
+            "Iuran Anggota",
+            "Total Biaya Admin",
+            "Total Angsuran Perbulan",
+            "Jumlah Yang Diterima"
+        ];
     }
 }
