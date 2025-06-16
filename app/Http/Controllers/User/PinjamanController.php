@@ -365,7 +365,7 @@ class PinjamanController extends Controller
                 ->where('status_otp', 'success')
                 ->first();
 
-            // dd($cekPinjaman);
+            dd($cekPinjaman);
 
             $cekPinjamanPendingOTP = pinjaman::where('user_id', auth('api')->user()->id)
                 ->where('status', 'on_proses')
