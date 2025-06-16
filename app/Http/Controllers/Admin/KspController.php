@@ -99,7 +99,6 @@ class KspController extends Controller
         $perusahaan->id_kabupaten = $kabupaten->id;
         $perusahaan->id_kecamatan = $kecamatan->id;
         $perusahaan->id_desa = $desa->id;
-        $perusahaan->password = Hash::make($req->password);
 
         $perusahaan->save();
         return response()->json([
@@ -145,9 +144,6 @@ class KspController extends Controller
 
         $perusahaan->status = $req->status;
 
-        if ($req->password != "") {
-            $perusahaan->password = Hash::make($req->password);
-        }
 
         $perusahaan->save();
         return response()->json([

@@ -34,13 +34,7 @@ class EditPerusahaanRequest extends FormRequest
             'alamat_lengkap' => 'required',
             'payment_date' => 'required|numeric',
             'nomor_pks' => 'required|numeric',
-            'status' => 'required|in:active,nonactive',
-            'password' =>  ['sometimes', 'nullable', Password::min(8)
-                ->letters()
-                ->mixedCase()
-                ->numbers()
-                ->symbols()
-                ->uncompromised()]
+            'status' => 'required|in:active,nonactive'
         ];
     }
 }
