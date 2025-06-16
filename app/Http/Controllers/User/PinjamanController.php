@@ -188,22 +188,42 @@ class PinjamanController extends Controller
                     'message' => 'Maksimal nominal pinjaman Rp ' . number_format($maksimal),
                 ], 400);
             } else {
-
-                $cekPinjaman = pinjaman::where('user_id', auth('api')->user()->id)
+                // where('user_id', auth('api')->user()->id)
+                // $cekPinjaman = pinjaman::where('id_list_data_ksp', $perusahaan->karyawanSingle->id)
+                //     ->where(function ($q) {
+                //         $q->orWhere('status', 'exported')
+                //             ->orWhere('status', 'on_proses')
+                //             ->orWhere('status', 'approve');
+                //     })
+                //     ->where('status_otp', 'success')
+                //     ->first();
+                $cekPinjamanData = pinjaman::where('id_list_data_ksp', $perusahaan->karyawanSingle->id)
                     ->where(function ($q) {
                         $q->orWhere('status', 'exported')
                             ->orWhere('status', 'on_proses')
                             ->orWhere('status', 'approve');
                     })
+                    ->where('id_list_data_ksp', $perusahaan->karyawanSingle->id)
                     ->where('status_otp', 'success')
                     ->first();
 
-                $cekPinjamanPendingOTP = pinjaman::where('user_id', auth('api')->user()->id)
+                $cekPinjamanUser = pinjaman::where('user_id', auth('api')->user()->id)
+                    ->where(function ($q) {
+                        $q->orWhere('status', 'exported')
+                            ->orWhere('status', 'on_proses')
+                            ->orWhere('status', 'approve');
+                    })
+                    ->where('id_list_data_ksp', $perusahaan->karyawanSingle->id)
+                    ->where('status_otp', 'success')
+                    ->first();
+
+                // where('user_id', auth('api')->user()->id)
+                $cekPinjamanPendingOTP = pinjaman::where('id_list_data_ksp', $perusahaan->karyawanSingle->id)
                     ->where('status', 'on_proses')
                     ->where('status_otp', 'pending')
                     ->first();
 
-                if (isset($cekPinjaman)) {
+                if (isset($cekPinjamanData) || isset($cekPinjamanUser)) {
                     return response()->json([
                         'status' => 400,
                         'message' => 'anda memiliki pinjaman yang belum lunas atau terselesaikan',
@@ -361,22 +381,34 @@ class PinjamanController extends Controller
             ], 400);
         } else {
 
-            $cekPinjaman = pinjaman::where('user_id', auth('api')->user()->id)
+            $cekPinjamanData = pinjaman::where('id_list_data_ksp', $perusahaan->karyawanSingle->id)
                 ->where(function ($q) {
                     $q->orWhere('status', 'exported')
                         ->orWhere('status', 'on_proses')
                         ->orWhere('status', 'approve');
                 })
+                ->where('id_list_data_ksp', $perusahaan->karyawanSingle->id)
+                ->where('status_otp', 'success')
+                ->first();
+
+            $cekPinjamanUser = pinjaman::where('user_id', auth('api')->user()->id)
+                ->where(function ($q) {
+                    $q->orWhere('status', 'exported')
+                        ->orWhere('status', 'on_proses')
+                        ->orWhere('status', 'approve');
+                })
+                ->where('id_list_data_ksp', $perusahaan->karyawanSingle->id)
                 ->where('status_otp', 'success')
                 ->first();
 
 
-            $cekPinjamanPendingOTP = pinjaman::where('user_id', auth('api')->user()->id)
+            // where('user_id', auth('api')->user()->id)
+            $cekPinjamanPendingOTP = pinjaman::where('id_list_data_ksp', $perusahaan->karyawanSingle->id)
                 ->where('status', 'on_proses')
                 ->where('status_otp', 'pending')
                 ->first();
 
-            if (isset($cekPinjaman)) {
+            if (isset($cekPinjamanData) || isset($cekPinjamanUser)) {
                 return response()->json([
                     'status' => 400,
                     'message' => 'anda memiliki pinjaman yang belum selesai',
