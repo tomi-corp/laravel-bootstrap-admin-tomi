@@ -345,7 +345,7 @@ class PinjamanController extends Controller
                 $q->first();
             }])->first();
 
-        if (isset($perusahaan)) {
+        if (isset($perusahaan) && isset($perusahaan->karyawanSingle)) {
             $hasil = true;
         }
 
