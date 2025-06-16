@@ -115,7 +115,7 @@ class PinjamanController extends Controller
         $tenor = tenor_pinjaman::where('id_perusahaan', $perusahaan->id)
             ->where(function ($query) use ($range, $req) {
                 $query->where('minimal_nominal', '<=', $req->nominal);
-                $query->where('maximal_nominal', '<=',  $range['maximal']);
+                // ->where('maximal_nominal', '>=',  $range['maximal']);
             })
             ->with('amount_pinjaman')
             ->orderBy('tenor')
