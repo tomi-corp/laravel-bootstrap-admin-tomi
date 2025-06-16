@@ -373,7 +373,6 @@ class PinjamanController extends Controller
                 ->where('status_otp', 'pending')
                 ->first();
 
-            dd($cekPinjaman);
             if (isset($cekPinjaman)) {
                 return response()->json([
                     'status' => 400,
