@@ -112,15 +112,15 @@ class PinjamanController extends Controller
             'minimal' => $perusahaan->amount_pinjaman->minimal
         ];
 
+
         $tenor = tenor_pinjaman::where('id_perusahaan', $perusahaan->id)
-            ->where(function ($query) use ($range, $req) {
-                $query->where('minimal_nominal', '<=', $req->nominal);
-                // ->where('maximal_nominal', '>=',  $range['maximal']);
+            ->where(function ($q) use ($range, $req) {
+                $q->where('minimal_nominal', '>=', $range['minimal'])
+                    ->where('minimal_nominal', '<',  $req->nominal);
             })
             ->with('amount_pinjaman')
             ->orderBy('tenor')
             ->get();
-
 
         return response()->json([
             'status' => 200,
@@ -181,6 +181,8 @@ class PinjamanController extends Controller
                 ->with('amount_pinjaman')
                 ->orderBy('tenor')
                 ->first();
+
+
 
             if (!($tenor->minimal_nominal <= $req->nominal) && !($maksimal <= $tenor->maximal_nominal)) {
                 return response()->json([
@@ -372,6 +374,26 @@ class PinjamanController extends Controller
 
         if (isset($perusahaan) && isset($perusahaan->karyawanSingle)) {
             $hasil = true;
+            $tanggal_bergabung = Carbon::parse($perusahaan->karyawanSingle->tanggal_bergabung);
+            $tanggal_sekarang = Carbon::now();
+
+            $diff = intval($tanggal_bergabung->floatDiffInMonths($tanggal_sekarang));
+
+            if ($perusahaan->karyawanSingle->status_sp != 0) {
+                return response()->json([
+                    'status' => 400,
+                    'message' => 'Mohon maaf, peminjaman hanya dapat dilakukan dengan karyawan berstatus bebas surat peringatan',
+                ], 400);
+            } elseif ($perusahaan->karyawanSingle->status == "tetap") {
+                $hasil = true;
+            } elseif ($diff < 6) {
+                return response()->json([
+                    'status' => 400,
+                    'message' => 'Mohon maaf, hanya karyawan dengan status tetap / masa kerja > 6 Bulan untuk melakukan peminjaman',
+                ], 400);
+            } else {
+                $hasil = true;
+            }
         }
 
         if ($hasil == false) {

@@ -23,6 +23,10 @@ class list_data_ksp extends Model
         'departement',
         'tanggal_bergabung',
         'status',
+        'status_sp',
+        'id_nama_bank',
+        'nama_rekening',
+        'nomor_bank',
         'approve_satu',
         'approve_dua',
     ];
@@ -30,5 +34,10 @@ class list_data_ksp extends Model
     public function perusahaan()
     {
         return $this->hasOne(ListPerusahaan::class, 'id', 'id_list_perusahaan');
+    }
+
+    public function bank()
+    {
+        return $this->hasOne(bank::class, 'id', 'id_nama_bank');
     }
 }

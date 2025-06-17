@@ -49,6 +49,8 @@ Route::middleware(['AdminMiddleware'])->group(
         Route::post('/ksp/list/karyawan/count', [KspController::class, 'listKaryawanPendingCount'])->name('admin.list.karyawan.pending.count');
         Route::post('/ksp/list/karyawan/pending', [KspController::class, 'listKaryawanPending'])->name('admin.list.karyawan.pending');
         Route::post('/ksp/list/karyawan/approve', [KspController::class, 'approveKaryawanPending'])->name('admin.list.karyawan.approve');
+        Route::post('/ksp/list/karyawan/detail', [KspController::class, 'detailKaryawan'])->name('admin.list.karyawan.detail');
+        Route::post('/ksp/list/karyawan/update', [KspController::class, 'updateKaryawan'])->name('admin.list.karyawan.updateKaryawan');
         Route::post('/ksp/list/perusahaan/table', [KspController::class, 'listPerusahaanTable'])->name('admin.ksp.perusahaan.table');
         // KSP => Pengajuan
         Route::post('/ksp/pending/table', [KspController::class, 'pendingPinjamanTable'])->name('admin.ksp.pending.table');

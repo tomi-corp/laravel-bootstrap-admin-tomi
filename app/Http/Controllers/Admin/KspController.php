@@ -8,7 +8,9 @@ use App\Http\Requests\Admin\Ksp\AddKonfigurasiRequest;
 use App\Http\Requests\Admin\Ksp\AddPerusahaanRequest;
 use App\Http\Requests\Admin\Ksp\AmountPinjamanRequest;
 use App\Http\Requests\Admin\Ksp\EditPerusahaanRequest;
+use App\Http\Requests\Admin\Ksp\UpdateKaryawanRequest;
 use App\Http\Requests\Admin\Ksp\UploadListKaryawanRequest;
+use App\Http\Resources\Admin\Bank\BankResource;
 use App\Http\Resources\Admin\Ksp\DetailPerusahaanResource;
 use App\Http\Resources\Admin\Ksp\InvoiceTableResource;
 use App\Http\Resources\Admin\Ksp\ListKaryawanPendingResource;
@@ -18,6 +20,7 @@ use App\Http\Resources\Admin\Pengajuan\DetailPengajuanResource;
 use App\Imports\ExportImportData;
 use App\Imports\KaryawanPendingImport;
 use App\Models\amount_pinjaman;
+use App\Models\bank;
 use App\Models\invoicing_pinjaman;
 use App\Models\kecamatan;
 use App\Models\kelurahan;
@@ -246,6 +249,7 @@ class KspController extends Controller
         $perusahaan = list_data_ksp::where('id_list_perusahaan', $id)
             ->where('approve_satu', 'approve')
             ->where('approve_dua', 'approve')
+            ->with('bank')
             ->get();
 
         return DataTables::of($perusahaan)
@@ -254,14 +258,74 @@ class KspController extends Controller
             ->addColumn('penghasilan', function ($row) {
                 return 'Rp  ' . number_format($row->penghasilan);
             })
+
+            ->addColumn('bank', function ($row) {
+                return $row->bank->code_bank;
+            })
+
             ->addColumn('action', function ($row) {
-                return '<button class="btn btn-sm btn-primary mr-2" onclick="edit(' . $row->id . ')"><i class="mdi mdi-pencil"></i></button>
-                <button class="btn btn-sm btn-info mr-2" onclick="approve(' . $row->id . ')"><i class=" mdi mdi-file-check"></i> Verifikasi</button>
-                ';
+                return '<button class="btn btn-sm btn-primary mr-2" onclick="edit(' . $row->id . ')"><i class="mdi mdi-pencil"></i></button>';
             })
 
             ->rawColumns(['action'])
             ->toJson();
+    }
+    public function detailKaryawan(Request $req)
+    {
+        $karyawan = list_data_ksp::where('id', $req->id)
+            ->where('approve_satu', 'approve')
+            ->where('approve_dua', 'approve')
+            ->with('bank')
+            ->first();
+
+        return response()->json([
+            'status' => 200,
+            'data' => [
+                'nama' => $karyawan->nama_karyawan,
+                'tanggal_bergabung' => $karyawan->tanggal_bergabung,
+                'nik' => $karyawan->nik,
+                'nip' => $karyawan->nip,
+                'whatsapp' => $karyawan->whatsapp,
+                'alamat' => $karyawan->alamat,
+                'divisi' => $karyawan->divisi,
+                'departement' => $karyawan->departement,
+                'jabatan' => $karyawan->jabatan,
+                'status' => $karyawan->status,
+                'status_sp' => $karyawan->status_sp,
+                'bank' => $karyawan->id_nama_bank,
+                'nomor_bank' => $karyawan->nomor_bank,
+                'penghasilan' => $karyawan->penghasilan,
+            ]
+        ], 200);
+    }
+
+    public function updateKaryawan(UpdateKaryawanRequest $req)
+    {
+        $karyawan = list_data_ksp::where('id', $req->id)
+            ->where('approve_satu', 'approve')
+            ->where('approve_dua', 'approve')
+            ->with('bank')
+            ->first();
+
+        $karyawan->nama_karyawan = $req->nama_karyawan;
+        $karyawan->tanggal_bergabung = $req->tanggal_bergabung;
+        $karyawan->nik = $req->nik;
+        $karyawan->nip = $req->nip;
+        $karyawan->whatsapp = $req->whatsapp;
+        $karyawan->alamat = $req->alamat_lengkap;
+        $karyawan->divisi = $req->divisi;
+        $karyawan->departement = $req->departement;
+        $karyawan->jabatan = $req->jabatan;
+        $karyawan->status = $req->status;
+        $karyawan->status_sp = $req->statusSp;
+        $karyawan->id_nama_bank = $req->bank;
+        $karyawan->nomor_bank = $req->nomor_bank;
+        $karyawan->penghasilan = $req->penghasilan;
+        $karyawan->save();
+        return response()->json([
+            'status' => 200,
+            'message' => 'Data Karyawan Berhasil diubah'
+        ], 200);
     }
 
     public function listKaryawan($id)
@@ -274,8 +338,12 @@ class KspController extends Controller
                 'desa'
             ])
             ->first();
+
+        $banks = BankResource::collection(bank::get());
+
+
         if (isset($perusahaan)) {
-            return view('admin.ksp.perusahaan.karyawan', compact(['id', 'perusahaan']));
+            return view('admin.ksp.perusahaan.karyawan', compact(['id', 'perusahaan', 'banks']));
         } else {
             abort(404);
         }

@@ -146,9 +146,16 @@
                                 <th>NIP</th>
                                 <th>Whatsapp</th>
                                 <th>Alamat</th>
+                                <th>Divisi</th>
                                 <th>Departement</th>
                                 <th>Jabatan</th>
+                                <th>Status</th>
+                                <th>Status SP</th>
+                                <th>BANK</th>
+                                <th>Nama Rekening</th>
+                                <th>No Bank</th>
                                 <th>Penghasilan</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                     </table>
@@ -199,15 +206,190 @@
     </div>
 
 
+    {{-- modal edit --}}
+    <div class="modal fade" id="modalEdit" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+        aria-hidden="true">
+        <div class=" modal-dialog modal-lg modal-dialog-centered modal-dialog-centered modal-dialog-scrollable"
+            role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalCenterTitle">Ubah Data Karyawan
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Nama Karyawan</label>
+                                <input class="form-control" name="nama_karyawan" id="nama_karyawan" required></input>
+                                <small id="errNama_karyawan"></small>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Tanggal Bergabung</label>
+                                <input class="form-control" name="tanggal_bergabung" id="tanggal_bergabung" required
+                                    type="date"></input>
+                                <small id="errTanggal_bergabung"></small>
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>NIK</label>
+                                <input class="form-control" name="nik" id="nik" required></input>
+                                <small id="errNik"></small>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+
+                                <label>NIP</label>
+                                <input class="form-control" name="nip" id="nip" required></input>
+                                <small class="text-danger" id="errNip"></small>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <div class="form-group">
+
+                                <label>Whatsapp</label>
+                                <input class="form-control" name="whatsapp" id="whatsapp" required></input>
+                                <small class="text-danger" id="errWhatsapp"></small>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <div class="form-group">
+
+                                <label>Alamat Lengkap</label>
+                                <textarea id="alamat_lengkap" class="form-control"></textarea>
+                                <small class="text-danger" id="errAlamat_lengkap"></small>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+
+                                <label>Divisi</label>
+                                <input class="form-control" name="divisi" id="divisi" required></input>
+                                <small class="text-danger" id="errDivisi"></small>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+
+                                <label>Departement</label>
+                                <input class="form-control" name="departement" id="departement" required></input>
+                                <small class="text-danger" id="errDepartement"></small>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+
+                                <label>Jabatan</label>
+                                <input class="form-control" name="jabatan" id="jabatan" required></input>
+                                <small class="text-danger" id="errJabatan"></small>
+                            </div>
+                        </div>
+
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+
+                                <label>Status</label>
+                                <select class="form-control" id="status">
+                                    <option value="tetap">Tetap</option>
+                                    <option value="percobaan">Percobaan</option>
+                                    <option value="phk">PHK</option>
+                                    <option value="resign">Resign</option>
+                                </select>
+                                <small class="text-danger" id="errStatus"></small>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <div class="form-group">
+
+                                <label>Status SP</label>
+                                <select class="form-control" id="statusSp">
+                                    <option value="0">0</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                </select>
+                                <small class="text-danger" id="errStatusSp"></small>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+
+                                <label>BANK</label>
+                                <select class="form-control" id="bank">
+                                    @foreach ($banks as $bank)
+                                        <option value="{{ $bank->id }}"> {{ $bank->code_bank }} -
+                                            {{ $bank->description }}</option>
+                                    @endforeach
+                                </select>
+                                <small class="text-danger" id="errStatusSp"></small>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+
+                                <label>Nomor Bank</label>
+                                <input class="form-control" name="nomor_bank" id="nomor_bank" required
+                                    type="number"></input>
+                                <small class="text-danger" id="errNomorBank"></small>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <div class="form-group">
+
+                                <label>Penghasilan</label>
+                                <input class="form-control" name="penghasilan" id="penghasilan" required
+                                    type="number"></input>
+                                <small class="text-danger" id="errPenghasilan"></small>
+                            </div>
+                        </div>
+
+
+                    </div>
+
+
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button class="btn btn-primary" type="button" id="buttonSubmitEdit"
+                        onclick="buttonSubmitUpdateKaryawan()">Save <div id="loadingTextEditUpdateKaryawan">
+                        </div></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
 @endsection
 
 @push('js')
     <script>
         $(document).ready(function() {
+            let editID = '';
+
             var dataTable = {
                 "_token": "{{ csrf_token() }}",
             };
-            var table = $('#tableListKaryawan').DataTable({
+            const table = $('#tableListKaryawan').DataTable({
                 dom: 'B<"clear">lfrtip',
                 buttons: [{
                         extend: 'excel',
@@ -265,11 +447,25 @@
                 }, {
                     data: 'alamat'
                 }, {
+                    data: 'divisi'
+                }, {
                     data: 'departement'
                 }, {
                     data: 'jabatan'
                 }, {
+                    data: 'status'
+                }, {
+                    data: 'status_sp'
+                }, {
+                    data: 'bank'
+                }, {
+                    data: 'nama_rekening'
+                }, {
+                    data: 'nomor_bank'
+                }, {
                     data: 'penghasilan'
+                }, {
+                    data: 'action'
                 }]
             });
 
@@ -322,7 +518,6 @@
                     type: 'POST',
                     dataType: 'json',
                     success: function(resultKaryawanPending) {
-                        console.log("dsad")
                         $('#karyawanPending').text(resultKaryawanPending.pending)
 
                     }
@@ -383,6 +578,100 @@
                     }
                 });
             }
+
+
+
+
+            edit = (id) => {
+                editID = id;
+                $.ajax({
+                    url: '{!! route('admin.list.karyawan.detail') !!}',
+                    data: {
+                        '_token': "{{ csrf_token() }}",
+                        'id': editID,
+                    },
+                    type: 'POST',
+                    dataType: 'json',
+                    success: function(detail) {
+                        $('#nama_karyawan').val(detail.data.nama);
+                        $('#tanggal_bergabung').val(detail.data.tanggal_bergabung);
+                        $('#nik').val(detail.data.nik);
+                        $('#nip').val(detail.data.nip);
+                        $('#whatsapp').val(detail.data.whatsapp);
+                        $('#alamat_lengkap').text(detail.data.alamat);
+                        $('#divisi').val(detail.data.divisi);
+                        $('#departement').val(detail.data.departement);
+                        $('#jabatan').val(detail.data.jabatan);
+                        $('#status').val(detail.data.status);
+                        $('#statusSp').val(detail.data.status_sp);
+                        $('#bank').val(detail.data.bank);
+                        $('#nomor_bank').val(detail.data.nomor_bank);
+                        $('#penghasilan').val(detail.data.penghasilan);
+                        $('#modalEdit').modal('show');
+                    }
+                });
+            }
+
+
+            buttonSubmitUpdateKaryawan = () => {
+                $.ajax({
+                    url: '{!! route('admin.list.karyawan.updateKaryawan') !!}',
+                    data: {
+                        '_token': "{{ csrf_token() }}",
+                        'id': editID,
+                        'nama_karyawan': $("#nama_karyawan").val(),
+                        'tanggal_bergabung': $("#tanggal_bergabung").val(),
+                        'nik': $("#nik").val(),
+                        'nip': $("#nip").val(),
+                        'whatsapp': $("#whatsapp").val(),
+                        'alamat_lengkap': $("#alamat_lengkap").val(),
+                        'divisi': $("#divisi").val(),
+                        'departement': $("#departement").val(),
+                        'jabatan': $("#jabatan").val(),
+                        'status': $("#status").val(),
+                        'statusSp': $("#statusSp").val(),
+                        'bank': $("#bank").val(),
+                        'nomor_bank': $("#nomor_bank").val(),
+                        'penghasilan': $("#penghasilan").val(),
+                    },
+                    type: 'POST',
+                    dataType: 'json',
+                    beforeSend: function() {
+                        $('#buttonSubmitEdit').attr("disabled", true);
+                        $('#loadingTextEditUpdateKaryawan').addClass("spinner-border");
+                    },
+                    success: function(add) {
+                        toastr.success(add.message);
+                        table.ajax.reload();
+
+                        $("#modalEdit").modal('hide');
+                        $('#buttonSubmitEdit').attr("disabled", false);
+                        $('#loadingTextEditUpdateKaryawan').removeClass("spinner-border");
+                    },
+                    error: function(err) {
+                        $('#buttonSubmitEdit').attr("disabled", false);
+                        $('#loadingTextEditUpdateKaryawan').removeClass("spinner-border");
+
+                        $('#errNama_karyawan').text(err.responseJSON.errors.nama_karyawan);
+                        $('#errTanggal_bergabung').text(err.responseJSON.errors.tanggal_bergabung);
+                        $('#errNik').text(err.responseJSON.errors.nik);
+                        $('#errNip').text(err.responseJSON.errors.nip);
+                        $('#errWhatsapp').text(err.responseJSON.errors.whatsapp);
+                        $('#errAlamat_lengkap').text(err.responseJSON.errors.alamat);
+                        $('#errDivisi').text(err.responseJSON.errors.divisi);
+                        $('#errDepartement').text(err.responseJSON.errors.departement);
+                        $('#errJabatan').text(err.responseJSON.errors.jabatan);
+                        $('#errStatus').text(err.responseJSON.errors.status);
+                        $('#errStatusSp').text(err.responseJSON.errors.status_sp);
+                        $('#errBank').text(err.responseJSON.errors.bank);
+                        $('#errNomor_bank').text(err.responseJSON.errors.nomor_bank);
+                        $('#errPenghasilan').text(err.responseJSON.errors.penghasilan);
+                        $('#modalEdit').modal('show');
+                    }
+                });
+            }
+
+
         });
     </script>
 @endpush

@@ -2,6 +2,7 @@
 
 namespace App\Imports;
 
+use App\Models\bank;
 use App\Models\list_data_ksp;
 use App\Models\ListPerusahaan;
 use Carbon\Carbon;
@@ -19,7 +20,11 @@ class KaryawanPendingImport implements ToModel, WithHeadingRow
      */
     public function model(array $row)
     {
-        $id = ListPerusahaan::where('id_code_perusahaan', $row['code_perusahaan'])->first();
+        $id = ListPerusahaan::where('id_code_perusahaan', $row['code_perusahaan'])
+            ->first();
+        $bank = bank::where('code_bank', $row['nama_bank'])
+            ->first();
+
         return new list_data_ksp([
             'id_list_perusahaan' => $id->id,
             'nik' => $row['nik'],
@@ -33,6 +38,10 @@ class KaryawanPendingImport implements ToModel, WithHeadingRow
             'departement' => $row['departemen'],
             'tanggal_bergabung' => Date::excelToDateTimeObject($row['tanggal_bergabung'])->format('Y-m-d'),
             'status' => $row['status'],
+            'status_sp' => '' . $row['status_sp'],
+            'id_nama_bank' => $bank->id,
+            'nama_rekening' => $row['nama_rekening'],
+            'nomor_bank' => $row['nomor_bank'],
             'approve_satu' => 'pending',
             'approve_dua' => 'pending',
         ]);

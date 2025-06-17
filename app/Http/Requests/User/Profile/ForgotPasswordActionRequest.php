@@ -2,6 +2,9 @@
 
 namespace App\Http\Requests\User\Profile;
 
+use Illuminate\Validation\Rules\Password;
+
+
 use Illuminate\Foundation\Http\FormRequest;
 
 class ForgotPasswordActionRequest extends FormRequest
@@ -24,7 +27,12 @@ class ForgotPasswordActionRequest extends FormRequest
         return [
             'email' => 'required|exists:password_reset_users,email',
             'token' => 'required|exists:password_reset_users,otp',
-            'password' => 'required|confirmed|min:8',
+            'password' => ['required', Password::min(8)
+                ->letters()
+                ->mixedCase()
+                ->numbers()
+                ->symbols()
+                ->uncompromised()],
             'password_confirmation' => 'required'
         ];
     }

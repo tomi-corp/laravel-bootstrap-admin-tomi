@@ -25,7 +25,13 @@ return new class extends Migration
             $table->string('penghasilan');
             $table->string('departement');
             $table->date('tanggal_bergabung');
-            $table->string('status');
+            $table->enum('status', ['tetap', 'percobaan', 'phk', 'resign']);
+            $table->enum('status_sp', ['0', '1', '2', '3']);
+            $table->bigInteger('id_nama_bank')->unsigned();
+            $table->foreign('id_nama_bank')->references('id')->on('list_bank');
+            $table->longText('nama_rekening');
+            $table->longText('nomor_bank');
+            $table->date('tanggal_bergabung');
             $table->enum('approve_satu', ['pending', 'approve', 'reject']);
             $table->enum('approve_dua', ['pending', 'approve', 'reject']);
             $table->softDeletes();

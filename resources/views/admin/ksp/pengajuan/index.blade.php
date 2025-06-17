@@ -17,9 +17,9 @@
         </div>
         <div class="col-12">
             <p>
-                <button class="btn btn-primary" type="button" id="showDetailPerusahaan" onclick="showDetailPerusahaan()">
-                    <span id="textDetailPerusahaan">Show</span>
-                    <i id="iconDetailPerusahaan" class ="mdi mdi-arrow-right-bold-outline"></i>
+                <button class="btn btn-warning" type="button" id="showDetailPerusahaan" onclick="showDetailPerusahaan()">
+                    <span id="textDetailPerusahaan">Hide</span>
+                    <i id="iconDetailPerusahaan" class ="mdi mdi-arrow-left-bold-outline"></i>
                 </button>
             </p>
         </div>
@@ -184,7 +184,7 @@
                                         <th>Nominal </th>
                                         <th>Tenor</th>
                                         <th>Rate</th>
-                                        <th>Biaya ADM KSP {{ $perusahaan->nama }}</th>
+                                        <th>Biaya ADM KSP DDT</th>
                                         <th>DPP KSP</th>
                                         <th>PPN KSP</th>
                                         <th>Biaya ADM PANDU</th>
@@ -236,7 +236,7 @@
                                         <th>Nominal </th>
                                         <th>Tenor</th>
                                         <th>Rate</th>
-                                        <th>Biaya ADM KSP {{ $perusahaan->nama }}</th>
+                                        <th>Biaya ADM KSP DTT</th>
                                         <th>DPP KSP</th>
                                         <th>PPN KSP</th>
                                         <th>Biaya ADM PANDU</th>
@@ -260,7 +260,7 @@
                                         <th>Nominal </th>
                                         <th>Tenor</th>
                                         <th>Rate</th>
-                                        <th>Biaya ADM KSP {{ $perusahaan->nama }}</th>
+                                        <th>Biaya ADM KSP DTT</th>
                                         <th>DPP KSP</th>
                                         <th>PPN KSP</th>
                                         <th>Biaya ADM PANDU</th>
@@ -283,7 +283,7 @@
                                         <th>Nominal </th>
                                         <th>Tenor</th>
                                         <th>Rate</th>
-                                        <th>Biaya ADM KSP {{ $perusahaan->nama }}</th>
+                                        <th>Biaya ADM KSP DTT</th>
                                         <th>DPP KSP</th>
                                         <th>PPN KSP</th>
                                         <th>Biaya ADM PANDU</th>
@@ -894,11 +894,11 @@
 
             showDetailPerusahaan = () => {
                 if (defaultetail) {
-                    $('#showDetailPerusahaan').removeClass('btn-primary');
-                    $('#showDetailPerusahaan').addClass('btn-warning');
-                    $('#textDetailPerusahaan').text('Hide');
-                    $('#iconDetailPerusahaan').addClass('mdi-arrow-left-bold-outline');
-                    $('#iconDetailPerusahaan').removeClass('mdi-arrow-right-bold-outline');
+                    $('#showDetailPerusahaan').removeClass('btn-warning');
+                    $('#showDetailPerusahaan').addClass('btn-primary');
+                    $('#textDetailPerusahaan').text('Show');
+                    $('#iconDetailPerusahaan').addClass('mdi-arrow-right-bold-outline');
+                    $('#iconDetailPerusahaan').removeClass('mdi-arrow-left-bold-outline');
                     $('#hideDetailPerusahaan').removeClass('col-md-4');
                     $('#hideDetailPerusahaan').hide();
 
@@ -908,11 +908,11 @@
                     defaultetail = false;
                     $($.fn.dataTable.tables(true)).DataTable().columns.adjust().responsive.recalc();
                 } else {
-                    $('#showDetailPerusahaan').removeClass('btn-warning');
-                    $('#showDetailPerusahaan').addClass('btn-primary');
-                    $('#textDetailPerusahaan').text('Show');
-                    $('#iconDetailPerusahaan').addClass('mdi-arrow-right-bold-outline');
-                    $('#iconDetailPerusahaan').removeClass('mdi-arrow-left-bold-outline');
+                    $('#showDetailPerusahaan').addClass('btn-warning');
+                    $('#showDetailPerusahaan').removeClass('btn-primary');
+                    $('#textDetailPerusahaan').text('Hide');
+                    $('#iconDetailPerusahaan').addClass('mdi-arrow-left-bold-outline');
+                    $('#iconDetailPerusahaan').removeClass('mdi-arrow-right-bold-outline');
                     $('#hideDetailPerusahaan').addClass('col-md-4');
                     $('#hideDetailPerusahaan').show();
                     $('#hideDetailPerusahaanDua').removeClass('col-md-12');
