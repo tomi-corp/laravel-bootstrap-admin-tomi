@@ -82,7 +82,8 @@ class PpobController extends Controller
     public function prepaidTransactionTable(Request $req)
     {
 
-        $urlBase = "https://mitra.buylink.id/api/user/leader/transaction";
+        $urlBase = "https://mitra.buylink.id/api/user/report/transaction";
+
         if (isset($req->filterRangePicker)) {
             $time = explode(" - ", $req->filterRangePicker);
             $time1 = Carbon::parse($time[0])->format('Y-m-d');
@@ -106,7 +107,7 @@ class PpobController extends Controller
         if ($req->metode_pembayaran) {
             $urlBase = $urlBase . '&payment_method=' . $req->metode_pembayaran;
         };
-        $urlBase = $urlBase . '&type=prepaid&page=' . $req->pageTable;
+        $urlBase = $urlBase . '&page=' . $req->pageTable;
         $response = Http::withoutVerifying()
             ->withOptions(["verify" => false])
             ->withHeaders([
@@ -125,8 +126,7 @@ class PpobController extends Controller
 
     public function postpaidTransactionTable(Request $req)
     {
-
-        $urlBase = "https://mitra.buylink.id/api/user/leader/transaction";
+        $urlBase = "https://mitra.buylink.id/api/user/report/postpaid/transaction";
         if (isset($req->filterRangePicker)) {
             $time = explode(" - ", $req->filterRangePicker);
             $time1 = Carbon::parse($time[0])->format('Y-m-d');
@@ -150,7 +150,7 @@ class PpobController extends Controller
         if ($req->metode_pembayaran) {
             $urlBase = $urlBase . '&payment_method=' . $req->metode_pembayaran;
         };
-        $urlBase = $urlBase . '&type=postpaid&page=' . $req->pageTable;
+        $urlBase = $urlBase . '&page=' . $req->pageTable;
         $response = Http::withoutVerifying()
             ->withOptions(["verify" => false])
             ->withHeaders([
@@ -169,7 +169,7 @@ class PpobController extends Controller
 
     public function komisiSummaryAll(Request $req)
     {
-
+        // ini data leader
         $time = explode(" - ", $req->filterRangePicker);
         $time1 = Carbon::parse($time[0])->format('Y-m-d');
         $time2 = Carbon::parse($time[1])->format('Y-m-d');
@@ -181,7 +181,7 @@ class PpobController extends Controller
         $responsePostPaid = Http::withoutVerifying()
             ->withOptions(["verify" => false])
             ->withHeaders([
-                'Authorization' => 'Bearer Vxx2OfFdXfLPjW0X2fHTGkd3MBC3Ldw7Zj7yx64Z474e0df2'
+                'Authorization' => 'Bearer QKtaGpZoL2NPLKlaPhliPV0rQU7ohHXzcEiZldUc335a0321'
             ])
             ->get($urlPostPaid);
         $dataPostpaid = json_decode($responsePostPaid);
@@ -189,7 +189,7 @@ class PpobController extends Controller
         $responsePrePaid = Http::withoutVerifying()
             ->withOptions(["verify" => false])
             ->withHeaders([
-                'Authorization' => 'Bearer Vxx2OfFdXfLPjW0X2fHTGkd3MBC3Ldw7Zj7yx64Z474e0df2'
+                'Authorization' => 'Bearer QKtaGpZoL2NPLKlaPhliPV0rQU7ohHXzcEiZldUc335a0321'
             ])
             ->get($urlPrePaid);
         $dataPrepaid = json_decode($responsePrePaid);

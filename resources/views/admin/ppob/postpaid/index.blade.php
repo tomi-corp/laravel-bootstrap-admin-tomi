@@ -110,12 +110,11 @@
                             <tr>
                                 <th>DateTime </th>
                                 <th>Transaction ID </th>
-                                <th>Member Name</th>
+                                <th>Customer Name</th>
                                 <th>Product Name</th>
                                 <th>Price</th>
-                                <th>Member Commision</th>
-                                <th>Leader Commision</th>
-                                <th>Status</th>
+                                <th>Commision</th>
+                                <th>Payment Method</th>
                                 <th>Status Label</th>
                             </tr>
                         </thead>
@@ -192,11 +191,11 @@
                             .toLocaleString());
 
                         $('#keseluruhanSuksesCount').text(summaryPostpaid.data.all.success.count +
-                            "Transaksi");
+                            " Transaksi");
                         $('#keseluruhanSuksesGagal').text(summaryPostpaid.data.all.failed.count +
-                            "Transaksi");
+                            " Transaksi");
                         $('#keseluruhanSuksesProses').text(summaryPostpaid.data.all.pending.count +
-                            "Transaksi");
+                            " Transaksi");
                         // today
                         keseluruhanToday = summaryPostpaid.data.today.success.sales +
                             summaryPostpaid.data.today.failed.sales +
@@ -210,11 +209,11 @@
                             .toLocaleString());
 
                         $('#todaySuksesCount').text(summaryPostpaid.data.all.success.count +
-                            "Transaksi");
+                            " Transaksi");
                         $('#todaySuksesGagal').text(summaryPostpaid.data.all.failed.count +
-                            "Transaksi");
+                            " Transaksi");
                         $('#todaySuksesProses').text(summaryPostpaid.data.all.pending.count +
-                            "Transaksi");
+                            " Transaksi");
                     }
                 });
 
@@ -237,6 +236,8 @@
                     success: function(tablePostpaid) {
                         $("#contentMaster").removeClass('loading-skeleton');
                         dataUntukTable = tablePostpaid.data;
+                        table.clear();
+                        table.rows.add(dataUntukTable).draw();
                         meta = tablePostpaid.meta;
                         console.log(tablePostpaid.meta);
                         var $container = $("#paginationCustomButton");
@@ -487,17 +488,15 @@
                 }, {
                     data: 'transaction_id'
                 }, {
-                    data: 'member_name'
+                    data: 'customer_name'
                 }, {
                     data: 'product_name'
                 }, {
-                    data: 'product_price'
+                    data: 'price'
                 }, {
-                    data: 'member_commission'
+                    data: 'commission'
                 }, {
-                    data: 'leader_commission'
-                }, {
-                    data: 'status'
+                    data: 'payment_method'
                 }, {
                     data: 'status_label'
                 }]

@@ -15,8 +15,8 @@
             </div>
         </div>
 
-        <div class="col-12" id="contentMaster">
-            <div class="row">
+        <div class="col-12">
+            <div class="row" id="contentMaster">
                 <div class="col-md-6">
                     <div class="card">
                         <div class="card-body">
@@ -60,7 +60,7 @@
                 </div>
             </div>
 
-            <div class="card">
+            <div class="card" id="contentTable">
                 <div class="card-body">
                     <h4>Laporan Transaksi Prabayar</h4>
 
@@ -110,12 +110,11 @@
                             <tr>
                                 <th>DateTime </th>
                                 <th>Transaction ID </th>
-                                <th>Member Name</th>
+                                <th>Customer Name</th>
                                 <th>Product Name</th>
                                 <th>Price</th>
-                                <th>Member Commision</th>
-                                <th>Leader Commision</th>
-                                <th>Status</th>
+                                <th>Commision</th>
+                                <th>Payment Method</th>
                                 <th>Status Label</th>
                             </tr>
                         </thead>
@@ -155,6 +154,75 @@
             let dataUntukTable;
             let meta;
             let pageTable = 1;
+
+            let table = $('#tablePrepaid').DataTable({
+                // dom: 'B<"clear">lfrtip',
+                dom: 'rtip',
+                buttons: [{
+                        extend: 'excel',
+                        className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
+                        text: '<span class="mdi mdi-file-excel"><span class="pl-1">Excel</span></span>',
+                        header: false,
+                        exportOptions: {
+                            columns: [0, 1, 2]
+                        },
+                    },
+                    {
+                        extend: 'copy',
+                        className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
+                        text: '<span class="mdi mdi-content-copy"><span class="pl-1">Copy</span></span>',
+                        header: false,
+                        exportOptions: {
+                            columns: [0, 1, 2]
+                        },
+                    },
+                    {
+                        extend: 'print',
+                        className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
+                        text: '<span class="mdi mdi-printer"><span class="pl-1">Print</span></span>',
+                        header: false,
+                        exportOptions: {
+                            columns: [0, 1, 2]
+                        },
+                    }
+                ],
+                "lengthMenu": [10, 50, 100, 500, 1000, 2000, 5000, 10000, 50000, 100000],
+                processing: true,
+                responsive: true,
+                serverSide: false,
+                bFilter: false,
+                bPaginate: false,
+                bInfo: false,
+                language: {
+                    processing: '<i class="dripicons-loading">autorenew</i>'
+                },
+                // ajax: {
+                //     "type": "GET",
+                //     "url": '{!! route('admin.ppob.prepaid.table') !!}',
+                //     // "data": function(xx) {
+                //     //     return $.extend(xx, dataTable);
+                //     // },
+                // },
+                "data": dataUntukTable,
+
+                columns: [{
+                    data: 'transaction_at'
+                }, {
+                    data: 'transaction_id'
+                }, {
+                    data: 'customer_name'
+                }, {
+                    data: 'product_name'
+                }, {
+                    data: 'price'
+                }, {
+                    data: 'commission'
+                }, {
+                    data: 'payment_method'
+                }, {
+                    data: 'status_label'
+                }]
+            });
 
             perbaruiData = (
                 id_order,
@@ -196,29 +264,29 @@
                             .toLocaleString());
 
                         $('#keseluruhanSuksesCount').text(summaryPrepaid.data.all.success.count +
-                            "Transaksi");
+                            " Transaksi");
                         $('#keseluruhanSuksesGagal').text(summaryPrepaid.data.all.failed.count +
-                            "Transaksi");
+                            " Transaksi");
                         $('#keseluruhanSuksesProses').text(summaryPrepaid.data.all.pending.count +
-                            "Transaksi");
+                            " Transaksi");
                         // today
                         keseluruhanToday = summaryPrepaid.data.today.success.sales +
                             summaryPrepaid.data.today.failed.sales +
                             summaryPrepaid.data.today.pending.sales;
                         $('#today').text("Rp  " + keseluruhanToday.toLocaleString());
-                        $('#todaySukses').text("Rp  " + summaryPrepaid.data.all.success.sales
+                        $('#todaySukses').text("Rp  " + summaryPrepaid.data.today.success.sales
                             .toLocaleString());
-                        $('#todayGagal').text("Rp  " + summaryPrepaid.data.all.failed.sales
+                        $('#todayGagal').text("Rp  " + summaryPrepaid.data.today.failed.sales
                             .toLocaleString());
-                        $('#todayProses').text("Rp  " + summaryPrepaid.data.all.pending.sales
+                        $('#todayProses').text("Rp  " + summaryPrepaid.data.today.pending.sales
                             .toLocaleString());
 
-                        $('#todaySuksesCount').text(summaryPrepaid.data.all.success.count +
-                            "Transaksi");
-                        $('#todaySuksesGagal').text(summaryPrepaid.data.all.failed.count +
-                            "Transaksi");
-                        $('#todaySuksesProses').text(summaryPrepaid.data.all.pending.count +
-                            "Transaksi");
+                        $('#todaySuksesCount').text(summaryPrepaid.data.today.success.count +
+                            " Transaksi");
+                        $('#todaySuksesGagal').text(summaryPrepaid.data.today.failed.count +
+                            " Transaksi");
+                        $('#todaySuksesProses').text(summaryPrepaid.data.today.pending.count +
+                            " Transaksi");
                     }
                 });
 
@@ -236,11 +304,15 @@
                     type: 'POST',
                     dataType: 'json',
                     beforeSend: function() {
-                        $("#contentMaster").addClass('loading-skeleton');
+                        $("#contentTable").addClass('loading-skeleton');
                     },
                     success: function(tablePrepaid) {
-                        $("#contentMaster").removeClass('loading-skeleton');
+                        $("#contentTable").removeClass('loading-skeleton');
+
                         dataUntukTable = tablePrepaid.data;
+
+                        table.clear();
+                        table.rows.add(dataUntukTable).draw();
                         meta = tablePrepaid.meta;
                         console.log(tablePrepaid.meta);
                         var $container = $("#paginationCustomButton");
@@ -436,83 +508,13 @@
             var dataTable = {
                 "_token": "{{ csrf_token() }}",
             };
-            let table = $('#tablePrepaid').DataTable({
-                // dom: 'B<"clear">lfrtip',
-                dom: 'rtip',
-                buttons: [{
-                        extend: 'excel',
-                        className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
-                        text: '<span class="mdi mdi-file-excel"><span class="pl-1">Excel</span></span>',
-                        header: false,
-                        exportOptions: {
-                            columns: [0, 1, 2]
-                        },
-                    },
-                    {
-                        extend: 'copy',
-                        className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
-                        text: '<span class="mdi mdi-content-copy"><span class="pl-1">Copy</span></span>',
-                        header: false,
-                        exportOptions: {
-                            columns: [0, 1, 2]
-                        },
-                    },
-                    {
-                        extend: 'print',
-                        className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
-                        text: '<span class="mdi mdi-printer"><span class="pl-1">Print</span></span>',
-                        header: false,
-                        exportOptions: {
-                            columns: [0, 1, 2]
-                        },
-                    }
-                ],
-                "lengthMenu": [10, 50, 100, 500, 1000, 2000, 5000, 10000, 50000, 100000],
-                processing: true,
-                responsive: true,
-                serverSide: false,
-                bFilter: false,
-                bPaginate: false,
-                bInfo: false,
-                language: {
-                    processing: '<i class="dripicons-loading">autorenew</i>'
-                },
-                // ajax: {
-                //     "type": "GET",
-                //     "url": '{!! route('admin.ppob.prepaid.table') !!}',
-                //     // "data": function(xx) {
-                //     //     return $.extend(xx, dataTable);
-                //     // },
-                // },
-                "data": dataUntukTable,
 
-                columns: [{
-                    data: 'transaction_at'
-                }, {
-                    data: 'transaction_id'
-                }, {
-                    data: 'member_name'
-                }, {
-                    data: 'product_name'
-                }, {
-                    data: 'product_price'
-                }, {
-                    data: 'member_commission'
-                }, {
-                    data: 'leader_commission'
-                }, {
-                    data: 'status'
-                }, {
-                    data: 'status_label'
-                }]
-            });
 
             navigation = (id) => {
                 const linkkkk = $('#paginationButton' + id).attr('linkto')
                 if (linkkkk != undefined) {
-                    var queryString = linkkkk.split('?page=')[1]; // Get everything after the '?'
+                    var queryString = linkkkk.split('?page=')[1];
                     pageTable = queryString;
-                    $('#tablePrepaid').DataTable().clear();
                     perbaruiData(
                         id_order,
                         nama_produk,

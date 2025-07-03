@@ -107,15 +107,15 @@
                             .member_sales);
                         $('#commisionMemberPrabayarTanggal').text(summaryKomisi.dataPrepaid.data
                             .member_commission);
-                        $('#leader_commission').text(summaryKomisi.dataPrepaid.data
-                            .member_commission);
+                        $('#leaderCommisionPrabayarTanggal').text(summaryKomisi.dataPrepaid.data
+                            .leader_commission);
                         // pascabayar
                         $('#memberSalesPascabayarTanggal').text(summaryKomisi.dataPostPaid.data
                             .member_sales);
                         $('#commisionMemberPascabayarTanggal').text(summaryKomisi.dataPostPaid.data
                             .member_commission);
                         $('#leaderCommisionPascabayarTanggal').text(summaryKomisi.dataPostPaid.data
-                            .member_commission);
+                            .leader_commission);
                     }
                 });
             }
