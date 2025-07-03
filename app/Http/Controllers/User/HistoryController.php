@@ -32,7 +32,9 @@ class HistoryController extends Controller
 
         if ($req->path == "ppob") {
             $menu = menu_mobile::where('path', 'ppob')->first();
-            $urlPPOB = 'https://mitra.buylink.id/api/user/report/transaction?start_date=' . $time1 . '&end_date=' . $time2 . '&customer_phone=' . $user->nohp . '&page=' . $req->page . '';
+            $phone = substr($user->nohp, 2);
+            $phoneFinal = '0' . $phone;
+            $urlPPOB = 'https://mitra.buylink.id/api/user/report/transaction?start_date=' . $time1 . '&end_date=' . $time2 . '&customer_phone=' . $phoneFinal . '&page=' . $req->page . '';
             // postpaid
             $responsePostPaid = Http::withoutVerifying()
                 ->withOptions(["verify" => false])
@@ -46,13 +48,13 @@ class HistoryController extends Controller
             $x = 0;
 
             foreach ($dataPostpaid->data as $aaf) {
-                $cccc[$x]['transaction_id'] = $aaf['transaction_id'];
-                $cccc[$x]['created_at'] = $aaf['transaction_at'];
-                $cccc[$x]['status'] = $aaf['status_label'];
-                $cccc[$x]['produk'] = $aaf['product_name'];
-                $cccc[$x]['price'] = str_replace('Rp', '', $aaf['price']);
+                $cccc[$x]['transaction_id'] = $aaf->transaction_id;
+                $cccc[$x]['created_at'] = $aaf->transaction_at;
+                $cccc[$x]['status'] = $aaf->status_label;
+                $cccc[$x]['produk'] = $aaf->product_name;
+                $cccc[$x]['price'] = str_replace('Rp', '', $aaf->price);
                 $cccc[$x]['price'] = str_replace('.', '', $cccc[$x]['price']);
-                $cccc[$x]['payment_method'] = $aaf['payment_method'];
+                $cccc[$x]['payment_method'] = $aaf->payment_method;
                 $cccc[$x]['type'] =  $menu->title;
                 $cccc[$x]['path'] =  $menu->path;
                 $cccc[$x]['img'] = $menu->icon;
