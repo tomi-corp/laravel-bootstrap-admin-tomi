@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreign('id_pinjaman')->references('id')->on('pinjamen');
             $table->integer('pembayaran');
             $table->date('jatuh_tempo');
+            $table->enum('status', ['lunas', 'belum']);
             $table->timestamps();
         });
     }

@@ -1,12 +1,14 @@
 <?php
 
 use App\Http\Controllers\Admin\AuthController;
+use App\Http\Controllers\Admin\CostController;
 use App\Http\Controllers\Admin\DailyCheckinController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\KspController;
 use App\Http\Controllers\Admin\MenuMobileController;
 use App\Http\Controllers\Admin\PpobController;
 use Illuminate\Support\Facades\Route;
+
 
 
 Route::middleware(['LoginAdminMiddleware'])->group(
@@ -23,8 +25,20 @@ Route::middleware(['LoginAdminMiddleware'])->group(
 
 Route::middleware(['AdminMiddleware'])->group(
     function () {
+        Route::get('/test', [DashboardController::class, 'test']);
+
         Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('admin.dashboard.index');
+        // ppob
         Route::get('/ppob', [PpobController::class, 'index'])->name('admin.ppob.index');
+        Route::get('/ppob/transaction/komisi', [PpobController::class, 'komisiIndex'])->name('admin.ppob.komisi');
+        Route::post('/ppob/transaction/komisi/summary/all', [PpobController::class, 'komisiSummaryAll'])->name('admin.ppob.komisi.summary.all');
+        Route::get('/ppob/transaction/prepaid', [PpobController::class, 'prepaidIndex'])->name('admin.ppob.prepaid');
+        Route::get('/ppob/transaction/postpaid', [PpobController::class, 'postpaidIndex'])->name('admin.ppob.postpaid');
+        Route::post('/ppob/transaction/summary/prepaid', [PpobController::class, 'prepaidTansactionSummary'])->name('admin.ppob.prepaid.summary');
+        Route::post('/ppob/transaction/summary/postpad', [PpobController::class, 'postpaidTransactionSummary'])->name('admin.ppob.postpaid.summary');
+        Route::post('/ppob/transacion/prepaid/table', [PpobController::class, 'prepaidTransactionTable'])->name('admin.ppob.prepaid.table');
+        Route::post('/ppob/transacion/postpaid/table', [PpobController::class, 'postpaidTransactionTable'])->name('admin.ppob.postpaid.table');
+
         Route::post('/logout', [AuthController::class, 'logoutAction'])->name('admin.logout');
         // menu mobile
         Route::get('/mobile/menu', [MenuMobileController::class, 'index'])->name('admin.menumobile.index');
@@ -71,19 +85,25 @@ Route::middleware(['AdminMiddleware'])->group(
         // KSP => Pengajuan => pending
         Route::post('/ksp/pengajuan/statistic', [KspController::class, 'pengajuanStatistic'])->name('admin.ksp.pengajuan.statistic');
         Route::get('/ksp/pengajuan/{id}', [KspController::class, 'pengajuanIndex'])->name('admin.ksp.pengajuan');
-        Route::post('/ksp/pengajuan/pending/table', [KspController::class, 'pengajuanPendingTable'])->name('admin.ksp.pengajuan.pending.table');
-        Route::post('/ksp/pengajuan/pending/export', [KspController::class, 'pengajuanPendingExport'])->name('admin.ksp.pengajuan.pending.export');
-        Route::post('/ksp/pengajuan/proses/to/export', [KspController::class, 'pengajuanProsesToExport'])->name('admin.ksp.pengajuan.proses.export');
-        // KSP => Pengajuan => exported
-        Route::post('/ksp/pengajuan/exported/table', [KspController::class, 'pengajuanExportTable'])->name('admin.ksp.pengajuan.export.table');
-        Route::post('/ksp/pengajuan/exported/upload', [KspController::class, 'pengajuanExportUpload'])->name('admin.ksp.pengajuan.export.upload');
+        Route::post('/ksp/pengajuan/onproses/table', [KspController::class, 'pengajuanOnprosesTable'])->name('admin.ksp.pengajuan.onproses.table');
+        // KSP => Pengajuan => pending
+        Route::post('/ksp/pengajuan/pendin/table', [KspController::class, 'pengajuanPendingTable'])->name('admin.ksp.pengajuan.pending.table');
         // KSP => Pengajuan => Approve
         Route::post('/ksp/pengajuan/approve/table', [KspController::class, 'pengajuanApproveTable'])->name('admin.ksp.pengajuan.approve.table');
         // KSP => Pengajuan => Reject
         Route::post('/ksp/pengajuan/reject/table', [KspController::class, 'pengajuanRejectTable'])->name('admin.ksp.pengajuan.reject.table');
+        // KSP => Pengajuan => Done
+        Route::post('/ksp/pengajuan/done/table', [KspController::class, 'pengajuanDoneTable'])->name('admin.ksp.pengajuan.done.table');
+        // =>check angsuran
+        Route::post('/ksp/check/angsuran', [KspController::class, 'checkAngsuran'])->name('admin.ksp.check.angsuran');
         // DailyCheckin
         Route::get('/daily/checkin', [DailyCheckinController::class, 'dailyIndex'])->name('admin.daily.index');
         Route::post('/daily/checkin/table', [DailyCheckinController::class, 'dailyTable'])->name('admin.daily.table');
         Route::post('/daily/checkin/update', [DailyCheckinController::class, 'dailyUpdate'])->name('admin.daily.update');
+
+
+        // ksp => cost
+        Route::get('/cost/ksp', [CostController::class, 'costIndex'])->name('admin.cost.index');
+        Route::post('/cost/ksp/add', [CostController::class, 'costAdd'])->name('admin.cost.add');
     }
 );

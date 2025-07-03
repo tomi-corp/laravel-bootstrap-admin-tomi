@@ -6,54 +6,87 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\User\History\HistoryDetailRequest;
 use App\Http\Resources\User\History\HistoryDetailResource;
 use App\Http\Resources\User\History\HistoryMenuTabResource;
+use App\Http\Resources\User\History\HistoryPpobResource;
 use App\Http\Resources\User\History\HistoryResource;
 use App\Models\menu_mobile;
 use App\Models\pinjaman;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 
 class HistoryController extends Controller
 {
     public function history(Request $req)
     {
-
+        $user = auth('api')->user();
         $menuMobile = menu_mobile::get();
-        if ($req->path == "all") {
-            $historyPinjam = pinjaman::where('user_id', auth('api')->user()->id)
-                ->select(['nominal', 'status', 'created_at', 'id'])
-                ->get();
+        if (isset($req->filterRangePicker)) {
+            $time = explode(" - ", $req->filterRangePicker);
+            $time1 = Carbon::parse($time[0])->format('Y-m-d');
+            $time2 = Carbon::parse($time[1])->format('Y-m-d');
+        } else {
+            $time = Carbon::now();
+            $time1 = $time->format('Y-m-d');
+            $time2 = $time->format('Y-m-d');
+        }
 
-            $menu = menu_mobile::where('path', 'pinjaman-payroll')->first();
+        if ($req->path == "ppob") {
+            $menu = menu_mobile::where('path', 'ppob')->first();
+            $urlPPOB = 'https://mitra.buylink.id/api/user/report/transaction?start_date=' . $time1 . '&end_date=' . $time2 . '&customer_phone=' . $user->nohp . '&page=' . $req->page . '';
+            // postpaid
+            $responsePostPaid = Http::withoutVerifying()
+                ->withOptions(["verify" => false])
+                ->withHeaders([
+                    'Authorization' => 'Bearer Vxx2OfFdXfLPjW0X2fHTGkd3MBC3Ldw7Zj7yx64Z474e0df2'
+                ])
+                ->get($urlPPOB);
 
-            $historyPinjam->map(function ($order) use ($menu) {
-                $order['type'] =  $menu->title;
-                $order['path'] =  $menu->path;
-                $order['img'] = $menu->icon;
-                return $order;
-            });
+            $dataPostpaid = json_decode($responsePostPaid);
+            $cccc = [];
+            $x = 0;
+
+            foreach ($dataPostpaid->data as $aaf) {
+                $cccc[$x]['transaction_id'] = $aaf['transaction_id'];
+                $cccc[$x]['created_at'] = $aaf['transaction_at'];
+                $cccc[$x]['status'] = $aaf['status_label'];
+                $cccc[$x]['produk'] = $aaf['product_name'];
+                $cccc[$x]['price'] = str_replace('Rp', '', $aaf['price']);
+                $cccc[$x]['price'] = str_replace('.', '', $cccc[$x]['price']);
+                $cccc[$x]['payment_method'] = $aaf['payment_method'];
+                $cccc[$x]['type'] =  $menu->title;
+                $cccc[$x]['path'] =  $menu->path;
+                $cccc[$x]['img'] = $menu->icon;
+                $x++;
+            }
+
             return response()->json([
                 'status' => 200,
                 'message' => 'success',
                 'menu_mobile' => HistoryMenuTabResource::collection($menuMobile),
-                'history' => HistoryResource::collection($historyPinjam)
+                'history' => HistoryPpobResource::collection($cccc),
+                'page' => $dataPostpaid->meta->current_page
             ], 200);
         } elseif ($req->path ==  "pinjaman-payroll") {
-            $historyPinjam = pinjaman::where('user_id', auth('api')->user()->id)
-                ->select(['nominal', 'status', 'created_at', 'id'])
-                ->get();
-
             $menu = menu_mobile::where('path', 'pinjaman-payroll')->first();
+            $historyPinjam = pinjaman::where('user_id', auth('api')->user()->id)
+                ->whereBetween('created_at', [$time1, $time2])
+                ->select(['nominal', 'status', 'created_at', 'id'])
+                ->paginate(10);
 
             $historyPinjam->map(function ($order) use ($menu) {
                 $order['type'] =  $menu->title;
                 $order['path'] =  $menu->path;
                 $order['img'] = $menu->icon;
+                $order['produk'] = 'pinjaman-payroll';
                 return $order;
             });
+
             return response()->json([
                 'status' => 200,
                 'message' => 'success',
                 'menu_mobile' => HistoryMenuTabResource::collection($menuMobile),
-                'history' => HistoryResource::collection($historyPinjam)
+                'history' => HistoryResource::collection($historyPinjam),
+                'page' => $historyPinjam->currentPage()
             ], 200);
         } else {
             return response()->json([

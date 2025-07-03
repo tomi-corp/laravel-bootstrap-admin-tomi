@@ -28,6 +28,7 @@ class AddPerusahaanRequest extends FormRequest
             'pic_perusahaan' => 'required',
             'pic_internal' => 'required',
             'nama_perusahaan' => 'required',
+            'email_perusahaan' => 'required|unique:list_perusahaans,email_perusahaan',
             'telepon' => 'required|numeric',
             'provinsi' => 'required',
             'kabupaten' => 'required',
@@ -36,6 +37,7 @@ class AddPerusahaanRequest extends FormRequest
             'alamat_lengkap' => 'required',
             'payment_date' => 'required|numeric',
             'nomor_pks' => 'required|numeric',
+            'bank' => 'required|in:BCA,BNI,BRI,BJB,BSI,BNC,MANDIRI,CIMB,BSS,PERMATA,HANA',
         ];
     }
 }

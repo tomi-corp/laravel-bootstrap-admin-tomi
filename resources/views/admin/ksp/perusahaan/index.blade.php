@@ -34,6 +34,7 @@
                                 <th>PIC Perusahaan</th>
                                 <th>PIC Internal</th>
                                 <th>Nama Perusahaan</th>
+                                <th>Email Perusahaan</th>
                                 <th>Telepon</th>
                                 <th>Provinsi</th>
                                 <th>Kabupaten / Kota</th>
@@ -75,7 +76,7 @@
 
                     <div class="row">
 
-                        <div class="col-md-12">
+                        <div class="col-md-6">
                             <div class="form-group">
                                 <label>Unique Code</label>
                                 <input class="form-control" id="uniqueCode" type="number"
@@ -106,6 +107,13 @@
                                 <label>Nama Perusahaan</label>
                                 <input class="form-control" id="namaPerusahaan" placeholder="Nama Perusahaan"></input>
                                 <small class="text-danger" id="errNamaPerusahaan"></small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Email Perusahaan</label>
+                                <input class="form-control" id="emailPerusahaan" placeholder="Email Perusahaan"></input>
+                                <small class="text-danger" id="errEmailPerusahaan"></small>
                             </div>
                         </div>
 
@@ -219,6 +227,25 @@
                                 <input class="form-control" id="nomor_pks" placeholder="42151231"
                                     type="number"></input>
                                 <small class="text-danger" id="errNomor_pks"></small>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Bank Repayment</label>
+                                <select class="form-control" id="bank">
+                                    <option value="BCA">BCA</option>
+                                    <option value="BNI">BNI</option>
+                                    <option value="BRI">BRI</option>
+                                    <option value="BJB">BJB</option>
+                                    <option value="BSI">BSI</option>
+                                    <option value="BNC">BNC</option>
+                                    <option value="MANDIRI">MANDIRI</option>
+                                    <option value="CIMB">CIMB</option>
+                                    <option value="PERMATA">PERMATA</option>
+                                    <option value="HANA">HANA</option>
+                                </select>
+                                <small class="text-danger" id="errBank"></small>
                             </div>
                         </div>
 
@@ -657,6 +684,8 @@
             }, {
                 data: 'nama'
             }, {
+                data: 'email_perusahaan'
+            }, {
                 data: 'telp'
             }, {
                 data: 'provinsi'
@@ -753,7 +782,7 @@
                     'pic_perusahaan': $("#namaPicPerusahaan").val(),
                     'pic_internal': $("#namaPicInternal").val(),
                     'nama_perusahaan': $("#namaPerusahaan").val(),
-                    'nama_perusahaan': $("#namaPerusahaan").val(),
+                    'email_perusahaan': $("#emailPerusahaan").val(),
                     'telepon': $("#telepon").val(),
                     'provinsi': $("#provinsiSelect").val(),
                     'kabupaten': $("#kabupatenSelect").val(),
@@ -761,7 +790,8 @@
                     'desa': $("#desaSelect").val(),
                     'alamat_lengkap': $("#alamatLengkap").val(),
                     'payment_date': $("#paymentDate").val(),
-                    'nomor_pks': $("#nomor_pks").val()
+                    'nomor_pks': $("#nomor_pks").val(),
+                    'bank': $("#bank").val()
                 },
                 type: 'POST',
                 dataType: 'json',
@@ -783,6 +813,7 @@
                     $('#errNamaPicPerusahaan').text(err.responseJSON.errors.nama_perusahaan);
                     $('#errNamaPicInternal').text(err.responseJSON.errors.nama_perusahaan);
                     $('#errNamaPerusahaan').text(err.responseJSON.errors.nama_perusahaan);
+                    $('#errEmailPerusahaan').text(err.responseJSON.errors.email_perusahaan);
                     $('#errTelepon').text(err.responseJSON.errors.telepon);
                     $('#errAlamatLengkap').text(err.responseJSON.errors.alamat_lengkap);
                     $('#errNomor_pks').text(err.responseJSON.errors.nomor_pks);

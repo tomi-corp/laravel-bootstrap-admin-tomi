@@ -20,8 +20,12 @@ use App\Models\pinjaman;
 use App\Models\produk_pinjaman;
 use App\Models\tenor_pinjaman;
 use App\Models\verif_otp_pengajuan;
+use App\Models\xenditApi;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
+
+
 
 class PinjamanController extends Controller
 {
@@ -295,18 +299,36 @@ class PinjamanController extends Controller
                 sendOTPWhatsapp($perusahaan->karyawanSingle->whatsapp, $codeOTP);
                 $pinjaman->save();
 
-                $jatuh_tempo = new jatuh_tempo();
-                $jatuh_tempo->id_pinjaman = $pinjaman->id;
-                $jatuh_tempo->pembayaran = 1;
 
-
+                // jatuh tempo langsung tercreate sesuai tenor
                 $tanggal_sekarang = Carbon::now();
-                if ($tanggal_sekarang->format('d') < $perusahaan->payment_date - 5) {
-                    $jatuh_tempo->jatuh_tempo =  $tanggal_sekarang->day($perusahaan->payment_date);
-                } else {
-                    $jatuh_tempo->jatuh_tempo =  $tanggal_sekarang->day($perusahaan->payment_date)->addMonth(1);
+                $oppca = 1;
+                while (true) {
+                    $jatuh_tempo = new jatuh_tempo();
+                    $jatuh_tempo->id_pinjaman = $pinjaman->id;
+                    $jatuh_tempo->pembayaran = $oppca;
+                    if ($oppca == 1) {
+                        if ($tanggal_sekarang->format('d') < $perusahaan->payment_date - 5) {
+                            $jatuh_tempo->jatuh_tempo =  $tanggal_sekarang->day($perusahaan->payment_date);
+                        } else {
+                            $jatuh_tempo->jatuh_tempo =  $tanggal_sekarang->day($perusahaan->payment_date)->addMonth(1);
+                        }
+                    } else {
+                        $jatuh_tempo_last = jatuh_tempo::where('id_pinjaman', $pinjaman->id)
+                            ->orderBy('id', 'desc')
+                            ->first();
+                        $jatuh_tempo->jatuh_tempo =  Carbon::parse($jatuh_tempo_last->jatuh_tempo)
+                            ->addMonth(1);
+                    }
+
+                    $jatuh_tempo->status = 'belum';
+                    $jatuh_tempo->save();
+                    if ($oppca == $tenor->tenor) {
+                        break;
+                    }
+                    $oppca++;
                 }
-                $jatuh_tempo->save();
+
                 $otp->pinjaman_id = $pinjaman->id;
                 $otp->save();
                 return response()->json([
@@ -336,13 +358,49 @@ class PinjamanController extends Controller
                     'message' => 'OTP kadaluarsa',
                 ], 400);
             } else {
-                $pinjaman = pinjaman::where('id', $verif->pinjaman_id)->first();
+                $pinjaman = pinjaman::where('id', $verif->pinjaman_id)
+                    ->with(['data_karyawan' => function ($q) {
+                        $q->with('bank');
+                    }])->first();
+
+                // disbursmenet
+                $xendit = xenditApi::first();
+                $url = $xendit->url . "/disbursements";
+                $time = Carbon::now();
+
+                $data = [
+                    "external_id" => "disb-" . $time,
+                    "amount" => $pinjaman->jumlah_yang_diterima,
+                    "bank_code" => $pinjaman->data_karyawan->bank->code_bank,
+                    "account_holder_name" => $pinjaman->data_karyawan->nama_rekening,
+                    "account_number" => $pinjaman->data_karyawan->nomor_bank,
+                    "description" => "Pencairan pinjaman " . $pinjaman->id_pinjaman
+                ];
+
+                $response = Http::withoutVerifying()
+                    ->withOptions(["verify" => false])
+                    ->withBasicAuth($xendit->secret, '')
+                    // ->withHeaders([])
+                    ->withBody(json_encode($data), 'application/json')
+                    ->post($url);
+
+                // validasi otp
                 $pinjaman->status_otp = "success";
+
+                $response_json = json_decode($response);
+                if ($response->getStatusCode() == 200) {
+                    // $pinjaman->status = "approve";
+                    $pinjaman->disbursement_id = $response_json->id;
+                } else {
+                    $pinjaman->status = 'exported';
+                    $pinjaman->note = $response_json->error_code;
+                }
                 $pinjaman->save();
                 $verif->delete();
+
                 return response()->json([
                     'status' => 200,
-                    'message' => 'verifikasi selesai, kami akan meneruskan data anda kepada pihak koperasi',
+                    'message' => 'Verifikasi berhasil! Dana Anda segera dicairkan. Jika ada pertanyaan lebih lanjut, jangan ragu untuk menghubungi kami.',
                 ], 200);
             }
         }

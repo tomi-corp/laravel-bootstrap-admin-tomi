@@ -14,6 +14,8 @@ return Application::configure(basePath: dirname(__DIR__))
             Route::middleware('web')
                 ->prefix('backoffice')
                 ->group(base_path('routes/admin.php'));
+            Route::middleware('web')
+                ->group(base_path('routes/web.php'));
             Route::middleware('api')
                 ->prefix('v1/api')
                 ->group(base_path('routes/api.php'));
@@ -43,7 +45,13 @@ return Application::configure(basePath: dirname(__DIR__))
             'DataKasbonMiddleware' => \App\Http\Middleware\DataKasbonMiddleware::class,
             'LimitRequestMiddleware' => \App\Http\Middleware\LimitRequestMiddelware::class,
         ]);
+        $middleware->validateCsrfTokens(except: [
+            '/callback/peminjaman/payroll/disbursement',
+            '/callback/pembayaran/tagihan/perusahaan/tomi',
+        ]);
     })
+
+
     ->withExceptions(function (Exceptions $exceptions) {
         //
     })->create();

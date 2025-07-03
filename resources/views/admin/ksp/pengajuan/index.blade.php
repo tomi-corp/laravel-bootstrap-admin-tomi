@@ -93,6 +93,9 @@
 
             <div class="card">
                 <div class="card-body">
+
+
+
                     <h4 class="header-title mb-3">Pengajuan Statistic</h4>
                     <div class="row text-center">
                         <div class="col-3 mb-3">
@@ -105,15 +108,17 @@
                         </div>
                         <div class="col-3 mb-3">
                             <h3 class="font-weight-light" id="exportedCount"></h3>
-                            <p class="text-muted text-overflow">Exported</p>
+                            <p class="text-muted text-overflow">Pending</p>
                         </div>
                         <div class="col-3 mb-3">
                             <h3 class="font-weight-light" id="approveCount"></h3>
                             <p class="text-muted text-overflow">Approve</p>
                         </div>
+
+
                         <div class="col-3 mb-3">
-                            <h3 class="font-weight-light" id="rejectCount"></h3>
-                            <p class="text-muted text-overflow">Reject</p>
+                            <h3 class="font-weight-light" id="doneCount"></h3>
+                            <p class="text-muted text-overflow">Done</p>
                         </div>
                     </div>
                     <div class="chartjs-chart-example chartjs-chart">
@@ -127,6 +132,23 @@
 
 
         <div class="col-md-8" id="hideDetailPerusahaanDua">
+            <div class="alert alert-primary alert-dismissible fade show" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h5>Keterangan :</h5>
+                <ul>
+                    <li>Tab <b>on proses</b> ketika peminjam melakukan peminjaman dan sudah melakukan OTP menunggu dari
+                        callback disbursment
+                    </li>
+                    <li>Tab <b>pending</b> ketika end user melakukan peminjaman tetapi terjadi hal seperti wallet
+                        disbursment
+                        xendit tidak memiliki saldo yang cukup untuk melakukan transfer dana ke peminjam atau masalah yg
+                        lain terkait xendit</li>
+                    <li>Tab <b>approve</b> ketika peminjam berhasil mendapatkan dana dan memiliki cicilan yang berjalan</li>
+                    <li>Tab <b>done</b> ketika peminjam sudah melunasi semua cicilan yang berjalan</li>
+                </ul>
+            </div>
             <div class="card">
                 <div class="card-body">
                     <ul class="nav nav-tabs">
@@ -137,7 +159,7 @@
                         </li>
                         <li class="nav-item">
                             <a href="#exported" data-toggle="tab" aria-expanded="true" class="nav-link">
-                                Exported
+                                Pending
                             </a>
                         </li>
                         <li class="nav-item">
@@ -146,8 +168,8 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="#reject" data-toggle="tab" aria-expanded="false" class="nav-link">
-                                Reject
+                            <a href="#done" data-toggle="tab" aria-expanded="false" class="nav-link">
+                                Done
                             </a>
                         </li>
                     </ul>
@@ -155,25 +177,36 @@
 
                     <div class="tab-content">
                         <div class="tab-pane active" id="pending">
-                            <div class="d-flex justify-content-between pb-4">
-                                <a href="#" onclick="exportDataPending({{ $perusahaan->id }})"
-                                    class="btn btn-sm btn-primary  waves-effect waves-light ">
-                                    <span> <i class=" mdi mdi-file-document-box-outline"></i> Export Pengajuan</span>
-                                </a>
-
-                                <a href="#" onclick="prosesDataToExport({{ $perusahaan->id }})"
-                                    class="btn btn-sm btn-primary waves-effect waves-light">
-                                    <span> <i class="mdi mdi-arrow-right-bold"></i> Proses Exported</span>
-                                </a>
-                            </div>
 
 
-                            <form id="pendingPinjamanExport" action="{{ route('admin.ksp.pengajuan.pending.export') }}"
-                                method="POST" style="display: none;">
-                                <input type="hidden" name="id" value="{{ $perusahaan->id }}" />
-                                @csrf
-                            </form>
 
+                            <table id="tableOnproses" class="table dt-responsive table-hover text-center justify-center"
+                                style="width:100%">
+                                <thead>
+                                    <tr>
+                                        <th>ID Pinjaman</th>
+                                        <th>Nama</th>
+                                        <th>Nominal </th>
+                                        <th>Angsuran Perbulan</th>
+                                        <th>Tenor</th>
+
+                                        <th>Rate</th>
+                                        <th>Biaya ADM KSP DDT</th>
+                                        <th>DPP KSP</th>
+                                        <th>PPN KSP</th>
+                                        <th>Biaya ADM PANDU</th>
+
+                                        <th>DPP PANDU</th>
+                                        <th>PPN PANDU</th>
+                                        {{-- <th>Biaya KYC</th>
+                                        <th>Pendapatan Pandu</th> --}}
+                                        <th>Jumlah Yang Diterima</th>
+                                    </tr>
+                                </thead>
+                            </table>
+
+                        </div>
+                        <div class="tab-pane show" id="exported">
 
                             <table id="tablePending" class="table dt-responsive table-hover text-center justify-center"
                                 style="width:100%">
@@ -182,68 +215,19 @@
                                         <th>ID Pinjaman</th>
                                         <th>Nama</th>
                                         <th>Nominal </th>
+                                        <th>Angsuran Perbulan</th>
                                         <th>Tenor</th>
+
                                         <th>Rate</th>
                                         <th>Biaya ADM KSP DDT</th>
                                         <th>DPP KSP</th>
                                         <th>PPN KSP</th>
                                         <th>Biaya ADM PANDU</th>
+
                                         <th>DPP PANDU</th>
                                         <th>PPN PANDU</th>
-                                        <th>Iuran Anggota</th>
-                                        <th>Total Biaya Admin</th>
-                                        <th>Jumlah Yang Diterima</th>
-                                    </tr>
-                                </thead>
-                            </table>
-
-                        </div>
-                        <div class="tab-pane show" id="exported">
-                            <div class="row">
-                                <div class="col-4 pb-4">
-                                    <div class="card-box" style="border:1px, solid">
-                                        <form id="fileUploadDataKaryawan" method="POST"
-                                            action="{{ route('admin.ksp.pengajuan.export.upload') }}"
-                                            enctype="multipart/form-data">
-                                            @csrf
-                                            <input type="file" class="form-control" accept=".xls,.xlsx"
-                                                name="file" id="fileDataProcess" />
-                                            <small>Hanya menerima format .xlsx</small><br>
-                                            <small class="text-danger" id="errUploadData"></small>
-                                            <div hidden id="progressBar">
-                                                <div class="progress mb-3">
-                                                    <div id="pgBar" class="progress-bar progress-bar-striped bg-info "
-                                                        role="progressbar" style="width: 0%" aria-valuenow="0"
-                                                        aria-valuemin="0" aria-valuemax="100"></div>
-                                                </div>
-                                            </div>
-                                            <button class="btn btn-primary float-right pull-right" type="submit"
-                                                id="buttonUploadDataExport">Upload Data <div id="loadingTextEdit">
-                                                </div>
-                                            </button>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-
-
-                            <table id="tableExported" class="table dt-responsive table-hover text-center justify-center"
-                                style="width:100%">
-                                <thead>
-                                    <tr>
-                                        <th>ID Pinjaman</th>
-                                        <th>Nama</th>
-                                        <th>Nominal </th>
-                                        <th>Tenor</th>
-                                        <th>Rate</th>
-                                        <th>Biaya ADM KSP DTT</th>
-                                        <th>DPP KSP</th>
-                                        <th>PPN KSP</th>
-                                        <th>Biaya ADM PANDU</th>
-                                        <th>DPP PANDU</th>
-                                        <th>PPN PANDU</th>
-                                        <th>Iuran Anggota</th>
-                                        <th>Total Biaya Admin</th>
+                                        {{-- <th>Biaya KYC</th>
+                                        <th>Pendapatan Pandu</th> --}}
                                         <th>Jumlah Yang Diterima</th>
                                     </tr>
                                 </thead>
@@ -258,40 +242,52 @@
                                         <th>ID Pinjaman</th>
                                         <th>Nama</th>
                                         <th>Nominal </th>
+                                        <th>Angsuran Perbulan</th>
                                         <th>Tenor</th>
+
                                         <th>Rate</th>
-                                        <th>Biaya ADM KSP DTT</th>
+                                        <th>Biaya ADM KSP DDT</th>
                                         <th>DPP KSP</th>
                                         <th>PPN KSP</th>
                                         <th>Biaya ADM PANDU</th>
+
                                         <th>DPP PANDU</th>
                                         <th>PPN PANDU</th>
-                                        <th>Iuran Anggota</th>
-                                        <th>Total Biaya Admin</th>
+                                        <th>Biaya E-KYC</th>
+                                        <th>Pendapatan Pandu</th>
                                         <th>Jumlah Yang Diterima</th>
+
+                                        <th>Detail Angsuran</th>
+
                                     </tr>
                                 </thead>
                             </table>
                         </div>
-                        <div class="tab-pane" id="reject">
-                            <table id="tableReject" class="table dt-responsive table-hover text-center justify-center"
+
+                        <div class="tab-pane" id="done">
+                            <table id="tableDone" class="table dt-responsive table-hover text-center justify-center"
                                 style="width:100%">
                                 <thead>
                                     <tr>
                                         <th>ID Pinjaman</th>
                                         <th>Nama</th>
                                         <th>Nominal </th>
+                                        <th>Angsuran Perbulan</th>
                                         <th>Tenor</th>
+
                                         <th>Rate</th>
-                                        <th>Biaya ADM KSP DTT</th>
+                                        <th>Biaya ADM KSP DDT</th>
                                         <th>DPP KSP</th>
                                         <th>PPN KSP</th>
                                         <th>Biaya ADM PANDU</th>
+
                                         <th>DPP PANDU</th>
                                         <th>PPN PANDU</th>
-                                        <th>Iuran Anggota</th>
-                                        <th>Total Biaya Admin</th>
+                                        <th>Biaya E-KYC</th>
+                                        <th>Pendapatan Pandu</th>
                                         <th>Jumlah Yang Diterima</th>
+
+                                        <th>Detail Angsuran</th>
                                     </tr>
                                 </thead>
                             </table>
@@ -299,55 +295,31 @@
                     </div>
                 </div>
             </div>
-            <div class="card">
-                <div class="card-body">
-                    {{-- <h4 class="header-title mb-3">Tagihan</h4> --}}
-                    <table id="tableInvoice" class="table dt-responsive table-hover text-center justify-center"
-                        style="width:100%">
-                        <thead>
-                            <tr>
-                                <th>Tanggal/Tahun Transaksi</th>
-                                <th>Total Transaksi Approve</th>
-                                <th>Total Fee Base</th>
-                                <th>Income KSP </th>
-                                <th>Iuran Anggota</th>
-                                <th>Download Invoice</th>
-                                <th>Status Invoice</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                    </table>
-                    <small>Note:<br> Tagihan kepada pihak perusahaan setiap tanggal 1</small>
-                </div>
-            </div>
-
-
 
         </div>
 
-
-        {{-- modal Edit --}}
+        {{-- modal detail Angsuran --}}
         <div class="modal fade bs-example-modal-center" tabindex="-1" role="dialog"
-            aria-labelledby="myCenterModalLabel" aria-hidden="true" style="display: none;" id="modalEdit">
+            aria-labelledby="myCenterModalLabel" aria-hidden="true" style="display: none;" id="modalDetailAngsuran">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h4 class="modal-title" id="myCenterModalLabel">Update Status Invoice </h4>
+                        <h4 class="modal-title" id="myCenterModalLabel">Detail Angsuran </h4>
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
                     </div>
                     <div class="modal-body">
-                        <div class="form-group">
-                            <label>Status </label>
-                            <select class="form-control" id="statusEdit" required>
-                                <option value="lunas">Lunas</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button class="btn btn-secondary" data-dismiss="modal">cancel</button>
-                        <button class="btn btn-primary" type="submit" id="buttonSubmitEdit"
-                            onclick="buttonSubmitEdit()">save <div id="loadingTextEdit">
-                            </div></button>
+                        <table class="table text-center align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Angsuran ke</th>
+                                    <th>Jatuh Tempo</th>
+                                    <th>status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="checkAngsuranTable">
+
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -371,20 +343,24 @@
                     type: 'POST',
                     dataType: 'json',
                     success: function(dataStatistic) {
-                        $('#pendingCount').text(dataStatistic.pending);
+                        $('#pendingCount').text(dataStatistic.on_proses);
                         $('#belumValidasiWaCount').text(dataStatistic.belum_validasi_wa);
-                        $('#exportedCount').text(dataStatistic.exported);
+                        $('#exportedCount').text(dataStatistic.pending);
                         $('#approveCount').text(dataStatistic.approve);
-                        $('#rejectCount').text(dataStatistic.reject);
+                        $('#doneCount').text(dataStatistic.done);
                         data = {
                             datasets: [{
-                                    data: [dataStatistic.belum_validasi_wa, dataStatistic
-                                        .pending, dataStatistic
-                                        .exported, dataStatistic.approve, dataStatistic
-                                        .reject
+                                    data: [dataStatistic.belum_validasi_wa,
+                                        dataStatistic.on_proses,
+                                        dataStatistic.pending,
+                                        dataStatistic.approve,
+                                        dataStatistic.done
                                     ],
-                                    backgroundColor: ["#fbcc5c", "#6c757d", "#02a8b5", "#6b5eae",
-                                        "#fa5c7c"
+                                    backgroundColor: ["#fbcc5c",
+                                        "#6c757d",
+                                        "#02a8b5",
+                                        "#6b5eae",
+                                        "#31ce77",
                                     ],
                                     borderColor: "transparent",
                                     borderWidth: "3",
@@ -403,9 +379,9 @@
                             labels: [
                                 'Belum Validasi WA',
                                 'On Proses',
-                                'Exported',
+                                'Pending',
                                 'Approve',
-                                'Reject',
+                                'Done'
                             ]
                         };
 
@@ -424,22 +400,6 @@
                 $("#modalEdit").modal('show');
             }
 
-            buttonSubmitEdit = () => {
-                $.ajax({
-                    url: '{!! route('admin.ksp.invoicing.update') !!}',
-                    data: {
-                        '_token': "{{ csrf_token() }}",
-                        'id': idEdit,
-                    },
-                    type: 'POST',
-                    dataType: 'json',
-                    success: function(prosesToExport) {
-                        toastr.success(prosesToExport.message)
-                        $("#modalEdit").modal('hide');
-                        tableInvoice.ajax.reload();
-                    }
-                });
-            }
 
             getStatistic();
 
@@ -449,6 +409,80 @@
                 "_token": "{{ csrf_token() }}",
                 'id': {{ $perusahaan->id }}
             };
+            var tableOnproses = $('#tableOnproses').DataTable({
+                dom: 'B<"clear">lfrtip',
+                buttons: [{
+                        extend: 'excel',
+                        className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
+                        text: '<span class="mdi mdi-file-excel"><span class="pl-1">Excel</span></span>',
+                        header: false,
+                        exportOptions: {
+                            columns: [0, 1, 2]
+                        },
+                    },
+                    {
+                        extend: 'copy',
+                        className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
+                        text: '<span class="mdi mdi-content-copy"><span class="pl-1">Copy</span></span>',
+                        header: false,
+                        exportOptions: {
+                            columns: [0, 1, 2]
+                        },
+                    },
+                    {
+                        extend: 'print',
+                        className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
+                        text: '<span class="mdi mdi-printer"><span class="pl-1">Print</span></span>',
+                        header: false,
+                        exportOptions: {
+                            columns: [0, 1, 2]
+                        },
+                    }
+                ],
+                "lengthMenu": [10, 50, 100, 500, 1000, 2000, 5000, 10000, 50000, 100000],
+                processing: true,
+                responsive: true,
+                serverSide: true,
+                language: {
+                    processing: '<i class="dripicons-loading">autorenew</i>'
+                },
+                ajax: {
+                    "type": "POST",
+                    "url": '{!! route('admin.ksp.pengajuan.onproses.table') !!}',
+                    "data": function(xx) {
+                        return $.extend(xx, dataTable);
+                    },
+                },
+                columns: [{
+                    data: 'id_pinjaman'
+                }, {
+                    data: 'nama',
+                    nama: 'data_karyawan.nama_karyawan',
+                }, {
+                    data: 'nominal'
+                }, {
+                    data: 'angsuran_perbulan'
+                }, {
+                    data: 'tenor'
+                }, {
+                    data: 'rate'
+                }, {
+                    data: 'biaya_admin_ksp'
+                }, {
+                    data: 'dpp_adm_ksp'
+                }, {
+                    data: 'ppn_adm_ksp'
+                }, {
+                    data: 'biaya_admin_pandu'
+                }, {
+                    data: 'dpp_adm_pandu'
+                }, {
+                    data: 'ppn_adm_pandu'
+                }, {
+                    data: 'jumlah_yang_diterima'
+                }]
+            });
+
             var tablePending = $('#tablePending').DataTable({
                 dom: 'B<"clear">lfrtip',
                 buttons: [{
@@ -501,81 +535,7 @@
                 }, {
                     data: 'nominal'
                 }, {
-                    data: 'tenor'
-                }, {
-                    data: 'rate'
-                }, {
-                    data: 'biaya_admin_ksp'
-                }, {
-                    data: 'dpp_adm_ksp'
-                }, {
-                    data: 'ppn_adm_ksp'
-                }, {
-                    data: 'biaya_admin_pandu'
-                }, {
-                    data: 'dpp_adm_pandu'
-                }, {
-                    data: 'ppn_adm_pandu'
-                }, {
-                    data: 'iuran_anggota'
-                }, {
-                    data: 'total_biaya_admin'
-                }, {
-                    data: 'jumlah_yang_diterima'
-                }]
-            });
-
-            var tableExported = $('#tableExported').DataTable({
-                dom: 'B<"clear">lfrtip',
-                buttons: [{
-                        extend: 'excel',
-                        className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
-                        text: '<span class="mdi mdi-file-excel"><span class="pl-1">Excel</span></span>',
-                        header: false,
-                        exportOptions: {
-                            columns: [0, 1, 2]
-                        },
-                    },
-                    {
-                        extend: 'copy',
-                        className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
-                        text: '<span class="mdi mdi-content-copy"><span class="pl-1">Copy</span></span>',
-                        header: false,
-                        exportOptions: {
-                            columns: [0, 1, 2]
-                        },
-                    },
-                    {
-                        extend: 'print',
-                        className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
-                        text: '<span class="mdi mdi-printer"><span class="pl-1">Print</span></span>',
-                        header: false,
-                        exportOptions: {
-                            columns: [0, 1, 2]
-                        },
-                    }
-                ],
-                "lengthMenu": [10, 50, 100, 500, 1000, 2000, 5000, 10000, 50000, 100000],
-                processing: true,
-                responsive: true,
-                serverSide: true,
-                language: {
-                    processing: '<i class="dripicons-loading">autorenew</i>'
-                },
-                ajax: {
-                    "type": "POST",
-                    "url": '{!! route('admin.ksp.pengajuan.export.table') !!}',
-                    "data": function(xx) {
-                        return $.extend(xx, dataTable);
-                    },
-                },
-                columns: [{
-                    data: 'id_pinjaman'
-                }, {
-                    data: 'nama',
-                    nama: 'data_karyawan.nama_karyawan',
-                }, {
-                    data: 'nominal'
+                    data: 'angsuran_perbulan'
                 }, {
                     data: 'tenor'
                 }, {
@@ -592,86 +552,6 @@
                     data: 'dpp_adm_pandu'
                 }, {
                     data: 'ppn_adm_pandu'
-                }, {
-                    data: 'iuran_anggota'
-                }, {
-                    data: 'total_biaya_admin'
-                }, {
-                    data: 'jumlah_yang_diterima'
-                }]
-            });
-
-            var tableReject = $('#tableReject').DataTable({
-                dom: 'B<"clear">lfrtip',
-                buttons: [{
-                        extend: 'excel',
-                        className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
-                        text: '<span class="mdi mdi-file-excel"><span class="pl-1">Excel</span></span>',
-                        header: false,
-                        exportOptions: {
-                            columns: [0, 1, 2]
-                        },
-                    },
-                    {
-                        extend: 'copy',
-                        className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
-                        text: '<span class="mdi mdi-content-copy"><span class="pl-1">Copy</span></span>',
-                        header: false,
-                        exportOptions: {
-                            columns: [0, 1, 2]
-                        },
-                    },
-                    {
-                        extend: 'print',
-                        className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
-                        text: '<span class="mdi mdi-printer"><span class="pl-1">Print</span></span>',
-                        header: false,
-                        exportOptions: {
-                            columns: [0, 1, 2]
-                        },
-                    }
-                ],
-                "lengthMenu": [10, 50, 100, 500, 1000, 2000, 5000, 10000, 50000, 100000],
-                processing: true,
-                responsive: true,
-                serverSide: true,
-                language: {
-                    processing: '<i class="dripicons-loading">autorenew</i>'
-                },
-                ajax: {
-                    "type": "POST",
-                    "url": '{!! route('admin.ksp.pengajuan.reject.table') !!}',
-                    "data": function(xx) {
-                        return $.extend(xx, dataTable);
-                    },
-                },
-                columns: [{
-                    data: 'id_pinjaman'
-                }, {
-                    data: 'nama',
-                    nama: 'data_karyawan.nama_karyawan',
-                }, {
-                    data: 'nominal'
-                }, {
-                    data: 'tenor'
-                }, {
-                    data: 'rate'
-                }, {
-                    data: 'biaya_admin_ksp'
-                }, {
-                    data: 'dpp_adm_ksp'
-                }, {
-                    data: 'ppn_adm_ksp'
-                }, {
-                    data: 'biaya_admin_pandu'
-                }, {
-                    data: 'dpp_adm_pandu'
-                }, {
-                    data: 'ppn_adm_pandu'
-                }, {
-                    data: 'iuran_anggota'
-                }, {
-                    data: 'total_biaya_admin'
                 }, {
                     data: 'jumlah_yang_diterima'
                 }]
@@ -729,6 +609,8 @@
                 }, {
                     data: 'nominal'
                 }, {
+                    data: 'angsuran_perbulan'
+                }, {
                     data: 'tenor'
                 }, {
                     data: 'rate'
@@ -745,87 +627,20 @@
                 }, {
                     data: 'ppn_adm_pandu'
                 }, {
-                    data: 'iuran_anggota'
+                    data: 'cost_tomi'
                 }, {
-                    data: 'total_biaya_admin'
+                    data: 'pendapatan_pandu'
                 }, {
                     data: 'jumlah_yang_diterima'
+                }, {
+                    data: 'detail_angsuran'
                 }]
             });
 
-            exportDataPending = (id) => {
-                event.preventDefault();
-                document.getElementById('pendingPinjamanExport').submit();
-
-                tablePending.ajax.reload();
-                tableExported.ajax.reload();
-                tableApprove.ajax.reload();
-                tableReject.ajax.reload();
-            }
-
-            prosesDataToExport = (id) => {
-                $.ajax({
-                    url: '{!! route('admin.ksp.pengajuan.proses.export') !!}',
-                    data: {
-                        '_token': "{{ csrf_token() }}",
-                        'id': id,
-                    },
-                    type: 'POST',
-                    dataType: 'json',
-                    success: function(prosesToExport) {
-                        toastr.success(prosesToExport.message)
-                        tablePending.ajax.reload();
-                        tableExported.ajax.reload();
-                        tableApprove.ajax.reload();
-                        tableReject.ajax.reload();
-                        getStatistic();
-                    }
-                });
-            }
 
 
-            $('#fileUploadDataKaryawan').ajaxForm({
-                beforeSend: function() {
-                    $('#errUploadData').text('');
-                    $('#buttonUploadDataExport').attr("disabled", true);
-                    $('#loadingTextEdit').addClass("spinner-border");
-                    $('#progressBar').attr('hidden', false);
+            var tableDone = $('#tableDone').DataTable({
 
-                    var percentage = '0';
-                },
-                uploadProgress: function(event, position, total, percentComplete) {
-                    var percentage = percentComplete;
-                    $('#pgBar').css("width", percentage + '%', function() {
-                        return $(this).attr("aria-valuenow", percentage) + "%";
-                    })
-                },
-                error: function(xhr, status, error) {
-                    $('#errUploadData').text('');
-                    $('#fileDataProcess').val('');
-                    $('#progressBar').attr('hidden', true);
-                    $('#buttonUploadDataExport').attr("disabled", false);
-                    $('#loadingTextEdit').removeClass(
-                        "spinner-border");
-                    $('#errUploadData').text(xhr.responseJSON.message);
-                },
-                success: function(xhr) {
-                    tablePending.ajax.reload();
-                    tableExported.ajax.reload();
-                    tableApprove.ajax.reload();
-                    tableReject.ajax.reload();
-                    getStatistic();
-                    $('#errUploadData').text('');
-                    $('#fileDataProcess').val('');
-                    $('#progressBar').attr('hidden', true);
-                    $('#buttonUploadDataExport').attr("disabled", false);
-                    $('#loadingTextEdit').removeClass("spinner-border");
-                    toastr.success(xhr.message)
-                }
-            });
-
-
-
-            var tableInvoice = $('#tableInvoice').DataTable({
                 dom: 'B<"clear">lfrtip',
                 buttons: [{
                         extend: 'excel',
@@ -864,31 +679,49 @@
                 },
                 ajax: {
                     "type": "POST",
-                    "url": '{!! route('admin.ksp.invoicing.table') !!}',
+                    "url": '{!! route('admin.ksp.pengajuan.done.table') !!}',
                     "data": function(xx) {
                         return $.extend(xx, dataTable);
                     },
                 },
                 columns: [{
-                        data: 'period'
-                    }, {
-                        data: 'total_transaksi_approve'
-                    },
-                    {
-                        data: 'total_fee_base'
-                    }, {
-                        data: 'income_ksp',
-                    }, {
-                        data: 'iuran_anggota',
-                    }, {
-                        data: 'download_invoice',
-                    }, {
-                        data: 'status_invoicing',
-                    }, {
-                        data: 'action',
-                    }
-                ]
+                    data: 'id_pinjaman'
+                }, {
+                    data: 'nama',
+                    nama: 'data_karyawan.nama_karyawan',
+                }, {
+                    data: 'nominal'
+                }, {
+                    data: 'angsuran_perbulan'
+                }, {
+                    data: 'tenor'
+                }, {
+                    data: 'rate'
+                }, {
+                    data: 'biaya_admin_ksp'
+                }, {
+                    data: 'dpp_adm_ksp'
+                }, {
+                    data: 'ppn_adm_ksp'
+                }, {
+                    data: 'biaya_admin_pandu'
+                }, {
+                    data: 'dpp_adm_pandu'
+                }, {
+                    data: 'ppn_adm_pandu'
+                }, {
+                    data: 'cost_tomi'
+                }, {
+                    data: 'pendapatan_pandu'
+                }, {
+                    data: 'jumlah_yang_diterima'
+                }, {
+                    data: 'detail_angsuran'
+                }]
             });
+
+
+
 
             let defaultetail = true;
 
@@ -925,5 +758,26 @@
             $('a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
                 $($.fn.dataTable.tables(true)).DataTable().columns.adjust().responsive.recalc();
             });
+
+            detailAngsuran = (id) => {
+                $.ajax({
+                    url: '{!! route('admin.ksp.check.angsuran') !!}',
+                    data: {
+                        '_token': "{{ csrf_token() }}",
+                        'id': id,
+                    },
+                    type: 'POST',
+                    dataType: 'json',
+                    success: function(checkAngsuran) {
+                        $("#checkAngsuranTable").empty();
+                        $.each(checkAngsuran.message, function(i, item) {
+                            $('<tr>').html("<td>" + item.angsuran_ke + "</td><td>" + item.jatuh_tempo +
+                                "</td><td>" + item.status + "</td>").appendTo(
+                                '#checkAngsuranTable');
+                        });
+                        $('#modalDetailAngsuran').modal('show');
+                    }
+                })
+            }
         </script>
     @endpush

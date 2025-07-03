@@ -16,10 +16,6 @@ return new class extends Migration
             $table->bigInteger('id_list_perusahaan')->unsigned();
             $table->foreign('id_list_perusahaan')->references('id')->on('list_perusahaans');
             $table->date('period');
-            $table->bigInteger('total_transaksi_approve');
-            $table->double('total_fee_base');
-            $table->double('income_ksp');
-            $table->double('iuran_anggota');
             $table->enum('status', ['lunas', 'belum_lunas']);
             $table->timestamps();
         });

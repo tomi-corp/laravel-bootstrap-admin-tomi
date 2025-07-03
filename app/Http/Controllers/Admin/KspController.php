@@ -11,6 +11,7 @@ use App\Http\Requests\Admin\Ksp\EditPerusahaanRequest;
 use App\Http\Requests\Admin\Ksp\UpdateKaryawanRequest;
 use App\Http\Requests\Admin\Ksp\UploadListKaryawanRequest;
 use App\Http\Resources\Admin\Bank\BankResource;
+use App\Http\Resources\Admin\Ksp\CheckAngsuranResource;
 use App\Http\Resources\Admin\Ksp\DetailPerusahaanResource;
 use App\Http\Resources\Admin\Ksp\InvoiceTableResource;
 use App\Http\Resources\Admin\Ksp\ListKaryawanPendingResource;
@@ -21,6 +22,7 @@ use App\Imports\ExportImportData;
 use App\Imports\KaryawanPendingImport;
 use App\Models\amount_pinjaman;
 use App\Models\bank;
+use App\Models\cost;
 use App\Models\invoicing_pinjaman;
 use App\Models\kecamatan;
 use App\Models\kelurahan;
@@ -32,6 +34,7 @@ use App\Models\notification;
 use App\Models\pinjaman;
 use App\Models\provinsi;
 use App\Models\tenor_pinjaman;
+use App\Models\xenditApi;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Hash;
@@ -39,6 +42,8 @@ use Yajra\DataTables\Facades\DataTables;
 use Maatwebsite\Excel\Facades\Excel;
 use Psy\Readline\Hoa\Console;
 use Spatie\Browsershot\Browsershot;
+use Illuminate\Support\Facades\Http;
+
 
 
 class KspController extends Controller
@@ -80,10 +85,12 @@ class KspController extends Controller
             }
         }
 
+        $perusahaan->unique_code = $req->unique_code;
         $perusahaan->id_code_perusahaan = $string;
         $perusahaan->pic_perusahaan = $req->pic_perusahaan;
         $perusahaan->pic_internal = $req->pic_internal;
         $perusahaan->nama = $req->nama_perusahaan;
+        $perusahaan->email_perusahaan = $req->email_perusahaan;
         $perusahaan->alamat_lengkap = $req->alamat_lengkap;
         $perusahaan->telp = $req->telepon;
         $perusahaan->payment_date = $req->payment_date;
@@ -102,6 +109,45 @@ class KspController extends Controller
         $perusahaan->id_kabupaten = $kabupaten->id;
         $perusahaan->id_kecamatan = $kecamatan->id;
         $perusahaan->id_desa = $desa->id;
+
+        $xendit = xenditApi::first();
+        $url = $xendit->url . "/payment_requests";
+
+        $data = [
+            "currency" => "IDR",
+            "amount" => null,
+            "payment_method" => [
+                "type" => "VIRTUAL_ACCOUNT",
+                "reusability" => "MULTIPLE_USE",
+                "reference_id" => "pm-level-$string",
+                "virtual_account" => [
+                    "channel_code" => $req->bank,
+                    "channel_properties" => [
+                        "customer_name" => "KSP DDT"
+                    ]
+                ]
+            ],
+            "metadata" => [
+                "sku" => $string
+            ]
+        ];
+
+        $response = Http::withoutVerifying()
+            ->withOptions(["verify" => false])
+            ->withBasicAuth($xendit->secret, '')
+            // ->withHeaders([])
+            ->withBody(json_encode($data), 'application/json')
+            ->post($url);
+
+        $response_json = json_decode($response);
+
+        $perusahaan->va_id = $response_json->id;
+        $perusahaan->payment_method_id = $response_json->payment_method->id;
+        $perusahaan->payment_method_reference_id = $response_json->payment_method->reference_id;
+        $perusahaan->virtual_account_channel_code = $response_json->payment_method->virtual_account->channel_code;
+        $perusahaan->virtual_account_channel_properties_customer_name = $response_json->payment_method->virtual_account->channel_properties->customer_name;
+        $perusahaan->virtual_account_channel_properties_virtual_account_number = $response_json->payment_method->virtual_account->channel_properties->virtual_account_number;
+        $perusahaan->virtual_account_channel_properties_virtual_expires_at =  Carbon::parse($response_json->payment_method->virtual_account->channel_properties->expires_at)->format('Y-m-d H:i:s');
 
         $perusahaan->save();
         return response()->json([
@@ -629,7 +675,7 @@ class KspController extends Controller
         }
     }
 
-    public function pengajuanPendingTable(Request $req)
+    public function pengajuanOnprosesTable(Request $req)
     {
         $pinjaman = pinjaman::where('id_perusahaan', $req->id)
             ->where('status', 'on_proses')
@@ -647,6 +693,10 @@ class KspController extends Controller
                 return "Rp  " . number_format($row->nominal);
             })
 
+            ->addColumn('angsuran_perbulan', function ($row) {
+                return "Rp  " . number_format($row->total_angsuran_perbulan);
+            })
+
             ->addColumn('tenor', function ($row) {
                 return $row->tenor . " bulan";
             })
@@ -683,6 +733,10 @@ class KspController extends Controller
                 return "Rp  " . number_format($row->iuran_anggota);
             })
 
+            ->addColumn('biaya_layanan', function ($row) {
+                return "Rp  " . number_format($row->biaya_layanan);
+            })
+
             ->addColumn('total_biaya_admin', function ($row) {
                 return "Rp  " . number_format($row->total_biaya_admin);
             })
@@ -693,10 +747,10 @@ class KspController extends Controller
             // ->rawColumns(['action'])
             ->toJson();
     }
-    public function pengajuanExportTable(Request $req)
+    public function pengajuanPendingTable(Request $req)
     {
         $pinjaman = pinjaman::where('id_perusahaan', $req->id)
-            ->where('status', 'exported')
+            ->where('status', 'pending')
             ->where('status_otp', 'success')
             ->with('data_karyawan')
             ->get();
@@ -710,6 +764,9 @@ class KspController extends Controller
             ->addColumn('nominal', function ($row) {
                 return "Rp  " . number_format($row->nominal);
             })
+            ->addColumn('angsuran_perbulan', function ($row) {
+                return "Rp  " . number_format($row->total_angsuran_perbulan);
+            })
 
             ->addColumn('tenor', function ($row) {
                 return $row->tenor . " bulan";
@@ -745,6 +802,9 @@ class KspController extends Controller
 
             ->addColumn('iuran_anggota', function ($row) {
                 return "Rp  " . number_format($row->iuran_anggota);
+            })
+            ->addColumn('biaya_layanan', function ($row) {
+                return "Rp  " . number_format($row->biaya_layanan);
             })
 
             ->addColumn('total_biaya_admin', function ($row) {
@@ -775,6 +835,9 @@ class KspController extends Controller
             ->addColumn('nominal', function ($row) {
                 return "Rp  " . number_format($row->nominal);
             })
+            ->addColumn('angsuran_perbulan', function ($row) {
+                return "Rp  " . number_format($row->total_angsuran_perbulan);
+            })
 
             ->addColumn('tenor', function ($row) {
                 return $row->tenor . " bulan";
@@ -812,6 +875,10 @@ class KspController extends Controller
                 return "Rp  " . number_format($row->iuran_anggota);
             })
 
+            ->addColumn('biaya_layanan', function ($row) {
+                return "Rp  " . number_format($row->biaya_layanan);
+            })
+
             ->addColumn('total_biaya_admin', function ($row) {
                 return "Rp  " . number_format($row->total_biaya_admin);
             })
@@ -819,7 +886,20 @@ class KspController extends Controller
             ->addColumn('jumlah_yang_diterima', function ($row) {
                 return "Rp  " . number_format($row->jumlah_yang_diterima);
             })
-            // ->rawColumns(['action'])
+
+            ->addColumn('cost_tomi', function ($row) {
+                return "Rp  " . number_format($row->cost_tomi);
+            })
+
+            ->addColumn('pendapatan_pandu', function ($row) {
+                return "Rp  " . number_format($row->dpp_adm_pandu - $row->cost_tomi);
+            })
+
+            ->addColumn('detail_angsuran', function ($row) {
+                return '<button class="btn btn-sm btn-primary mr-2" onclick="detailAngsuran(' . $row->id . ')"><i class="mdi mdi-eye"></i></button>';
+            })
+
+            ->rawColumns(['detail_angsuran'])
             ->toJson();
     }
 
@@ -841,6 +921,9 @@ class KspController extends Controller
                 return "Rp  " . number_format($row->nominal);
             })
 
+            ->addColumn('angsuran_perbulan', function ($row) {
+                return "Rp  " . number_format($row->total_angsuran_perbulan);
+            })
             ->addColumn('tenor', function ($row) {
                 return $row->tenor . " bulan";
             })
@@ -877,6 +960,9 @@ class KspController extends Controller
                 return "Rp  " . number_format($row->iuran_anggota);
             })
 
+            ->addColumn('biaya_layanan', function ($row) {
+                return "Rp  " . number_format($row->biaya_layanan);
+            })
             ->addColumn('total_biaya_admin', function ($row) {
                 return "Rp  " . number_format($row->total_biaya_admin);
             })
@@ -888,65 +974,91 @@ class KspController extends Controller
             ->toJson();
     }
 
-
-
-
-    public function pengajuanPendingExport(Request $req)
+    public function pengajuanDoneTable(Request $req)
     {
-        $perusahaan = ListPerusahaan::where('id', $req->id)->first();
-        $pinjaman = pinjaman::where('id_perusahaan', $perusahaan->id)
-            ->where('status', 'on_proses')
+        $pinjaman = pinjaman::where('id_perusahaan', $req->id)
+            ->where('status', 'done')
             ->where('status_otp', 'success')
             ->with('data_karyawan')
             ->get();
 
-        return Excel::download(new PinjamanPendingExport($pinjaman), $perusahaan->nama . "-" . Carbon::now()->format('Y-m-d') . '-pinjaman-pending.xlsx');
+        return DataTables::of($pinjaman)
+            ->addIndexColumn()
 
-        // return (new PinjamanPendingExport((int) $req->id))->download($perusahaan->nama . "-" . Carbon::now()->format('Y-m-d') . '-pinjaman-pending.xlsx');
+            ->addColumn('nama', function ($row) {
+                return $row->data_karyawan->nama_karyawan;
+            })
+            ->addColumn('nominal', function ($row) {
+                return "Rp  " . number_format($row->nominal);
+            })
+            ->addColumn('angsuran_perbulan', function ($row) {
+                return "Rp  " . number_format($row->total_angsuran_perbulan);
+            })
+
+            ->addColumn('tenor', function ($row) {
+                return $row->tenor . " bulan";
+            })
+
+            ->addColumn('biaya_admin_ksp', function ($row) {
+                return "Rp  " . number_format($row->biaya_admin_ksp);
+            })
+
+            ->addColumn('dpp_adm_ksp', function ($row) {
+                return "Rp  " . number_format($row->dpp_adm_ksp);
+            })
+
+            ->addColumn('ppn_adm_ksp', function ($row) {
+                return "Rp  " . number_format($row->ppn_adm_ksp);
+            })
+
+            ->addColumn('biaya_admin_pandu', function ($row) {
+                return "Rp  " . number_format($row->biaya_admin_pandu);
+            })
+
+            ->addColumn('dpp_adm_pandu', function ($row) {
+                return "Rp  " . number_format($row->dpp_adm_pandu);
+            })
+
+            ->addColumn('ppn_adm_pandu', function ($row) {
+                return "Rp  " . number_format($row->ppn_adm_pandu);
+            })
+
+            ->addColumn('rate', function ($row) {
+                return $row->rate . " %";
+            })
+
+            ->addColumn('iuran_anggota', function ($row) {
+                return "Rp  " . number_format($row->iuran_anggota);
+            })
+
+            ->addColumn('biaya_layanan', function ($row) {
+                return "Rp  " . number_format($row->biaya_layanan);
+            })
+
+            ->addColumn('total_biaya_admin', function ($row) {
+                return "Rp  " . number_format($row->total_biaya_admin);
+            })
+
+            ->addColumn('jumlah_yang_diterima', function ($row) {
+                return "Rp  " . number_format($row->jumlah_yang_diterima);
+            })
+
+            ->addColumn('cost_tomi', function ($row) {
+                return "Rp  " . number_format($row->cost_tomi);
+            })
+
+            ->addColumn('pendapatan_pandu', function ($row) {
+                return "Rp  " . number_format($row->dpp_adm_pandu - $row->cost_tomi);
+            })
+
+            ->addColumn('detail_angsuran', function ($row) {
+                return '<button class="btn btn-sm btn-primary mr-2" onclick="detailAngsuran(' . $row->id . ')"><i class="mdi mdi-eye"></i></button>';
+            })
+
+            ->rawColumns(['detail_angsuran'])
+            ->toJson();
     }
-    public function pengajuanProsesToExport(Request $req)
-    {
-        $pinjamans = pinjaman::where('id_perusahaan', $req->id)
-            ->where('status', 'on_proses')
-            ->where('status_otp', 'success')
-            ->get();
 
-        foreach ($pinjamans as $pinjaman) {
-            $notif = new notification();
-            $notif->user_id = $pinjaman->user_id;
-            $notif->title = "Pengajuan Anda Telah Diperbarui";
-            $notif->description = "Selamat! Status pengajuan Anda telah diperbarui, kami akan meneruskan data pinjaman anda kepada pihak perusahaan anda. Silakan cek aplikasi untuk detail selengkapnya.";
-            $notif->type = 'pinjaman_payroll';
-            $notif->read = 'belum';
-            $notif->save();
-        }
-
-        $pinjamans = pinjaman::where('id_perusahaan', $req->id)
-            ->where('status', 'on_proses')
-            ->where('status_otp', 'success')
-            ->update(['status' => 'exported']);
-        // 
-        return response()->json([
-            'status' => 200,
-            'message' => 'Sukses mengubah status menjadi exported',
-        ], 200);
-    }
-
-    public function pengajuanExportUpload(UploadListKaryawanRequest $req)
-    {
-        try {
-            Excel::import(new ExportImportData(), $req->file('file'));
-            return response()->json([
-                'status' => 200,
-                'message' => 'Berhasil Update Data Pinjaman',
-            ], 200);
-        } catch (\Throwable $th) {
-            return response()->json([
-                'status' => 400,
-                'message' => 'Harap Periksa Kembali Data Anda',
-            ], 400);
-        }
-    }
 
     public function konfigurasiAmount(AmountPinjamanRequest $req)
     {
@@ -968,18 +1080,18 @@ class KspController extends Controller
         $pengajuan = pinjaman::where('id_perusahaan', $req->id)->first();
 
         $belum_validasi =  isset($pengajuan) ? $pengajuan->where('status_otp', 'pending')->count() : 0;
-        $pending =  isset($pengajuan) ? $pengajuan->where('status_otp', 'success')->where('status', 'on_proses')->count() : 0;
-        $exported = isset($pengajuan) ? $pengajuan->where('status_otp', 'success')->where('status', 'exported')->count() : 0;
+        $on_proses =  isset($pengajuan) ? $pengajuan->where('status_otp', 'success')->where('status', 'on_proses')->count() : 0;
+        $pending = isset($pengajuan) ? $pengajuan->where('status_otp', 'success')->where('status', 'pending')->count() : 0;
         $approve = isset($pengajuan) ? $pengajuan->where('status_otp', 'success')->where('status', 'approve')->count() : 0;
-        $reject = isset($pengajuan) ? $pengajuan->where('status_otp', 'success')->where('status', 'reject')->count() : 0;
+        $done = isset($pengajuan) ? $pengajuan->where('status_otp', 'success')->where('status', 'done')->count() : 0;
 
         return response()->json([
             'status' => 200,
             'belum_validasi_wa' => $belum_validasi,
+            'on_proses' => $on_proses,
             'pending' => $pending,
-            'exported' => $exported,
             'approve' =>  $approve,
-            'reject' => $reject,
+            'done' => $done,
         ], 200);
     }
 
@@ -1018,14 +1130,13 @@ class KspController extends Controller
                 return "Rp  " . number_format($row->total_fee_base);
             })
 
-            ->addColumn('income_ksp', function ($row) {
-                return "Rp  " . number_format($row->income_ksp);
-            })
-
             ->addColumn('iuran_anggota', function ($row) {
                 return "Rp  " . number_format($row->iuran_anggota);
             })
 
+            ->addColumn('biaya_layanan', function ($row) {
+                return "Rp  " . number_format($row->biaya_layanan);
+            })
 
             ->addColumn('status_invoicing', function ($row) {
                 if ($row->status == "belum_lunas") {
@@ -1056,6 +1167,17 @@ class KspController extends Controller
         return response()->json([
             'status' => 200,
             'message' => 'Tagihan berhasil di perbarui',
+        ], 200);
+    }
+
+
+    // 
+    public function checkAngsuran(Request $req)
+    {
+        $pinjaman = pinjaman::where('id', $req->id)->with('angsuran')->first();
+        return response()->json([
+            'status' => 200,
+            'message' =>  CheckAngsuranResource::collection($pinjaman->angsuran),
         ], 200);
     }
 }

@@ -16,21 +16,52 @@
 
                 <li class="menu-title">Product</li>
 
-
+                {{-- 
                 <li>
                     <a href="{{ route('admin.ppob.index') }}">
                         <i class=" dripicons-document"></i>
                         <span> PPOB </span>
                     </a>
+                </li> --}}
+
+                <li>
+                    <a href="javascript: void(0);">
+                        <i class="dripicons-document"></i>
+                        <span> PPOB </span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <ul class="nav-second-level" aria-expanded="false">
+                        <li>
+                            <a href="{{ route('admin.ppob.komisi') }}">Komisi</a>
+                        </li>
+                        <li>
+                            <a href="{{ route('admin.ppob.prepaid') }}">Transaksi Prabayar</a>
+                        </li>
+                        <li>
+                            <a href="{{ route('admin.ppob.postpaid') }}">Transaksi Pasca Bayar</a>
+                        </li>
+
+                    </ul>
                 </li>
 
 
 
+
                 <li>
-                    <a href="{{ route('admin.ksp.index') }}">
+                    <a href="javascript: void(0);">
                         <i class="dripicons-network-3"></i>
                         <span> Pinjaman Payroll </span>
+                        <span class="menu-arrow"></span>
                     </a>
+                    <ul class="nav-second-level" aria-expanded="false">
+                        <li>
+                            <a href="{{ route('admin.ksp.index') }}">List Perusahaan</a>
+                        </li>
+                        <li>
+                            <a href="{{ route('admin.cost.index') }}">Cost</a>
+                        </li>
+
+                    </ul>
                 </li>
 
                 {{-- <li>

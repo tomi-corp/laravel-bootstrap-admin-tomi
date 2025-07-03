@@ -26,6 +26,9 @@
     <link href="{{ asset('assets/css/lightbox.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('assets/css/toastr.min.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('assets/css/custom.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('assets/libs/bootstrap-daterangepicker/daterangepicker.css') }}" rel="stylesheet" />
+
+
     @stack('css')
     {{-- <link href="{{ asset('assets/css/font-awesome6.5.1.all.min.css') }}" rel="stylesheet" type="text/css" /> --}}
 
@@ -94,6 +97,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.3.0/jquery.form.min.js"></script>
     <!-- Init js -->
     {{-- <script src="{{ asset('assets/js/pages/chartjs.init.js') }}"></script> --}}
+    <script src="{{ asset('assets/libs/moment/moment.min.js') }}"></script>
+
+    <script src="{{ asset('assets/libs/bootstrap-daterangepicker/daterangepicker.js') }}"></script>
 
     @stack('js')
 

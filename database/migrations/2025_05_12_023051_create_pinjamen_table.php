@@ -40,7 +40,15 @@ return new class extends Migration
 
             $table->double('total_angsuran_perbulan');
             $table->double('jumlah_yang_diterima');
-            $table->enum('status', ['on_proses', 'exported', 'approve', 'reject', 'done'])->default('on_proses');
+
+            $table->longText('disbursement_id');
+
+            $table->double('cost_tomi');
+            $table->double('cost_ksp');
+            $table->longText('description_cost_tomi');
+            $table->longText('description_cost_ksp');
+
+            $table->enum('status', ['on_proses', 'pending', 'approve', 'done'])->default('on_proses');
             $table->enum('status_otp', ['pending', 'success'])->default('pending');
             $table->longText('note')->nullable();
             $table->softDeletes();
