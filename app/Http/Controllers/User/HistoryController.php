@@ -73,7 +73,7 @@ class HistoryController extends Controller
             $historyPinjam = pinjaman::where('user_id', auth('api')->user()->id)
                 ->whereBetween('created_at', [$time1, $time2])
                 ->select(['nominal', 'status', 'created_at', 'id'])
-                ->paginate(10);
+                ->paginate(15);
 
             $historyPinjam->map(function ($order) use ($menu) {
                 $order['type'] =  $menu->title;
