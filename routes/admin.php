@@ -105,5 +105,6 @@ Route::middleware(['AdminMiddleware'])->group(
         // ksp => cost
         Route::get('/cost/ksp', [CostController::class, 'costIndex'])->name('admin.cost.index');
         Route::post('/cost/ksp/add', [CostController::class, 'costAdd'])->name('admin.cost.add');
+        Route::post('/cost/ksp/save/rekening', [CostController::class, 'saveRekening'])->name('admin.cost.save.rekening');
     }
 );

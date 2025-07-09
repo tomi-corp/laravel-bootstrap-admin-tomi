@@ -392,7 +392,7 @@ class PinjamanController extends Controller
                     // $pinjaman->status = "approve";
                     $pinjaman->disbursement_id = $response_json->id;
                 } else {
-                    $pinjaman->status = 'exported';
+                    $pinjaman->status = 'pending';
                     $pinjaman->note = $response_json->error_code;
                 }
                 $pinjaman->save();

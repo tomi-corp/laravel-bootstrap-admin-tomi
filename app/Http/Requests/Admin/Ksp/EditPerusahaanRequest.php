@@ -34,7 +34,8 @@ class EditPerusahaanRequest extends FormRequest
             'alamat_lengkap' => 'required',
             'payment_date' => 'required|numeric',
             'nomor_pks' => 'required|numeric',
-            'status' => 'required|in:active,nonactive'
+            'status' => 'required|in:active,nonactive',
+            'bank' => 'required',
         ];
     }
 }

@@ -192,7 +192,51 @@ class KspController extends Controller
         $perusahaan->id_desa = $desa->id;
 
         $perusahaan->status = $req->status;
+        $bank = bank::where('code_bank', $req->bank)->first();
+        if ($bank->code_bank != $perusahaan->virtual_account_channel_code) {
+            $xendit = xenditApi::first();
+            $url = $xendit->url . "/payment_requests";
 
+            $data = [
+                "currency" => "IDR",
+                "amount" => null,
+                "payment_method" => [
+                    "type" => "VIRTUAL_ACCOUNT",
+                    "reusability" => "MULTIPLE_USE",
+                    "reference_id" => $perusahaan->payment_method_reference_id,
+                    "virtual_account" => [
+                        "channel_code" => $bank->code_bank,
+                        "channel_properties" => [
+                            "customer_name" => "KSP DDT"
+                        ]
+                    ]
+                ],
+                "metadata" => [
+                    "sku" =>  $perusahaan->payment_method_reference_id,
+                ]
+            ];
+
+            $response = Http::withoutVerifying()
+                ->withOptions(["verify" => false])
+                ->withBasicAuth($xendit->secret, '')
+                // ->withHeaders([])
+                ->withBody(json_encode($data), 'application/json')
+                ->post($url);
+
+            $response_json = json_decode($response);
+
+            $perusahaan->va_id = $response_json->id;
+            $perusahaan->payment_method_id = $response_json->payment_method->id;
+            $perusahaan->payment_method_reference_id = $response_json->payment_method->reference_id;
+            $perusahaan->virtual_account_channel_code = $response_json->payment_method->virtual_account->channel_code;
+            $perusahaan->virtual_account_channel_properties_customer_name = $response_json->payment_method->virtual_account->channel_properties->customer_name;
+            $perusahaan->virtual_account_channel_properties_virtual_account_number = $response_json->payment_method->virtual_account->channel_properties->virtual_account_number;
+            $perusahaan->virtual_account_channel_properties_virtual_expires_at =  Carbon::parse($response_json->payment_method->virtual_account->channel_properties->expires_at)->format('Y-m-d H:i:s');
+        }
+
+        $perusahaan->id_desa = $desa->id;
+
+        // $perusahaan->bank = $req->status;
 
         $perusahaan->save();
         return response()->json([

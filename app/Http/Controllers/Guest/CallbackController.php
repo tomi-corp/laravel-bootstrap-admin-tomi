@@ -4,13 +4,17 @@ namespace App\Http\Controllers\Guest;
 
 use App\Http\Controllers\Controller;
 use App\Models\cost;
+use App\Models\history_disbursement_tomi;
 use App\Models\history_invoicing_payment;
 use App\Models\invoicing_pinjaman;
 use App\Models\jatuh_tempo;
 use App\Models\notification;
 use App\Models\pinjaman;
+use App\Models\rekening_tomi;
+use App\Models\xenditApi;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 
 class CallbackController extends Controller
 {
@@ -21,66 +25,108 @@ class CallbackController extends Controller
             $datees =  Carbon::now();
 
             $pinjaman = pinjaman::where('disbursement_id', $req['id'])->first();
-            $cost = cost::get()->toArray();
-            if (!isset($pinjaman)) {
+            $history = history_disbursement_tomi::where('disbursement_id', $req['id'])->first();
+            if (isset($pinjaman)) {
+
+                $cost = cost::get()->toArray();
+
+                if ($req->status == "COMPLETED") {
+                    $jatuh_tempos = jatuh_tempo::where('id_pinjaman', $pinjaman->id)->get();
+                    foreach ($jatuh_tempos as $jatuh_tempo) {
+                        $invoicing = invoicing_pinjaman::whereYear('period', '=', Carbon::parse($jatuh_tempo->jatuh_tempo)->format('Y'))
+                            ->whereMonth('created_at', '=', Carbon::parse($jatuh_tempo->jatuh_tempo)->format('m'))
+                            ->where('id_list_perusahaan', $pinjaman->id_perusahaan)
+                            ->first();
+
+                        if (!isset($invoicing)) {
+                            $invoicing = new invoicing_pinjaman();
+                            $invoicing->id_list_perusahaan = $pinjaman->id_perusahaan;
+                            $invoicing->period = Carbon::parse($jatuh_tempo->jatuh_tempo)->format('Y-m-d');
+                            // $invoicing->total_transaksi_approve = 1;
+                            $invoicing->status = 'belum_lunas';
+                            $invoicing->save();
+                        } else {
+                            // $invoicing->total_transaksi_approve = $invoicing->total_transaksi_approve + 1;
+                            $invoicing->status = 'belum_lunas';
+                            $invoicing->save();
+                        }
+                    };
+
+                    // check pinjaman yang udah ada identity verification (karna hanya sekali identity verification)
+                    $pinjamanCheckFirst = pinjaman::where(function ($q) {
+                        $q->where('status', '=', 'approve')
+                            ->orWhere('status', '=', 'done');
+                    })->where('user_id', $pinjaman->user_id)
+                        ->where('id_list_data_ksp', $pinjaman->id_list_data_ksp)
+                        ->first();
+                    if (!isset($pinjamanCheckFirst)) {
+                        $pinjaman->cost_tomi = $cost[0]['biaya'] + $cost[2]['biaya'];
+                        $pinjaman->description_cost_tomi = "- identity verifikasi (" . $cost[0]['biaya'] . ") - disbursement rekening tomi (" . $cost[2]['biaya'] . ")";
+                        $pinjaman->cost_ksp = $cost[1]['biaya'];
+                        $pinjaman->description_cost_ksp = "- disbursement peminjam (" . $cost[1]['biaya'] . ")";
+                    } else {
+                        $pinjaman->cost_tomi =  $cost[2]['biaya'];
+                        $pinjaman->description_cost_tomi = "- disbursement rekening tomi (" . $cost[2]['biaya'] . ")";
+                        $pinjaman->cost_ksp = $cost[1]['biaya'];
+                        $pinjaman->description_cost_ksp = "- disbursement peminjam (" . $cost[1]['biaya'] . ")";
+                    }
+                    $pinjaman->status =  'approve';
+
+                    // disbursmenet ke rekening tomi
+                    $rekeningTomi = rekening_tomi::with('bank')->first();
+                    $xendit = xenditApi::first();
+                    $url = $xendit->url . "/disbursements";
+                    $time = Carbon::now();
+
+                    $data = [
+                        "external_id" => "disb-" . $time,
+                        "amount" => $pinjaman->dpp_adm_pandu - $pinjaman->cost_tomi,
+                        "bank_code" => $rekeningTomi->bank->code_bank,
+                        "account_holder_name" => $rekeningTomi->atas_nama,
+                        "account_number" => $rekeningTomi->nomor_rekening,
+                        "description" => "pendapatan tomi dengan id pinjaman :" . $pinjaman->id_pinjaman
+                    ];
+
+                    $response = Http::withoutVerifying()
+                        ->withOptions(["verify" => false])
+                        ->withBasicAuth($xendit->secret, '')
+                        // ->withHeaders([])
+                        ->withBody(json_encode($data), 'application/json')
+                        ->post($url);
+
+                    $response_json = json_decode($response);
+                    // history
+                    $history = new history_disbursement_tomi();
+                    $history->disbursement_id = $response_json->id;
+                    $history->external_id = $response_json->external_id;
+                    $history->bank_code = $response_json->bank_code;
+                    $history->amount = $response_json->amount;
+                    $history->account_holder_name = $response_json->account_holder_name;
+                    $history->disbursement_description = $response_json->disbursement_description;
+                    $history->status = $response_json->status;
+                    $history->save();
+
+                    $notif = new notification();
+                    $notif->user_id = $pinjaman->user_id;
+                    $notif->title = "Pengajuan Anda Telah Diperbarui";
+                    $notif->description = "Selamat! Status pengajuan Anda telah berhasil dikirimkan ke rekening anda!";
+                    $notif->type = 'pinjaman_payroll';
+                    $notif->read = 'belum';
+                    $notif->save();
+                } elseif ($req->status == "FAILED") {
+                    $pinjaman->status = 'pending';
+                }
+                $pinjaman->save();
+                return response()->json([
+                    'status' => 200,
+                    'message' => $pinjaman->id_pinjaman . " - " . $pinjaman->id_pinjaman,
+                ], 200);
+            } elseif (isset($history)) {
+                $history->status = $req->status;
+                $history->save();
+            } else {
                 abort(404);
             }
-
-            if ($req->status == "COMPLETED") {
-                $jatuh_tempos = jatuh_tempo::where('id_pinjaman', $pinjaman->id)->get();
-                foreach ($jatuh_tempos as $jatuh_tempo) {
-                    $invoicing = invoicing_pinjaman::whereYear('period', '=', Carbon::parse($jatuh_tempo->jatuh_tempo)->format('Y'))
-                        ->whereMonth('created_at', '=', Carbon::parse($jatuh_tempo->jatuh_tempo)->format('m'))
-                        ->where('id_list_perusahaan', $pinjaman->id_perusahaan)
-                        ->first();
-
-                    if (!isset($invoicing)) {
-                        $invoicing = new invoicing_pinjaman();
-                        $invoicing->id_list_perusahaan = $pinjaman->id_perusahaan;
-                        $invoicing->period = Carbon::parse($jatuh_tempo->jatuh_tempo)->format('Y-m-d');
-                        // $invoicing->total_transaksi_approve = 1;
-                        $invoicing->status = 'belum_lunas';
-                        $invoicing->save();
-                    } else {
-                        // $invoicing->total_transaksi_approve = $invoicing->total_transaksi_approve + 1;
-                        $invoicing->status = 'belum_lunas';
-                        $invoicing->save();
-                    }
-                };
-
-                // check pinjaman yang udah ada identity verification (karna hanya sekali identity verification)
-                $pinjamanCheckFirst = pinjaman::where(function ($q) {
-                    $q->where('status', '=', 'approve')
-                        ->orWhere('status', '=', 'done');
-                })->where('user_id', $pinjaman->user_id)
-                    ->where('id_list_data_ksp', $pinjaman->id_list_data_ksp)
-                    ->first();
-                if (!isset($pinjamanCheckFirst)) {
-                    $pinjaman->cost_tomi = $cost[0]['biaya'];
-                    $pinjaman->description_cost_tomi = "- identity verifikasi (" . $cost[0]['biaya'] . ")";
-                    $pinjaman->cost_ksp = $cost[1]['biaya'];
-                    $pinjaman->description_cost_ksp = "- disbursement peminjam (" . $cost[1]['biaya'] . ")";
-                } else {
-                    $pinjaman->cost_ksp = $cost[1]['biaya'];
-                    $pinjaman->description_cost_ksp = "- disbursement peminjam (" . $cost[1]['biaya'] . ")";
-                }
-                $pinjaman->status =  'approve';
-
-                $notif = new notification();
-                $notif->user_id = $pinjaman->user_id;
-                $notif->title = "Pengajuan Anda Telah Diperbarui";
-                $notif->description = "Selamat! Status pengajuan Anda telah berhasil dikirimkan ke rekening anda!";
-                $notif->type = 'pinjaman_payroll';
-                $notif->read = 'belum';
-                $notif->save();
-            } elseif ($req->status == "FAILED") {
-                $pinjaman->status = 'exported';
-            }
-            $pinjaman->save();
-            return response()->json([
-                'status' => 200,
-                'message' => $pinjaman->id_pinjaman . " - " . $pinjaman->id_pinjaman,
-            ], 200);
         } else {
             abort(404);
         }

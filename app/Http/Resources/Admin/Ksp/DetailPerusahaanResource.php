@@ -45,6 +45,7 @@ class DetailPerusahaanResource extends JsonResource
             'list_desa' => WilayahDesaResource::collection($list_desa),
             'desa' => $this->desa->desa . '-' . $this->desa->kodepos,
             'payment_date' => $this->payment_date,
+            'virtual_account_channel_code' => $this->virtual_account_channel_code,
         ];
     }
 }
