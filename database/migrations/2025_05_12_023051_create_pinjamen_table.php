@@ -48,6 +48,11 @@ return new class extends Migration
             $table->longText('description_cost_tomi');
             $table->longText('description_cost_ksp');
 
+            $table->string('referrence_number')->nullable();
+            $table->string('document_token')->nullable();
+            $table->string('document_name')->nullable();
+            $table->enum('ttd', ['y', 'n'])->default('n');
+
             $table->enum('status', ['on_proses', 'pending', 'approve', 'done'])->default('on_proses');
             $table->enum('status_otp', ['pending', 'success'])->default('pending');
             $table->longText('note')->nullable();

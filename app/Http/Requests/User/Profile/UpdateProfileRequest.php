@@ -31,6 +31,11 @@ class UpdateProfileRequest extends FormRequest
         return [
             'name' => 'required',
             'dob' => 'required|date',
+            'nama_lengkap' => 'required',
+            'nik' => 'required|digits:16',
+            'selfie' => 'required|base64mimes:jpeg,png,jpg|base64max:2048',
+            'identity' => 'required|base64mimes:jpeg,png,jpg|base64max:2048',
+            'kartu_keluarga' => 'sometimes|required|base64mimes:jpeg,png,jpg|base64max:2048',
         ];
     }
 }

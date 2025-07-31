@@ -9,6 +9,7 @@ use App\Http\Requests\User\Pinjaman\CekPegawaiRequest;
 use App\Http\Requests\User\Pinjaman\GetTenorRequest;
 use App\Http\Requests\User\Pinjaman\OTPpinjamanRequest;
 use App\Http\Requests\User\Pinjaman\SimulationRequest;
+use App\Http\Requests\User\Pinjaman\TandaTanganRequest;
 use App\Http\Resources\User\Pinjaman\DataKaryawanResource;
 use App\Http\Resources\User\Pinjaman\HistroyPinjamanResource;
 use App\Http\Resources\User\Pinjaman\ProdukPinjamanResource;
@@ -17,13 +18,32 @@ use App\Models\jatuh_tempo;
 use App\Models\list_data_ksp;
 use App\Models\ListPerusahaan;
 use App\Models\pinjaman;
+use App\Models\privy;
 use App\Models\produk_pinjaman;
 use App\Models\tenor_pinjaman;
+use App\Models\User;
 use App\Models\verif_otp_pengajuan;
 use App\Models\xenditApi;
 use Carbon\Carbon;
+use DateTime;
+use DateTimeZone;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\ServerException;
+use Illuminate\Support\Facades\Storage;
+use PhpOffice\PhpWord\TemplateProcessor;
+use PhpOffice\PhpWord\IOFactory;
+use PhpOffice\PhpWord\Settings;
+use Barryvdh\Snappy\Facades\SnappyPdf;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Response;
+
 
 
 
@@ -157,6 +177,7 @@ class PinjamanController extends Controller
 
     public function actionPinjaman(ActionPinjamRequest $req)
     {
+        $user = User::where('id', auth('api')->user()->id)->first();
         $nip = explode("-", $req->nip);
 
         $perusahaan = ListPerusahaan::where('unique_code', $nip[0])
@@ -186,23 +207,49 @@ class PinjamanController extends Controller
                 ->orderBy('tenor')
                 ->first();
 
-
-
             if (!($tenor->minimal_nominal <= $req->nominal) && !($maksimal <= $tenor->maximal_nominal)) {
                 return response()->json([
                     'status' => 400,
                     'message' => 'Maksimal nominal pinjaman Rp ' . number_format($maksimal),
                 ], 400);
+            } elseif (auth('api')->user()->verified_privy == "n") {
+
+                if (isset($user->nik) && isset($user->nama_lengkap) && isset($user->selfie) && isset($user->ktp)) {
+                    if ($user->register_token_privy == null) {
+                        // tampilkan consent privy
+                        return response()->json([
+                            'status' => 400,
+                            'message' => 'Tampilkan consent privy untuk register'
+                        ], 400);
+                    } else {
+                        if ($user->resend_privy == 1) {
+                            $reason = json_decode($user->reason_privy);
+                            return response()->json([
+                                'status' => 400,
+                                'reason' => $reason->reason,
+                                'message' => 'Harap perbarui kembali data anda'
+                            ], 400);
+                        } elseif ($user->resend_privy == 0 && $user->reason_privy != null) {
+                            $reason = json_decode($user->reason_privy);
+                            return response()->json([
+                                'status' => 400,
+                                'reason' => $reason->reason,
+                                'message' => 'Harap hubungi customer service untuk merubah data anda'
+                            ], 400);
+                        } else {
+                            return response()->json([
+                                'status' => 400,
+                                'message' => 'Harap menunggu, data anda sedang proses verifikasi'
+                            ], 400);
+                        }
+                    }
+                } else {
+                    return response()->json([
+                        'status' => 400,
+                        'message' => 'Harap lengkapi data anda telebih dahulu',
+                    ], 400);
+                }
             } else {
-                // where('user_id', auth('api')->user()->id)
-                // $cekPinjaman = pinjaman::where('id_list_data_ksp', $perusahaan->karyawanSingle->id)
-                //     ->where(function ($q) {
-                //         $q->orWhere('status', 'exported')
-                //             ->orWhere('status', 'on_proses')
-                //             ->orWhere('status', 'approve');
-                //     })
-                //     ->where('status_otp', 'success')
-                //     ->first();
                 $cekPinjamanData = pinjaman::where('id_list_data_ksp', $perusahaan->karyawanSingle->id)
                     ->where(function ($q) {
                         $q->orWhere('status', 'exported')
@@ -344,6 +391,12 @@ class PinjamanController extends Controller
     {
         $verif = verif_otp_pengajuan::where('user_id',  auth('api')->user()->id)
             ->where('otp', $req->otp)
+            ->with(['pinjaman' => function ($q) {
+                $q->with(['data_karyawan' => function ($w) {
+                    $w->with('bank');
+                    $w->with('perusahaan');
+                }]);
+            }, 'user'])
             ->first();
 
         if (!isset($verif)) {
@@ -352,22 +405,149 @@ class PinjamanController extends Controller
                 'message' => 'OTP tidak benar',
             ], 400);
         } else {
+
             if ($verif->expired < Carbon::now()) {
                 return response()->json([
                     'status' => 400,
                     'message' => 'OTP kadaluarsa',
                 ], 400);
             } else {
-                $pinjaman = pinjaman::where('id', $verif->pinjaman_id)
-                    ->with(['data_karyawan' => function ($q) {
-                        $q->with('bank');
-                    }])->first();
+                $user = User::where('id', auth('api')->user()->id)->first();
+                $time = Carbon::now()->format('Y-m-d');
+                $random = rand(1000, 9999);
+                $usia =  Carbon::parse($verif->user->dob)->age;
+
+                $fileName = $user->nik . '_' . $time . '_' . $random . '.pdf';
+
+                $disk = Storage::disk('local');
+                $html = $disk->get('template/pkk.html');
+
+                $dataPengganti = [
+                    'pihak_kedua' => '<b>' . $verif->pinjaman->data_karyawan->nama_karyawan . '</b>' . ',' . $usia . ' tahun, ' . 'beralamat di ' . $verif->pinjaman->data_karyawan->alamat . ' pemegang kartu tanda penduduk nomor ' . $verif->pinjaman->data_karyawan->nik . ' karyawan pada ' . $verif->pinjaman->data_karyawan->perusahaan->nama . ' dengan NIP ' . $verif->pinjaman->data_karyawan->nip,
+                    'plafond'    => 'Rp  ' . number_format($verif->pinjaman->nominal),
+                    'plafond_terbilang'    => ' (' . terbilang($verif->pinjaman->nominal) . ' rupiah)',
+                    'jangka' => $verif->pinjaman->tenor . ' bulan',
+                    'rate' => $verif->pinjaman->rate . '%',
+                    'angsuran_perbulan' => 'Rp  ' . number_format($verif->pinjaman->total_angsuran_perbulan),
+                    'angsuran_perbulan_terbilang' =>  ' (' . terbilang($verif->pinjaman->total_angsuran_perbulan) . ' rupiah)',
+                    'administrasi' => 'Rp  ' . number_format($verif->pinjaman->total_biaya_admin),
+                    'biaya_layanan' => 'Rp  ' . number_format($verif->pinjaman->biaya_layanan),
+                    'iuran_anggota' => 'Rp  ' . number_format($verif->pinjaman->iuran_anggota),
+                    'rekening_pencairan' => $verif->pinjaman->data_karyawan->nomor_bank,
+                    'bank_pencairan' => $verif->pinjaman->data_karyawan->bank->code_bank,
+                    'atas_nama_rekening_pencairan' => $verif->pinjaman->data_karyawan->nama_rekening,
+                    'jumlah_pencairan' => 'Rp  ' . number_format($verif->pinjaman->jumlah_yang_diterima),
+                    'terbilang_jumlah_pencairan' => ' (' . terbilang($verif->pinjaman->jumlah_yang_diterima) . ' rupiah)',
+                    'nomor_rekening_tomi' => $verif->pinjaman->data_karyawan->perusahaan->virtual_account_channel_properties_virtual_account_number,
+                    'penerima_pinjaman' => strtoupper($user->nama_lengkap)
+                ];
+
+                foreach ($dataPengganti as $key => $value) {
+                    $html = str_replace("{{ \$$key }}", $value, $html);
+                }
+
+                // Buat PDF dari HTML
+                $pdf = Pdf::loadHTML($html)->setPaper('A4', 'portrait');
+
+                // Simpan ke file
+                $outputPdfPath = 'assets/pk/' . $fileName;
+                $disk->put($outputPdfPath, $pdf->output());
+
+                // ttdPK
+                $hasilTTD = ttdPK($user, $fileName, $verif);
+                // dd($hasilTTD);
+
+                // dd($documentTTD);
+                // masukin data dari tanda tangan ke db pinjaman 
+                // habis itu get file yg sudah ditanda tangan
+                $pinjaman = pinjaman::where('id', $verif->pinjaman->id)->first();
+                $pinjaman->referrence_number = $hasilTTD['data']['reference_number'];
+                $pinjaman->document_token = $hasilTTD['data']['document_token'];
+                $pinjaman->document_name = $fileName;
+                $pinjaman->status_otp = "success";
+                // untuk ambil document yg sudah ditanda tanganin
+                $pinjaman->save();
+                $verif->delete();
+                return response()->json([
+                    'status' => 200,
+                    'message' => 'OTP benar, Silahkan tanda tanganin berkas untuk melanjutkan',
+                ], 200);
+
+
+                // {{base_url}}/web/api/v2/doc-signing/status
+
+                // Storage::disk('local')->put('assets/pk/' . $fileName, base64_decode($responseBody->data->));
+
+
+                // {{base_url}}/web/api/v2/doc-signing/status
+
+
+                //     $pinjaman = pinjaman::where('id', $verif->pinjaman_id)
+                //         ->with(['data_karyawan' => function ($q) {
+                //             $q->with('bank');
+                //         }])->first();
+            }
+        }
+    }
+
+    public function showberkas()
+    {
+        $pinjaman = pinjaman::where('user_id', auth('api')->user()->id)
+            ->where('status_otp', 'success')
+            ->where('ttd', 'n')
+            ->where('status', 'on_proses')
+            ->first();
+
+        if (!isset($pinjaman)) {
+            return response()->json([
+                'status' => 200,
+                'message' => 'Anda tidak memiliki pinjaman yang harus ditanda tangani',
+            ], 200);
+        } else {
+            $user = User::where('id', auth('api')->user()->id)->first();
+            $documentTTD = getDocumentPK($user, $pinjaman->referrence_number, $pinjaman->document_token);
+            if (!isset($documentTTD['data']['signed_document'])) {
+                return response()->json([
+                    'status' => 400,
+                    'message' => 'Mohon tunggu, Document sedang disiapkan',
+                ], 400);
+            } else {
+                Storage::disk('local')->put('assets/pk/' . $pinjaman->document_name, base64_decode(Str::after($documentTTD['data']['signed_document'], 'data:application/pdf;base64,')));
+
+                return response()->json([
+                    'status' => 200,
+                    'message' => '',
+                    'document' => $documentTTD['data']['signed_document']
+                ], 200);
+            }
+        }
+    }
+
+    public function tandaTangan(TandaTanganRequest $req)
+    {
+        $user  = User::where('id', auth('api')->user()->id)->first();
+        $pinjaman = pinjaman::where('user_id', auth('api')->user()->id)
+            ->where('status_otp', 'success')
+            ->where('ttd', 'n')
+            ->where('status', 'on_proses')
+            ->first();
+
+        if (!isset($pinjaman)) {
+            return response()->json([
+                'status' => 200,
+                'message' => 'Anda tidak memiliki pinjaman yang harus ditanda tangani',
+            ], 200);
+        } else {
+
+            if (Hash::check($req->password, $user->password)) {
+                // Log authentikasi, timestamps otentikasi saat input tanda tangan (OTP), privyid, preference number.
+                Log::channel('privylog')->info('correct password | Timestamp :' . Carbon::now() . '| privy_id : ' . $user->id_privy . '| referrence_number_user : ' . $user->reference_number_privy . '| referrence_number_document : ' . $pinjaman->referrence_number);
+                $pinjaman->ttd = 'y';
 
                 // disbursmenet
                 $xendit = xenditApi::first();
                 $url = $xendit->url . "/disbursements";
                 $time = Carbon::now();
-
                 $data = [
                     "external_id" => "disb-" . $time,
                     "amount" => $pinjaman->jumlah_yang_diterima,
@@ -376,7 +556,6 @@ class PinjamanController extends Controller
                     "account_number" => $pinjaman->data_karyawan->nomor_bank,
                     "description" => "Pencairan pinjaman " . $pinjaman->id_pinjaman
                 ];
-
                 $response = Http::withoutVerifying()
                     ->withOptions(["verify" => false])
                     ->withBasicAuth($xendit->secret, '')
@@ -384,27 +563,30 @@ class PinjamanController extends Controller
                     ->withBody(json_encode($data), 'application/json')
                     ->post($url);
 
-                // validasi otp
-                $pinjaman->status_otp = "success";
-
                 $response_json = json_decode($response);
                 if ($response->getStatusCode() == 200) {
+                    Log::channel('disbursement')->info($pinjaman->id_pinjaman . ' | ' . json_encode($data));
                     // $pinjaman->status = "approve";
                     $pinjaman->disbursement_id = $response_json->id;
                 } else {
+                    Log::channel('disbursement')->error($pinjaman->id_pinjaman . ' | ' . $response_json->error_code);
                     $pinjaman->status = 'pending';
                     $pinjaman->note = $response_json->error_code;
                 }
                 $pinjaman->save();
-                $verif->delete();
-
                 return response()->json([
                     'status' => 200,
                     'message' => 'Verifikasi berhasil! Dana Anda segera dicairkan. Jika ada pertanyaan lebih lanjut, jangan ragu untuk menghubungi kami.',
                 ], 200);
+            } else {
+                return response()->json([
+                    'status' => 400,
+                    'message' => 'Password tidak sesuai',
+                ], 400);
             }
         }
     }
+
 
     public function historyPinjam()
     {

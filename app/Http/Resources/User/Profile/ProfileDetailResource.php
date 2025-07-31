@@ -28,9 +28,14 @@ class ProfileDetailResource extends JsonResource
             'penghasilan' => $this->penghasilan,
             'slip_gaji' => $this->slip_gaji,
             'ktp' => $this->ktp,
+            'selfie' => $this->selfie,
+            'kartu_keluarga' => $this->kartu_keluarga,
             'selfie_ktp' => $this->selfie_ktp,
-
             'status_akun' => $this->email_verified_at === null ? "belum verifikasi" : "terverifikasi",
+            'status_privy' => $this->verified_privy,
+            'reason_privy' => $this->reason_privy,
+            'resend_privy' => $this->resend_privy,
+            'update_data_privy' => $this->update_data_privy,
         ];
     }
 }

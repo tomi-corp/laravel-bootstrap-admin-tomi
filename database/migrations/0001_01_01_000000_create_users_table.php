@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('nama_lengkap');
             $table->string('nik')->nullable()->unique();
             $table->string('email')->unique();
             $table->string('nohp')->unique();
@@ -25,12 +26,22 @@ return new class extends Migration
             $table->string('ktp')->nullable();
             $table->string('stnk')->nullable();
 
+
             $table->string('nip')->nullable();
             $table->string('nama_perusahaan')->nullable();
             $table->string('jabatan')->nullable();
             $table->double('penghasilan')->nullable();
             $table->string('slip_gaji')->nullable();
             $table->string('selfie_ktp')->nullable();
+            $table->enum('verified_privy', [1, 0])->default(0);
+            $table->string('id_privy');
+            $table->string('enterprise_token_privy');
+            $table->string('reference_number_privy');
+            $table->string('register_token_privy');
+            $table->json('reason_privy');
+            $table->tinyInteger('resend_privy');
+            $table->tinyInteger('update_data_privy');
+            $table->string('kartu_keluarga');
 
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');

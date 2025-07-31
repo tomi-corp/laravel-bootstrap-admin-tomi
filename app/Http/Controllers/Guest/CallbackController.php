@@ -11,6 +11,7 @@ use App\Models\jatuh_tempo;
 use App\Models\notification;
 use App\Models\pinjaman;
 use App\Models\rekening_tomi;
+use App\Models\User;
 use App\Models\xenditApi;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -205,5 +206,29 @@ class CallbackController extends Controller
         } else {
             abort(404);
         }
+    }
+
+    public function privyRegisterCallback(Request $req)
+    {
+        $user = User::where('register_token_privy', $req->register_token)->first();
+        if (isset($user)) {
+            if ($req->status == 'rejected') {
+                $user->verified_privy = 'n';
+                $user->reason_privy = $req->reject_reason;
+                $user->resend_privy = $req->resend == true ? 1 : 0;
+                $user->save();
+            } else {
+                $user->id_privy = $req->privy_id;
+                $user->enterprise_token_privy = $req->enterprise_token;
+                $user->reason_privy = NULL;
+                $user->resend_privy = NULL;
+                $user->verified_privy = 'y';
+                $user->save();
+            }
+        }
+        return response()->json([
+            'status' => 200,
+            'message' => true,
+        ], 200);
     }
 }

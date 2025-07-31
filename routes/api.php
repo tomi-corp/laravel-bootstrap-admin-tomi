@@ -7,6 +7,7 @@ use App\Http\Controllers\User\MenuController;
 use App\Http\Controllers\User\NotificationController;
 use App\Http\Controllers\User\PinjamanController;
 use App\Http\Controllers\User\PointController;
+use App\Http\Controllers\User\PrivyController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -51,6 +52,8 @@ Route::middleware(['LanguangeMiddleware'])->group(
 
                     Route::post('/action/pinjaman', [PinjamanController::class, 'actionPinjaman']);
                     Route::post('/action/pinjaman/otp', [PinjamanController::class, 'actionPinjamanOTP']);
+                    Route::post('/action/pinjaman/show/berkas', [PinjamanController::class, 'showberkas']);
+                    Route::post('/action/pinjaman/ttd/berkas', [PinjamanController::class, 'tandaTangan']);
 
                     // daily checkin
                     Route::post('/list/daily/checkin', [DailyCheckinController::class, 'getList']);
@@ -67,6 +70,13 @@ Route::middleware(['LanguangeMiddleware'])->group(
                     // history
                     Route::post('/history', [HistoryController::class, 'history']);
                     Route::post('/history/detail', [HistoryController::class, 'historyDetail']);
+
+                    // privy
+                    Route::post('/register/privy', [PrivyController::class, 'registerPrivy']);
+                    Route::post('/register/privy/resend', [PrivyController::class, 'resendRegister']);
+                    Route::post('/register/privy/check', [PrivyController::class, 'cekStatusPrivy']);
+
+                    // Route::post('/testing/api/privy', [PinjamanController::class, 'testingApi']);
                 });
                 // Route::post('/profile/update', [AuthController::class, 'login']);
                 // Route::post('/login', [AuthController::class, 'login']);

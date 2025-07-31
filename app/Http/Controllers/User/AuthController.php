@@ -29,6 +29,8 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use PhpParser\Node\Stmt\TryCatch;
+use Illuminate\Support\Facades\Storage;
+
 
 class AuthController extends Controller
 {
@@ -243,13 +245,62 @@ class AuthController extends Controller
     public function profileUpdate(UpdateProfileRequest $req)
     {
         $user = User::where('id', auth('api')->user()->id)->first();
-        $user->name = $req->name;
-        $user->dob = $req->dob;
-        $user->save();
-        return response()->json([
-            'status' => 200,
-            'message' => 'Profile Updated'
-        ], 200);
+        if ($user->verified_privy == 'y') {
+            return response()->json([
+                'status' => 200,
+                'message' => 'Data anda sudah terverified, tidak bisa mengubah kembali data yg sudah terverifikasi'
+            ], 200);
+        } else {
+            $user->name = $req->name;
+            $user->nama_lengkap = $req->nama_lengkap;
+            $user->dob = $req->dob;
+            if ($user->nik != null) {
+                $user->nik = $req->nik;
+            }
+
+            $base64selfie = $req->selfie;
+            $output_file_selfie =  $user->nik . '_selfie_' . $user->id . '.jpg';
+            if (strpos($base64selfie, 'data:image/') === 0) {
+                $parts = explode(';base64,', $base64selfie);
+                if (isset($parts[1])) {
+                    $base64selfie = $parts[1];
+                }
+            }
+            Storage::disk('local')->put('assets/users/' . $output_file_selfie, base64_decode($base64selfie));
+
+            $base64ktp = $req->identity;
+            $output_file_ktp =  $user->nik . '_ktp_' . $user->id . '.jpg';
+            if (strpos($base64ktp, 'data:image/') === 0) {
+                $parts = explode(';base64,', $base64ktp);
+                if (isset($parts[1])) {
+                    $base64ktp = $parts[1];
+                }
+            }
+            Storage::disk('local')->put('assets/users/' . $output_file_ktp, base64_decode($base64ktp));
+
+            if (isset($req->kartu_keluarga)) {
+                $base64kk = $req->kartu_keluarga;
+                $output_file_kk =  $user->nik . '_kk_' . $user->id . '.jpg';
+                if (strpos($base64kk, 'data:image/') === 0) {
+                    $parts = explode(';base64,', $base64kk);
+                    if (isset($parts[1])) {
+                        $base64kk = $parts[1];
+                    }
+                }
+                Storage::disk('local')->put('assets/users/' . $output_file_kk, base64_decode($base64kk));
+                $user->kartu_keluarga = $output_file_kk;
+            }
+
+            $user->selfie = $output_file_selfie;
+            $user->ktp = $output_file_ktp;
+            $user->update_data_privy = '1';
+            $user->save();
+
+            return response()->json([
+                'status' => 200,
+                'message' => 'Profile Updated'
+            ], 200);
+        }
     }
 
     public function forgotPassword(ForgotPasswordRequest $req)
