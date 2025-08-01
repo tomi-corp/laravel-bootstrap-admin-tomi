@@ -22,12 +22,12 @@ class HistoryController extends Controller
         $menuMobile = menu_mobile::get();
         if (isset($req->filterRangePicker)) {
             $time = explode(" - ", $req->filterRangePicker);
-            $time1 = Carbon::parse($time[0])->format('Y-m-d');
-            $time2 = Carbon::parse($time[1])->format('Y-m-d');
+            $time1 = Carbon::parse($time[0])->format('Y-m-d H:i:s');
+            $time2 = Carbon::parse($time[1])->format('Y-m-d H:i:s');
         } else {
             $time = Carbon::now();
-            $time1 = $time->format('Y-m-d');
-            $time2 = $time->format('Y-m-d');
+            $time1 = $time->format('Y-m-d H:i:s');
+            $time2 = $time->format('Y-m-d H:i:s');
         }
 
         if ($req->path == "ppob") {
@@ -73,7 +73,10 @@ class HistoryController extends Controller
             $historyPinjam = pinjaman::where('user_id', auth('api')->user()->id)
                 ->whereBetween('created_at', [$time1, $time2])
                 ->select(['nominal', 'status', 'created_at', 'id'])
-                ->paginate(15);
+                // ->paginate(15);
+                ->get();
+
+            return $historyPinjam;
 
             $historyPinjam->map(function ($order) use ($menu) {
                 $order['type'] =  $menu->title;
