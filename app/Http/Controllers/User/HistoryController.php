@@ -22,13 +22,13 @@ class HistoryController extends Controller
         $menuMobile = menu_mobile::get();
         if (isset($req->filterRangePicker)) {
             $time = explode(" - ", $req->filterRangePicker);
-            $time1 = Carbon::parse($time[0])->format('Y-m-d H:i:s');
-            $time2 = Carbon::parse($time[1])->format('Y-m-d H:i:s');
+            $time1 = Carbon::parse($time[0])->startOfDay()->format('Y-m-d H:i:s');
+            $time2 = Carbon::parse($time[1])->endOfDay()->format('Y-m-d H:i:s');
         } else {
-            $time = Carbon::now();
-            $time1 = $time->format('Y-m-d H:i:s');
-            $time2 = $time->format('Y-m-d H:i:s');
+            $time1 = Carbon::now()->startOfDay()->format('Y-m-d H:i:s');
+            $time2 = Carbon::now()->endOfDay()->format('Y-m-d H:i:s');
         }
+
 
         if ($req->path == "ppob") {
             $menu = menu_mobile::where('path', 'ppob')->first();
