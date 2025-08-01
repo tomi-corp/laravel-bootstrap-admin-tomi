@@ -22,7 +22,7 @@ class CallbackController extends Controller
     public function callbackDisbursement(Request $req)
     {
         $header = $req->header();
-        if ($header['x-callback-token'][0] == "EG3jqtG4nQoXN6NNBceFcwyKKffUF2madmD5TC3VYFZehYI8") {
+        if ($header['x-callback-token'][0] == "ZDqJmP4QXulDq144VTvrPDAyvlYchFfz0E99ZFjnD2YjtAQM") {
             $datees =  Carbon::now();
 
             $pinjaman = pinjaman::where('disbursement_id', $req['id'])->first();
@@ -53,24 +53,26 @@ class CallbackController extends Controller
                         }
                     };
 
+
+                    // kemungkinan bakal pakai lagi untuk privy cost privy
                     // check pinjaman yang udah ada identity verification (karna hanya sekali identity verification)
-                    $pinjamanCheckFirst = pinjaman::where(function ($q) {
-                        $q->where('status', '=', 'approve')
-                            ->orWhere('status', '=', 'done');
-                    })->where('user_id', $pinjaman->user_id)
-                        ->where('id_list_data_ksp', $pinjaman->id_list_data_ksp)
-                        ->first();
-                    if (!isset($pinjamanCheckFirst)) {
-                        $pinjaman->cost_tomi = $cost[0]['biaya'] + $cost[2]['biaya'];
-                        $pinjaman->description_cost_tomi = "- identity verifikasi (" . $cost[0]['biaya'] . ") - disbursement rekening tomi (" . $cost[2]['biaya'] . ")";
-                        $pinjaman->cost_ksp = $cost[1]['biaya'];
-                        $pinjaman->description_cost_ksp = "- disbursement peminjam (" . $cost[1]['biaya'] . ")";
-                    } else {
-                        $pinjaman->cost_tomi =  $cost[2]['biaya'];
-                        $pinjaman->description_cost_tomi = "- disbursement rekening tomi (" . $cost[2]['biaya'] . ")";
-                        $pinjaman->cost_ksp = $cost[1]['biaya'];
-                        $pinjaman->description_cost_ksp = "- disbursement peminjam (" . $cost[1]['biaya'] . ")";
-                    }
+                    // $pinjamanCheckFirst = pinjaman::where(function ($q) {
+                    //     $q->where('status', '=', 'approve')
+                    //         ->orWhere('status', '=', 'done');
+                    // })->where('user_id', $pinjaman->user_id)
+                    //     ->where('id_list_data_ksp', $pinjaman->id_list_data_ksp)
+                    //     ->first();
+                    // if (!isset($pinjamanCheckFirst)) {
+                    //     $pinjaman->cost_tomi = $cost[0]['biaya'] + $cost[2]['biaya'];
+                    //     $pinjaman->description_cost_tomi = "- identity verifikasi (" . $cost[0]['biaya'] . ") - disbursement rekening tomi (" . $cost[2]['biaya'] . ")";
+                    //     $pinjaman->cost_ksp = $cost[1]['biaya'];
+                    //     $pinjaman->description_cost_ksp = "- disbursement peminjam (" . $cost[1]['biaya'] . ")";
+                    // } else {
+                    $pinjaman->cost_tomi =  $cost[2]['biaya'];
+                    $pinjaman->description_cost_tomi = "- disbursement rekening tomi (" . $cost[2]['biaya'] . ")";
+                    $pinjaman->cost_ksp = $cost[1]['biaya'];
+                    $pinjaman->description_cost_ksp = "- disbursement peminjam (" . $cost[1]['biaya'] . ")";
+                    // }
                     $pinjaman->status =  'approve';
 
                     // disbursmenet ke rekening tomi
@@ -136,7 +138,7 @@ class CallbackController extends Controller
     public function callbackPaymentInvoicing(Request $req)
     {
         $header = $req->header();
-        if ($header['x-callback-token'][0] == "EG3jqtG4nQoXN6NNBceFcwyKKffUF2madmD5TC3VYFZehYI8") {
+        if ($header['x-callback-token'][0] == "ZDqJmP4QXulDq144VTvrPDAyvlYchFfz0E99ZFjnD2YjtAQM") {
             $cekHistory = history_invoicing_payment::where('payment_id',  $req->data['id'])->where('payment_request_id', $req->data['payment_request_id'])->first();
             if (!isset($cekHistory)) {
                 $history = new history_invoicing_payment();

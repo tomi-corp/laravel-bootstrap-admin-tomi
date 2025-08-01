@@ -250,6 +250,15 @@ class PinjamanController extends Controller
                     ], 400);
                 }
             } else {
+                if ($user->register_token_privy != null && $user->id_privy == null) {
+                    $checkStatusPrivy = checkStatus();
+                    if ($checkStatusPrivy['data']['privy_id']) {
+                        $user->id_privy = $checkStatusPrivy['data']['privy_id'];
+                        $user->save();
+                    }
+                }
+
+
                 $cekPinjamanData = pinjaman::where('id_list_data_ksp', $perusahaan->karyawanSingle->id)
                     ->where(function ($q) {
                         $q->orWhere('status', 'exported')
@@ -544,7 +553,7 @@ class PinjamanController extends Controller
                 Log::channel('privylog')->info('correct password | Timestamp :' . Carbon::now() . '| privy_id : ' . $user->id_privy . '| referrence_number_user : ' . $user->reference_number_privy . '| referrence_number_document : ' . $pinjaman->referrence_number);
                 $pinjaman->ttd = 'y';
 
-                // disbursmenet
+                // disbursment ke peminjam
                 $xendit = xenditApi::first();
                 $url = $xendit->url . "/disbursements";
                 $time = Carbon::now();
@@ -573,6 +582,9 @@ class PinjamanController extends Controller
                     $pinjaman->status = 'pending';
                     $pinjaman->note = $response_json->error_code;
                 }
+
+
+
                 $pinjaman->save();
                 return response()->json([
                     'status' => 200,

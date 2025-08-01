@@ -223,7 +223,7 @@ if (! function_exists('ttdPK')) {
         $login = loginPrivy();
         $url =  $privy->url . '/web/api/v2/doc-signing';
         $client = new Client(['verify' => false]);
-        $reference_number =  'TOMIDOC' . $user->nik .  $verif->pinjaman->id . 'rand' . rand(1000, 0000);
+        $reference_number =  'TOMIDOC' . $user->nik .  $verif->pinjaman->id;
         $requestBody = [
             "reference_number" => $reference_number,
             "channel_id" => "Toko_Mikro001",
@@ -318,6 +318,42 @@ if (! function_exists('getDocumentPK')) {
         $responseDocument = $client->request('POST', $urlDocument, [
             'headers' => $headerDocument,
             'json' => $requestBodyDocument,
+        ]);
+        $responseBodyDocument = $responseDocument->getBody()->getContents();
+        $decodedResponseBodyDocument = json_decode($responseBodyDocument, true);
+        return [
+            'data' => $decodedResponseBodyDocument['data'],
+        ];
+    }
+}
+
+if (! function_exists('checkStatus')) {
+    function checkStatus()
+    {
+        $user = User::where('id', auth('api')->user()->id)->first();
+        $privy = privy::first();
+        $loginPrivy = loginPrivy();
+        $client = new Client(['verify' => false]);
+        $requestBody = [
+            "reference_number" => $user->reference_number_privy,
+            "channel_id" => "Toko_Mikro001",
+            "register_token" => $user->register_token_privy,
+            "info" => ""
+        ];
+        $urlCheckStatus =  $privy->url . '/web/api/v2/register/status';
+        $signatureDocument = signature($requestBody, $privy->username, $privy->password, 'POST');
+
+        $headerDocument = [
+            'timestamp' => $signatureDocument['timestamp'],
+            'Authorization' => 'Bearer ' . $loginPrivy['token'],
+            'Signature' => $signatureDocument['signature'],
+            'Content-Type' => 'application/json',
+            'Connection' => 'keep-alive',
+            'Accept' => 'application/json',
+        ];
+        $responseDocument = $client->request('POST', $urlCheckStatus, [
+            'headers' => $headerDocument,
+            'json' => $requestBody,
         ]);
         $responseBodyDocument = $responseDocument->getBody()->getContents();
         $decodedResponseBodyDocument = json_decode($responseBodyDocument, true);
