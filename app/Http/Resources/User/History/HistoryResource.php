@@ -23,6 +23,7 @@ class HistoryResource extends JsonResource
             "datetime" => Carbon::parse($this->created_at)->format('Y-m-d H:i:s'),
             "type" => $this->type,
             "path" => $this->path,
+            "ttd_berkas" => $this->ttd,
             "img" =>  asset('assets/images/uploaded') . "/" . $this->img,
         ];
     }
