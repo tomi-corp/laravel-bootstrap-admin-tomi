@@ -27,7 +27,7 @@ class HistoryDetailResource extends JsonResource
             'jumlah_yang_diterima' => "Rp  " . number_format($this->jumlah_yang_diterima),
             'status' => $this->status,
             'ttd' => $this->ttd,
-            'jatuh_tempo' =>  Carbon::parse($this->jatuh_tempo->jatuh_tempo)->format('Y-m-d'),
+            'jatuh_tempo' =>  JatuhTempoResource::collection($this->jatuh_tempo),
             'datetime' => Carbon::parse($this->created_at)->format('Y-m-d H:i:s'),
         ];
     }
