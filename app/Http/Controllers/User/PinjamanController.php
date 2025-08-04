@@ -161,7 +161,7 @@ class PinjamanController extends Controller
             'nominal' => $req->nominal,
         ];
 
-        $simulation = $this->simulation($data);
+
 
         $user = User::where('id', auth('api')->user()->id)->first();
 
@@ -209,7 +209,7 @@ class PinjamanController extends Controller
                     $user->save();
                 }
             }
-
+            $simulation = $this->simulation($data);
             return response()->json([
                 'status' => 200,
                 'message' => 'success get simulation',
