@@ -16,7 +16,8 @@ class JatuhTempoResource extends JsonResource
     {
         return [
             'pembayaran' => $this->pembayaran,
-            'jatuh_tempo' => $this->jatuh_tempo
+            'jatuh_tempo' => $this->jatuh_tempo,
+            'status' => $this->status
         ];
     }
 }
