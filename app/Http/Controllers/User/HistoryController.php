@@ -104,6 +104,7 @@ class HistoryController extends Controller
     {
         if ($req->path == 'pinjaman-payroll') {
             $historyPinjam = pinjaman::where('user_id', auth('api')->user()->id)
+                ->where('id', $req->id)
                 ->with('jatuh_tempo')
                 ->first();
 

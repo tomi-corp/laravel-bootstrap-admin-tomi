@@ -43,6 +43,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Response;
+use Imagick;
 
 
 
@@ -522,7 +523,6 @@ class PinjamanController extends Controller
                 ], 400);
             } else {
                 Storage::disk('local')->put('assets/pk/' . $pinjaman->document_name, base64_decode(Str::after($documentTTD['data']['signed_document'], 'data:application/pdf;base64,')));
-
                 return response()->json([
                     'status' => 200,
                     'message' => '',
