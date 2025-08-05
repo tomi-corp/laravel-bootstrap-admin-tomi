@@ -12,40 +12,19 @@ use App\Http\Requests\User\Pinjaman\SimulationRequest;
 use App\Http\Requests\User\Pinjaman\TandaTanganRequest;
 use App\Http\Resources\User\Pinjaman\DataKaryawanResource;
 use App\Http\Resources\User\Pinjaman\HistroyPinjamanResource;
-use App\Http\Resources\User\Pinjaman\ProdukPinjamanResource;
 use App\Http\Resources\User\Pinjaman\TenorPinjamanResource;
 use App\Models\jatuh_tempo;
-use App\Models\list_data_ksp;
 use App\Models\ListPerusahaan;
 use App\Models\pinjaman;
-use App\Models\privy;
-use App\Models\produk_pinjaman;
 use App\Models\tenor_pinjaman;
 use App\Models\User;
 use App\Models\verif_otp_pengajuan;
-use App\Models\xenditApi;
 use Carbon\Carbon;
-use DateTime;
-use DateTimeZone;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Exception\ClientException;
-use GuzzleHttp\Exception\ServerException;
 use Illuminate\Support\Facades\Storage;
-use PhpOffice\PhpWord\TemplateProcessor;
-use PhpOffice\PhpWord\IOFactory;
-use PhpOffice\PhpWord\Settings;
-use Barryvdh\Snappy\Facades\SnappyPdf;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Response;
-use Imagick;
-
-
 
 
 class PinjamanController extends Controller
@@ -602,43 +581,10 @@ class PinjamanController extends Controller
                 // Log authentikasi, timestamps otentikasi saat input tanda tangan (OTP), privyid, preference number.
                 Log::channel('privylog')->info('correct password | Timestamp :' . Carbon::now() . '| privy_id : ' . $user->id_privy . '| referrence_number_user : ' . $user->reference_number_privy . '| referrence_number_document : ' . $pinjaman->referrence_number);
                 $pinjaman->ttd = 'y';
-
-                // disbursment ke peminjam
-                $xendit = xenditApi::first();
-                $url = $xendit->url . "/disbursements";
-                $time = Carbon::now();
-                $data = [
-                    "external_id" => "disb-" . $time,
-                    "amount" => $pinjaman->jumlah_yang_diterima,
-                    "bank_code" => $pinjaman->data_karyawan->bank->code_bank,
-                    "account_holder_name" => $pinjaman->data_karyawan->nama_rekening,
-                    "account_number" => $pinjaman->data_karyawan->nomor_bank,
-                    "description" => "Pencairan pinjaman " . $pinjaman->id_pinjaman
-                ];
-                $response = Http::withoutVerifying()
-                    ->withOptions(["verify" => false])
-                    ->withBasicAuth($xendit->secret, '')
-                    // ->withHeaders([])
-                    ->withBody(json_encode($data), 'application/json')
-                    ->post($url);
-
-                $response_json = json_decode($response);
-                if ($response->getStatusCode() == 200) {
-                    Log::channel('disbursement')->info($pinjaman->id_pinjaman . ' | ' . json_encode($data));
-                    // $pinjaman->status = "approve";
-                    $pinjaman->disbursement_id = $response_json->id;
-                } else {
-                    Log::channel('disbursement')->error($pinjaman->id_pinjaman . ' | ' . $response_json->error_code);
-                    $pinjaman->status = 'pending';
-                    $pinjaman->note = $response_json->error_code;
-                }
-
-
-
                 $pinjaman->save();
                 return response()->json([
                     'status' => 200,
-                    'message' => 'Verifikasi berhasil! Dana Anda segera dicairkan. Jika ada pertanyaan lebih lanjut, jangan ragu untuk menghubungi kami.',
+                    'message' => 'Verifikasi berhasil! Dana Anda segera dicairkan dalam 1x24 Jam Kerja. Jika ada pertanyaan lebih lanjut, jangan ragu untuk menghubungi kami.',
                 ], 200);
             } else {
                 return response()->json([
