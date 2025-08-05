@@ -13,14 +13,14 @@ class ListPerusahaan extends Model
 
     public function karyawan()
     {
-        return $this->hasMany(list_data_ksp::class, 'id_list_perusahaan', 'id')
+        return $this->hasMany(list_karyawan::class, 'id_list_perusahaan', 'id')
             ->where('approve_satu', 'approve')
             ->where('approve_dua', 'approve');
     }
 
     public function karyawanSingle()
     {
-        return $this->hasOne(list_data_ksp::class, 'id_list_perusahaan', 'id')
+        return $this->hasOne(list_karyawan::class, 'id_list_perusahaan', 'id')
             ->where('approve_satu', 'approve')
             ->where('approve_dua', 'approve');
     }
@@ -35,10 +35,10 @@ class ListPerusahaan extends Model
     {
         $admin = auth('admin')->user()->type;
         if ($admin == "admin") {
-            return $this->hasMany(list_data_ksp::class, 'id_list_perusahaan', 'id')
+            return $this->hasMany(list_karyawan::class, 'id_list_perusahaan', 'id')
                 ->where('approve_satu', 'pending');
         } elseif ($admin == "master") {
-            return $this->hasMany(list_data_ksp::class, 'id_list_perusahaan', 'id')
+            return $this->hasMany(list_karyawan::class, 'id_list_perusahaan', 'id')
                 ->where('approve_dua', 'pending');
         }
     }

@@ -28,7 +28,6 @@ class DetailPerusahaanResource extends JsonResource
         // list_desa
         $list_desa = kelurahan::where('kecamatan', $this->kecamatan->kecamatan)->get();
 
-
         return [
             'pic_perusahaan' => $this->pic_perusahaan,
             'pic_internal' => $this->pic_internal,
@@ -45,7 +44,6 @@ class DetailPerusahaanResource extends JsonResource
             'list_desa' => WilayahDesaResource::collection($list_desa),
             'desa' => $this->desa->desa . '-' . $this->desa->kodepos,
             'payment_date' => $this->payment_date,
-            'virtual_account_channel_code' => $this->virtual_account_channel_code,
         ];
     }
 }

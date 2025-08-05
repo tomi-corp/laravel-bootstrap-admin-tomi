@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class list_data_ksp extends Model
+class list_karyawan extends Model
 {
     use SoftDeletes;
     protected $fillable = [

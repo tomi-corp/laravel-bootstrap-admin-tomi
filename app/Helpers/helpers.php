@@ -362,3 +362,30 @@ if (! function_exists('checkStatus')) {
         ];
     }
 }
+
+
+if (! function_exists('encryptSecure')) {
+    function encryptSecure($param)
+    {
+        $key = env('KEYDECRYPTION');
+        $salt =  env('SALTDECRYPTION');
+        $method = 'AES-256-CBC';
+        $iv = substr(hash('sha256', $salt), 0, 16);
+        $key = hash('sha256', $key);
+        $encrypted = openssl_encrypt($param, $method, $key, 0, $iv);
+        return base64_encode($encrypted);
+    }
+}
+
+if (! function_exists('decryptSecure')) {
+    function decryptSecure($param)
+    {
+        $key = env('KEYDECRYPTION');
+        $salt =  env('SALTDECRYPTION');
+        $iv = substr(hash('sha256', $salt), 0, 16);
+        $key = hash('sha256', $key);
+        $method = 'AES-256-CBC';
+        $encrypted = base64_decode($param);
+        return openssl_decrypt($encrypted, $method, $key, 0, $iv);
+    }
+}

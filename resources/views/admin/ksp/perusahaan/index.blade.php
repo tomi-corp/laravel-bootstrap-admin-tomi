@@ -230,25 +230,6 @@
                             </div>
                         </div>
 
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label>Bank Repayment</label>
-                                <select class="form-control" id="bank">
-                                    <option value="BCA">BCA</option>
-                                    <option value="BNI">BNI</option>
-                                    <option value="BRI">BRI</option>
-                                    <option value="BJB">BJB</option>
-                                    <option value="BSI">BSI</option>
-                                    <option value="BNC">BNC</option>
-                                    <option value="MANDIRI">MANDIRI</option>
-                                    <option value="CIMB">CIMB</option>
-                                    <option value="PERMATA">PERMATA</option>
-                                    <option value="HANA">HANA</option>
-                                </select>
-                                <small class="text-danger" id="errBank"></small>
-                            </div>
-                        </div>
-
                     </div>
 
                 </div>
@@ -436,28 +417,6 @@
                                 </select>
                             </div>
                         </div>
-
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label>Bank Repayment</label>
-                                <select class="form-control" id="bankEdit">
-                                    <option value="BCA">BCA</option>
-                                    <option value="BNI">BNI</option>
-                                    <option value="BRI">BRI</option>
-                                    <option value="BJB">BJB</option>
-                                    <option value="BSI">BSI</option>
-                                    <option value="BNC">BNC</option>
-                                    <option value="MANDIRI">MANDIRI</option>
-                                    <option value="CIMB">CIMB</option>
-                                    <option value="PERMATA">PERMATA</option>
-                                    <option value="HANA">HANA</option>
-                                </select>
-                                <small class="text-danger" id="errBankEdit"></small>
-                            </div>
-                        </div>
-
-
-
 
 
                     </div>
@@ -811,7 +770,6 @@
                     'alamat_lengkap': $("#alamatLengkap").val(),
                     'payment_date': $("#paymentDate").val(),
                     'nomor_pks': $("#nomor_pks").val(),
-                    'bank': $("#bank").val()
                 },
                 type: 'POST',
                 dataType: 'json',
@@ -866,7 +824,6 @@
                     $("#nomor_pksEdit").val(detail.data.nomor_pks);
                     $("#statusEdit").val(detail.data.status);
                     $("#paymentDateEdit").val(detail.data.payment_date);
-                    $("#bankEdit").val(detail.data.virtual_account_channel_code);
                     $("#provinsiSelectEdit").val(detail.data.provinsi).trigger('change');
                     $("#kabupatenSelectEdit").empty();
 
@@ -918,7 +875,6 @@
                     'payment_date': $("#paymentDateEdit").val(),
                     'nomor_pks': $("#nomor_pksEdit").val(),
                     'status': $("#statusEdit").val(),
-                    'bank': $("#bankEdit").val(),
                 },
                 type: 'POST',
                 dataType: 'json',

@@ -37,7 +37,6 @@ class AddPerusahaanRequest extends FormRequest
             'alamat_lengkap' => 'required',
             'payment_date' => 'required|numeric',
             'nomor_pks' => 'required|numeric',
-            'bank' => 'required|in:BCA,BNI,BRI,BJB,BSI,BNC,MANDIRI,CIMB,BSS,PERMATA,HANA',
         ];
     }
 }

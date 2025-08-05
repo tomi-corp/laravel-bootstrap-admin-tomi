@@ -15,7 +15,7 @@ class pinjaman extends Model
 
     public function data_karyawan()
     {
-        return $this->hasOne(list_data_ksp::class, 'id', 'id_list_data_ksp');
+        return $this->hasOne(list_karyawan::class, 'id', 'id_karyawan');
     }
 
     public function jatuh_tempo()

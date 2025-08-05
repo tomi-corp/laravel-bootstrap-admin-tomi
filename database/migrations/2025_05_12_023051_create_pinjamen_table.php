@@ -17,8 +17,8 @@ return new class extends Migration
             $table->foreign('user_id')->references('id')->on('users');
             $table->bigInteger('id_perusahaan')->unsigned();
             $table->foreign('id_perusahaan')->references('id')->on('list_perusahaans');
-            $table->bigInteger('id_list_data_ksp')->unsigned();
-            $table->foreign('id_list_data_ksp')->references('id')->on('list_data_ksps');
+            $table->bigInteger('id_karyawan')->unsigned();
+            $table->foreign('id_karyawan')->references('id')->on('list_karyawans');
             $table->string('id_pinjaman')->unique();
             $table->double('nominal');
             $table->integer('tenor');

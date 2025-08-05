@@ -674,6 +674,7 @@ class PinjamanController extends Controller
                 $q->first();
             }])->first();
 
+
         if (isset($perusahaan) && isset($perusahaan->karyawanSingle)) {
             $hasil = true;
             $tanggal_bergabung = Carbon::parse($perusahaan->karyawanSingle->tanggal_bergabung);
@@ -705,13 +706,13 @@ class PinjamanController extends Controller
             ], 400);
         } else {
 
-            $cekPinjamanData = pinjaman::where('id_list_data_ksp', $perusahaan->karyawanSingle->id)
+            $cekPinjamanData = pinjaman::where('id_karyawan', $perusahaan->karyawanSingle->id)
                 ->where(function ($q) {
                     $q->orWhere('status', 'exported')
                         ->orWhere('status', 'on_proses')
                         ->orWhere('status', 'approve');
                 })
-                ->where('id_list_data_ksp', $perusahaan->karyawanSingle->id)
+                ->where('id_karyawan', $perusahaan->karyawanSingle->id)
                 ->where('status_otp', 'success')
                 ->first();
 
@@ -721,13 +722,13 @@ class PinjamanController extends Controller
                         ->orWhere('status', 'on_proses')
                         ->orWhere('status', 'approve');
                 })
-                ->where('id_list_data_ksp', $perusahaan->karyawanSingle->id)
+                ->where('id_karyawan', $perusahaan->karyawanSingle->id)
                 ->where('status_otp', 'success')
                 ->first();
 
 
             // where('user_id', auth('api')->user()->id)
-            $cekPinjamanPendingOTP = pinjaman::where('id_list_data_ksp', $perusahaan->karyawanSingle->id)
+            $cekPinjamanPendingOTP = pinjaman::where('id_karyawan', $perusahaan->karyawanSingle->id)
                 ->where('status', 'on_proses')
                 ->where('status_otp', 'pending')
                 ->first();

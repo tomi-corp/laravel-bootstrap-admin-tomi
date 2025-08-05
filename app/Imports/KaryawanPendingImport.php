@@ -4,6 +4,7 @@ namespace App\Imports;
 
 use App\Models\bank;
 use App\Models\list_data_ksp;
+use App\Models\list_karyawan;
 use App\Models\ListPerusahaan;
 use Carbon\Carbon;
 use Maatwebsite\Excel\Concerns\ToModel;
@@ -25,7 +26,7 @@ class KaryawanPendingImport implements ToModel, WithHeadingRow
         $bank = bank::where('code_bank', $row['nama_bank'])
             ->first();
 
-        return new list_data_ksp([
+        return new list_karyawan([
             'id_list_perusahaan' => $id->id,
             'nik' => $row['nik'],
             'nip' => $row['nip'],

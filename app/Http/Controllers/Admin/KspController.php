@@ -27,8 +27,7 @@ use App\Models\invoicing_pinjaman;
 use App\Models\kecamatan;
 use App\Models\kelurahan;
 use App\Models\kota;
-use App\Models\list_data_ksp;
-use App\Models\list_data_ksp_pending;
+use App\Models\list_karyawan;
 use App\Models\ListPerusahaan;
 use App\Models\notification;
 use App\Models\pinjaman;
@@ -96,7 +95,6 @@ class KspController extends Controller
         $perusahaan->payment_date = $req->payment_date;
         $perusahaan->nomor_pks = $req->nomor_pks;
 
-
         $provinsi = provinsi::where('provinsi', $req->provinsi)->first();
         $kabupaten = kota::where('kabupaten', $req->kabupaten)->first();
         $kecamatan = kecamatan::where('kecamatan', $req->kecamatan)->first();
@@ -109,46 +107,6 @@ class KspController extends Controller
         $perusahaan->id_kabupaten = $kabupaten->id;
         $perusahaan->id_kecamatan = $kecamatan->id;
         $perusahaan->id_desa = $desa->id;
-
-        $xendit = xenditApi::first();
-        $url = $xendit->url . "/payment_requests";
-
-        $data = [
-            "currency" => "IDR",
-            "amount" => null,
-            "payment_method" => [
-                "type" => "VIRTUAL_ACCOUNT",
-                "reusability" => "MULTIPLE_USE",
-                "reference_id" => "pm-level-$string",
-                "virtual_account" => [
-                    "channel_code" => $req->bank,
-                    "channel_properties" => [
-                        "customer_name" => "KSP DDT"
-                    ]
-                ]
-            ],
-            "metadata" => [
-                "sku" => $string
-            ]
-        ];
-
-        $response = Http::withoutVerifying()
-            ->withOptions(["verify" => false])
-            ->withBasicAuth($xendit->secret, '')
-            // ->withHeaders([])
-            ->withBody(json_encode($data), 'application/json')
-            ->post($url);
-
-        $response_json = json_decode($response);
-
-        $perusahaan->va_id = $response_json->id;
-        $perusahaan->payment_method_id = $response_json->payment_method->id;
-        $perusahaan->payment_method_reference_id = $response_json->payment_method->reference_id;
-        $perusahaan->virtual_account_channel_code = $response_json->payment_method->virtual_account->channel_code;
-        $perusahaan->virtual_account_channel_properties_customer_name = $response_json->payment_method->virtual_account->channel_properties->customer_name;
-        $perusahaan->virtual_account_channel_properties_virtual_account_number = $response_json->payment_method->virtual_account->channel_properties->virtual_account_number;
-        $perusahaan->virtual_account_channel_properties_virtual_expires_at =  Carbon::parse($response_json->payment_method->virtual_account->channel_properties->expires_at)->format('Y-m-d H:i:s');
-
         $perusahaan->save();
         return response()->json([
             'status' => 200,
@@ -190,53 +148,9 @@ class KspController extends Controller
         $perusahaan->id_kabupaten = $kabupaten->id;
         $perusahaan->id_kecamatan = $kecamatan->id;
         $perusahaan->id_desa = $desa->id;
-
         $perusahaan->status = $req->status;
-        $bank = bank::where('code_bank', $req->bank)->first();
-        if ($bank->code_bank != $perusahaan->virtual_account_channel_code) {
-            $xendit = xenditApi::first();
-            $url = $xendit->url . "/payment_requests";
-
-            $data = [
-                "currency" => "IDR",
-                "amount" => null,
-                "payment_method" => [
-                    "type" => "VIRTUAL_ACCOUNT",
-                    "reusability" => "MULTIPLE_USE",
-                    "reference_id" => $perusahaan->payment_method_reference_id,
-                    "virtual_account" => [
-                        "channel_code" => $bank->code_bank,
-                        "channel_properties" => [
-                            "customer_name" => "KSP DDT"
-                        ]
-                    ]
-                ],
-                "metadata" => [
-                    "sku" =>  $perusahaan->payment_method_reference_id,
-                ]
-            ];
-
-            $response = Http::withoutVerifying()
-                ->withOptions(["verify" => false])
-                ->withBasicAuth($xendit->secret, '')
-                // ->withHeaders([])
-                ->withBody(json_encode($data), 'application/json')
-                ->post($url);
-
-            $response_json = json_decode($response);
-
-            $perusahaan->va_id = $response_json->id;
-            $perusahaan->payment_method_id = $response_json->payment_method->id;
-            $perusahaan->payment_method_reference_id = $response_json->payment_method->reference_id;
-            $perusahaan->virtual_account_channel_code = $response_json->payment_method->virtual_account->channel_code;
-            $perusahaan->virtual_account_channel_properties_customer_name = $response_json->payment_method->virtual_account->channel_properties->customer_name;
-            $perusahaan->virtual_account_channel_properties_virtual_account_number = $response_json->payment_method->virtual_account->channel_properties->virtual_account_number;
-            $perusahaan->virtual_account_channel_properties_virtual_expires_at =  Carbon::parse($response_json->payment_method->virtual_account->channel_properties->expires_at)->format('Y-m-d H:i:s');
-        }
-
         $perusahaan->id_desa = $desa->id;
-
-        // $perusahaan->bank = $req->status;
+        $perusahaan->bank = $req->status;
 
         $perusahaan->save();
         return response()->json([
@@ -261,13 +175,13 @@ class KspController extends Controller
             ->addIndexColumn()
 
             ->addColumn('list_karyawan', function ($row) {
-                return '<a href="' . route('admin.list.karyawan', $row->id) . '" target="_blank">
+                return '<a href="' . route('admin.list.karyawan', encryptSecure($row->id)) . '" target="_blank">
                 <span class="badge badge-info" title="Total karyawan yang telah di approve 2 layer">' . $row->karyawan->count() . '</span> 
                 <span class="badge badge-pink" title="Total karyawan yang menunggu di approve">' . $row->karyawanPending->count() . '</span></a>';
             })
 
             ->addColumn('proses_pengajuan', function ($row) {
-                return '<a href="' . route('admin.ksp.pengajuan', $row->id) . '" target="_blank">
+                return '<a href="' . route('admin.ksp.pengajuan',  encryptSecure($row->id)) . '" target="_blank">
                     <span class="badge badge-warning" title="Proses pengajuan dengan status on proses">' . $row->pinjaman->where('status', 'on_proses')->count() . '</span>
                     <span class="badge badge-purple" title="Proses pengajuan dengan status exported">' . $row->pinjaman->where('status', 'exported')->count() . '</span>
                     <span class="badge badge-info" title="Proses pengajuan dengan status approve">' . $row->pinjaman->where('status', 'approve')->count() . '</span>
@@ -301,7 +215,7 @@ class KspController extends Controller
 
 
             ->addColumn('konfigurasi_pinjaman', function ($row) {
-                return '<a href="' . route('admin.ksp.konfigurasi', $row->id) . '" target="_blank"><i class=" mdi mdi-settings"></i></a>';
+                return '<a href="' . route('admin.ksp.konfigurasi',  encryptSecure($row->id)) . '" target="_blank"><i class=" mdi mdi-settings"></i></a>';
             })
 
             ->addColumn('status', function ($row) {
@@ -325,7 +239,7 @@ class KspController extends Controller
     public function deletePerusahaan(Request $req)
     {
         pinjaman::where('id_perusahaan', $req->id)->delete();
-        list_data_ksp::where('id_list_perusahaan', $req->id)->delete();
+        list_karyawan::where('id_list_perusahaan', $req->id)->delete();
         ListPerusahaan::where('id', $req->id)->delete();
 
         return response()->json([
@@ -336,7 +250,7 @@ class KspController extends Controller
 
     public function listKaryawanTable($id)
     {
-        $perusahaan = list_data_ksp::where('id_list_perusahaan', $id)
+        $perusahaan = list_karyawan::where('id_list_perusahaan', $id)
             ->where('approve_satu', 'approve')
             ->where('approve_dua', 'approve')
             ->with('bank')
@@ -362,7 +276,7 @@ class KspController extends Controller
     }
     public function detailKaryawan(Request $req)
     {
-        $karyawan = list_data_ksp::where('id', $req->id)
+        $karyawan = list_karyawan::where('id', $req->id)
             ->where('approve_satu', 'approve')
             ->where('approve_dua', 'approve')
             ->with('bank')
@@ -391,7 +305,7 @@ class KspController extends Controller
 
     public function updateKaryawan(UpdateKaryawanRequest $req)
     {
-        $karyawan = list_data_ksp::where('id', $req->id)
+        $karyawan = list_karyawan::where('id', $req->id)
             ->where('approve_satu', 'approve')
             ->where('approve_dua', 'approve')
             ->with('bank')
@@ -420,7 +334,8 @@ class KspController extends Controller
 
     public function listKaryawan($id)
     {
-        $perusahaan = ListPerusahaan::where('id', $id)
+        $dec = decryptSecure($id);
+        $perusahaan = ListPerusahaan::where('id', $dec)
             ->with([
                 'provinsi',
                 'kabupaten',
@@ -460,11 +375,11 @@ class KspController extends Controller
     {
         $admin = auth('admin')->user()->type;
         if ($admin == "admin") {
-            $listKaryawanPending = list_data_ksp::where('id_list_perusahaan', $req->id)
+            $listKaryawanPending = list_karyawan::where('id_list_perusahaan', $req->id)
                 ->where('approve_satu', 'pending')
                 ->get();
         } elseif ($admin == "master") {
-            $listKaryawanPending = list_data_ksp::where('id_list_perusahaan', $req->id)
+            $listKaryawanPending = list_karyawan::where('id_list_perusahaan', $req->id)
                 ->where('approve_dua', 'pending')
                 ->get();
         }
@@ -567,11 +482,11 @@ class KspController extends Controller
 
         $admin = auth('admin')->user()->type;
         if ($admin == "admin") {
-            $list = list_data_ksp::where('id_list_perusahaan', $req->id)
+            $list = list_karyawan::where('id_list_perusahaan', $req->id)
                 ->where('approve_satu', 'pending')
                 ->count();
         } elseif ($admin == "master") {
-            $list = list_data_ksp::where('id_list_perusahaan', $req->id)
+            $list = list_karyawan::where('id_list_perusahaan', $req->id)
                 ->where('approve_dua', 'pending')
                 ->count();
         }
@@ -586,9 +501,9 @@ class KspController extends Controller
     {
         $admin = auth('admin')->user()->type;
         if ($admin == "admin") {
-            $list = list_data_ksp::where('id_list_perusahaan', $req->id)->update(['approve_satu' => 'approve']);
+            $list = list_karyawan::where('id_list_perusahaan', $req->id)->update(['approve_satu' => 'approve']);
         } elseif ($admin == "master") {
-            $list = list_data_ksp::where('id_list_perusahaan', $req->id)->update(['approve_dua' => 'approve']);
+            $list = list_karyawan::where('id_list_perusahaan', $req->id)->update(['approve_dua' => 'approve']);
         }
         return response()->json([
             'status' => 200,
@@ -598,7 +513,8 @@ class KspController extends Controller
 
     public function konfigurasi($id)
     {
-        $list_perusahaan = ListPerusahaan::where('id', $id)
+        $dec = decryptSecure($id);
+        $list_perusahaan = ListPerusahaan::where('id', $dec)
             ->with('amount_pinjaman')
             ->first();
         if (isset($list_perusahaan)) {
@@ -704,7 +620,8 @@ class KspController extends Controller
     }
     public function pengajuanIndex($id)
     {
-        $perusahaan = ListPerusahaan::where('id', $id)
+        $dec = decryptSecure($id);
+        $perusahaan = ListPerusahaan::where('id', $dec)
             ->with([
                 'provinsi',
                 'kabupaten',
