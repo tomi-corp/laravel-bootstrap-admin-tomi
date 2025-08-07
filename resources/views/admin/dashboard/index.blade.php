@@ -113,56 +113,26 @@
                     <div class="card">
                         <div class="card-body">
                             <div class="d-flex justify-content-between pb-2">
-                                <h5>Last Activity</h5>
+                                <h5>Aktifitas terkahir</h5>
                             </div>
 
-                            <div class="d-flex justify-content-between align-items-center py-2" style="">
-                                <div class="d-flex align-items-center">
-                                    <div class="bg-icon-primary mr-2">
-                                        <i class="mdi mdi-car" style="font-size: 20px;"></i>
+                            @foreach ($register['activiti'] as $activity)
+                                <div class="d-flex justify-content-between align-items-center py-2" style="">
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-icon-primary mr-2">
+                                            <i class="mdi mdi-car" style="font-size: 20px;"></i>
+                                        </div>
+                                        <div>
+                                            <h5 style="margin:2px;">{{ $activity['name'] }}</h5>
+                                            <smal>{{ $activity['type'] }}</smal>
+                                        </div>
                                     </div>
                                     <div>
-                                        <h5 style="margin:2px;">New Vehicle Lead</h5>
-                                        <smal>Toyota Avanza 2023</smal>
+                                        <p>{{ $activity['created_at'] }}</p>
                                     </div>
                                 </div>
-                                <div>
-                                    <p>2 Seconds ago</p>
-                                </div>
-                            </div>
+                            @endforeach
 
-
-
-                            <div class="d-flex justify-content-between align-items-center py-2" style="">
-                                <div class="d-flex align-items-center">
-                                    <div class="bg-icon-primary mr-2">
-                                        <i class="mdi mdi-car" style="font-size: 20px;"></i>
-                                    </div>
-                                    <div>
-                                        <h5 style="margin:2px;">New Vehicle Lead</h5>
-                                        <smal>Toyota Avanza 2023</smal>
-                                    </div>
-                                </div>
-                                <div>
-                                    <p>30 Minutes ago</p>
-                                </div>
-                            </div>
-
-                            <div class="d-flex justify-content-between align-items-center py-2"
-                                style="border-bottom:solid; border-width: thin;">
-                                <div class="d-flex align-items-center">
-                                    <div class="bg-icon-primary mr-2">
-                                        <i class="mdi mdi-car" style="font-size: 20px;"></i>
-                                    </div>
-                                    <div>
-                                        <h5 style="margin:2px;">New Vehicle Lead</h5>
-                                        <smal>Toyota Avanza 2023</smal>
-                                    </div>
-                                </div>
-                                <div>
-                                    <p>1 Hours ago</p>
-                                </div>
-                            </div>
 
                         </div>
                     </div>
@@ -175,28 +145,3 @@
 
 
 @endsection
-
-@push('js')
-    <script>
-        const utils = () => {
-            $.ajax({
-                url: '{!! route('admin.dashboard.utils') !!}',
-                data: {
-                    '_token': "{{ csrf_token() }}",
-                },
-                type: 'POST',
-                dataType: 'json',
-                success: function(res) {
-                    console.log(res);
-                    // $("#modalEdit").modal('hide');
-                    // $('#errTitleEdit').text();
-                    // $('#errIconEdit').text();
-                    // $('#errPathEdit').text();
-                    // $('#errStatusEdit').text();
-                    // $('#buttonSubmitEdit').attr("disabled", false);
-                    // $('#loadingTextEdit').removeClass("spinner-border");
-                },
-            });
-        }
-    </script>
-@endpush
