@@ -17,6 +17,8 @@ return new class extends Migration
             $table->foreign('bank_id')->references('id')->on('banks');
             $table->string('nomor_rekening');
             $table->string('atas_nama');
+            $table->bigInteger('updated_by')->unsigned();
+            $table->foreign('updated_by')->references('id')->on('admins');
             $table->timestamps();
         });
     }

@@ -35,10 +35,11 @@ class CostController extends Controller
         $bankTomi->bank_id = $req->bank;
         $bankTomi->nomor_rekening = $req->noRekening;
         $bankTomi->atas_nama = $req->atasNamaRekening;
+        $bankTomi->updated_by = auth('admin')->user()->id;
         $bankTomi->save();
         return response()->json([
             'status' => 200,
-            'message' => 'Rekening Tomi Berhasil Dirubah',
+            'message' => 'Rekening Repayment Berhasil Dirubah',
         ], 200);
     }
 

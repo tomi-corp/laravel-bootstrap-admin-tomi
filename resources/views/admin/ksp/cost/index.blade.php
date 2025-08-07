@@ -54,7 +54,7 @@
         <div class="col-6">
             <div class="card">
                 <div class="card-body">
-                    <h4>Rekening Disbursment Tomi</h4>
+                    <h4>Rekening Repayment</h4>
                     <div class="form-group">
                         <label>Nama Bank</label>
                         <div class="form-group">

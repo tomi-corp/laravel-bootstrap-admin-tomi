@@ -16,11 +16,11 @@ class ProfileDetailResource extends JsonResource
     {
         return [
             'name' => $this->name,
+            'nama_lengkap' => $this->nama_lengkap,
             'nohp' => $this->nohp,
             'email' => $this->email,
             'dob' => $this->dob,
             'point' => $this->point,
-
             'nik' => $this->nik,
             'nip' => $this->nip,
             'nama_perusahaan' => $this->nama_perusahaan,

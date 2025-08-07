@@ -581,6 +581,7 @@ class PinjamanController extends Controller
                 // Log authentikasi, timestamps otentikasi saat input tanda tangan (OTP), privyid, preference number.
                 Log::channel('privylog')->info('correct password | Timestamp :' . Carbon::now() . '| privy_id : ' . $user->id_privy . '| referrence_number_user : ' . $user->reference_number_privy . '| referrence_number_document : ' . $pinjaman->referrence_number);
                 $pinjaman->ttd = 'y';
+                $pinjaman->status = 'pending';
                 $pinjaman->save();
                 return response()->json([
                     'status' => 200,
