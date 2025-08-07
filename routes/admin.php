@@ -28,7 +28,6 @@ Route::middleware(['AdminMiddleware'])->group(
         Route::get('/test', [DashboardController::class, 'test']);
 
         Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('admin.dashboard.index');
-        Route::post('/dashboard/utils', [DashboardController::class, 'utils'])->name('admin.dashboard.utils');
         // ppob
         Route::get('/ppob', [PpobController::class, 'index'])->name('admin.ppob.index');
         Route::get('/ppob/transaction/komisi', [PpobController::class, 'komisiIndex'])->name('admin.ppob.komisi');

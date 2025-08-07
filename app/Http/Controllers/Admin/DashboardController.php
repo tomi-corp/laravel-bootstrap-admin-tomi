@@ -64,6 +64,4 @@ class DashboardController extends Controller
         // transaction
         return view('admin.dashboard.index', compact('register'));
     }
-
-    public function utils() {}
 }
