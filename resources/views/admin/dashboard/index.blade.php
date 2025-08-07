@@ -114,7 +114,6 @@
                         <div class="card-body">
                             <div class="d-flex justify-content-between pb-2">
                                 <h5>Last Activity</h5>
-                                <p><a href="#">See All</a></p>
                             </div>
 
                             <div class="d-flex justify-content-between align-items-center py-2" style="">
@@ -176,3 +175,28 @@
 
 
 @endsection
+
+@push('js')
+    <script>
+        const utils = () => {
+            $.ajax({
+                url: '{!! route('admin.dashboard.utils') !!}',
+                data: {
+                    '_token': "{{ csrf_token() }}",
+                },
+                type: 'POST',
+                dataType: 'json',
+                success: function(res) {
+                    console.log(res);
+                    // $("#modalEdit").modal('hide');
+                    // $('#errTitleEdit').text();
+                    // $('#errIconEdit').text();
+                    // $('#errPathEdit').text();
+                    // $('#errStatusEdit').text();
+                    // $('#buttonSubmitEdit').attr("disabled", false);
+                    // $('#loadingTextEdit').removeClass("spinner-border");
+                },
+            });
+        }
+    </script>
+@endpush

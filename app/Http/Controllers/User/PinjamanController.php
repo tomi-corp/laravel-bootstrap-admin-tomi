@@ -140,68 +140,66 @@ class PinjamanController extends Controller
             'nominal' => $req->nominal,
         ];
 
+        // $user = User::where('id', auth('api')->user()->id)->first();
 
-
-        $user = User::where('id', auth('api')->user()->id)->first();
-
-        if (auth('api')->user()->verified_privy == "n") {
-            if (isset($user->nik) && isset($user->nama_lengkap) && isset($user->selfie) && isset($user->ktp)) {
-                if ($user->register_token_privy == null) {
-                    // tampilkan consent privy
-                    return response()->json([
-                        'status' => 400,
-                        'message' => 'Tampilkan consent privy untuk register'
-                    ], 400);
-                } else {
-                    if ($user->resend_privy == 1) {
-                        $reason = json_decode($user->reason_privy);
-                        return response()->json([
-                            'status' => 400,
-                            'reason' => $reason->reason,
-                            'message' => 'Harap perbarui kembali data anda'
-                        ], 400);
-                    } elseif ($user->resend_privy == 0 && $user->reason_privy != null) {
-                        $reason = json_decode($user->reason_privy);
-                        return response()->json([
-                            'status' => 400,
-                            'reason' => $reason->reason,
-                            'message' => 'Harap hubungi customer service untuk merubah data anda'
-                        ], 400);
-                    } else {
-                        return response()->json([
-                            'status' => 400,
-                            'message' => 'Harap menunggu, data anda sedang proses verifikasi'
-                        ], 400);
-                    }
-                }
-            } else {
-                return response()->json([
-                    'status' => 400,
-                    'message' => 'Harap lengkapi data anda telebih dahulu',
-                ], 400);
-            }
-        } else {
-            if ($user->register_token_privy != null && $user->id_privy == null) {
-                $checkStatusPrivy = checkStatus();
-                if ($checkStatusPrivy['data']['privy_id']) {
-                    $user->id_privy = $checkStatusPrivy['data']['privy_id'];
-                    $user->save();
-                }
-            }
-            $simulation = $this->simulation($data);
-            return response()->json([
-                'status' => 200,
-                'message' => 'success get simulation',
-                'rate_persen' => $simulation['rate_persen'],
-                'biaya_admin_persen' => $simulation['biaya_admin_persen'],
-                'tenor' => $simulation['tenor'] . " bulan",
-                'angsuran_perbulan' => "Rp  " .  number_format($simulation['angsuran_perbulan']),
-                'biaya_admin' => "Rp  " .  number_format($simulation['biaya_admin']),
-                'biaya_layanan' => "Rp  " .  number_format($simulation['biaya_layanan']),
-                'iuran_anggota' => "Rp  " .  number_format($simulation['iuran_anggota']),
-                'jumlah_diterima' => "Rp  " .  number_format($simulation['jumlah_diterima']),
-            ], 200);
-        }
+        // if (auth('api')->user()->verified_privy == "n") {
+        //     if (isset($user->nik) && isset($user->nama_lengkap) && isset($user->selfie) && isset($user->ktp)) {
+        //         if ($user->register_token_privy == null) {
+        //             // tampilkan consent privy
+        //             return response()->json([
+        //                 'status' => 400,
+        //                 'message' => 'Tampilkan consent privy untuk register'
+        //             ], 400);
+        //         } else {
+        //             if ($user->resend_privy == 1) {
+        //                 $reason = json_decode($user->reason_privy);
+        //                 return response()->json([
+        //                     'status' => 400,
+        //                     'reason' => $reason->reason,
+        //                     'message' => 'Harap perbarui kembali data anda'
+        //                 ], 400);
+        //             } elseif ($user->resend_privy == 0 && $user->reason_privy != null) {
+        //                 $reason = json_decode($user->reason_privy);
+        //                 return response()->json([
+        //                     'status' => 400,
+        //                     'reason' => $reason->reason,
+        //                     'message' => 'Harap hubungi customer service untuk merubah data anda'
+        //                 ], 400);
+        //             } else {
+        //                 return response()->json([
+        //                     'status' => 400,
+        //                     'message' => 'Harap menunggu, data anda sedang proses verifikasi'
+        //                 ], 400);
+        //             }
+        //         }
+        //     } else {
+        //         return response()->json([
+        //             'status' => 400,
+        //             'message' => 'Harap lengkapi data anda telebih dahulu',
+        //         ], 400);
+        //     }
+        // } else {
+        //     if ($user->register_token_privy != null && $user->id_privy == null) {
+        //         $checkStatusPrivy = checkStatus();
+        //         if ($checkStatusPrivy['data']['privy_id']) {
+        //             $user->id_privy = $checkStatusPrivy['data']['privy_id'];
+        //             $user->save();
+        //         }
+        //     }
+        $simulation = $this->simulation($data);
+        return response()->json([
+            'status' => 200,
+            'message' => 'success get simulation',
+            'rate_persen' => $simulation['rate_persen'],
+            'biaya_admin_persen' => $simulation['biaya_admin_persen'],
+            'tenor' => $simulation['tenor'] . " bulan",
+            'angsuran_perbulan' => "Rp  " .  number_format($simulation['angsuran_perbulan']),
+            'biaya_admin' => "Rp  " .  number_format($simulation['biaya_admin']),
+            'biaya_layanan' => "Rp  " .  number_format($simulation['biaya_layanan']),
+            'iuran_anggota' => "Rp  " .  number_format($simulation['iuran_anggota']),
+            'jumlah_diterima' => "Rp  " .  number_format($simulation['jumlah_diterima']),
+        ], 200);
+        // }
     }
 
     public function actionPinjaman(ActionPinjamRequest $req)
@@ -241,52 +239,51 @@ class PinjamanController extends Controller
                     'status' => 400,
                     'message' => 'Maksimal nominal pinjaman Rp ' . number_format($maksimal),
                 ], 400);
-                // } 
-                // elseif (auth('api')->user()->verified_privy == "n") {
+            } elseif (auth('api')->user()->verified_privy == "n") {
 
-                // if (isset($user->nik) && isset($user->nama_lengkap) && isset($user->selfie) && isset($user->ktp)) {
-                //     if ($user->register_token_privy == null) {
-                //         // tampilkan consent privy
-                //         return response()->json([
-                //             'status' => 400,
-                //             'message' => 'Tampilkan consent privy untuk register'
-                //         ], 400);
-                //     } else {
-                //         if ($user->resend_privy == 1) {
-                //             $reason = json_decode($user->reason_privy);
-                //             return response()->json([
-                //                 'status' => 400,
-                //                 'reason' => $reason->reason,
-                //                 'message' => 'Harap perbarui kembali data anda'
-                //             ], 400);
-                //         } elseif ($user->resend_privy == 0 && $user->reason_privy != null) {
-                //             $reason = json_decode($user->reason_privy);
-                //             return response()->json([
-                //                 'status' => 400,
-                //                 'reason' => $reason->reason,
-                //                 'message' => 'Harap hubungi customer service untuk merubah data anda'
-                //             ], 400);
-                //         } else {
-                //             return response()->json([
-                //                 'status' => 400,
-                //                 'message' => 'Harap menunggu, data anda sedang proses verifikasi'
-                //             ], 400);
-                //         }
-                //     }
-                // } else {
-                //     return response()->json([
-                //         'status' => 400,
-                //         'message' => 'Harap lengkapi data anda telebih dahulu',
-                //     ], 400);
-                // }
+                if (isset($user->nik) && isset($user->nama_lengkap) && isset($user->selfie) && isset($user->ktp)) {
+                    if ($user->register_token_privy == null) {
+                        // tampilkan consent privy
+                        return response()->json([
+                            'status' => 400,
+                            'message' => 'Tampilkan consent privy untuk register'
+                        ], 400);
+                    } else {
+                        if ($user->resend_privy == 1) {
+                            $reason = json_decode($user->reason_privy);
+                            return response()->json([
+                                'status' => 400,
+                                'reason' => $reason->reason,
+                                'message' => 'Harap perbarui kembali data anda'
+                            ], 400);
+                        } elseif ($user->resend_privy == 0 && $user->reason_privy != null) {
+                            $reason = json_decode($user->reason_privy);
+                            return response()->json([
+                                'status' => 400,
+                                'reason' => $reason->reason,
+                                'message' => 'Harap hubungi customer service untuk merubah data anda'
+                            ], 400);
+                        } else {
+                            return response()->json([
+                                'status' => 400,
+                                'message' => 'Harap menunggu, data anda sedang proses verifikasi'
+                            ], 400);
+                        }
+                    }
+                } else {
+                    return response()->json([
+                        'status' => 400,
+                        'message' => 'Harap lengkapi data anda telebih dahulu',
+                    ], 400);
+                }
             } else {
-                // if ($user->register_token_privy != null && $user->id_privy == null) {
-                //     $checkStatusPrivy = checkStatus();
-                //     if ($checkStatusPrivy['data']['privy_id']) {
-                //         $user->id_privy = $checkStatusPrivy['data']['privy_id'];
-                //         $user->save();
-                //     }
-                // }
+                if ($user->register_token_privy != null && $user->id_privy == null) {
+                    $checkStatusPrivy = checkStatus();
+                    if ($checkStatusPrivy['data']['privy_id']) {
+                        $user->id_privy = $checkStatusPrivy['data']['privy_id'];
+                        $user->save();
+                    }
+                }
 
 
                 $cekPinjamanData = pinjaman::where('id_karyawan', $perusahaan->karyawanSingle->id)
