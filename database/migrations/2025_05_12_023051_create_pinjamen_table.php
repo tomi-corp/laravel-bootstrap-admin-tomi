@@ -41,8 +41,6 @@ return new class extends Migration
             $table->double('total_angsuran_perbulan');
             $table->double('jumlah_yang_diterima');
 
-            $table->longText('disbursement_id');
-
             $table->double('cost_tomi');
             $table->double('cost_ksp');
             $table->longText('description_cost_tomi');

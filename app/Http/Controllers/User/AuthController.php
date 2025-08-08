@@ -452,4 +452,24 @@ class AuthController extends Controller
             ], 200);
         }
     }
+
+    public function preview(Request $req)
+    {
+        $filename = $req->query('filename');
+        // Validasi nama file agar tidak bisa path traversal
+        if (Str::contains($filename, ['..', '/', '\\'])) {
+            abort(403, 'Invalid filename.');
+        }
+
+        $path = storage_path('app/assets/users/' . $filename);
+        if (!file_exists($path)) {
+            abort(404, 'File not found.');
+        }
+
+        $mime = mime_content_type($path);
+        return response()->file($path, [
+            'Content-Type' => $mime,
+            'Content-Disposition' => 'inline; filename="' . basename($filename) . '"'
+        ]);
+    }
 }

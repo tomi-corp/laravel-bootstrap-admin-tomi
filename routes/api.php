@@ -77,6 +77,7 @@ Route::middleware(['LanguangeMiddleware'])->group(
                     Route::post('/register/privy/check', [PrivyController::class, 'cekStatusPrivy']);
 
                     // Route::post('/testing/api/privy', [PinjamanController::class, 'testingApi']);
+
                 });
                 // Route::post('/profile/update', [AuthController::class, 'login']);
                 // Route::post('/login', [AuthController::class, 'login']);

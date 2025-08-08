@@ -44,6 +44,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'EmailMiddleware' => \App\Http\Middleware\VerifEmailMiddleware::class,
             'DataKasbonMiddleware' => \App\Http\Middleware\DataKasbonMiddleware::class,
             'LimitRequestMiddleware' => \App\Http\Middleware\LimitRequestMiddelware::class,
+            'SignedDocumentMiddleware' => \App\Http\Middleware\SignedDocumentMiddleware::class,
         ]);
         $middleware->validateCsrfTokens(except: [
             '/callback/peminjaman/payroll/disbursement',

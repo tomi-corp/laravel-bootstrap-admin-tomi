@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\User\AuthController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Guest\CallbackController;
 use App\Http\Controllers\Guest\VerifEmailController;
@@ -13,6 +14,10 @@ Route::get('sIztJyJPErLl52H1s1zlXu5q5z5k6mMwBYC6VQlGQ65eMNGSB5u/{code}/{id}/{cod
 
 Route::post('/callback/register/privy', [CallbackController::class, 'privyRegisterCallback']);
 
+// show document
+Route::get('/preview', [AuthController::class, 'preview'])
+    ->name('preview.file')
+    ->middleware('SignedDocumentMiddleware');
 // Route::get('/', function () {
 //     return view('welcome');
 // });

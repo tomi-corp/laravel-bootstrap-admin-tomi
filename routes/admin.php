@@ -48,6 +48,7 @@ Route::middleware(['AdminMiddleware'])->group(
         Route::post('/mobile/menu/delete', [MenuMobileController::class, 'deleteMenu'])->name('admin.menumobile.delete');
         Route::post('/mobile/menu/detail', [MenuMobileController::class, 'detailMenu'])->name('admin.menumobile.detail');
         // KSP => Perusahaan
+        Route::get('/ksp/pinjaman/income', [KspController::class, 'incomeIndex'])->name('admin.ksp.income.index');
         Route::get('/ksp/pinjaman', [KspController::class, 'index'])->name('admin.ksp.index');
         Route::post('/ksp/pinjaman/kabupaten', [KspController::class, 'kabupaten'])->name('admin.ksp.kabupaten');
         Route::post('/ksp/pinjaman/kecamatan', [KspController::class, 'kecamatan'])->name('admin.ksp.kecamatan');

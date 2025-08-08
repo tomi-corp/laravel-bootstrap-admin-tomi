@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\App;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Facades\Storage;
-
+use Illuminate\Support\Facades\URL;
 
 /**
  * Write code on Method
@@ -387,5 +387,16 @@ if (! function_exists('decryptSecure')) {
         $method = 'AES-256-CBC';
         $encrypted = base64_decode($param);
         return openssl_decrypt($encrypted, $method, $key, 0, $iv);
+    }
+}
+
+if (! function_exists('secureFile')) {
+    function secureFile($param)
+    {
+        return URL::temporarySignedRoute(
+            'preview.file',
+            now()->addMinutes(10),
+            ['filename' => $param]
+        );
     }
 }
