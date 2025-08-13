@@ -16,6 +16,7 @@ use App\Mail\ForgotEmail;
 use App\Mail\PergantianPasswordEmail;
 use App\Mail\VerifOtpNewMail;
 use App\Mail\WelcomeEmail;
+use App\Models\notification;
 use App\Models\password_reset_user;
 use App\Models\perubahaan_email;
 use App\Models\User;
@@ -160,7 +161,16 @@ class AuthController extends Controller
             'to' => $user->email,
         ];
         Mail::to($req->email)->send(new PergantianPasswordEmail($data));
-
+        $notif = new notification();
+        $notif->user_id = $user->id;
+        $notif->title = "Password Berhasil Diperbarui";
+        $notif->description = "Password Anda telah berhasil diubah. Untuk keamanan akun, kami sarankan untuk:  
+            1. Menggunakan kombinasi huruf, angka, dan simbol.  
+            2. Mengganti password secara berkala.  
+            3. Tidak membagikan password ke siapapun.";
+        $notif->type = 'profile';
+        $notif->read = 'belum';
+        $notif->save();
 
         return response()->json([
             'status' => 200,
@@ -228,8 +238,17 @@ class AuthController extends Controller
 
         if (isset($updateEmail)) {
             $user = User::where('id', auth('api')->user()->id)->first();
+
+            $notif = new notification();
+            $notif->user_id = $user->id;
+            $notif->title = "Email anda berhasil diperbarui";
+            $notif->description = "Selamat!, email anda sebelum nya. " . $user->email . " berhasil diperbarui menjadi " . $updateEmail->email  . " tetap jaga keamanan akun anda";
+            $notif->type = 'profile';
+            $notif->read = 'belum';
+            $notif->save();
             $user->email = $updateEmail->email;
             $user->save();
+
             return response()->json([
                 'status' => 200,
                 'message' => 'Email berhasil diperbarui'
