@@ -20,9 +20,10 @@ class CostController extends Controller
         $bankTomi = rekening_tomi::first();
 
         $data = [
-            'identity_verifikasi' => $cost[0]['biaya'],
-            'disbursement_peminjam' => $cost[1]['biaya'],
-            'disbursement_tomi' => $cost[2]['biaya'],
+            'penerbitan_sertifikat_elektronik' => $cost[0]['biaya'],
+            'pk_automation' => $cost[1]['biaya'],
+            'wa_otp' => $cost[2]['biaya'],
+            'disbursement' => $cost[3]['biaya'],
             'bank' => $bank,
             'bankTomi' => $bankTomi
         ];
@@ -45,16 +46,20 @@ class CostController extends Controller
 
     public function costAdd(CostAddRequest $req)
     {
-        $cost_identy = cost::where('type', 'identity_verification')->first();
-        $cost_identy->biaya = $req->identity_verification;
+        $cost_identy = cost::where('type', 'penerbitan_sertifikat_elektronik')->first();
+        $cost_identy->biaya = $req->penerbitan_sertifikat_elektronik;
         $cost_identy->save();
 
-        $cost_disbursment = cost::where('type', 'disbursement_peminjam')->first();
-        $cost_disbursment->biaya = $req->disbursement_peminjam;
+        $cost_disbursment = cost::where('type', 'pk_automation')->first();
+        $cost_disbursment->biaya = $req->pk_automation;
         $cost_disbursment->save();
 
-        $cost_disbursment = cost::where('type', 'disbursement_tomi')->first();
-        $cost_disbursment->biaya = $req->disbursement_tomi;
+        $cost_disbursment = cost::where('type', 'wa_otp')->first();
+        $cost_disbursment->biaya = $req->wa_otp;
+        $cost_disbursment->save();
+
+        $cost_disbursment = cost::where('type', 'disbursement')->first();
+        $cost_disbursment->biaya = $req->disbursement;
         $cost_disbursment->save();
 
         return response()->json([

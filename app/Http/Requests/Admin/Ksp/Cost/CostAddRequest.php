@@ -22,8 +22,10 @@ class CostAddRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'identity_verification' => 'required',
-            'disbursement_peminjam' => 'required',
+            'penerbitan_sertifikat_elektronik' => 'required',
+            'pk_automation' => 'required',
+            'wa_otp' => 'required',
+            'disbursement' => 'required',
         ];
     }
 }

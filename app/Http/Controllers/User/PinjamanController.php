@@ -362,10 +362,10 @@ class PinjamanController extends Controller
 
                 $simulation = $this->simulation($data);
                 $pinjaman->total_biaya_admin = $simulation['biaya_admin'];
-                $pinjaman->biaya_admin_ksp = $simulation['biaya_admin'] - 50 / 100;
+                $pinjaman->biaya_admin_ksp = $simulation['biaya_admin'] * 50 / 100;
                 $pinjaman->dpp_adm_ksp = round($pinjaman->biaya_admin_ksp / 111 * 100);
                 $pinjaman->ppn_adm_ksp = round($pinjaman->dpp_adm_ksp * 11 / 100);
-                $pinjaman->biaya_admin_pandu = $simulation['biaya_admin'] - 50 / 100;
+                $pinjaman->biaya_admin_pandu = $simulation['biaya_admin'] * 50 / 100;
                 $pinjaman->dpp_adm_pandu = round($pinjaman->biaya_admin_pandu / 111 * 100);
                 $pinjaman->ppn_adm_pandu = round($pinjaman->dpp_adm_pandu * 11 / 100);
                 $pinjaman->pendapatan_bunga = $req->nominal * $tenor->rate / 100 * $tenor->tenor;

@@ -20,24 +20,31 @@
                 <div class="card-body">
                     <h4>Cost</h4>
                     <div class="form-group">
-                        <label>Identity Verification</label>
-                        <input class="form-control format-currency" id="identityVerification" type="number"
-                            value="{{ $data['identity_verifikasi'] }}"></input>
-                        <small id="erridentityVerification"></small>
+                        <label>Penerbitan Sertifikat Elektronik</label>
+                        <input class="form-control format-currency" id="penerbitan_sertifikat_elektronik" type="number"
+                            value="{{ $data['penerbitan_sertifikat_elektronik'] }}"></input>
+                        <small id="errpenerbitan_sertifikat_elektronik"></small>
                     </div>
 
                     <div class="form-group">
-                        <label>Disbursement Peminjam + VAT</label>
-                        <input class="form-control" id="disbursementPeminjam" type="number"
-                            value="{{ $data['disbursement_peminjam'] }}"></input>
-                        <small id="errdisbursementPeminjam"></small>
+                        <label>PK Automation</label>
+                        <input class="form-control" id="pkAutomation" type="number"
+                            value="{{ $data['pk_automation'] }}"></input>
+                        <small id="errpkAutomation"></small>
                     </div>
 
                     <div class="form-group">
-                        <label>Disbursement Tomi + VAT</label>
-                        <input class="form-control" id="disbursementTomi" type="number"
-                            value="{{ $data['disbursement_tomi'] }}"></input>
-                        <small id="errdisbursementTomi"></small>
+                        <label>Wa OTP</label>
+                        <input class="form-control" id="waotp" type="number"
+                            value="{{ $data['wa_otp'] }}"></input>
+                        <small id="errwaotp"></small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Disbursement</label>
+                        <input class="form-control" id="disbursement" type="number"
+                            value="{{ $data['disbursement'] }}"></input>
+                        <small id="errdisbursement"></small>
                     </div>
 
                     <button class="btn btn-primary float-right" type="button" id="buttonSubmit"
@@ -82,9 +89,9 @@
                                 value="{{ $data['bankTomi']['nomor_rekening'] }}"></input>
                             <small id="errNoRekening"></small>
                         </div>
-                        {{-- <input class="form-control format-currency" id="identityVerification" type="number"
+                        {{-- <input class="form-control format-currency" id="penerbitan_sertifikat_elektronik" type="number"
                             value="{{ $data['identity_verifikasi'] }}"></input>
-                        <small id="erridentityVerification"></small> --}}
+                        <small id="errpenerbitan_sertifikat_elektronik"></small> --}}
                     </div>
 
                     <button class="btn btn-primary float-right" type="button" id="buttonSubmitRekening"
@@ -118,9 +125,10 @@
                 url: '{!! route('admin.cost.add') !!}',
                 data: {
                     '_token': "{{ csrf_token() }}",
-                    'identity_verification': $("#identityVerification").val(),
-                    'disbursement_peminjam': $("#disbursementPeminjam").val(),
-                    'disbursement_tomi': $("#disbursementTomi").val(),
+                    'penerbitan_sertifikat_elektronik': $("#penerbitan_sertifikat_elektronik").val(),
+                    'pk_automation': $("#pkAutomation").val(),
+                    'wa_otp': $("#waotp").val(),
+                    'disbursement': $("#disbursement").val(),
                 },
                 type: 'POST',
                 dataType: 'json',
@@ -132,17 +140,20 @@
                     toastr.success(saveBiaya.message)
                     $('#buttonSubmit').attr("disabled", false);
                     $('#loadingText').removeClass("spinner-border");
-                    $('#erridentityVerification').text();
-                    $('#errdisbursementPeminjam').text();
-                    $('#errdisbursementTomi').text();
+                    $('#errpenerbitan_sertifikat_elektronik').text();
+                    $('#errpkAutomation').text();
+                    $('#errwaotp').text();
+                    $('#errdisbursement').text();
                 },
                 error: function(saveConfig) {
-                    $('#erridentityVerification').text(saveConfig.responseJSON.errors
-                        .identity_verification);
-                    $('#errdisbursementPeminjam').text(saveConfig.responseJSON.errors
-                        .disbursement_peminjam);
-                    $('#errdisbursementTomi').text(saveConfig.responseJSON.errors
-                        .disbursement_tomi);
+                    $('#errpenerbitan_sertifikat_elektronik').text(saveConfig.responseJSON.errors
+                        .penerbitan_sertifikat_elektronik);
+                    $('#errpkAutomation').text(saveConfig.responseJSON.errors
+                        .pk_automation);
+                    $('#errwaotp').text(saveConfig.responseJSON.errors
+                        .wa_otp);
+                    $('#errdisbursement').text(saveConfig.responseJSON.errors
+                        .disbursement);
                     $('#buttonSubmit').attr("disabled", false);
                     $('#loadingText').removeClass("spinner-border");
                 }
