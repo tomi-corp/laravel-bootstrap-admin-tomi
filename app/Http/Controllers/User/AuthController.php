@@ -164,10 +164,7 @@ class AuthController extends Controller
         $notif = new notification();
         $notif->user_id = $user->id;
         $notif->title = "Password Berhasil Diperbarui";
-        $notif->description = "Password Anda telah berhasil diubah. Untuk keamanan akun, kami sarankan untuk:  
-            1. Menggunakan kombinasi huruf, angka, dan simbol.  
-            2. Mengganti password secara berkala.  
-            3. Tidak membagikan password ke siapapun.";
+        $notif->description = "Password Anda telah berhasil diubah. Untuk keamanan akun, kami sarankan untuk: 1. Menggunakan kombinasi huruf, angka, dan simbol. 2. Mengganti password secara berkala. 3. Tidak membagikan password ke siapapun.";
         $notif->type = 'profile';
         $notif->read = 'belum';
         $notif->save();

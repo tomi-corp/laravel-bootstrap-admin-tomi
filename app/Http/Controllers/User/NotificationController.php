@@ -11,7 +11,7 @@ class NotificationController extends Controller
 {
     public function listNotif()
     {
-        $notif = notification::where('user_id', auth('api')->user()->id)->get();
+        $notif = notification::where('user_id', auth('api')->user()->id)->orderBy('id', 'desc')->get();
         return response()->json([
             'status' => 200,
             'unread' => $notif->where('read', 'belum')->count()  == null ? 0 : $notif->where('read', 'belum')->count(),

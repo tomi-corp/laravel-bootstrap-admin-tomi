@@ -20,7 +20,7 @@ class NotificationResource extends JsonResource
             'title' => $this->title,
             'description' => $this->description,
             'type' => $this->type,
-            'read' => $this->belum,
+            'read' => $this->read,
             'waktu' => Carbon::parse($this->created_at)->diffForHumans()
         ];
     }
