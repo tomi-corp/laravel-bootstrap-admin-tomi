@@ -4,13 +4,13 @@ namespace App\Console\Commands;
 
 use App\Mail\InvoiceEmail;
 use App\Models\invoicing_pinjaman;
+use App\Models\rekening_tomi;
 use App\Models\xenditApi;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
-
-
+use Illuminate\Support\Facades\Log;
 
 class SendInvoiceCron extends Command
 {
@@ -33,9 +33,11 @@ class SendInvoiceCron extends Command
      */
     public function handle()
     {
+        $rekeningTomi = rekening_tomi::with('bank')->first();
+
         $sekarang = Carbon::now()->format('Y-m-d');
         $sekarangUdahDikurangi =  Carbon::parse($sekarang)->subDays(5);
-        $invoicings = invoicing_pinjaman::where('period', $sekarangUdahDikurangi)
+        $invoicings = invoicing_pinjaman::where('period', '<=', $sekarangUdahDikurangi)
             ->where('status', 'belum_lunas')
             ->with('perusahaan')
             ->get();
@@ -51,17 +53,22 @@ class SendInvoiceCron extends Command
                     }]);
                 }])
                 ->first();
-            // update va sesuai nominal tagihan
+
             $link = url(env('APP_URL')) . '/sIztJyJPErLl52H1s1zlXu5q5z5k6mMwBYC6VQlGQ65eMNGSB5u/rLl52H1s1zl/' . $invoice->id . '/' . substr($invoice->perusahaan->id_code_perusahaan, 1);
             $data = [
                 'subject' => 'Pemberitahuan Invoice',
                 'title' => 'Pemberitahuan Invoice',
                 'to' => $invoice->perusahaan->email_perusahaan,
                 'link' => $link,
-                'invoice' => $invoice
+                'invoice' => $invoice,
+                'rekening' => $rekeningTomi
             ];
-            Mail::to($data['to'])->send(new InvoiceEmail($data));
-            // return view("admin.ksp.invoicing.index", compact('invoice'));
+            try {
+                Mail::to($data['to'])->send(new InvoiceEmail($data));
+            } catch (\Throwable $th) {
+                Log::channel('cronjob')->info($sekarang . ' Error : ' . $th);
+            }
         }
+        Log::channel('cronjob')->info($sekarang . ' Cronjob Invoice telah dijalankan');
     }
 }

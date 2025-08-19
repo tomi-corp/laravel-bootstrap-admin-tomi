@@ -227,19 +227,19 @@
 
                         <tr>
                             <td style="padding: 0px 20px;">
-                                Bank: {{ $data['invoice']['perusahaan']['virtual_account_channel_code'] }}
+                                Bank: {{ $data['rekening']['bank']['code_bank'] }}
                             </td>
                         <tr>
                         <tr>
                             <td style="padding: 0px 20px;">
                                 Atas Nama:
-                                {{ $data['invoice']['perusahaan']['virtual_account_channel_properties_customer_name'] }}
+                                {{ $data['rekening']['atas_nama'] }}
                             </td>
                         <tr>
                         <tr>
                             <td style="padding: 0px 20px;">
                                 No. Rekening:
-                                {{ $data['invoice']['perusahaan']['virtual_account_channel_properties_virtual_account_number'] }}
+                                {{ $data['rekening']['nomor_rekening'] }}
                             </td>
                         <tr>
                         <tr>

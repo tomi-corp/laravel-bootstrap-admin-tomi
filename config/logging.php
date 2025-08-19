@@ -124,6 +124,12 @@ return [
             'level' => 'info',
         ],
 
+        'cronjob' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/cronjob.log'),
+            'level' => 'info',
+        ],
+
         'disbursement' => [
             'driver' => 'single',
             'path' => storage_path('logs/disbursement.log'),

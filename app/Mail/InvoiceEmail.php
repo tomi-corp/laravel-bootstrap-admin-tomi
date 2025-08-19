@@ -31,7 +31,7 @@ class InvoiceEmail extends Mailable
     {
         return new Envelope(
             from: new Address(env('MAIL_FROM_ADDRESS'), 'TOMI'),
-            to: 'imamrovid9@gmail.com',
+            to: $this->data['to'],
             subject: 'Pemberitahuan Invoice',
         );
     }
