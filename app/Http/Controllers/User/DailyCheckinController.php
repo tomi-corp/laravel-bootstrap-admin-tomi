@@ -7,6 +7,7 @@ use App\Http\Resources\User\DailyCheckin\DailyCheckinResource;
 use App\Models\daily_checkin;
 use App\Models\daily_checkin_history;
 use App\Models\pointHistory;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -137,6 +138,10 @@ class DailyCheckinController extends Controller
                 $point->point = $dailyCheckin->reward;
                 $point->type = "daily_checkin";
                 $point->save();
+                $user = User::where('id', auth('api')->user()->id)->first();
+                $user->point = $user->point + $dailyCheckin->reward;
+                $user->save();
+
                 $dailyCheckinHistory->save();
                 return response()->json([
                     'status' => 200,
