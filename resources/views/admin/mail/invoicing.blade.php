@@ -251,9 +251,7 @@
 
                         <tr>
                             <td style="padding: 20px 20px;">
-                                Ada pertanyaan? Jangan sungkan untuk membalas email ini atau hubungi kami di [Nomor
-                                Telepon
-                                Kontak]. Kami siap membantu!
+                                Ada pertanyaan? Jangan sungkan untuk membalas email ini atau hubungi kami di <a href="https://wa.me/6281111181888">CS Tomi</a>. Kami siap membantu!
                             </td>
                         <tr>
 

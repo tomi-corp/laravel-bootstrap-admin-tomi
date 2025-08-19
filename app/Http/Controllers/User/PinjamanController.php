@@ -120,7 +120,7 @@ class PinjamanController extends Controller
         $tenor = tenor_pinjaman::where('id_perusahaan', $perusahaan->id)
             ->where(function ($q) use ($range, $req) {
                 $q->where('minimal_nominal', '>=', $range['minimal'])
-                    ->where('minimal_nominal', '<',  $req->nominal);
+                    ->where('minimal_nominal', '<=',  $req->nominal);
             })
             ->with('amount_pinjaman')
             ->orderBy('tenor')

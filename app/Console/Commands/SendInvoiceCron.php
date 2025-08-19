@@ -52,24 +52,7 @@ class SendInvoiceCron extends Command
                 }])
                 ->first();
             // update va sesuai nominal tagihan
-            $xendit = xenditApi::first();
-            $url = $xendit->url . "/v2/payment_methods/" . $invoice->perusahaan->payment_method_id;
-
-            $data = [
-                "virtual_account" => [
-                    "amount" => $invoice->perusahaan->pinjamanBerjalan->sum('total_angsuran_perbulan'),
-                ],
-                "description" => "updated fixed amount tagihan untuk jatuh tempo " .  $invoice->period
-            ];
-
-            $response = Http::withoutVerifying()
-                ->withOptions(["verify" => false])
-                ->withBasicAuth($xendit->secret, '')
-                // ->withHeaders([])
-                ->withBody(json_encode($data), 'application/json')
-                ->patch($url);
             $link = url(env('APP_URL')) . '/sIztJyJPErLl52H1s1zlXu5q5z5k6mMwBYC6VQlGQ65eMNGSB5u/rLl52H1s1zl/' . $invoice->id . '/' . substr($invoice->perusahaan->id_code_perusahaan, 1);
-
             $data = [
                 'subject' => 'Pemberitahuan Invoice',
                 'title' => 'Pemberitahuan Invoice',
