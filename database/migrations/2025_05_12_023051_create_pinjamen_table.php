@@ -54,6 +54,7 @@ return new class extends Migration
             $table->foreign('user_id')->references('id')->on('users');
             $table->enum('status', ['on_proses', 'pending', 'approve', 'done'])->default('on_proses');
             $table->enum('status_otp', ['pending', 'success'])->default('pending');
+            $table->enum('document_privy', ['y', 'n'])->default('n');
             $table->longText('note')->nullable();
             $table->softDeletes();
             $table->timestamps();

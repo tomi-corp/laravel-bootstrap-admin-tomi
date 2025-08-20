@@ -55,6 +55,9 @@ Route::middleware(['LanguangeMiddleware'])->group(
                     Route::post('/action/pinjaman/show/berkas', [PinjamanController::class, 'showberkas']);
                     Route::post('/action/pinjaman/ttd/berkas', [PinjamanController::class, 'tandaTangan']);
 
+                    Route::post('/action/pinjaman/show/berkas/history', [PinjamanController::class, 'showBerkasHistory']);
+
+
                     // daily checkin
                     Route::post('/list/daily/checkin', [DailyCheckinController::class, 'getList']);
                     Route::post('/do/checkin', [DailyCheckinController::class, 'doDailyCheckin']);

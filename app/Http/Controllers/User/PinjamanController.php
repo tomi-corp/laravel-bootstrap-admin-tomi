@@ -8,6 +8,7 @@ use App\Http\Requests\User\Pinjaman\CekMinimalMaximalRequest;
 use App\Http\Requests\User\Pinjaman\CekPegawaiRequest;
 use App\Http\Requests\User\Pinjaman\GetTenorRequest;
 use App\Http\Requests\User\Pinjaman\OTPpinjamanRequest;
+use App\Http\Requests\User\Pinjaman\ShowBerkasHistoryRequest;
 use App\Http\Requests\User\Pinjaman\SimulationRequest;
 use App\Http\Requests\User\Pinjaman\TandaTanganRequest;
 use App\Http\Resources\User\Pinjaman\DataKaryawanResource;
@@ -25,7 +26,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
-
+use PhpParser\Node\Expr\FuncCall;
 
 class PinjamanController extends Controller
 {
@@ -562,6 +563,57 @@ class PinjamanController extends Controller
         }
     }
 
+
+    public function showBerkasHistory(ShowBerkasHistoryRequest $req)
+    {
+        // 
+        $user = User::where('id', auth('api')->user()->id)
+            ->first();
+        $pinjaman  = pinjaman::where('id', $req->id_pinjaman)
+            ->where('user_id', $user->id)
+            ->first();
+        if (isset($pinjaman)) {
+            if ($pinjaman->document_privy == 'y') {
+                $path = 'assets/pk/' . $pinjaman->document_name;
+                $pdfContent = Storage::get($path);
+                $base64Pdf = base64_encode($pdfContent);
+                $document = 'data:application/pdf;base64,' . $base64Pdf;
+                return response()->json([
+                    'status' => 200,
+                    'message' => '',
+                    'document' => $document
+                ], 200);
+            } else {
+                $documentTTD = getDocumentPK($user, $pinjaman->referrence_number, $pinjaman->document_token);
+                if (!isset($documentTTD['data']['signed_document'])) {
+                    return response()->json([
+                        'status' => 400,
+                        'message' => 'Mohon tunggu, Document sedang proses penanda tanganan',
+                    ], 400);
+                } else {
+                    Storage::disk('local')->put('assets/pk/' . $pinjaman->document_name, base64_decode(Str::after($documentTTD['data']['signed_document'], 'data:application/pdf;base64,')));
+                    $pinjaman->document_privy = 'y';
+                    $pinjaman->save();
+
+                    $path = 'assets/pk/' . $pinjaman->document_name;
+                    $pdfContent = Storage::get($path);
+                    $base64Pdf = base64_encode($pdfContent);
+                    $document = 'data:application/pdf;base64,' . $base64Pdf;
+                    return response()->json([
+                        'status' => 200,
+                        'message' => '',
+                        'document' => $document
+                    ], 200);
+                }
+            }
+        } else {
+            return response()->json([
+                'status' => 400,
+                'message' => 'Pinjaman tidak tersedia',
+            ], 400);
+        }
+    }
+
     public function tandaTangan(TandaTanganRequest $req)
     {
         $user  = User::where('id', auth('api')->user()->id)->first();
@@ -581,8 +633,6 @@ class PinjamanController extends Controller
             if (Hash::check($req->password, $user->password)) {
                 // Log authentikasi, timestamps otentikasi saat input tanda tangan (OTP), privyid, preference number.
                 Log::channel('privylog')->info('correct password | Timestamp :' . Carbon::now() . '| privy_id : ' . $user->id_privy . '| referrence_number_user : ' . $user->reference_number_privy . '| referrence_number_document : ' . $pinjaman->referrence_number);
-                $pinjaman->ttd = 'y';
-                $pinjaman->status = 'pending';
                 // mulai tanda tangan
                 $hasilTTD = ttdPK($user, $pinjaman->document_name, $pinjaman->id);
                 // dd($hasilTTD);
@@ -590,21 +640,23 @@ class PinjamanController extends Controller
                 // habis itu get file yg sudah ditanda tangan
                 $pinjaman->referrence_number = $hasilTTD['data']['reference_number'];
                 $pinjaman->document_token = $hasilTTD['data']['document_token'];
-                // untuk ambil document yg sudah ditanda tanganin
+                $pinjaman->ttd = 'y';
+                $pinjaman->status = 'pending';
                 $pinjaman->save();
-                $documentTTD = getDocumentPK($user, $pinjaman->referrence_number, $pinjaman->document_token);
-                if (!isset($documentTTD['data']['signed_document'])) {
-                    return response()->json([
-                        'status' => 400,
-                        'message' => 'Mohon tunggu, Document sedang proses penanda tanganan',
-                    ], 400);
-                } else {
-                    Storage::disk('local')->put('assets/pk/' . $pinjaman->document_name, base64_decode(Str::after($documentTTD['data']['signed_document'], 'data:application/pdf;base64,')));
-                    return response()->json([
-                        'status' => 200,
-                        'message' => 'Verifikasi berhasil! Dana Anda segera dicairkan dalam 1x24 Jam Kerja. Jika ada pertanyaan lebih lanjut, jangan ragu untuk menghubungi kami.',
-                    ], 200);
-                }
+                // untuk ambil document yg sudah ditanda tanganin
+                // $documentTTD = getDocumentPK($user, $pinjaman->referrence_number, $pinjaman->document_token);
+                // if (!isset($documentTTD['data']['signed_document'])) {
+                //     return response()->json([
+                //         'status' => 400,
+                //         'message' => 'Mohon tunggu, Document sedang proses penanda tanganan',
+                //     ], 400);
+                // } else {
+                // Storage::disk('local')->put('assets/pk/' . $pinjaman->document_name, base64_decode(Str::after($documentTTD['data']['signed_document'], 'data:application/pdf;base64,')));
+                return response()->json([
+                    'status' => 200,
+                    'message' => 'Verifikasi tanda tangan berhasil! Dana Anda segera dicairkan dalam 1x24 Jam Kerja. Jika ada pertanyaan lebih lanjut, jangan ragu untuk menghubungi kami.',
+                ], 200);
+                // }
             } else {
                 return response()->json([
                     'status' => 400,

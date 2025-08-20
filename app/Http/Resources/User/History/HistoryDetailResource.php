@@ -16,6 +16,7 @@ class HistoryDetailResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            'id' => $this->id,
             'id_pinjaman' => $this->id_pinjaman,
             'nominal' => "Rp  " . number_format($this->nominal),
             'biaya_admin' => $this->biaya_admin . "%",
