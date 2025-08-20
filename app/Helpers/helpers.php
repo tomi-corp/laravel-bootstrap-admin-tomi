@@ -216,14 +216,14 @@ if (! function_exists('terbilang')) {
 
 
 if (! function_exists('ttdPK')) {
-    function ttdPK($user, $fileName, $verif)
+    function ttdPK($user, $fileName, $pinjamanId)
     {
         // kirim document ke privy
         $privy = privy::first();
         $login = loginPrivy();
         $url =  $privy->url . '/web/api/v2/doc-signing';
         $client = new Client(['verify' => false]);
-        $reference_number =  'TOMIDOC' . $user->nik .  $verif->pinjaman->id;
+        $reference_number =  'TOMIDOC' . $user->nik .  $pinjamanId;
         $requestBody = [
             "reference_number" => $reference_number,
             "channel_id" => "Toko_Mikro001",
