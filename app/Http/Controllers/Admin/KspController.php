@@ -363,6 +363,7 @@ class KspController extends Controller
                 'message' => 'Berhasil Upload Data Karyawan',
             ], 200);
         } catch (\Throwable $th) {
+            return $th;
             return response()->json([
                 'status' => 400,
                 'message' => 'Duplicate Data NIK, NIP / Kode ID Perusahaan tidak benar, Harap periksa kembali',
