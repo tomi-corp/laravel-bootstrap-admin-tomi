@@ -437,7 +437,7 @@ class PinjamanController extends Controller
             }, 'user'])
             ->first();
 
-        if ($verif >= 3) {
+        if ($verif->failed >= 3) {
             return response()->json([
                 'status' => 400,
                 'message' => 'Anda telah 3x melakukan kesalahan pada memasukan kode OTP, Silahkan hubungi customer service kami',
