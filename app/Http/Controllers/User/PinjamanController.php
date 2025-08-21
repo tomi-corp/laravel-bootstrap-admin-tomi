@@ -441,7 +441,7 @@ class PinjamanController extends Controller
 
         if (!isset($verif)) {
             $verifFailed = verif_otp_pengajuan::where('user_id', auth('api')->user()->id)->first();
-            if (isset($verifFaileds)) {
+            if (isset($verifFailed)) {
                 if ($verifFailed->failed >= 3) {
                     return response()->json([
                         'status' => 400,
