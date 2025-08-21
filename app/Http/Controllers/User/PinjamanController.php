@@ -441,18 +441,25 @@ class PinjamanController extends Controller
 
         if (!isset($verif)) {
             $verifFailed = verif_otp_pengajuan::where('user_id', auth('api')->user()->id)->first();
-            if ($verifFailed->failed >= 3) {
+            if (isset($verifFaileds)) {
+                if ($verifFailed->failed >= 3) {
+                    return response()->json([
+                        'status' => 400,
+                        'message' => 'Anda telah 3x melakukan kesalahan pada memasukan kode OTP, Silahkan hubungi customer service kami',
+                    ], 400);
+                }
+                $verifFailed->failed = $verifFailed->failed + 1;
+                $verifFailed->save();
                 return response()->json([
                     'status' => 400,
-                    'message' => 'Anda telah 3x melakukan kesalahan pada memasukan kode OTP, Silahkan hubungi customer service kami',
+                    'message' => 'OTP tidak benar',
+                ], 400);
+            } else {
+                return response()->json([
+                    'status' => 400,
+                    'message' => 'Silahkan request OTP kembali',
                 ], 400);
             }
-            $verifFailed->failed = $verifFailed->failed + 1;
-            $verifFailed->save();
-            return response()->json([
-                'status' => 400,
-                'message' => 'OTP tidak benar',
-            ], 400);
         } else {
             if ($verif->failed >= 3) {
                 return response()->json([
