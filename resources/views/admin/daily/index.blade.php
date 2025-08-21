@@ -95,7 +95,8 @@
                     extend: 'excel',
                     className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
                     text: '<span class="mdi mdi-file-excel"><span class="pl-1">Excel</span></span>',
-                    header: false,
+                    header: true,
+                    title: 'List Daily Checkin',
                     exportOptions: {
                         columns: [0, 1, 2]
                     },
@@ -104,7 +105,8 @@
                     extend: 'copy',
                     className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
                     text: '<span class="mdi mdi-content-copy"><span class="pl-1">Copy</span></span>',
-                    header: false,
+                    header: true,
+                    title: 'List Daily Checkin',
                     exportOptions: {
                         columns: [0, 1, 2]
                     },
@@ -113,7 +115,8 @@
                     extend: 'print',
                     className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
                     text: '<span class="mdi mdi-printer"><span class="pl-1">Print</span></span>',
-                    header: false,
+                    header: true,
+                    title: 'List Daily Checkin',
                     exportOptions: {
                         columns: [0, 1, 2]
                     },
