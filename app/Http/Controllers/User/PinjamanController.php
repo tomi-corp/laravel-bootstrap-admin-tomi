@@ -640,10 +640,6 @@ class PinjamanController extends Controller
 
     public function tandaTangan(TandaTanganRequest $req)
     {
-        return response()->json([
-            'status' => 200,
-            'message' => 'Verifikasi tanda tangan berhasil! Dana Anda segera dicairkan dalam 1x24 Jam Kerja. Jika ada pertanyaan lebih lanjut, jangan ragu untuk menghubungi kami.',
-        ], 200);
         $user  = User::where('id', auth('api')->user()->id)->first();
         $pinjaman = pinjaman::where('user_id', auth('api')->user()->id)
             ->where('status_otp', 'success')
