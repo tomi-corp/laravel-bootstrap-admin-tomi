@@ -807,10 +807,21 @@ class PinjamanController extends Controller
         if (isset($pinjaman)) {
             $codeOTP = rand(1000, 9999);
             $verifOTP = verif_otp_pengajuan::where('pinjaman_id', $pinjaman->id)->first();
-            $verifOTP->failed = '0';
-            $verifOTP->otp = $codeOTP;
-            $verifOTP->expired = Carbon::now()->addHour(23);
-            $verifOTP->save();
+            if (isset($verifOTP)) {
+                $verifOTP->failed = 0;
+                $verifOTP->otp = $codeOTP;
+                $verifOTP->expired = Carbon::now()->addHour(23);
+                $verifOTP->save();
+            } else {
+                $verifOTP = new verif_otp_pengajuan();
+                $verifOTP->pinjaman_id = $pinjaman->id;
+                $verifOTP->user_id = auth('api')->user()->id;
+                $verifOTP->failed = 0;
+                $verifOTP->otp = $codeOTP;
+                $verifOTP->expired = Carbon::now()->addHour(23);
+                $verifOTP->save();
+            }
+
             sendOTPWhatsapp($pinjaman->data_karyawan->whatsapp, $codeOTP);
             return response()->json([
                 'status' => 200,

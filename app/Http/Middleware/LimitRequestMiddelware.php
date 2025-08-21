@@ -33,7 +33,7 @@ class LimitRequestMiddelware
         if ($this->limiter->tooManyAttempts($key, $maxAttempts)) {
             return response()->json([
                 'code' => 400,
-                'message' => 'silahkan coba beberapa saat lagi yaa..',
+                'message' => 'Silahkan coba beberapa saat lagi yaa..',
             ], 400);
         }
 
