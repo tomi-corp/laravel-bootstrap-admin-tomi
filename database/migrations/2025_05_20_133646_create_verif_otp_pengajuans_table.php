@@ -18,6 +18,7 @@ return new class extends Migration
             $table->bigInteger('pinjaman_id')->unsigned();
             $table->foreign('pinjaman_id')->references('id')->on('pinjamen');
             $table->integer('otp');
+            $table->integer('failed');
             $table->datetime('expired');
             $table->timestamps();
         });

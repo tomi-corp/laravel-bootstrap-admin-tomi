@@ -340,6 +340,7 @@ class PinjamanController extends Controller
 
                 $otp = new verif_otp_pengajuan();
                 $otp->user_id = auth('api')->user()->id;
+                $otp->failed = 0;
                 $otp->otp = $codeOTP;
 
                 $otp->expired = Carbon::now()->addHour(24);
@@ -436,7 +437,23 @@ class PinjamanController extends Controller
             }, 'user'])
             ->first();
 
+        if ($verif >= 3) {
+            return response()->json([
+                'status' => 400,
+                'message' => 'Anda telah 3x melakukan kesalahan pada memasukan kode OTP, Silahkan hubungi customer service kami',
+            ], 400);
+        }
+
         if (!isset($verif)) {
+            $verifFailed = verif_otp_pengajuan::where('user_id', auth('api')->user()->id)->first();
+            if ($verifFailed->failed >= 3) {
+                return response()->json([
+                    'status' => 400,
+                    'message' => 'Anda telah 3x melakukan kesalahan pada memasukan kode OTP, Silahkan hubungi customer service kami',
+                ], 400);
+            }
+            $verifFailed->failed = $verifFailed->failed + 1;
+            $verifFailed->save();
             return response()->json([
                 'status' => 400,
                 'message' => 'OTP tidak benar',

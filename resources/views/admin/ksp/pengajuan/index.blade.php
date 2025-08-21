@@ -665,7 +665,7 @@
                         extend: 'copy',
                         className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
                         text: '<span class="mdi mdi-content-copy"><span class="pl-1">Copy</span></span>',
-                       header: true,
+                        header: true,
                         title: 'List Done',
                         exportOptions: {
                             columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
@@ -675,7 +675,7 @@
                         extend: 'print',
                         className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
                         text: '<span class="mdi mdi-printer"><span class="pl-1">Print</span></span>',
-                       header: true,
+                        header: true,
                         title: 'List Done',
                         exportOptions: {
                             columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
