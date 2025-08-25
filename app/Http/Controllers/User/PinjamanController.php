@@ -14,6 +14,7 @@ use App\Http\Requests\User\Pinjaman\TandaTanganRequest;
 use App\Http\Resources\User\Pinjaman\DataKaryawanResource;
 use App\Http\Resources\User\Pinjaman\HistroyPinjamanResource;
 use App\Http\Resources\User\Pinjaman\TenorPinjamanResource;
+use App\Models\cost;
 use App\Models\jatuh_tempo;
 use App\Models\ListPerusahaan;
 use App\Models\pinjaman;
@@ -380,6 +381,11 @@ class PinjamanController extends Controller
                 $pinjaman->jumlah_yang_diterima = $simulation['jumlah_diterima'];
                 $pinjaman->iuran_anggota = $simulation['iuran_anggota'];
                 $pinjaman->biaya_layanan = $simulation['biaya_layanan'];
+
+                $cost = cost::get()->toArray();
+                $totalCost = $cost[3]['biaya'] + $cost[1]['biaya'];
+                $pinjaman->cost_ksp = $totalCost;
+                $pinjaman->description_cost_ksp = "Biaya disbursment + PK Otomation";
 
                 sendOTPWhatsapp($perusahaan->karyawanSingle->whatsapp, $codeOTP);
                 $pinjaman->save();

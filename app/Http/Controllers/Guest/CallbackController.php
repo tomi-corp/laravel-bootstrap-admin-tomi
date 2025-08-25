@@ -10,6 +10,7 @@ use App\Models\invoicing_pinjaman;
 use App\Models\jatuh_tempo;
 use App\Models\notification;
 use App\Models\pinjaman;
+use App\Models\privy_pse;
 use App\Models\rekening_tomi;
 use App\Models\User;
 use App\Models\xenditApi;
@@ -226,6 +227,12 @@ class CallbackController extends Controller
                 $user->resend_privy = NULL;
                 $user->verified_privy = 'y';
                 $user->save();
+                $cost = cost::get()->toArray();
+                $newPSE_privy = new privy_pse();
+                $newPSE_privy->user_id = $user->id;
+                $newPSE_privy->cost =  $cost[0]['biaya'];
+                $newPSE_privy->keterangan =  'Penerbitan sertifikat elektronik';
+                $newPSE_privy->save();
             }
         }
         return response()->json([
