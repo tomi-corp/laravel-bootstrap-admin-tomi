@@ -259,8 +259,8 @@ class KspController extends Controller
         return DataTables::of($perusahaan)
             ->addIndexColumn()
 
-            ->addColumn('penghasilan', function ($row) {
-                return 'Rp  ' . number_format($row->penghasilan);
+            ->addColumn('max_plafon', function ($row) {
+                return 'Rp  ' . number_format($row->max_plafon);
             })
 
             ->addColumn('bank', function ($row) {
