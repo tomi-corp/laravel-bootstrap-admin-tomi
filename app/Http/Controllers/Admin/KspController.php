@@ -385,7 +385,6 @@ class KspController extends Controller
                 ->get();
         }
 
-
         return response()->json([
             'status' => 200,
             'data' => ListKaryawanPendingResource::collection($listKaryawanPending),

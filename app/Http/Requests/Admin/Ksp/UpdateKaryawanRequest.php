@@ -36,7 +36,7 @@ class UpdateKaryawanRequest extends FormRequest
             'statusSp' => 'required|in:0,1,2,3',
             'bank' => 'required|exists:banks,id',
             'nomor_bank' => 'required|numeric',
-            'penghasilan' => 'required|numeric',
+            'max_plafon' => 'required|numeric',
         ];
     }
 }

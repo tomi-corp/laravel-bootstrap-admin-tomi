@@ -35,7 +35,7 @@ class KaryawanPendingImport implements ToModel, WithHeadingRow
                 'alamat' => $row['alamat_ktp'],
                 'divisi' => $row['divisi'],
                 'jabatan' => $row['jabatan'],
-                'penghasilan' => $row['penghasilan'],
+                'max_plafon' => $row['max_plafon'],
                 'departement' => $row['departemen'],
                 'tanggal_bergabung' => Date::excelToDateTimeObject($row['tanggal_bergabung'])->format('Y-m-d'),
                 'status' => $row['status'],

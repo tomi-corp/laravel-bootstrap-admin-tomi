@@ -154,7 +154,7 @@
                                 <th>BANK</th>
                                 <th>Nama Rekening</th>
                                 <th>No Bank</th>
-                                <th>Penghasilan</th>
+                                <th>Max Plafon</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -186,8 +186,8 @@
                                             <th data-priority="3">NIP</th>
                                             <th data-priority="1">Whatsapp</th>
                                             <th data-priority="3">Alamat</th>
-                                            <th data-priority="6">Jabatan</th>
-                                            <th data-priority="6">Penghasilan</th>
+                                            <th data-priority="6">Max Plafon</th>
+                                            <th data-priority="6">max_plafon</th>
                                         </tr>
                                     </thead>
                                     <tbody id="bodyTablePendingKaryawan">
@@ -356,10 +356,10 @@
                         <div class="col-md-12">
                             <div class="form-group">
 
-                                <label>Penghasilan</label>
-                                <input class="form-control" name="penghasilan" id="penghasilan" required
+                                <label>max_plafon</label>
+                                <input class="form-control" name="max_plafon" id="max_plafon" required
                                     type="number"></input>
-                                <small class="text-danger" id="errPenghasilan"></small>
+                                <small class="text-danger" id="errmax_plafon"></small>
                             </div>
                         </div>
 
@@ -466,7 +466,7 @@
                 }, {
                     data: 'nomor_bank'
                 }, {
-                    data: 'penghasilan'
+                    data: 'max_plafon'
                 }, {
                     data: 'action'
                 }]
@@ -556,7 +556,7 @@
                             row.append($('<td>').text(item
                                 .jabatan));
                             row.append($('<td>').text(item
-                                .penghasilan));
+                                .max_plafon));
                             row.appendTo(tableBody);
                         });
                         $('#modalKaryawanPending').modal('show')
@@ -609,7 +609,7 @@
                         $('#statusSp').val(detail.data.status_sp);
                         $('#bank').val(detail.data.bank);
                         $('#nomor_bank').val(detail.data.nomor_bank);
-                        $('#penghasilan').val(detail.data.penghasilan);
+                        $('#max_plafon').val(detail.data.max_plafon);
                         $('#modalEdit').modal('show');
                     }
                 });
@@ -635,7 +635,7 @@
                         'statusSp': $("#statusSp").val(),
                         'bank': $("#bank").val(),
                         'nomor_bank': $("#nomor_bank").val(),
-                        'penghasilan': $("#penghasilan").val(),
+                        'max_plafon': $("#max_plafon").val(),
                     },
                     type: 'POST',
                     dataType: 'json',
@@ -668,7 +668,7 @@
                         $('#errStatusSp').text(err.responseJSON.errors.status_sp);
                         $('#errBank').text(err.responseJSON.errors.bank);
                         $('#errNomor_bank').text(err.responseJSON.errors.nomor_bank);
-                        $('#errPenghasilan').text(err.responseJSON.errors.penghasilan);
+                        $('#errmax_plafon').text(err.responseJSON.errors.max_plafon);
                         $('#modalEdit').modal('show');
                     }
                 });

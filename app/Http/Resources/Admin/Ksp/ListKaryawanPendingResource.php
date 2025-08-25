@@ -21,7 +21,7 @@ class ListKaryawanPendingResource extends JsonResource
             'whatsapp' =>  $this->whatsapp,
             'alamat' =>  $this->alamat,
             'jabatan' =>  $this->jabatan,
-            'penghasilan' => "Rp" . number_format($this->penghasilan),
+            'max_plafon' => "Rp" . number_format($this->max_plafon),
         ];
     }
 }

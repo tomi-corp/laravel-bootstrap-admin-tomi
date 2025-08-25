@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('alamat');
             $table->string('divisi');
             $table->string('jabatan');
-            $table->string('penghasilan');
+            $table->string('max_plafon');
             $table->string('departement');
             $table->date('tanggal_bergabung');
             $table->enum('status', ['tetap', 'percobaan', 'phk', 'resign']);

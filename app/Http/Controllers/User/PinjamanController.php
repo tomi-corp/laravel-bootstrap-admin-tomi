@@ -71,11 +71,11 @@ class PinjamanController extends Controller
 
 
         if (isset($perusahaan)) {
-            $pendapatan = 70 / 100 * $perusahaan->karyawanSingle->penghasilan;
-            if ($pendapatan > $perusahaan->amount_pinjaman->maximal) {
+            // $pendapatan = 70 / 100 * $perusahaan->karyawanSingle->penghasilan;
+            if ($perusahaan->karyawanSingle->max_plafon > $perusahaan->amount_pinjaman->maximal) {
                 $maksimal = $perusahaan->amount_pinjaman->maximal;
-            } elseif ($pendapatan < $perusahaan->amount_pinjaman->maximal) {
-                $maksimal = $pendapatan;
+            } elseif ($perusahaan->karyawanSingle->max_plafon < $perusahaan->amount_pinjaman->maximal) {
+                $maksimal = $perusahaan->karyawanSingle->max_plafon;
             }
 
             return response()->json([
@@ -101,13 +101,13 @@ class PinjamanController extends Controller
             }])
             ->first();
 
-        $pendapatan = 70 / 100 * $perusahaan->karyawanSingle->penghasilan;
+        // $pendapatan = 70 / 100 * $perusahaan->karyawanSingle->penghasilan;
 
 
         if ($req->nominal > $perusahaan->amount_pinjaman->maximal) {
             $maksimal = $perusahaan->amount_pinjaman->maximal;
-        } elseif ($req->nominal > $pendapatan) {
-            $maksimal = $pendapatan;
+        } elseif ($req->nominal > $perusahaan->karyawanSingle->max_plafon) {
+            $maksimal = $perusahaan->karyawanSingle->max_plafon;
         } else {
             $maksimal = $req->nominal;
         }
@@ -223,11 +223,11 @@ class PinjamanController extends Controller
                 'message' => 'Data NIP tidak ditemukan',
             ], 400);
         } else {
-            $pendapatan = 70 / 100 * $perusahaan->karyawanSingle->penghasilan;
-            if ($pendapatan > $perusahaan->amount_pinjaman->maximal) {
+            // $pendapatan = 70 / 100 * $perusahaan->karyawanSingle->penghasilan;
+            if ($perusahaan->karyawanSingle->max_plafon > $perusahaan->amount_pinjaman->maximal) {
                 $maksimal = $perusahaan->amount_pinjaman->maximal;
-            } elseif ($pendapatan < $perusahaan->amount_pinjaman->maximal) {
-                $maksimal = $pendapatan;
+            } elseif ($perusahaan->karyawanSingle->max_plafon < $perusahaan->amount_pinjaman->maximal) {
+                $maksimal = $perusahaan->karyawanSingle->max_plafon;
             }
 
             $tenor = tenor_pinjaman::where('id_perusahaan', $perusahaan->id)
