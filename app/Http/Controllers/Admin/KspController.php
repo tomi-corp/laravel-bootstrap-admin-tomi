@@ -1025,6 +1025,7 @@ class KspController extends Controller
     {
         $amount = amount_pinjaman::where('id_perusahaan', $req->id)
             ->FirstOrNew();
+        $amount->id_perusahaan = $req->id;
         $amount->iuran_anggota = $req->iuran_anggota;
         $amount->minimal = $req->minimal;
         $amount->maximal = $req->maximal;
