@@ -30,7 +30,7 @@ class KaryawanPendingImport implements ToModel, WithHeadingRow
                 'id_list_perusahaan' => $listPerusahaan->id,
                 'nik' => $row['nik'],
                 'nip' => $row['nip'],
-                'whatsapp' => $row['no_whatsapp'],
+                'whatsapp' => (substr($row['no_whatsapp'], 0, 1) === '0') ? '62' . substr($row['no_whatsapp'], 1) : $row['no_whatsapp'],
                 'nama_karyawan' => $row['nama_karyawan'],
                 'alamat' => $row['alamat_ktp'],
                 'divisi' => $row['divisi'],
