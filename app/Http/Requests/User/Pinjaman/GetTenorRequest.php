@@ -75,7 +75,7 @@ class GetTenorRequest extends FormRequest
                 $q->first();
             }, 'amount_pinjaman'])->first();
 
-        $pendapatan = 70 / 100 * $perusahaan->karyawanSingle->penghasilan;
+        $pendapatan = $perusahaan->karyawanSingle->max_plafon;
 
         if ($this->nominal > $perusahaan->amount_pinjaman->maximal) {
             return [
