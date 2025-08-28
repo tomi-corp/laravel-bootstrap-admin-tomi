@@ -239,7 +239,7 @@ if (! function_exists('ttdPK')) {
             ],
             "doc_owner" => [
                 "privyId" => "DCIUAT",
-                "enterpriseToken" => "41bc84b42c8543daf448d893c255be1dbdcc722e"
+                "enterpriseToken" => "f96bdf97a65a76930272eedd23f8d982f472aa53"
             ],
             "recipients" => [
                 [
@@ -258,7 +258,7 @@ if (! function_exists('ttdPK')) {
                     "autosign" => "1",
                     "id_user" => "DCIUAT",
                     "signer_type" => "Signer",
-                    "enterpriseToken" => "41bc84b42c8543daf448d893c255be1dbdcc722e",
+                    "enterpriseToken" => "f96bdf97a65a76930272eedd23f8d982f472aa53",
                     "posX" => 150,
                     "posY" => 310,
                     "signPage" => 10,

@@ -22,7 +22,7 @@ class list_karyawan extends Model
         'divisi',
         'alamat',
         'jabatan',
-        'penghasilan',
+        'max_plafon',
         'departement',
         'tanggal_bergabung',
         'status',
