@@ -23,8 +23,6 @@
                         <i class="mdi mdi-plus-circle"></i> Tambah Perusahaan
                     </button>
 
-
-
                     <table id="tableListPerusahaan" class="table dt-responsive table-hover mt-4 text-center justify-center"
                         style="width:100%">
                         <thead>
@@ -75,15 +73,7 @@
                 <div class="modal-body">
 
                     <div class="row">
-
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>Unique Code</label>
-                                <input class="form-control" id="uniqueCode" type="number"
-                                    placeholder="Unique Code"></input>
-                                <small class="text-danger" id="errUniqueCode"></small>
-                            </div>
-                        </div>
+                      
 
                         <div class="col-md-6">
                             <div class="form-group">
@@ -102,7 +92,7 @@
                             </div>
                         </div>
 
-                        <div class="col-md-6">
+                        <div class="col-md-12">
                             <div class="form-group">
                                 <label>Nama Perusahaan</label>
                                 <input class="form-control" id="namaPerusahaan" placeholder="Nama Perusahaan"></input>
@@ -760,8 +750,6 @@
                 data: {
                     '_token': "{{ csrf_token() }}",
 
-                    'unique_code': $("#uniqueCode").val(),
-
                     'pic_perusahaan': $("#namaPicPerusahaan").val(),
                     'pic_internal': $("#namaPicInternal").val(),
                     'nama_perusahaan': $("#namaPerusahaan").val(),
@@ -791,7 +779,6 @@
                 error: function(err) {
                     $('#buttonSubmit').attr("disabled", false);
                     $('#loadingText').removeClass("spinner-border");
-                    $('#errUniqueCode').text(err.responseJSON.errors.unique_code);
                     $('#errNamaPicPerusahaan').text(err.responseJSON.errors.nama_perusahaan);
                     $('#errNamaPicInternal').text(err.responseJSON.errors.nama_perusahaan);
                     $('#errNamaPerusahaan').text(err.responseJSON.errors.nama_perusahaan);

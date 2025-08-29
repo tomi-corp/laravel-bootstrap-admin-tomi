@@ -84,7 +84,15 @@ class KspController extends Controller
             }
         }
 
-        $perusahaan->unique_code = $req->unique_code;
+        while (true) {
+            $unique_codeString = substr(str_shuffle('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'), 0, 8);
+            $unique_code = ListPerusahaan::where('unique_code', $string)->first();
+            if (!isset($unique_code)) {
+                break;
+            }
+        }
+
+        $perusahaan->unique_code = $unique_codeString;
         $perusahaan->id_code_perusahaan = $string;
         $perusahaan->pic_perusahaan = $req->pic_perusahaan;
         $perusahaan->pic_internal = $req->pic_internal;
