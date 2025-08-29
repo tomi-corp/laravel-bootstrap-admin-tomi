@@ -23,15 +23,16 @@ if (! function_exists('sendOTPWhatsapp')) {
             "msisdn" => $nohp,
             "otp" => $code,
             "time_limit" => 60,
-            "template_name" => 'otp_dumi',
+            "template_name" => "otp_tomi",
+            "lang_code" => "id",
         ];
 
         $res = $client->request('POST', $uri, [
             'body' => json_encode($body),
             'headers' => [
                 'Accept' => 'application/json',
-                'APP-ID' => '9fd6d403-3660-4c7e-8a42-5fb048a64ec8',
-                'API-Key' => 'cHSGtrnSxHQHARI5uNSxTk8nnm+UsTyD',
+                'APP-ID' => '4ac45ece-4051-4ff5-a597-bde23bcf17d3',
+                'API-Key' => 'rlelTbhhJE1xub2TeGE7psMYd+Ztxix6',
                 'Content-Type' => 'application/json'
             ]
         ])->getBody()->getContents();

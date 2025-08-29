@@ -93,40 +93,6 @@ class DashboardController extends Controller
 
     public function test()
     {
-        $sekarang = Carbon::now()->format('Y-m-d');
-        $sekarangUdahDikurangi =  Carbon::parse($sekarang)->subDays(5);
-        $invoicings = invoicing_pinjaman::where('period', '<=', $sekarangUdahDikurangi)
-            ->where('status', 'belum_lunas')
-            ->with('perusahaan')
-            ->get();
-
-        foreach ($invoicings as $invoicing) {
-            $getPeriod = invoicing_pinjaman::where('id', $invoicing->id)->first();
-            $invoice = invoicing_pinjaman::where('id', $invoicing->id)
-                ->with(['perusahaan' =>  function ($q) use ($getPeriod) {
-                    $q->with(['pinjamanBerjalan' => function ($w) use ($getPeriod) {
-                        $w->with(['jatuh_tempoSesuaiInvoice' =>  function ($e) use ($getPeriod) {
-                            $e->whereMonth('jatuh_tempo', Carbon::parse($getPeriod->period)->format('m'));
-                        }, 'data_karyawan']);
-                    }]);
-                }])
-                ->first();
-
-            $link = url(env('APP_URL')) . '/sIztJyJPErLl52H1s1zlXu5q5z5k6mMwBYC6VQlGQ65eMNGSB5u/rLl52H1s1zl/' . $invoice->id . '/' . substr($invoice->perusahaan->id_code_perusahaan, 1);
-            $data = [
-                'subject' => 'Pemberitahuan Invoice',
-                'title' => 'Pemberitahuan Invoice',
-                // 'to' => $invoice->perusahaan->email_perusahaan,
-                'to' => 'imamrovid9@gmail.com',
-                'link' => $link,
-                'invoice' => $invoice
-            ];
-            try {
-                Mail::to($data['to'])->send(new InvoiceEmail($data));
-            } catch (\Throwable $th) {
-                Log::channel('cronjob')->info($sekarang . ' Error : ' . $th);
-            }
-        }
-        Log::channel('cronjob')->info($sekarang . ' Cronjob Invoice telah dijalankan');
+        // sendOTPWhatsapp('6285885723911', '42432');
     }
 }
