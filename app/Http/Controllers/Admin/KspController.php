@@ -85,7 +85,7 @@ class KspController extends Controller
         }
 
         while (true) {
-            $unique_codeString = substr(str_shuffle('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'), 0, 8);
+            $unique_codeString = substr(str_shuffle('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'), 0, 4);
             $unique_code = ListPerusahaan::where('unique_code', $string)->first();
             if (!isset($unique_code)) {
                 break;
