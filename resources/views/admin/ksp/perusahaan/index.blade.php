@@ -7,10 +7,10 @@
                 <div class="page-title-right">
                     <ol class="breadcrumb m-0">
                         <li class="breadcrumb-item"><a href="javascript: void(0);">Tomi</a></li>
-                        <li class="breadcrumb-item active">KSP Perusahaan</li>
+                        <li class="breadcrumb-item active">MoU perusahaan x lender</li>
                     </ol>
                 </div>
-                <h4 class="page-title">KSP Perusahaan</h4>
+                <h4 class="page-title">MoU perusahaan x lender</h4>
             </div>
         </div>
 
@@ -32,7 +32,7 @@
                                 <th>ID Perusahaan</th>
                                 <th>Unique Code</th>
                                 <th>PIC Perusahaan</th>
-                                <th>PIC Internal</th>
+                                <th>PIC HC/HRD</th>
                                 <th>Nama Perusahaan</th>
                                 <th>Email Perusahaan</th>
                                 <th>Telepon</th>
@@ -42,7 +42,7 @@
                                 <th>Desa</th>
                                 <th>Alamat Lengkap</th>
                                 <th>Payment Date</th>
-                                <th>Nomor PKS</th>
+                                <th>No. perjanjian kerja sama lender x perusahaan</th>
                                 <th>List Karyawan</th>
                                 <th>Proses Pengajuan</th>
                                 <th>Konfigurasi Pinjaman</th>
@@ -96,7 +96,7 @@
 
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label>Nama PIC Internal</label>
+                                 <label>Nama PIC HC / HRD</label>
                                 <input class="form-control" id="namaPicInternal" placeholder="PIC Internal"></input>
                                 <small class="text-danger" id="errNamaPicInternal"></small>
                             </div>
@@ -223,9 +223,9 @@
 
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label>Nomor PKS</label>
-                                <input class="form-control" id="nomor_pks" placeholder="42151231"
-                                    type="number"></input>
+                                <label>No. perjanjian kerja sama lender x perusahaan</label>
+                                <input class="form-control" id="nomor_pks" placeholder="012/KSPDUMI-FIT/VIII/2025"
+                                    type="text"></input>
                                 <small class="text-danger" id="errNomor_pks"></small>
                             </div>
                         </div>
@@ -268,7 +268,7 @@
 
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label>Nama PIC Internal</label>
+                                <label>Nama PIC HC / HRD</label>
                                 <input class="form-control" id="namaPicInternalEdit" placeholder="PIC Internal"></input>
                                 <small class="text-danger" id="errNamaPicInternalEdit"></small>
                             </div>
@@ -401,7 +401,7 @@
 
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label>Nomor PKS</label>
+                                <label>No. perjanjian kerja sama lender x perusahaan</label>
                                 <input class="form-control" id="nomor_pksEdit" placeholder="42151231"
                                     type="number"></input>
                                 <small class="text-danger" id="errNomor_pksEdit"></small>
