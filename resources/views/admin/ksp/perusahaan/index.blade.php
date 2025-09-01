@@ -18,10 +18,10 @@
             <div class="card">
                 <div class="card-body">
 
-                    <button type="button" class="btn btn-sm btn-primary float-right waves-effect waves-light"
+                    {{-- <button type="button" class="btn btn-sm btn-primary float-right waves-effect waves-light"
                         data-toggle="modal" data-target="#modalAdd">
                         <i class="mdi mdi-plus-circle"></i> Tambah Perusahaan
-                    </button>
+                    </button> --}}
 
                     <table id="tableListPerusahaan" class="table dt-responsive table-hover mt-4 text-center justify-center"
                         style="width:100%">
@@ -45,7 +45,7 @@
                                 <th>Proses Pengajuan</th>
                                 <th>Konfigurasi Pinjaman</th>
                                 <th>Status</th>
-                                <th>Action</th>
+                                {{-- <th>Action</th> --}}
                             </tr>
                         </thead>
                     </table>
@@ -682,8 +682,6 @@
                 data: 'konfigurasi_pinjaman'
             }, {
                 data: 'status'
-            }, {
-                data: 'action'
             }]
         });
 
