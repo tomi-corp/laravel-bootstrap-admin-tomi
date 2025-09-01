@@ -77,7 +77,7 @@ class PinjamanController extends Controller
             } elseif ($perusahaan->karyawanSingle->max_plafon < $perusahaan->amount_pinjaman->maximal) {
                 $maksimal = $perusahaan->karyawanSingle->max_plafon;
             } else {
-                $maksimal = $perusahaan->karyawanSingle->max_plafon;
+                $maksimal = $perusahaan->amount_pinjaman->maximal;
             }
 
             return response()->json([
