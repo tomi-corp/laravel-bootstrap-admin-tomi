@@ -618,7 +618,7 @@ class PinjamanController extends Controller
                 if (!isset($documentTTD['data']['signed_document'])) {
                     return response()->json([
                         'status' => 400,
-                        'message' => 'Mohon tunggu, Document sedang proses penanda tanganan',
+                        'message' => 'Mohon tunggu, Document sedang proses penanda tanganan, pinjaman dapat diproses ketahap selanjutnya jika anda sudah melihat document yang sudah anda tanda tangani.',
                     ], 400);
                 } else {
                     Storage::disk('local')->put('assets/pk/' . $pinjaman->document_name, base64_decode(Str::after($documentTTD['data']['signed_document'], 'data:application/pdf;base64,')));
