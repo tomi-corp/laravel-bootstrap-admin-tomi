@@ -615,7 +615,6 @@ class PinjamanController extends Controller
                 ], 200);
             } else {
                 $documentTTD = getDocumentPK($user, $pinjaman->referrence_number, $pinjaman->document_token);
-                dd($documentTTD);
                 if (!isset($documentTTD['data']['signed_document'])) {
                     return response()->json([
                         'status' => 400,

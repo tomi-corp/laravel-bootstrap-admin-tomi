@@ -239,7 +239,7 @@ if (! function_exists('ttdPK')) {
                 "sign_process" => "1"
             ],
             "doc_owner" => [
-                "privyId" => "DCIUAT",
+                "privyId" => "LOYZRR5016",
                 "enterpriseToken" => "f96bdf97a65a76930272eedd23f8d982f472aa53"
             ],
             "recipients" => [
@@ -257,7 +257,7 @@ if (! function_exists('ttdPK')) {
                 [
                     "user_type" => "0",
                     "autosign" => "1",
-                    "id_user" => "DCIUAT",
+                    "id_user" => "LOYZRR5016",
                     "signer_type" => "Signer",
                     "enterpriseToken" => "f96bdf97a65a76930272eedd23f8d982f472aa53",
                     "posX" => 150,
