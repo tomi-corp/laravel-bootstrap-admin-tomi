@@ -20,8 +20,8 @@ if (! function_exists('sendOTPWhatsapp')) {
         $client = new Client(['verify' => false]);
         $uri = 'https://api.verihubs.com/v1/whatsapp/otp/send';
         $body = [
-            "msisdn" => '6281297536906',
-            "otp" => '42432',
+            "msisdn" => $nohp,
+            "otp" => $code,
             "time_limit" => 60,
             "template_name" => "otp_tomi",
             "lang_code" => "id",
