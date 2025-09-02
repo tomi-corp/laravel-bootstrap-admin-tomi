@@ -18,6 +18,7 @@ return new class extends Migration
             $table->integer('tenor');
             $table->double('rate');
             $table->double('biaya_admin');
+            $table->double('fee_tomi');
             $table->double('biaya_layanan');
             $table->double('minimal_nominal');
             $table->double('maximal_nominal');

@@ -38,6 +38,7 @@ class PinjamanController extends Controller
             ->first();
 
         $biaya_admin = $tenor->biaya_admin / 100 * $data['nominal'];
+        $biaya_admin_tomi = $tenor->fee_tomi / 100 * $data['nominal'];
         $biaya_layanan = $tenor->biaya_layanan;
         $iuran_anggota = $tenor->amount_pinjaman->iuran_anggota * $tenor->tenor;
         $nilai_yang_diterima = $data['nominal'] - $biaya_admin - $biaya_layanan - $iuran_anggota;
@@ -53,6 +54,7 @@ class PinjamanController extends Controller
             'biaya_admin_persen' => $tenor->biaya_admin . "%",
             'tenor' => $tenor->tenor,
             'biaya_admin' => $biaya_admin,
+            'biaya_admin_tomi' => $biaya_admin_tomi,
             'biaya_layanan' => $biaya_layanan,
             'iuran_anggota' => $iuran_anggota,
             'jumlah_diterima' => $nilai_yang_diterima,
@@ -367,10 +369,10 @@ class PinjamanController extends Controller
 
                 $simulation = $this->simulation($data);
                 $pinjaman->total_biaya_admin = $simulation['biaya_admin'];
-                $pinjaman->biaya_admin_ksp = $simulation['biaya_admin'] * 50 / 100;
+                $pinjaman->biaya_admin_ksp = $simulation['biaya_admin'];
                 $pinjaman->dpp_adm_ksp = round($pinjaman->biaya_admin_ksp / 111 * 100);
                 $pinjaman->ppn_adm_ksp = round($pinjaman->dpp_adm_ksp * 11 / 100);
-                $pinjaman->biaya_admin_pandu = $simulation['biaya_admin'] * 50 / 100;
+                $pinjaman->biaya_admin_pandu = $simulation['biaya_admin_tomi'];
                 $pinjaman->dpp_adm_pandu = round($pinjaman->biaya_admin_pandu / 111 * 100);
                 $pinjaman->ppn_adm_pandu = round($pinjaman->dpp_adm_pandu * 11 / 100);
                 $pinjaman->pendapatan_bunga = $req->nominal * $tenor->rate / 100 * $tenor->tenor;

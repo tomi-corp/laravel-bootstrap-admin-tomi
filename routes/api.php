@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Server\DocumentController;
 use App\Http\Controllers\User\AuthController;
 use App\Http\Controllers\User\DailyCheckinController;
 use App\Http\Controllers\User\HistoryController;
@@ -10,7 +11,11 @@ use App\Http\Controllers\User\PointController;
 use App\Http\Controllers\User\PrivyController;
 use Illuminate\Support\Facades\Route;
 
-
+Route::middleware(['CenterFileMiddleware'])->group(
+    function () {
+        Route::post('/get/pk', [DocumentController::class, 'pk']);
+    }
+);
 
 
 Route::middleware(['LanguangeMiddleware'])->group(

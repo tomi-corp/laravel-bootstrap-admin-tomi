@@ -546,9 +546,15 @@ class KspController extends Controller
             ->addColumn('rate', function ($row) {
                 return $row->rate . ' %';
             })
+
             ->addColumn('biaya_admin', function ($row) {
                 return $row->biaya_admin . ' %';
             })
+
+            ->addColumn('fee_tomi', function ($row) {
+                return $row->fee_tomi . ' %';
+            })
+
 
             ->addColumn('iuran_anggota', function ($row) use ($amount_pinjaman) {
                 return "Rp  " . number_format($row->tenor * $amount_pinjaman->iuran_anggota);
@@ -583,6 +589,7 @@ class KspController extends Controller
         $tenor->tenor = $req->tenor;
         $tenor->rate = $req->rate;
         $tenor->biaya_admin = $req->biaya_admin;
+        $tenor->fee_tomi = $req->fee_tomi;
         $tenor->biaya_layanan = $req->biaya_layanan;
         $tenor->minimal_nominal = $req->minimal_nominal;
         $tenor->maximal_nominal = $req->maximal_nominal;
@@ -617,6 +624,7 @@ class KspController extends Controller
         $tenor->tenor = $req->tenor;
         $tenor->rate = $req->rate;
         $tenor->biaya_admin = $req->biaya_admin;
+        $tenor->fee_tomi = $req->fee_tomi;
         $tenor->biaya_layanan = $req->biaya_layanan;
         $tenor->minimal_nominal = $req->minimal_nominal;
         $tenor->maximal_nominal = $req->maximal_nominal;

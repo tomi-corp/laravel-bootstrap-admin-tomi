@@ -73,6 +73,7 @@
                                 <th>Tenor</th>
                                 <th>Rate</th>
                                 <th>Biaya Admin</th>
+                                <th>Fee Tomi</th>
                                 <th>Iuran Anggota</th>
                                 <th>Biaya Layanan</th>
                                 <th>Minimal Nominal</th>
@@ -120,6 +121,11 @@
                         <small class="text-danger" id="errBiayaAdmin"></small>
                     </div>
 
+                    <div class="form-group">
+                        <label>Fee Tomi</label>
+                        <input class="form-control" id="feeTomi" placeholder="Fee Tomi" type="number"></input>
+                        <small class="text-danger" id="errfeeTomi"></small>
+                    </div>
 
 
                     <div class="form-group">
@@ -195,6 +201,12 @@
                         <small class="text-danger" id="errBiayaAdminEdit"></small>
                     </div>
 
+                    <div class="form-group">
+                        <label>Fee Tomi</label>
+                        <input class="form-control" id="feeTomiEdit" placeholder="Biaya Admin"
+                            type="number"></input>
+                        <small class="text-danger" id="errfeeTomiEdit"></small>
+                    </div>
 
                     <div class="form-group">
                         <label>Biaya Layanan</label>
@@ -333,7 +345,9 @@
                 data: 'rate'
             }, {
                 data: 'biaya_admin'
-            }, {
+            },  {
+                data: 'fee_tomi'
+            },{
                 data: 'iuran_anggota'
             }, {
                 data: 'biaya_layanan'
@@ -365,6 +379,7 @@
                     $('#tenorEdit').val(detail.data.tenor);
                     $('#rateEdit').val(detail.data.rate);
                     $('#biayaadminEdit').val(detail.data.biaya_admin);
+                    $('#feeTomiEdit').val(detail.data.fee_tomi);
                     $('#iurananggotaEdit').val(detail.data.iuran_anggota);
                     $('#biayalayananEdit').val(detail.data.biaya_layanan);
                     $('#minimalNominalTenorEdit').val(detail.data.minimal_nominal);
@@ -412,6 +427,7 @@
                     'tenor': $("#tenor").val(),
                     'rate': $("#rate").val(),
                     'biaya_admin': $("#biayaadmin").val(),
+                    'fee_tomi': $("#fee_tomi").val(),
                     'biaya_layanan': $("#biayalayanan").val(),
                     'minimal_nominal': $("#minimalNominalTenor").val(),
                     'maximal_nominal': $("#maximalNominalTenor").val(),
@@ -430,6 +446,7 @@
                     $('#errTenor').text();
                     $('#errRate').text();
                     $('#errBiayaAdmin').text();
+                    $('#errfeeTomi').text();
                     $('#errBiayalayanan').text();
                     $('#errMinimalNominalTenor').text();
                     $('#errMaximalNominalTenor').text();
@@ -440,6 +457,7 @@
                     $('#errTenor').text(saveConfig.responseJSON.errors.tenor);
                     $('#errRate').text(saveConfig.responseJSON.errors.rate);
                     $('#errBiayaAdmin').text(saveConfig.responseJSON.errors.biaya_admin);
+                    $('#errfeeTomi').text(saveConfig.responseJSON.errors.fee_tomi);
                     $('#errBiayaLayanan').text(saveConfig.responseJSON.errors.biaya_layanan);
                     $('#errMinimalNominalTenor').text(saveConfig.responseJSON.errors.minimal_nominal);
                     $('#errMaximalNominalTenor').text(saveConfig.responseJSON.errors.maximal_nominal);
@@ -458,6 +476,7 @@
                     'tenor': $("#tenorEdit").val(),
                     'rate': $("#rateEdit").val(),
                     'biaya_admin': $("#biayaadminEdit").val(),
+                    'fee_tomi': $("#feeTomiEdit").val(),
                     'biaya_layanan': $("#biayalayananEdit").val(),
                     'minimal_nominal': $("#minimalNominalTenorEdit").val(),
                     'maximal_nominal': $("#maximalNominalTenorEdit").val(),
@@ -476,6 +495,7 @@
                     $('#errTenorEdit').text();
                     $('#errRateEdit').text();
                     $('#errBiayaAdminEdit').text();
+                    $('#errfeeTomiEdit').text();
                     $('#errBiayaLayananEdit').text();
 
                     $('#errMinimalNominalTenorEdit').text();
@@ -488,6 +508,7 @@
                     $('#errTenorEdit').text(saveConfig.responseJSON.errors.tenor);
                     $('#errRateEdit').text(saveConfig.responseJSON.errors.rate);
                     $('#errBiayaAdminEdit').text(saveConfig.responseJSON.errors.biaya_admin);
+                    $('#errfeeTomiEdit').text(saveConfig.responseJSON.errors.fee_tomi);
                     $('#errBiayaLayananEdit').text(saveConfig.responseJSON.errors.biaya_layanan);
                     $('#errMinimalNominalTenorEdit').text(saveConfig.responseJSON.errors.minimal_nominal);
                     $('#errMaximalNominalTenorEdit').text(saveConfig.responseJSON.errors.maximal_nominal);
