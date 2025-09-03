@@ -504,13 +504,27 @@ class PinjamanController extends Controller
                 $html = $disk->get('template/pkk.html');
 
 
-                $htmlTabelAngsuran = '<table class="table-pinjaman"><thead><tr><th class="table-pinjaman__header">Angsuran ke -</th><th class="table-pinjaman__header">Nilai Angsuran</th><th class="table-pinjaman__header">Tanggal Jatuh Tempo</th></tr></thead><tbody>';
+                $htmlTabelAngsuran = '<table class="table-pinjaman">
+                <thead>
+                    <tr>
+                        <th class="table-pinjaman__header">Angsuran ke -</th>
+                        <th class="table-pinjaman__header">Nilai Angsuran</th>
+                        <th class="table-pinjaman__header">Tanggal Jatuh Tempo</th>
+                    </tr>
+                </thead>
+                <tbody>';
 
-                for ($i = 0; $i < $verif->pinjaman->jatuh_tempo; $i++) {
-                    $isEven = ($i + 1) % 2 == 0;
+                foreach ($verif->pinjaman->jatuh_tempo as $index => $jt) {
+                    $isEven = ($index + 1) % 2 == 0;
                     $classRow = $isEven ? 'table-angsuran__row--even' : '';
-                    $nilaiAngsuran = 'Rp  ' . number_format($verif->pinjaman->total_angsuran_perbulan);
-                    $htmlTabelAngsuran .= '<tr class="' . $classRow . '"><td class="table-angsuran__cell">' . ($i + 1) . '</td><td class="table-angsuran__cell table-angsuran__cell--nilai">' . $nilaiAngsuran . '</td><td class="table-angsuran__cell">' . $verif->pinjaman->jatuh_tempo[$i]['jatuh_tempo'] . '</td></tr>';
+                    $nilaiAngsuran = 'Rp ' . number_format($verif->pinjaman->total_angsuran_perbulan);
+
+                    $htmlTabelAngsuran .= '
+                    <tr class="' . $classRow . '">
+                        <td class="table-angsuran__cell">' . ($index + 1) . '</td>
+                        <td class="table-angsuran__cell table-angsuran__cell--nilai">' . $nilaiAngsuran . '</td>
+                        <td class="table-angsuran__cell">' . $jt['jatuh_tempo'] . '</td>
+                    </tr>';
                 }
 
                 $htmlTabelAngsuran .= '</tbody></table>';
