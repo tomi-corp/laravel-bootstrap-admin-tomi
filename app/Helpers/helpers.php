@@ -211,9 +211,14 @@ if (! function_exists('terbilang')) {
         }
 
         // Bersihkan spasi ganda dan trim
-        return trim(preg_replace('/\s+/', ' ', $hasil));
+        $hasil = trim(preg_replace('/\s+/', ' ', $hasil));
+
+        // Ubah huruf pertama setiap kata menjadi kapital
+        return ucwords($hasil);
     }
 }
+
+
 
 
 if (! function_exists('ttdPK')) {

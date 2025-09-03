@@ -18,6 +18,7 @@ use App\Models\cost;
 use App\Models\jatuh_tempo;
 use App\Models\ListPerusahaan;
 use App\Models\pinjaman;
+use App\Models\rekening_tomi;
 use App\Models\tenor_pinjaman;
 use App\Models\User;
 use App\Models\verif_otp_pengajuan;
@@ -443,7 +444,7 @@ class PinjamanController extends Controller
                 $q->with(['data_karyawan' => function ($w) {
                     $w->with('bank');
                     $w->with('perusahaan');
-                }]);
+                }, 'jatuh_tempo']);
             }, 'user'])
             ->first();
 
@@ -483,8 +484,17 @@ class PinjamanController extends Controller
                     'message' => 'OTP kadaluarsa',
                 ], 400);
             } else {
+                Carbon::setLocale('id');
+                $waktu = Carbon::now();
                 $user = User::where('id', auth('api')->user()->id)->first();
-                $time = Carbon::now()->format('Y-m-d');
+                $time = $waktu->format('Y-m-d');
+                $hari = $waktu->format('l');
+                $carbonSekarang = $waktu->format('d/m/Y');
+                $carbonTahun = $waktu->format('Y');
+                $bulan_romawi = $waktu->isoFormat('MM');
+                $pinjamanCount = pinjaman::count();
+                $rekeningTomi = rekening_tomi::with('bank')->first();
+
                 $random = rand(1000, 9999);
                 $usia =  Carbon::parse($verif->user->dob)->age;
 
@@ -493,7 +503,28 @@ class PinjamanController extends Controller
                 $disk = Storage::disk('local');
                 $html = $disk->get('template/pkk.html');
 
+
+                $htmlTabelAngsuran = '<table class="table-pinjaman"><thead><tr><th class="table-pinjaman__header">Angsuran ke -</th><th class="table-pinjaman__header">Nilai Angsuran</th><th class="table-pinjaman__header">Tanggal Jatuh Tempo</th></tr></thead><tbody>';
+
+                for ($i = 0; $i < $verif->pinjaman->jatuh_tempo; $i++) {
+                    $isEven = ($i + 1) % 2 == 0;
+                    $classRow = $isEven ? 'table-angsuran__row--even' : '';
+                    $nilaiAngsuran = 'Rp  ' . number_format($verif->pinjaman->total_angsuran_perbulan);
+                    $htmlTabelAngsuran .= '<tr class="' . $classRow . '"><td class="table-angsuran__cell">' . ($i + 1) . '</td><td class="table-angsuran__cell table-angsuran__cell--nilai">' . $nilaiAngsuran . '</td><td class="table-angsuran__cell">' . $verif->pinjaman->jatuh_tempo[$i]['jatuh_tempo'] . '</td></tr>';
+                }
+
+                $htmlTabelAngsuran .= '</tbody></table>';
+
                 $dataPengganti = [
+                    'nomor' => $pinjamanCount,
+                    'hari' => $hari,
+                    'tanggal_sekarang' => $carbonSekarang,
+                    'tahun_sekarang' => $carbonTahun,
+                    'bulan_romawi' => $bulan_romawi,
+                    'id_pinjaman' => $verif->pinjaman->id_pinjaman,
+                    'tanggal_jatuh_tempo' => $verif->pinjaman->data_karyawan->perusahaan->payment_date,
+                    'pinjaman_jatuh_tempo' => $htmlTabelAngsuran,
+
                     'pihak_kedua' => '<b>' . $verif->pinjaman->data_karyawan->nama_karyawan . '</b>' . ',' . $usia . ' tahun, ' . 'beralamat di ' . $verif->pinjaman->data_karyawan->alamat . ' pemegang kartu tanda penduduk nomor ' . $verif->pinjaman->data_karyawan->nik . ' karyawan pada ' . $verif->pinjaman->data_karyawan->perusahaan->nama . ' dengan NIP ' . $verif->pinjaman->data_karyawan->nip,
                     'plafond'    => 'Rp  ' . number_format($verif->pinjaman->nominal),
                     'plafond_terbilang'    => ' (' . terbilang($verif->pinjaman->nominal) . ' rupiah)',
@@ -509,7 +540,9 @@ class PinjamanController extends Controller
                     'atas_nama_rekening_pencairan' => $verif->pinjaman->data_karyawan->nama_rekening,
                     'jumlah_pencairan' => 'Rp  ' . number_format($verif->pinjaman->jumlah_yang_diterima),
                     'terbilang_jumlah_pencairan' => ' (' . terbilang($verif->pinjaman->jumlah_yang_diterima) . ' rupiah)',
-                    'nomor_rekening_tomi' => $verif->pinjaman->data_karyawan->perusahaan->virtual_account_channel_properties_virtual_account_number,
+                    'bankTomi' => $rekeningTomi->bank->code_bank,
+                    'rekeningTomi' => $rekeningTomi->nomor_rekening,
+                    'atasNamaBankTomi' => $rekeningTomi->atas_nama,
                     'penerima_pinjaman' => strtoupper($user->nama_lengkap)
                 ];
 
