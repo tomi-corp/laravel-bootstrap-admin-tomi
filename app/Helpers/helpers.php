@@ -256,7 +256,7 @@ if (! function_exists('ttdPK')) {
                     "enterpriseToken" => "",
                     "posX" => 450,
                     "posY" => 310,
-                    "signPage" => 10,
+                    "signPage" => 9,
                     "detail" => 1,
                 ],
                 [
@@ -267,7 +267,7 @@ if (! function_exists('ttdPK')) {
                     "enterpriseToken" => "f96bdf97a65a76930272eedd23f8d982f472aa53",
                     "posX" => 150,
                     "posY" => 310,
-                    "signPage" => 10,
+                    "signPage" => 9,
                     "detail" => 1,
                 ]
             ]
