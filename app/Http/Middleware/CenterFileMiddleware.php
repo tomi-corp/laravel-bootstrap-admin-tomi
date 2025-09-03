@@ -18,14 +18,15 @@ class CenterFileMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         try {
-            // if ($request->ip() == "103.153.60.67") {
-            return $next($request);
-            // } else {
-            //     return response()->json([
-            //         'success' => false,
-            //         'message' => 'unautorized'
-            //     ], 401);
-            // }
+
+            if ($request->ip() == "103.153.60.67" || $request->ip() == "103.78.11.202" || $request->ip() == "127.0.0.1") {
+                return $next($request);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'unautorized'
+                ], 401);
+            }
         } catch (\Throwable $th) {
             return response()->json([
                 'success' => false,

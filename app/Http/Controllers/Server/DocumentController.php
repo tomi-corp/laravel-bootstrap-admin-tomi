@@ -6,26 +6,25 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
-
 class DocumentController extends Controller
 {
     public function pk(Request $request)
     {
-        $path = 'assets/pk/' . $request->document;
         $disk = Storage::disk('local');
-        $html = $disk->get($path);
+        $html = $disk->get('assets/pk/' . $request->document);
+        return $html;
+    }
 
-        // $document = 'data:application/pdf;base64,' . $base64Pdf;
-
-        // if (Storage::disk('local')->exists('app/assets/pk/' . $request->document)) {
-        //     // The file exists on the 'public' disk
-        //     return "dsadsadsa";
-        // } else {
-        //     // The file does not exist
-        // }
-        return response()->file($path, [
-            'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'inline; filename="' . $html . '"'
-        ]);
+    public function image(Request $request)
+    {
+        $disk = Storage::disk('local');
+        $path = 'assets/users/' . $request->image;
+        $image = $disk->get($path);
+        $mimeType = $disk->mimeType($path);
+        $data = [
+            'content-type' => $mimeType,
+            'image' => $image
+        ];
+        return $image;
     }
 }
