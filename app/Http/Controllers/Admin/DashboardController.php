@@ -93,6 +93,13 @@ class DashboardController extends Controller
 
     public function test()
     {
-        sendOTPWhatsapp('6281296641453', '42432');
+        Carbon::setLocale('id');
+        $waktu = Carbon::now();
+        $carbonTahun = $waktu->format('Y');
+        $bulan_romawi = $waktu->isoFormat('MM');
+        dd($bulan_romawi);
+
+
+        // sendOTPWhatsapp('6281296641453', '42432');
     }
 }

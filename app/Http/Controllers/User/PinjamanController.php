@@ -491,7 +491,23 @@ class PinjamanController extends Controller
                 $hari = $waktu->format('l');
                 $carbonSekarang = $waktu->format('d/m/Y');
                 $carbonTahun = $waktu->format('Y');
-                $bulan_romawi = $waktu->isoFormat('MM');
+                $bulanAngka = (int) $waktu->format('m');
+                $bulanRomawi = [
+                    1  => 'I',
+                    2  => 'II',
+                    3  => 'III',
+                    4  => 'IV',
+                    5  => 'V',
+                    6  => 'VI',
+                    7  => 'VII',
+                    8  => 'VIII',
+                    9  => 'IX',
+                    10 => 'X',
+                    11 => 'XI',
+                    12 => 'XII',
+                ];
+                $bulan_romawi = $bulanRomawi[$bulanAngka];
+
                 $pinjamanCount = pinjaman::count();
                 $rekeningTomi = rekening_tomi::with('bank')->first();
 
@@ -505,26 +521,26 @@ class PinjamanController extends Controller
 
 
                 $htmlTabelAngsuran = '<table class="table-pinjaman">
-                <thead>
-                    <tr>
-                        <th class="table-pinjaman__header">Angsuran ke -</th>
-                        <th class="table-pinjaman__header">Nilai Angsuran</th>
-                        <th class="table-pinjaman__header">Tanggal Jatuh Tempo</th>
-                    </tr>
-                </thead>
-                <tbody>';
+                        <thead>
+                            <tr class="table-pinjaman__row">
+                                <th class="table-pinjaman__header">Angsuran ke -</th>
+                                <th class="table-pinjaman__header">Nilai Angsuran</th>
+                                <th class="table-pinjaman__header">Tanggal Jatuh Tempo</th>
+                            </tr>
+                        </thead>
+                        <tbody>';
 
                 foreach ($verif->pinjaman->jatuh_tempo as $index => $jt) {
                     $isEven = ($index + 1) % 2 == 0;
-                    $classRow = $isEven ? 'table-angsuran__row--even' : '';
+                    $classRow = $isEven ? 'table-pinjaman__row--even' : '';
                     $nilaiAngsuran = 'Rp ' . number_format($verif->pinjaman->total_angsuran_perbulan);
 
                     $htmlTabelAngsuran .= '
-                    <tr class="' . $classRow . '">
-                        <td class="table-angsuran__cell">' . ($index + 1) . '</td>
-                        <td class="table-angsuran__cell table-angsuran__cell--nilai">' . $nilaiAngsuran . '</td>
-                        <td class="table-angsuran__cell">' . $jt['jatuh_tempo'] . '</td>
-                    </tr>';
+                            <tr class="table-pinjaman__row ' . $classRow . '">
+                                <td class="table-pinjaman__cell">' . ($index + 1) . '</td>
+                                <td class="table-pinjaman__cell table-pinjaman__cell--nilai">' . $nilaiAngsuran . '</td>
+                                <td class="table-pinjaman__cell">' . $jt['jatuh_tempo'] . '</td>
+                            </tr>';
                 }
 
                 $htmlTabelAngsuran .= '</tbody></table>';
@@ -533,7 +549,7 @@ class PinjamanController extends Controller
                     'nomor' => $pinjamanCount,
                     'hari' => $hari,
                     'tanggal_sekarang' => $carbonSekarang,
-                    'tahun_sekarang' => $carbonTahun,
+                    'ct' => $carbonTahun,
                     'bulan_romawi' => $bulan_romawi,
                     'id_pinjaman' => $verif->pinjaman->id_pinjaman,
                     'tanggal_jatuh_tempo' => $verif->pinjaman->data_karyawan->perusahaan->payment_date,
