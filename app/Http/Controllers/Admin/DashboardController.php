@@ -97,7 +97,8 @@ class DashboardController extends Controller
         $waktu = Carbon::now();
         $carbonTahun = $waktu->format('Y');
         $bulan_romawi = $waktu->isoFormat('MM');
-        dd($bulan_romawi);
+        $hari = $waktu->isoFormat('dddd');
+        dd($hari);
 
 
         // sendOTPWhatsapp('6281296641453', '42432');

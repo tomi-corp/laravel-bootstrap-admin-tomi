@@ -488,7 +488,7 @@ class PinjamanController extends Controller
                 $waktu = Carbon::now();
                 $user = User::where('id', auth('api')->user()->id)->first();
                 $time = $waktu->format('Y-m-d');
-                $hari = $waktu->format('l');
+                $hari = $waktu->isoFormat('dddd');
                 $carbonSekarang = $waktu->format('d/m/Y');
                 $carbonTahun = $waktu->format('Y');
                 $bulanAngka = (int) $waktu->format('m');
@@ -552,7 +552,7 @@ class PinjamanController extends Controller
                     'ct' => $carbonTahun,
                     'bulan_romawi' => $bulan_romawi,
                     'id_pinjaman' => $verif->pinjaman->id_pinjaman,
-                    'tanggal_jatuh_tempo' => $verif->pinjaman->data_karyawan->perusahaan->payment_date,
+                    't' => $verif->pinjaman->data_karyawan->perusahaan->payment_date,
                     'pinjaman_jatuh_tempo' => $htmlTabelAngsuran,
 
                     'pihak_kedua' => '<b>' . $verif->pinjaman->data_karyawan->nama_karyawan . '</b>' . ',' . $usia . ' tahun, ' . 'beralamat di ' . $verif->pinjaman->data_karyawan->alamat . ' pemegang kartu tanda penduduk nomor ' . $verif->pinjaman->data_karyawan->nik . ' karyawan pada ' . $verif->pinjaman->data_karyawan->perusahaan->nama . ' dengan NIP ' . $verif->pinjaman->data_karyawan->nip,
