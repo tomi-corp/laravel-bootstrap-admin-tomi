@@ -255,7 +255,7 @@ if (! function_exists('ttdPK')) {
                     "signer_type" => "Signer",
                     "enterpriseToken" => "",
                     "posX" => 450,
-                    "posY" => 610,
+                    "posY" => 750,
                     "signPage" => 9,
                     "detail" => 1,
                 ],
@@ -266,7 +266,7 @@ if (! function_exists('ttdPK')) {
                     "signer_type" => "Signer",
                     "enterpriseToken" => "f96bdf97a65a76930272eedd23f8d982f472aa53",
                     "posX" => 150,
-                    "posY" => 610,
+                    "posY" => 750,
                     "signPage" => 9,
                     "detail" => 1,
                 ]
