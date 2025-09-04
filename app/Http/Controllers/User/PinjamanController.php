@@ -576,6 +576,7 @@ class PinjamanController extends Controller
                     'penerima_pinjaman' => strtoupper($user->nama_lengkap)
                 ];
 
+
                 foreach ($dataPengganti as $key => $value) {
                     $html = str_replace("{{ \$$key }}", $value, $html);
                 }
@@ -638,25 +639,15 @@ class PinjamanController extends Controller
                 'message' => 'Anda tidak memiliki pinjaman yang harus ditanda tangani',
             ], 200);
         } else {
-            $user = User::where('id', auth('api')->user()->id)->first();
-            // $documentTTD = getDocumentPK($user, $pinjaman->referrence_number, $pinjaman->document_token);
             $path = 'assets/pk/' . $pinjaman->document_name;
             $pdfContent = Storage::get($path);
             $base64Pdf = base64_encode($pdfContent);
             $document = 'data:application/pdf;base64,' . $base64Pdf;
-            // if (!isset($documentTTD['data']['signed_document'])) {
-            //     return response()->json([
-            //         'status' => 400,
-            //         'message' => 'Mohon tunggu, Document sedang disiapkan',
-            //     ], 400);
-            // } else {
-            // Storage::disk('local')->put('assets/pk/' . $pinjaman->document_name, base64_decode(Str::after($documentTTD['data']['signed_document'], 'data:application/pdf;base64,')));
             return response()->json([
                 'status' => 200,
                 'message' => '',
                 'document' => $document
             ], 200);
-            // }
         }
     }
 
