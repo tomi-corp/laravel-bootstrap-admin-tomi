@@ -539,7 +539,7 @@ class PinjamanController extends Controller
                             <tr class="table-pinjaman__row ' . $classRow . '">
                                 <td class="table-pinjaman__cell">' . ($index + 1) . '</td>
                                 <td class="table-pinjaman__cell table-pinjaman__cell--nilai">' . $nilaiAngsuran . '</td>
-                                <td class="table-pinjaman__cell">' . $jt['jatuh_tempo'] . '</td>
+                                <td class="table-pinjaman__cell">' . Carbon::parse($jt['jatuh_tempo'])->format('d/m/Y') . '</td>
                             </tr>';
                 }
 
@@ -557,11 +557,11 @@ class PinjamanController extends Controller
 
                     'pihak_kedua' => '<b>' . $verif->pinjaman->data_karyawan->nama_karyawan . '</b>' . ',' . $usia . ' tahun, ' . 'beralamat di ' . $verif->pinjaman->data_karyawan->alamat . ' pemegang kartu tanda penduduk nomor ' . $verif->pinjaman->data_karyawan->nik . ' karyawan pada ' . $verif->pinjaman->data_karyawan->perusahaan->nama . ' dengan NIP ' . $verif->pinjaman->data_karyawan->nip,
                     'plafond'    => 'Rp  ' . number_format($verif->pinjaman->nominal),
-                    'plafond_terbilang'    => ' (' . terbilang($verif->pinjaman->nominal) . ' rupiah)',
+                    'plafond_terbilang'    => ' (' . terbilang($verif->pinjaman->nominal) . ' Rupiah)',
                     'jangka' => $verif->pinjaman->tenor . ' bulan',
                     'rate' => $verif->pinjaman->rate . '%',
                     'angsuran_perbulan' => 'Rp  ' . number_format($verif->pinjaman->total_angsuran_perbulan),
-                    'angsuran_perbulan_terbilang' =>  ' (' . terbilang($verif->pinjaman->total_angsuran_perbulan) . ' rupiah)',
+                    'angsuran_perbulan_terbilang' =>  ' (' . terbilang($verif->pinjaman->total_angsuran_perbulan) . ' Rupiah)',
                     'administrasi' => 'Rp  ' . number_format($verif->pinjaman->total_biaya_admin),
                     'biaya_layanan' => 'Rp  ' . number_format($verif->pinjaman->biaya_layanan),
                     'iuran_anggota' => 'Rp  ' . number_format($verif->pinjaman->iuran_anggota),
@@ -569,7 +569,7 @@ class PinjamanController extends Controller
                     'bank_pencairan' => $verif->pinjaman->data_karyawan->bank->code_bank,
                     'atas_nama_rekening_pencairan' => $verif->pinjaman->data_karyawan->nama_rekening,
                     'jumlah_pencairan' => 'Rp  ' . number_format($verif->pinjaman->jumlah_yang_diterima),
-                    'terbilang_jumlah_pencairan' => ' (' . terbilang($verif->pinjaman->jumlah_yang_diterima) . ' rupiah)',
+                    'terbilang_jumlah_pencairan' => ' (' . terbilang($verif->pinjaman->jumlah_yang_diterima) . ' Rupiah)',
                     'bankTomi' => $rekeningTomi->bank->code_bank,
                     'rekeningTomi' => $rekeningTomi->nomor_rekening,
                     'atasNamaBankTomi' => $rekeningTomi->atas_nama,
