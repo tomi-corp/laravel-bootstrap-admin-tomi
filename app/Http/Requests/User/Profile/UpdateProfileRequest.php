@@ -3,6 +3,8 @@
 namespace App\Http\Requests\User\Profile;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+
 
 class UpdateProfileRequest extends FormRequest
 {
@@ -32,7 +34,14 @@ class UpdateProfileRequest extends FormRequest
             'name' => 'required',
             'dob' => 'required|date',
             'nama_lengkap' => 'required',
-            'nik' => 'required|digits:16',
+            'nik' =>
+            [
+                'required',
+                'digits:16',
+                // Tambahkan aturan ini untuk memastikan NIK unik di tabel 'users',
+                // tetapi abaikan NIK milik pengguna saat ini.
+                Rule::unique('users')->ignore(auth('api')->user()->id),
+            ],
             'selfie' => 'sometimes|required|base64mimes:jpeg,png,jpg|base64max:2048',
             'identity' => 'sometimes|required|base64mimes:jpeg,png,jpg|base64max:2048',
             'kartu_keluarga' => 'sometimes|required|base64mimes:jpeg,png,jpg|base64max:2048',
