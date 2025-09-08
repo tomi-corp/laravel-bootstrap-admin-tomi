@@ -283,7 +283,7 @@ class AuthController extends Controller
             }
 
             $base64selfie = $req->selfie;
-            $output_file_selfie =  $user->nik . '_selfie_' . $user->id . '.jpg';
+            $output_file_selfie =  $user->nik . '_selfie_' . $user->id . "_" . rand(1000, 9999) . '.jpg';
             if (strpos($base64selfie, 'data:image/') === 0) {
                 $parts = explode(';base64,', $base64selfie);
                 if (isset($parts[1])) {
@@ -293,7 +293,7 @@ class AuthController extends Controller
             Storage::disk('local')->put('assets/users/' . $output_file_selfie, base64_decode($base64selfie));
 
             $base64ktp = $req->identity;
-            $output_file_ktp =  $user->nik . '_ktp_' . $user->id . '.jpg';
+            $output_file_ktp =  $user->nik . '_ktp_' . $user->id . "_" . rand(1000, 9999) . '.jpg';
             if (strpos($base64ktp, 'data:image/') === 0) {
                 $parts = explode(';base64,', $base64ktp);
                 if (isset($parts[1])) {
@@ -304,7 +304,7 @@ class AuthController extends Controller
 
             if (isset($req->kartu_keluarga)) {
                 $base64kk = $req->kartu_keluarga;
-                $output_file_kk =  $user->nik . '_kk_' . $user->id . '.jpg';
+                $output_file_kk =  $user->nik . '_kk_' . $user->id . "_" . rand(1000, 9999) . '.jpg';
                 if (strpos($base64kk, 'data:image/') === 0) {
                     $parts = explode(';base64,', $base64kk);
                     if (isset($parts[1])) {

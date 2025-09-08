@@ -427,10 +427,18 @@ class PinjamanController extends Controller
 
                 $otp->pinjaman_id = $pinjaman->id;
                 $otp->save();
+
+
+                $nomorWa = $perusahaan->karyawanSingle->whatsapp;
+
+                $mask = substr($nomorWa, 0, 4)
+                    . str_repeat('x', strlen($nomorWa) - 7)
+                    . substr($nomorWa, -3);
+
                 return response()->json([
                     'status' => 200,
                     'pinjaman' => true,
-                    'message' => 'success, harap periksa OTP yang telah dikirimkan melalui whatsapp',
+                    'message' => 'success, harap periksa OTP yang telah dikirimkan melalui whatsapp ' . $mask,
                 ], 200);
             }
         }
