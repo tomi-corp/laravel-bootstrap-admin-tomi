@@ -261,14 +261,14 @@ class PinjamanController extends Controller
                             return response()->json([
                                 'status' => 400,
                                 'reason' => $reason->reason,
-                                'message' => 'Harap perbarui kembali data anda'
+                                'message' => $reason->reason . ', Harap perbarui kembali data anda'
                             ], 400);
                         } elseif ($user->resend_privy == 0 && $user->reason_privy != null) {
                             $reason = json_decode($user->reason_privy);
                             return response()->json([
                                 'status' => 400,
                                 'reason' => $reason->reason,
-                                'message' => 'Harap hubungi customer service untuk merubah data anda'
+                                'message' =>  $reason->reason . ', Harap hubungi customer service untuk merubah data anda'
                             ], 400);
                         } else {
                             return response()->json([
