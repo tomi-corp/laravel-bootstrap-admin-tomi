@@ -277,9 +277,8 @@ class AuthController extends Controller
             $user->name = $req->name;
             $user->nama_lengkap = $req->nama_lengkap;
             $user->dob = $req->dob;
-            if ($user->nik == null) {
-                $user->nik = $req->nik;
-            } else if ($user->nik != $req->nik) {
+
+            if ($user->nik == null || $user->nik != $req->nik) {
                 $user->nik = $req->nik;
             }
 
