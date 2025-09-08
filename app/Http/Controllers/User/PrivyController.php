@@ -75,7 +75,52 @@ class PrivyController extends Controller
                             'status' => 200,
                             'message' => 'Registrasi berhasil, selamat data anda terverifikasi',
                         ], 200);
-                    } else {
+                    } else if ($response['data']['status'] == "rejected") {
+
+
+                        $privy = privy::first();
+                        $login = loginPrivy();
+                        $uri = $privy->url . '/web/api/v2/register/status';
+                        $client = new Client(['verify' => false]);
+                        $requestBody = [
+                            "reference_number" => $referrence,
+                            "channel_id" => "Toko_Mikro001",
+                            "register_token" => $response['data']['register_token'],
+                            "info" => ""
+                        ];
+
+                        $signature = signature($requestBody, $privy->username, $privy->password, 'POST');
+
+                        $headers = [
+                            'timestamp' => $signature['timestamp'],
+                            'Authorization' => 'Bearer ' . $login['token'],
+                            'Signature' => $signature['signature'],
+                            'Request-ID' => $user->id,
+                            'Content-Type' => 'application/json',
+                            'Connection' => 'keep-alive',
+                            'Accept' => 'application/json',
+                        ];
+
+                        $responseReject = $client->request('POST', $uri, [
+                            'headers' => $headers,
+                            'json' => $requestBody,
+                        ]);
+
+                        $responseBodyReject = $responseReject->getBody()->getContents();
+                        $responseReject = json_decode($responseBodyReject, true);
+
+                        $registerToken = $responseReject['data']['register_token'];
+                        $user->verified_privy = 'n';
+                        $user->register_token_privy = $registerToken;
+                        $user->reference_number_privy = $referrence;
+                        $user->reason_privy = $responseReject['data']['reject_reason'];
+                        $user->resend_privy = $responseReject['data']['resend'] == true ? 1 : 0;
+                        $user->save();
+
+                        return response()->json([
+                            'status' => 400,
+                            'message' => $responseReject['data']['reject_reason']['reason'],
+                        ], 400);
                     }
                 } else {
                     return response()->json([
@@ -198,12 +243,16 @@ class PrivyController extends Controller
         $privy = privy::first();
         $login = loginPrivy();
         $uri = $privy->url . '/web/api/v2/register/status';
-        // $referrence = "TOMI0000000" . $user->id;
+        $referrence = "TOMI00000005340";
+        //  "reference_number" => $user->reference_number_privy,
+        //             "channel_id" => "Toko_Mikro001",
+        //             "register_token" => $user->register_token_privy,
+        //             "info" => ""
         $client = new Client(['verify' => false]);
         $requestBody = [
-            "reference_number" => $user->reference_number_privy,
+            "reference_number" => "TOMI00000005340",
             "channel_id" => "Toko_Mikro001",
-            "register_token" => $user->register_token_privy,
+            "register_token" => "04c8a4639b310f5837febd0f7c581209",
             "info" => ""
         ];
 
