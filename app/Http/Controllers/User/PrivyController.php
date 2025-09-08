@@ -147,7 +147,7 @@ class PrivyController extends Controller
                     return response()->json([
                         'status' => 400,
                         'reason' => $reason->reason,
-                        'message' => $reason->reason
+                        'message' => $reason->reason . ' Harap hubungi customer service untuk merubah data anda'
                     ], 400);
                 } elseif ($user->verified_privy) {
                     return response()->json([
