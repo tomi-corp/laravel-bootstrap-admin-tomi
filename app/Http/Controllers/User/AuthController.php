@@ -279,6 +279,8 @@ class AuthController extends Controller
             $user->dob = $req->dob;
             if ($user->nik == null) {
                 $user->nik = $req->nik;
+            } elseif ($user->nik != $req->nik) {
+                $user->nik = $req->nik;
             }
 
             $base64selfie = $req->selfie;
