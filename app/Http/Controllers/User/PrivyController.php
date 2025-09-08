@@ -134,7 +134,7 @@ class PrivyController extends Controller
                     return response()->json([
                         'status' => 400,
                         'reason' => $reason->reason,
-                        'message' => 'Harap perbarui kembali data anda dan upload dokumen pendukung Kartu Keluarga'
+                        'message' => $reason->reason . ' Harap perbarui kembali data anda dan upload dokumen pendukung Kartu Keluarga'
 
                     ], 400);
                 } elseif ($user->resend_privy == 1 && $user->update_data_privy == 1) {
