@@ -138,13 +138,9 @@
                 </button>
                 <h5>Keterangan :</h5>
                 <ul>
-                    <li>Tab <b>on proses</b> ketika peminjam melakukan peminjaman dan sudah melakukan OTP menunggu dari
-                        callback disbursment
+                    <li>Tab <b>on proses</b> ketika peminjam melakukan peminjaman dan belum melakukan aksi OTP
                     </li>
-                    <li>Tab <b>pending</b> ketika end user melakukan peminjaman tetapi terjadi hal seperti wallet
-                        disbursment
-                        xendit tidak memiliki saldo yang cukup untuk melakukan transfer dana ke peminjam atau masalah yg
-                        lain terkait xendit</li>
+                    <li>Tab <b>pending</b> ketika end user melakukan peminjaman dan sudah sampai tahap tanda tangan privy, menunggu untuk dilakukan disbursement oleh admin</li>
                     <li>Tab <b>approve</b> ketika peminjam berhasil mendapatkan dana dan memiliki cicilan yang berjalan</li>
                     <li>Tab <b>done</b> ketika peminjam sudah melunasi semua cicilan yang berjalan</li>
                 </ul>
