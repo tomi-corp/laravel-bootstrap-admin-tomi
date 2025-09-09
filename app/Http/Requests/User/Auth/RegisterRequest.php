@@ -24,7 +24,7 @@ class RegisterRequest extends FormRequest
     {
         return [
             'name' => 'required',
-            'nohp' => 'required|unique:users,nohp|regex:/(62)[0-9]{9,12}/',
+            'nohp' => 'required|unique:users,nohp|regex:/^62[0-9]{9,12}$/',
             'email' => 'required|unique:users,email',
             'password' => ['required', Password::min(8)
                 ->letters()
