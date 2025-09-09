@@ -21,7 +21,8 @@ class HistoryController extends Controller
         $user = auth('api')->user();
         $menuMobile = menu_mobile::get();
         if (isset($req->filterRangePicker)) {
-            $time = explode(" - ", $req->filterRangePicker);
+            // $time = explode(" - ", $req->filterRangePicker);
+            $time = explode(" - ", "01/01/2025 - 01/01/2030");
             $time1 = Carbon::parse($time[0])->startOfDay()->format('Y-m-d H:i:s');
             $time2 = Carbon::parse($time[1])->endOfDay()->format('Y-m-d H:i:s');
         } else {
