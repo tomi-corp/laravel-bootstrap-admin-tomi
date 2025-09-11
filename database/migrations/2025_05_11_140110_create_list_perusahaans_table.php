@@ -30,6 +30,7 @@ return new class extends Migration
             $table->string('telp');
             $table->string('nomor_pks');
             $table->integer('payment_date');
+            $table->integer('h_min_jatuh_tempo');
             $table->enum('status', ['active', 'nonactive']);
             $table->softDeletes();
             $table->timestamps();

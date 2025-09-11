@@ -404,7 +404,7 @@ class PinjamanController extends Controller
                     $jatuh_tempo->id_pinjaman = $pinjaman->id;
                     $jatuh_tempo->pembayaran = $oppca;
                     if ($oppca == 1) {
-                        if ($tanggal_sekarang->format('d') < $perusahaan->payment_date - 5) {
+                        if ($tanggal_sekarang->format('d') < $perusahaan->payment_date - $perusahaan->h_min_jatuh_tempo) {
                             $jatuh_tempo->jatuh_tempo =  $tanggal_sekarang->day($perusahaan->payment_date);
                         } else {
                             $jatuh_tempo->jatuh_tempo =  $tanggal_sekarang->day($perusahaan->payment_date)->addMonth(1);
