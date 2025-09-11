@@ -35,27 +35,46 @@ class HistoryController extends Controller
             $menu = menu_mobile::where('path', 'ppob')->first();
             $phone = substr($user->nohp, 2);
             $phoneFinal = '0' . $phone;
-            $urlPPOB = 'https://mitra.buylink.id/api/user/report/transaction?start_date=' . $time1 . '&end_date=' . $time2 . '&customer_phone=' . $phoneFinal . '&page=' . $req->page . '';
+            $urlPPOBPrepaid = 'https://mitra.buylink.id/api/user/report/transaction?start_date=' . $time1 . '&end_date=' . $time2 . '&customer_phone=' . $phoneFinal . '&page=' . $req->page . '';
+            $urlPPOBPostPaid = 'https://mitra.buylink.id/api/user/report/postpaid/transaction?start_date=' . $time1 . '&end_date=' . $time2 . '&customer_phone=' . $phoneFinal . '&page=' . $req->page . '';
             // postpaid
+            $responsePrepaid = Http::withoutVerifying()
+                ->withOptions(["verify" => false])
+                ->withHeaders([
+                    'Authorization' => 'Bearer Vxx2OfFdXfLPjW0X2fHTGkd3MBC3Ldw7Zj7yx64Z474e0df2'
+                ])
+                ->get($urlPPOBPrepaid);
+
             $responsePostPaid = Http::withoutVerifying()
                 ->withOptions(["verify" => false])
                 ->withHeaders([
                     'Authorization' => 'Bearer Vxx2OfFdXfLPjW0X2fHTGkd3MBC3Ldw7Zj7yx64Z474e0df2'
                 ])
-                ->get($urlPPOB);
+                ->get($urlPPOBPostPaid);
 
-            $dataPostpaid = json_decode($responsePostPaid);
+
+            // Decode JSON menjadi array asosiatif
+            $dataPostpaid = json_decode($responsePostPaid, true);
+            $dataPrepaid = json_decode($responsePrepaid, true);
+
+            // Sekarang 'data' adalah kunci dari array, jadi Anda bisa mengaksesnya dengan kurung siku []
+            $merged_data = array_merge($dataPostpaid['data'], $dataPrepaid['data']);
+
+            usort($merged_data, function ($a, $b) {
+                return strtotime($b['transaction_at']) - strtotime($a['transaction_at']);
+            });
+
             $cccc = [];
             $x = 0;
 
-            foreach ($dataPostpaid->data as $aaf) {
-                $cccc[$x]['transaction_id'] = $aaf->transaction_id;
-                $cccc[$x]['created_at'] = $aaf->transaction_at;
-                $cccc[$x]['status'] = $aaf->status_label;
-                $cccc[$x]['produk'] = $aaf->product_name;
-                $cccc[$x]['price'] = str_replace('Rp', '', $aaf->price);
+            foreach ($merged_data as $aaf) {
+                $cccc[$x]['transaction_id'] = $aaf['transaction_id'];
+                $cccc[$x]['created_at'] = $aaf['transaction_at'];
+                $cccc[$x]['status'] = $aaf['status_label'];
+                $cccc[$x]['produk'] = $aaf['product_name'];
+                $cccc[$x]['price'] = str_replace('Rp', '', $aaf['price']);
                 $cccc[$x]['price'] = str_replace('.', '', $cccc[$x]['price']);
-                $cccc[$x]['payment_method'] = $aaf->payment_method;
+                $cccc[$x]['payment_method'] = $aaf['payment_method'];
                 $cccc[$x]['type'] =  $menu->title;
                 $cccc[$x]['path'] =  $menu->path;
                 $cccc[$x]['img'] = $menu->icon;
@@ -67,7 +86,7 @@ class HistoryController extends Controller
                 'message' => 'success',
                 'menu_mobile' => HistoryMenuTabResource::collection($menuMobile),
                 'history' => HistoryPpobResource::collection($cccc),
-                'page' => $dataPostpaid->meta->current_page
+                'page' => $dataPostpaid['meta']['current_page']
             ], 200);
         } elseif ($req->path ==  "pinjaman-payroll") {
             $menu = menu_mobile::where('path', 'pinjaman-payroll')->first();
