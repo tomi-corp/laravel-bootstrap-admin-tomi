@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Mail\InvoiceEmail;
 use App\Models\invoicing_pinjaman;
+use App\Models\ListPerusahaan;
 use App\Models\pinjaman;
 use App\Models\User;
 use Carbon\Carbon;
@@ -97,6 +98,6 @@ class DashboardController extends Controller
 
     public function test()
     {
-        // 
+        //
     }
 }
