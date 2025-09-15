@@ -42,9 +42,6 @@ class UpdateProfileRequest extends FormRequest
                 // tetapi abaikan NIK milik pengguna saat ini.
                 Rule::unique('users')->ignore(auth('api')->user()->id),
             ],
-            'selfie' => 'sometimes|required|base64mimes:jpeg,png,jpg|base64max:2048',
-            'identity' => 'sometimes|required|base64mimes:jpeg,png,jpg|base64max:2048',
-            'kartu_keluarga' => 'sometimes|required|base64mimes:jpeg,png,jpg|base64max:2048',
         ];
     }
 }

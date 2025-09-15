@@ -12,6 +12,7 @@ use App\Http\Requests\User\Profile\ForgotPasswordRequest;
 use App\Http\Requests\User\Profile\UpdateEmailRequest;
 use App\Http\Requests\User\Profile\UpdatePasswordRequest;
 use App\Http\Requests\User\Profile\UpdateProfileRequest;
+use App\Http\Requests\User\Profile\UpdateProfileSelfieKTPKKRequest;
 use App\Http\Resources\User\Profile\ProfileDetailResource;
 use App\Mail\ForgotEmail;
 use App\Mail\PergantianPasswordEmail;
@@ -342,46 +343,7 @@ class AuthController extends Controller
             $user->name = $req->name;
             $user->nama_lengkap = $req->nama_lengkap;
             $user->dob = $req->dob;
-
-            if ($req->nik != null) {
-                $user->nik = $req->nik;
-            }
-
-            $base64selfie = $req->selfie;
-            $output_file_selfie =  $user->nik . '_selfie_' . $user->id . "_" . rand(1000, 9999) . '.jpg';
-            if (strpos($base64selfie, 'data:image/') === 0) {
-                $parts = explode(';base64,', $base64selfie);
-                if (isset($parts[1])) {
-                    $base64selfie = $parts[1];
-                }
-            }
-            Storage::disk('local')->put('assets/users/' . $output_file_selfie, base64_decode($base64selfie));
-
-            $base64ktp = $req->identity;
-            $output_file_ktp =  $user->nik . '_ktp_' . $user->id . "_" . rand(1000, 9999) . '.jpg';
-            if (strpos($base64ktp, 'data:image/') === 0) {
-                $parts = explode(';base64,', $base64ktp);
-                if (isset($parts[1])) {
-                    $base64ktp = $parts[1];
-                }
-            }
-            Storage::disk('local')->put('assets/users/' . $output_file_ktp, base64_decode($base64ktp));
-
-            if (isset($req->kartu_keluarga)) {
-                $base64kk = $req->kartu_keluarga;
-                $output_file_kk =  $user->nik . '_kk_' . $user->id . "_" . rand(1000, 9999) . '.jpg';
-                if (strpos($base64kk, 'data:image/') === 0) {
-                    $parts = explode(';base64,', $base64kk);
-                    if (isset($parts[1])) {
-                        $base64kk = $parts[1];
-                    }
-                }
-                Storage::disk('local')->put('assets/users/' . $output_file_kk, base64_decode($base64kk));
-                $user->kartu_keluarga = $output_file_kk;
-            }
-
-            $user->selfie = $output_file_selfie;
-            $user->ktp = $output_file_ktp;
+            $user->nik = $req->nik;
             $user->update_data_privy = '1';
             $user->save();
 
@@ -390,6 +352,51 @@ class AuthController extends Controller
                 'message' => 'Profile Updated'
             ], 200);
         }
+    }
+
+    public function profileUpdateLiveness(UpdateProfileSelfieKTPKKRequest $req)
+    {
+        $user = User::where('id', auth('api')->user()->id)->first();
+        $base64selfie = $req->selfie;
+        $output_file_selfie =  $user->nik . '_selfie_' . $user->id . "_" . rand(1000, 9999) . '.jpg';
+        if (strpos($base64selfie, 'data:image/') === 0) {
+            $parts = explode(';base64,', $base64selfie);
+            if (isset($parts[1])) {
+                $base64selfie = $parts[1];
+            }
+        }
+        Storage::disk('local')->put('assets/users/' . $output_file_selfie, base64_decode($base64selfie));
+
+        $base64ktp = $req->identity;
+        $output_file_ktp =  $user->nik . '_ktp_' . $user->id . "_" . rand(1000, 9999) . '.jpg';
+        if (strpos($base64ktp, 'data:image/') === 0) {
+            $parts = explode(';base64,', $base64ktp);
+            if (isset($parts[1])) {
+                $base64ktp = $parts[1];
+            }
+        }
+        Storage::disk('local')->put('assets/users/' . $output_file_ktp, base64_decode($base64ktp));
+
+        if (isset($req->kartu_keluarga)) {
+            $base64kk = $req->kartu_keluarga;
+            $output_file_kk =  $user->nik . '_kk_' . $user->id . "_" . rand(1000, 9999) . '.jpg';
+            if (strpos($base64kk, 'data:image/') === 0) {
+                $parts = explode(';base64,', $base64kk);
+                if (isset($parts[1])) {
+                    $base64kk = $parts[1];
+                }
+            }
+            Storage::disk('local')->put('assets/users/' . $output_file_kk, base64_decode($base64kk));
+            $user->kartu_keluarga = $output_file_kk;
+        }
+
+        $user->selfie = $output_file_selfie;
+        $user->ktp = $output_file_ktp;
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Liveness berhasil'
+        ], 200);
     }
 
     public function forgotPassword(ForgotPasswordRequest $req)
