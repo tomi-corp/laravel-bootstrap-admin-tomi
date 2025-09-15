@@ -13,4 +13,4 @@ Artisan::command('inspire', function () {
 
 Schedule::command('invoice:send')
     ->daily()
-    ->at('06:00');
+    ->at('23:59');

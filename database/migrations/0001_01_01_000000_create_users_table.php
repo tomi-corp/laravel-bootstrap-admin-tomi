@@ -43,6 +43,7 @@ return new class extends Migration
             $table->tinyInteger('update_data_privy');
             $table->string('kartu_keluarga');
 
+            $table->timestamp('whatsapp_verified_at')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();

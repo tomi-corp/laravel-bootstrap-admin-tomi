@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\TwoFactorMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -42,11 +43,12 @@ return Application::configure(basePath: dirname(__DIR__))
             'AdminMiddleware' => \App\Http\Middleware\AdminMiddleware::class,
             'LoginAdminMiddleware' => \App\Http\Middleware\LoginAdminMiddleware::class,
             'EmailMiddleware' => \App\Http\Middleware\VerifEmailMiddleware::class,
+            'WhatsappMiddleware' => \App\Http\Middleware\VerifWhatsappMiddleware::class,
             'DataKasbonMiddleware' => \App\Http\Middleware\DataKasbonMiddleware::class,
             'LimitRequestMiddleware' => \App\Http\Middleware\LimitRequestMiddelware::class,
             'SignedDocumentMiddleware' => \App\Http\Middleware\SignedDocumentMiddleware::class,
             'CenterFileMiddleware' => \App\Http\Middleware\CenterFileMiddleware::class,
-
+            'TwoFactorMiddleware' =>  \App\Http\Middleware\TwoFactorMiddleware::class,
         ]);
         $middleware->validateCsrfTokens(except: [
             '/callback/peminjaman/payroll/disbursement',

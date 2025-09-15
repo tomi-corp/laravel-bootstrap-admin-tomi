@@ -5,6 +5,7 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\Auth\LoginRequest;
 use App\Http\Requests\User\Auth\RegisterRequest;
+use App\Http\Requests\User\Auth\RevisiEmailRequest;
 use App\Http\Requests\User\Profile\ForgotOTPRequest;
 use App\Http\Requests\User\Profile\ForgotPasswordActionRequest;
 use App\Http\Requests\User\Profile\ForgotPasswordRequest;
@@ -14,6 +15,7 @@ use App\Http\Requests\User\Profile\UpdateProfileRequest;
 use App\Http\Resources\User\Profile\ProfileDetailResource;
 use App\Mail\ForgotEmail;
 use App\Mail\PergantianPasswordEmail;
+use App\Mail\VerifikasiEmail;
 use App\Mail\VerifOtpNewMail;
 use App\Mail\WelcomeEmail;
 use App\Models\notification;
@@ -107,31 +109,50 @@ class AuthController extends Controller
 
     public function register(RegisterRequest $req)
     {
-
-        // sendOTPWhatsapp()
-        $verifEmail = verif_whatsapp::where('email', $req->email)->first();
-
-        if ($verifEmail !== null) {
-            $verifEmail->email = $req->email;
-            $verifEmail->code_rand = rand(1000, 9999);
-            $verifEmail->expired = Carbon::now()->addMinute(15);
-        } else {
-            $verifEmail = new verif_whatsapp();
-            $verifEmail->email = $req->email;
-            $verifEmail->code_rand = rand(1000, 9999);
-            $verifEmail->expired = Carbon::now()->addMinute(15);
-        }
-
         $user = new User();
         $user->name = $req->name;
         $user->nohp = $req->nohp;
         $user->email = $req->email;
         $user->password = Hash::make($req->password);
-
         try {
-            sendOTPWhatsapp($req->nohp, $verifEmail->code_rand);
             $user->save();
+            $verifWa = verif_whatsapp::where('id_user', $user->id)->first();
+            if ($verifWa !== null) {
+                $verifWa->id_user = $user->id;
+                $verifWa->code_rand = rand(1000, 9999);
+                $verifWa->expired = Carbon::now()->addMinute(15);
+            } else {
+                $verifWa = new verif_whatsapp();
+                $verifWa->id_user = $user->id;
+                $verifWa->code_rand = rand(1000, 9999);
+                $verifWa->expired = Carbon::now()->addMinute(15);
+            }
+
+            $verifEmail = verif_email::where('id_user', $user->id)->first();
+            if ($verifEmail !== null) {
+                $verifEmail->id_user = $user->id;
+                $verifEmail->code_rand = rand(1000, 9999);
+                $verifEmail->expired = Carbon::now()->addMinute(60);
+            } else {
+                $verifEmail = new verif_email();
+                $verifEmail->id_user = $user->id;
+                $verifEmail->code_rand = rand(1000, 9999);
+                $verifEmail->expired = Carbon::now()->addMinute(60);
+            }
             $verifEmail->save();
+            $verifWa->save();
+
+            $data = [
+                'subject' => 'Selangkah Lagi! Aktifkan Akun TOMI Anda',
+                'title' => 'Aktifkan Akun Anda Sekarang',
+                'to' => $user->email,
+                'token' => $verifEmail->code_rand,
+                'nama' => $user->nama,
+            ];
+
+            Mail::to($user->email)->send(new VerifikasiEmail($data));
+            sendOTPWhatsapp($req->nohp, $verifWa->code_rand);
+
             if ($token = auth('api')->attempt(['email' => $req->email, 'password' => $req->password])) {
                 return response()->json([
                     'code' => 200,
@@ -143,10 +164,52 @@ class AuthController extends Controller
                 ], 200);
             }
         } catch (\Throwable $th) {
+            Log::channel('registerlog')->info($th);
             return response()->json([
                 'code' => 400,
                 'message' => "register gagal",
             ], 400);
+        }
+    }
+
+    public function revisiEmail(RevisiEmailRequest $req)
+    {
+        $user = User::where('id', auth('admin')->user()->id)->first();
+        $user->email = $req->email;
+        $user->save();
+
+        if ($user->email_verified_at == null) {
+            $verifEmail = verif_email::where('id_user', $user->id)->first();
+            if ($verifEmail !== null) {
+                $verifEmail->id_user = $user->id;
+                $verifEmail->code_rand = rand(1000, 9999);
+                $verifEmail->expired = Carbon::now()->addMinute(60);
+            } else {
+                $verifEmail = new verif_email();
+                $verifEmail->id_user = $user->id;
+                $verifEmail->code_rand = rand(1000, 9999);
+                $verifEmail->expired = Carbon::now()->addMinute(60);
+            }
+            $verifEmail->save();
+            $data = [
+                'subject' => 'Selangkah Lagi! Aktifkan Akun TOMI Anda',
+                'title' => 'Aktifkan Akun Anda Sekarang',
+                'to' => $user->email,
+                'token' => $verifEmail->code_rand,
+                'nama' => $user->nama,
+            ];
+
+            Mail::to($user->email)->send(new VerifikasiEmail($data));
+
+            return response()->json([
+                'status' => 200,
+                'message' => 'OTP Berhasil dikirim ke email ' . $user->email,
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => 200,
+                'message' => 'Email telah terverifikasi',
+            ], 200);
         }
     }
 
@@ -393,18 +456,49 @@ class AuthController extends Controller
 
     public function verifOtp(Request $req)
     {
-        $verifEmail = verif_whatsapp::where('code_rand', $req->otp)
-            ->where('email', auth('api')->user()->email)
+        $verif_whatsapp = verif_whatsapp::where('code_rand', $req->otp)
+            ->where('id_user', auth('api')->user()->id)
+            ->first();
+
+        if (isset($verif_whatsapp)) {
+            if ($verif_whatsapp->expired > Carbon::now()) {
+                $user = User::where('id', $verif_whatsapp->id)
+                    ->first();
+                $user->whatsapp_verified_at = Carbon::now();
+                $user->save();
+                $verif_whatsapp->delete();
+
+                return response()->json([
+                    'status' => 200,
+                    'message' => 'Berhasil verifikasi whatsapp, silahkan lanjutkan untuk verifikasi email yang dikirim ke ' . $user->email,
+                ], 200);
+            } else {
+                return response()->json([
+                    'status' => 400,
+                    'message' => 'Kode OTP Expired',
+                ], 400);
+            }
+        } else {
+            return response()->json([
+                'status' => 400,
+                'message' => 'Data tidak ditemukan',
+            ], 400);
+        }
+    }
+
+    public function verifOtpEmail(Request $req)
+    {
+        $verifEmail = verif_email::where('code_rand', $req->otp)
+            ->where('id_user', auth('api')->user()->id)
             ->first();
 
         if (isset($verifEmail)) {
             if ($verifEmail->expired > Carbon::now()) {
-                $user = User::where('email', $verifEmail->email)
+                $user = User::where('id', $verifEmail->id)
                     ->first();
                 $user->email_verified_at = Carbon::now();
                 $user->save();
                 $verifEmail->delete();
-
 
                 $data = [
                     'subject' => 'Selamat Datang',
@@ -415,10 +509,9 @@ class AuthController extends Controller
 
                 Mail::to($user->email)->send(new WelcomeEmail($data));
 
-
                 return response()->json([
                     'status' => 200,
-                    'message' => 'Berhasil verifikasi whatsapp',
+                    'message' => 'Berhasil verifikasi email',
                 ], 200);
             } else {
                 return response()->json([
@@ -463,6 +556,45 @@ class AuthController extends Controller
             return response()->json([
                 'status' => 200,
                 'message' => 'OTP berhasil dikirim',
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => 200,
+                'message' => 'Whatsapp telah terverifikasi',
+            ], 200);
+        }
+    }
+
+    public function kirimUlangOtpEmail(Request $req)
+    {
+        $user = User::where('id', auth('api')->user()->id)->first();
+
+        if ($user->email_verified_at == null) {
+            $verifEmail = verif_email::where('id_user', $user->id)->first();
+            if ($verifEmail !== null) {
+                $verifEmail->id_user = $user->id;
+                $verifEmail->code_rand = rand(1000, 9999);
+                $verifEmail->expired = Carbon::now()->addMinute(60);
+            } else {
+                $verifEmail = new verif_email();
+                $verifEmail->id_user = $user->id;
+                $verifEmail->code_rand = rand(1000, 9999);
+                $verifEmail->expired = Carbon::now()->addMinute(60);
+            }
+            $verifEmail->save();
+            $data = [
+                'subject' => 'Selangkah Lagi! Aktifkan Akun TOMI Anda',
+                'title' => 'Aktifkan Akun Anda Sekarang',
+                'to' => $user->email,
+                'token' => $verifEmail->code_rand,
+                'nama' => $user->nama,
+            ];
+
+            Mail::to($user->email)->send(new VerifikasiEmail($data));
+
+            return response()->json([
+                'status' => 200,
+                'message' => 'OTP Berhasil dikirim ke email ' . $user->email,
             ], 200);
         } else {
             return response()->json([

@@ -140,6 +140,13 @@
 
                 <div class="dropdown-divider"></div>
 
+                <a href="{{ route('admin.profile.index') }}" class="dropdown-item notify-item">
+                    <i class="dripicons-lock"></i>
+                    <span>Profile</span>
+                </a>
+
+                <div class="dropdown-divider"></div>
+
                 <!-- item-->
                 {{-- <form action="{{ route('logout') }}" method="POST" style="display: inline;">
                     @csrf

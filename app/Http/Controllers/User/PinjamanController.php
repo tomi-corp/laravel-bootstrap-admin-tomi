@@ -728,7 +728,6 @@ class PinjamanController extends Controller
 
             if (Hash::check($req->password, $user->password)) {
                 // Log authentikasi, timestamps otentikasi saat input tanda tangan (OTP), privyid, preference number.
-                Log::channel('privylog')->info('correct password | Timestamp :' . Carbon::now() . '| privy_id : ' . $user->id_privy . '| referrence_number_user : ' . $user->reference_number_privy . '| referrence_number_document : ' . $pinjaman->referrence_number);
                 // mulai tanda tangan
                 $hasilTTD = ttdPK($user, $pinjaman->document_name, $pinjaman->id);
                 // dd($hasilTTD);
@@ -739,6 +738,7 @@ class PinjamanController extends Controller
                 $pinjaman->ttd = 'y';
                 $pinjaman->status = 'pending';
                 $pinjaman->save();
+                Log::channel('privylog')->info('correct password | Timestamp :' . Carbon::now() . '| privy_id : ' . $user->id_privy . '| referrence_number_user : ' . $user->reference_number_privy . '| referrence_number_document : ' . $hasilTTD['data']['reference_number'] . '| document_token : ' . $hasilTTD['data']['document_token']);
                 // untuk ambil document yg sudah ditanda tanganin
                 // $documentTTD = getDocumentPK($user, $pinjaman->referrence_number, $pinjaman->document_token);
                 // if (!isset($documentTTD['data']['signed_document'])) {

@@ -9,6 +9,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "bacon/bacon-qr-code": "^3.0",
         "barryvdh/laravel-dompdf": "^3.1",
         "barryvdh/laravel-snappy": "^1.0",
         "crazybooot/base64-validation": "^1.0",
@@ -19,6 +20,7 @@
         "opcodesio/log-viewer": "^3.19",
         "php-flasher/flasher-toastr-laravel": "^2.1",
         "phpoffice/phpword": "^1.4",
+        "pragmarx/google2fa-laravel": "^2.3",
         "spatie/browsershot": "^5.0",
         "tymon/jwt-auth": "^2.2",
         "yajra/laravel-datatables-oracle": "11.0"

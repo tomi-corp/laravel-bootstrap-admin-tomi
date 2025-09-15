@@ -38,11 +38,15 @@ Route::middleware(['LanguangeMiddleware'])->group(
                 Route::post('/me', [AuthController::class, 'me']);
                 Route::post('/logout', [AuthController::class, 'logout']);
                 Route::post('/verif/otp', [AuthController::class, 'verifOtp']);
+                Route::post('/verif/otp/email', [AuthController::class, 'verifOtpEmail']);
+                Route::post('/revisi/email', [AuthController::class, 'revisiEmail']);
+
                 Route::middleware('LimitRequestMiddleware:1')->group(function () {
                     Route::post('/verif/kirim/ulang/otp', [AuthController::class, 'kirimUlangOtp']);
+                    Route::post('/verif/kirim/ulang/otp/email', [AuthController::class, 'kirimUlangOtpEmail']);
                     Route::post('/action/pinjaman/otp/ulang', [PinjamanController::class, 'actionPinjamanOTPUlang']);
                 });
-                Route::middleware(['EmailMiddleware'])->group(function () {
+                Route::middleware(['EmailMiddleware, WhatsappMiddleware'])->group(function () {
                     Route::post('/email/update', [AuthController::class, 'emailUpdate']);
                     Route::post('/email/otp', [AuthController::class, 'emailOtp']);
                     Route::post('/password/update', [AuthController::class, 'updatePassword']);

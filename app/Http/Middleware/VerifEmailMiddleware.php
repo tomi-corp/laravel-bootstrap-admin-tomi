@@ -20,7 +20,7 @@ class VerifEmailMiddleware
         } else {
             return response()->json([
                 'code' => 400,
-                'message' => 'harap verifikasi nomor anda terlebih dahulu'
+                'message' => 'harap verifikasi email anda terlebih dahulu'
             ], 400);
         }
     }

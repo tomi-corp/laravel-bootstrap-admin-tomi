@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('admins', function (Blueprint $table) {
             $table->id();
+            $table->string('google2fa_secret')->nullable();
             $table->string('username');
             $table->string('pin');
             $table->string('email');

@@ -116,7 +116,11 @@ class AuthController extends Controller
                     'password' => $request->password
                 ], $request->remember === 'on' ? true : false)
             ) {
-                return redirect()->route('admin.dashboard.index');
+                $user = auth('admin')->user();
+                if (isset($user->google2fa_secret)) {
+                    return redirect()->route('admin.profile.confirmationCode');
+                }
+                return redirect()->intended(route('admin.dashboard.index'));
             } else {
                 toastr()->error('Username/email atau password anda salah!');
                 return redirect()->route('admin.login');
@@ -128,7 +132,11 @@ class AuthController extends Controller
                     'password' => $request->password
                 ], $request->remember === 'on' ? true : false)
             ) {
-                return redirect()->route('admin.dashboard.index');
+                $user = auth('admin')->user();
+                if (isset($user->google2fa_secret)) {
+                    return redirect()->route('admin.profile.confirmationCode');
+                }
+                return redirect()->intended(route('admin.dashboard.index'));
             } else {
                 toastr()->error('Username/email atau password anda salah!');
                 return redirect()->route('admin.login');
@@ -139,6 +147,7 @@ class AuthController extends Controller
 
     public function logoutAction()
     {
+        session(['2fa_passed' => false]);
         auth('admin')->logout();
         return redirect()->route('admin.login');
     }

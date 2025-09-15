@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('verif_whatsapps', function (Blueprint $table) {
             $table->id();
-            $table->string('email');
+            $table->string('id_user');
             $table->string('code_rand');
             $table->datetime('expired');
             $table->timestamps();
