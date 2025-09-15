@@ -9,7 +9,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>Tagihan Pinjaman</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta content="A fully featured admin theme which can be used to build CRM, CMS, etc." name="description" />
+    <meta content="" name="description" />
     <meta content="Coderthemes" name="author" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <!-- App favicon -->
@@ -33,7 +33,7 @@
                         <!-- Logo & title -->
                         <div class="clearfix">
                             <div class="float-left">
-                                <img src="{{ asset('assets/images/ksp.png') }}" alt="" height="40">
+                                <img src="{{ asset('assets/images/logo.jpg') }}" alt="" height="40">
                             </div>
                             <div class="float-right">
                                 <h4 class="m-0 d-print-none">Tagihan</h4>
@@ -43,12 +43,12 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mt-3">
-                                    <p><b>Hallo, {{ $invoice->perusahaan->nama }}</b></p>
-                                    <p class="text-muted">Berikut rincian tagihan angsuran Koperasi
-                                        <b>{{ $invoice->perusahaan->nama }}</b> untuk periode
-                                        <b>{{ Carbon::parse($invoice->period)->subDays(5)->subMonth(1)->format('Y-m-d') }}</b>
+                                    <p><b>Hallo, KSPDDT</b></p>
+                                    <p class="text-muted">Berikut rincian tagihan layanan TOMI pada
+                                        <b>{{ $perusahaan->nama }}</b> untuk periode
+                                        <b>{{ Carbon::createFromDate($tahun, $bulan, 1)->format('Y-m-d') }}</b>
                                         hingga
-                                        <b>{{ Carbon::parse($invoice->period)->subDays(5)->format('Y-m-d') }}</b>
+                                        <b>{{ Carbon::createFromDate($tahun, $bulan, 1)->endOfMonth()->format('Y-m-d') }}</b>
                                     </p>
                                 </div>
 
@@ -62,24 +62,51 @@
                             <div class="col-12">
                                 <h4 class="heading-title">Lampiran Pinjaman</h4>
                                 <h5 class="heading-title">ID Perusahaan :
-                                    <b>{{ $invoice->perusahaan->id_code_perusahaan }}</b>
+                                    <b>{{ $perusahaan->id_code_perusahaan }}</b>
                                 </h5>
 
                                 <div class="table-responsive">
                                     <table class="table mt-4 table-centered">
                                         <thead>
                                             <tr>
-
                                                 <th>Tanggal Pinjaman</th>
                                                 <th>NIP</th>
                                                 <th>Nominal</th>
-                                                <th>Angsuran Bulan Ini</th>
-                                                <th>Nominal Yg Diterima</th>
+                                                <th>Fee TOMI</th>
+                                                <th>Biaya Layanan</th>
                                             </tr>
                                         </thead>
                                         <tbody>
 
-                                            @foreach ($invoice->perusahaan->pinjamanBerjalan as $pinjama)
+                                            @foreach ($pinjaman as $item)
+                                                <tr>
+                                                    <td>
+                                                        <b>{{ $item->created_at }}</b><br />
+                                                        {{ $item->id_pinjaman }}
+                                                    </td>
+
+                                                    <td>
+                                                        <b> {{ $item->data_karyawan->nama_karyawan }}</b></br>
+                                                        {{ $item->data_karyawan->nip }}
+                                                    </td>
+
+                                                    <td>
+                                                        Rp {{ number_format($item->nominal) }}
+                                                    </td>
+
+                                                    <td>
+                                                        Rp
+                                                        {{ number_format($item->biaya_admin_ksp) }}
+                                                    </td>
+
+                                                    <td>
+                                                        Rp
+                                                        {{ number_format($item->biaya_layanan) }}
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+
+                                            {{-- @foreach ($invoice->perusahaan->pinjamanBerjalan as $pinjama)
                                                 <tr>
 
                                                     <td>
@@ -109,7 +136,7 @@
 
 
                                                 </tr>
-                                            @endforeach
+                                            @endforeach --}}
 
 
                                         </tbody>
@@ -119,9 +146,9 @@
                         </div>
                         <!-- end row -->
                         <div class="float-right pt-4">
-                            <p><b>Total Angsuran :</b> </p>
+                            <p><b>Total Biaya Fee TOMI + Biaya layanan :</b> </p>
                             <h3>Rp
-                                {{ number_format($invoice->perusahaan->pinjamanBerjalan->sum('total_angsuran_perbulan')) }}
+                                {{ number_format($pinjaman->sum('biaya_admin_pandu') + $pinjaman->sum('biaya_layanan')) }}
                             </h3>
                         </div>
                         <div class="clearfix"></div>
@@ -131,7 +158,7 @@
                                 <div class="clearfix pt-5">
                                     <h6>Noted:</h6>
 
-                                    <small class="text-muted">
+                                    {{-- <small class="text-muted">
                                         Harap segera dibayarkan tagihan sesuai invoice terlampir maksimum tanggal
                                         {{ $invoice->perusahaan->payment_date + 3 }} ( Payment date + H+3) ke
                                         rekening VA sebagai
@@ -144,7 +171,7 @@
                                         No Rekening :
                                         {{ $invoice->perusahaan->virtual_account_channel_properties_virtual_account_number }}
                                         </br>
-                                    </small>
+                                    </small> --}}
                                 </div>
                             </div>
 

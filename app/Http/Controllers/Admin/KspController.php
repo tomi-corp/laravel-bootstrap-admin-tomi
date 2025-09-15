@@ -8,6 +8,7 @@ use App\Http\Requests\Admin\Ksp\AddKonfigurasiRequest;
 use App\Http\Requests\Admin\Ksp\AddPerusahaanRequest;
 use App\Http\Requests\Admin\Ksp\AmountPinjamanRequest;
 use App\Http\Requests\Admin\Ksp\EditPerusahaanRequest;
+use App\Http\Requests\Admin\Ksp\UpdateInvoicingLenderRequest;
 use App\Http\Requests\Admin\Ksp\UpdateKaryawanRequest;
 use App\Http\Requests\Admin\Ksp\UploadListKaryawanRequest;
 use App\Http\Resources\Admin\Bank\BankResource;
@@ -23,6 +24,7 @@ use App\Imports\KaryawanPendingImport;
 use App\Models\amount_pinjaman;
 use App\Models\bank;
 use App\Models\cost;
+use App\Models\history_invoicing_lender;
 use App\Models\invoicing_pinjaman;
 use App\Models\kecamatan;
 use App\Models\kelurahan;
@@ -1073,75 +1075,107 @@ class KspController extends Controller
         ], 200);
     }
 
-    public function invoicingDownload($id)
+    public function invoicingDownload($id, $tahun, $bulan)
     {
-        $invoice = invoicing_pinjaman::where('id', $id)
-            ->with('perusahaan')
-            ->first();
-        $pinjaman = pinjaman::where('status', 'approve')
-            ->whereYear('created_at', $invoice->created_at)
-            ->whereMonth('created_at', $invoice->created_at)
-            ->with('data_karyawan')
+        $id = decryptSecure($id);
+        $tahun = decryptSecure($tahun);
+        $bulan = decryptSecure($bulan);
+        $pinjaman = pinjaman::where('id_perusahaan', $id)
+            ->where('status', 'approve')
+            ->orWhere('status', 'done')
+            ->whereYear('created_at', $tahun)
+            ->whereMonth('created_at', $bulan)
+            ->with(['data_karyawan', 'perusahaan'])
             ->get();
-        return view("admin.ksp.invoicing.index", compact('pinjaman', 'invoice'));
+
+        $perusahaan = ListPerusahaan::where('id', $id)->first();
+        return view("admin.ksp.invoicing.index", compact('pinjaman', 'perusahaan', 'tahun', 'bulan'));
     }
 
 
     public function invoicingTable(Request $req)
     {
-        $invoice = invoicing_pinjaman::where('id_list_perusahaan', $req->id)
-            ->with('pinjaman')
+
+        $pinjamanBulan = Pinjaman::whereHas('perusahaan', function ($query) use ($req) {
+            $query->where('id', $req->id);
+        })
+            ->where('status', 'approve')
+            ->orWhere('status', 'done')
+            ->Leftjoin('history_invoicing_lenders', 'history_invoicing_lenders.id_list_perusahaan', '=', 'pinjamen.id_perusahaan')
+            ->selectRaw('
+                    COUNT(pinjamen.id) as total_pinjaman,
+                    SUM(pinjamen.biaya_admin_pandu) as biaya_admin_pandu,
+                    SUM(pinjamen.biaya_layanan) as biaya_layanan,
+                    YEAR(pinjamen.created_at) as tahun,
+                    MONTH(pinjamen.created_at) as bulan,
+                    history_invoicing_lenders.period
+                ')
+            ->groupBy('tahun', 'bulan', 'history_invoicing_lenders.period')
+            ->orderByDesc('tahun')
+            ->orderByDesc('bulan')
             ->get();
 
-        return DataTables::of($invoice)
+        return DataTables::of($pinjamanBulan)
             ->addIndexColumn()
 
             ->addColumn('period', function ($row) {
-                return Carbon::parse($row->period)->format('F Y');
+                return $row->tahun . ' - ' . $row->bulan;
             })
 
-            ->addColumn('total_transaksi_approve', function ($row) {
-                return $row->total_transaksi_approve;
-            })
-
-            ->addColumn('total_fee_base', function ($row) {
-                return "Rp  " . number_format($row->total_fee_base);
-            })
-
-            ->addColumn('iuran_anggota', function ($row) {
-                return "Rp  " . number_format($row->iuran_anggota);
-            })
-
-            ->addColumn('biaya_layanan', function ($row) {
-                return "Rp  " . number_format($row->biaya_layanan);
+            ->addColumn('total_tagihan', function ($row) {
+                return "Rp " . number_format($row->biaya_admin_pandu + $row->biaya_layanan);
             })
 
             ->addColumn('status_invoicing', function ($row) {
-                if ($row->status == "belum_lunas") {
+                if ($row->period == null) {
                     return "Belum Lunas";
                 } else {
                     return "Lunas";
                 }
             })
 
-            ->addColumn('download_invoice', function ($row) {
-                $url = route('admin.ksp.invoicing.download', $row->id);
-                return '<a href="' . $url . '" target="_blank"><i class="mdi mdi-download"></i></a>';
+            ->addColumn('download_invoice', function ($row) use ($req) {
+                $url = route('admin.ksp.invoicing.download', [encryptSecure($req->id), encryptSecure($row->tahun), encryptSecure($row->bulan)]);
+                $periode = Carbon::createFromDate($row->tahun, $row->bulan, 1);
+                $tanggalSekarang = Carbon::now();
+                if (isset($row->period)) {
+                    return '<p href="#" onclick="return false;" style="text-color: #fff"><i class="mdi mdi-download"></i></p>';
+                } else {
+                    if ($periode->format('Ym') > $tanggalSekarang->format('Ym')) {
+                        return '<p href="#" onclick="return false;" style="text-color: #fff"><i class="mdi mdi-download"></i></p>';
+                    } else {
+                        return '<a href="' . $url . '" target="_blank"><i class="mdi mdi-download"></i></a>';
+                    }
+                }
             })
 
             ->addColumn('action', function ($row) {
-                return '<button class="btn btn-sm btn-primary mr-2" onclick="edit(' . $row->id . ')"><i class="mdi mdi-pencil"></i></button>';
+                $periode = Carbon::createFromDate($row->tahun, $row->bulan, 1);
+                $tanggalSekarang = Carbon::now();
+
+                if (isset($row->period)) {
+                    return '<p href="#" onclick="return false;" style="text-color: #fff">-</p>';
+                } else {
+                    // if ($periode->format('Ym') < $tanggalSekarang->format('Ym')) {
+                    if ($periode->format('Ym') > $tanggalSekarang->format('Ym')) {
+                        return '<p href="#" onclick="return false;" style="text-color: #fff">-</p>';
+                    } else {
+                        return '<button class="btn btn-sm btn-primary mr-2" onclick="editInvoicing(' . $row->tahun . ',' . $row->bulan . ')"><i class="mdi mdi-pencil"></i> </button>';
+                    }
+                }
             })
 
-            ->rawColumns(['action', 'download_invoice'])
+            ->rawColumns(['download_invoice', 'action'])
+            ->only(['id', 'period', 'total_tagihan', 'status_invoicing', 'download_invoice', 'action'])
             ->toJson();
     }
 
-    public function invoicingUpdate(Request $req)
+    public function invoicingUpdate(UpdateInvoicingLenderRequest $req)
     {
-        $tagihan = invoicing_pinjaman::where('id', $req->id)->first();
-        $tagihan->status = "lunas";
-        $tagihan->save();
+        $history = new history_invoicing_lender();
+        $history->periode = Carbon::createFromDate($req->tahun, $req->bulan, 1);
+        $history->id_list_perusahaan = $req->id_list_perusahaan;
+        $history->save();
         return response()->json([
             'status' => 200,
             'message' => 'Tagihan berhasil di perbarui',

@@ -291,7 +291,28 @@
                     </div>
                 </div>
             </div>
-
+            <div class="card">
+                <div class="card-body">
+                    <div class="card">
+                        <div class="card-body">
+                            {{-- <h4 class="header-title mb-3">Tagihan</h4> --}}
+                            <table id="tableInvoice" class="table dt-responsive table-hover text-center justify-center"
+                                style="width:100%">
+                                <thead>
+                                    <tr>
+                                        <th>Bulan / Tahun Transaksi</th>
+                                        <th>Total Tagihan</th>
+                                        <th>Download Invoice</th>
+                                        <th>Status Invoice</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                            <small>Note:<br> Tagihan kepada KSP dapat didownload tiap tanggal 1</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         {{-- modal detail Angsuran --}}
@@ -321,6 +342,38 @@
             </div>
         </div>
 
+        {{-- modal update invoicing --}}
+        <div class="modal fade bs-example-modal-center" tabindex="-1" role="dialog"
+            aria-labelledby="myCenterModalLabel" aria-hidden="true" style="display: none;" id="modalUpdateInvoicing">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="myCenterModalLabel">Konfirmasi Pembayaran</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    </div>
+                    <div class="modal-body text-center align-middle">
+                        <span >Apakah anda yakin untuk melunasi invoicing ini terhadap Lender ?</span>
+                    </div>
+                </hr>
+                    <div class="container">
+                        <div class="checkbox mb-2 checkbox-info">
+                            <input id="checkbox04" type="checkbox" onchange="changeButton()">
+                            <label for="checkbox04">
+                                Saya menyatakan bahwa invoicing ini telah dibayarkan
+                            </label>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" data-dismiss="modal">cancel</button>
+                        <button class="btn btn-primary" type="submit" id="buttonSubmitInvoicing" disabled="true"
+                            onClick="saveInvoicing()">save <div id="loadingTextInvoicing">
+                            </div></button>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+
 
     @endsection
 
@@ -329,6 +382,8 @@
 
         <script>
             let idEdit = '';
+            let tahunInvoicing = '';
+            let bulanInvoicing = '';
             getStatistic = () => {
                 $.ajax({
                     url: '{!! route('admin.ksp.pengajuan.statistic') !!}',
@@ -787,5 +842,107 @@
                     }
                 })
             }
+
+            editInvoicing  = (tahun, bulan) => {
+                tahunInvoicing = tahun;
+                bulanInvoicing = bulan;
+                $('#modalUpdateInvoicing').modal('show');
+            }
+            const changeButton = () => {
+                if ($('#checkbox04').is(':checked')) {
+                    $('#buttonSubmitEdit').removeAttr('disabled');
+                } else {
+                    $('#buttonSubmitEdit').attr('disabled', true);
+                }
+            };
+
+            const saveInvoicing = () => {
+                $('#checkbox04').prop('checked', false);
+                $.ajax({
+                    url: '{!! route('admin.ksp.invoicing.update') !!}',
+                    data: {
+                        '_token': "{{ csrf_token() }}",
+                        'tahun': tahunInvoicing,
+                        'bulan': bulanInvoicing,
+                        'id_list_perusahaan': {{ $perusahaan->id }}
+                    },
+                    type: 'POST',
+                    dataType: 'json',
+                    beforeSend: function() {
+                        $('#buttonSubmitInvoicing').attr("disabled", true);
+                        $('#loadingTextInvoicing').addClass("spinner-border");
+                    },
+                    success: function(submitRes) {
+                        toastr.success(submitRes.message)
+                        table.ajax.reload();
+                        $("#modalUpdateInvoicing").modal('hide');
+                        $('#buttonSubmitInvoicing').attr("disabled", false);
+                        $('#loadingTextInvoicing').removeClass("spinner-border");
+                    },
+                    error: function(submitRes) {
+                        $('#buttonSubmitInvoicing').attr("disabled", false);
+                        $('#loadingTextInvoicing').removeClass("spinner-border");
+                    }
+                });
+            };
+
+            var tableInvoice = $('#tableInvoice').DataTable({
+                dom: 'B<"clear">lfrtip',
+                buttons: [{
+                        extend: 'excel',
+                        className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
+                        text: '<span class="mdi mdi-file-excel"><span class="pl-1">Excel</span></span>',
+                        header: false,
+                        exportOptions: {
+                            columns: [0, 1, 2]
+                        },
+                    },
+                    {
+                        extend: 'copy',
+                        className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
+                        text: '<span class="mdi mdi-content-copy"><span class="pl-1">Copy</span></span>',
+                        header: false,
+                        exportOptions: {
+                            columns: [0, 1, 2]
+                        },
+                    },
+                    {
+                        extend: 'print',
+                        className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
+                        text: '<span class="mdi mdi-printer"><span class="pl-1">Print</span></span>',
+                        header: false,
+                        exportOptions: {
+                            columns: [0, 1, 2]
+                        },
+                    }
+                ],
+                "lengthMenu": [10, 50, 100, 500, 1000, 2000, 5000, 10000, 50000, 100000],
+                processing: true,
+                responsive: true,
+                serverSide: true,
+                language: {
+                    processing: '<i class="dripicons-loading">autorenew</i>'
+                },
+                ajax: {
+                    "type": "POST",
+                    "url": '{!! route('admin.ksp.invoicing.lender.table') !!}',
+                    "data": function(xx) {
+                        return $.extend(xx, dataTable);
+                    },
+                },
+                columns: [{
+                    data: 'period'
+                }, {
+                    data: 'total_tagihan',
+                }, {
+                    data: 'download_invoice',
+                }, {
+                    data: 'status_invoicing',
+                },  {
+                    data: 'action',
+                }]
+            });
+
+        
         </script>
     @endpush

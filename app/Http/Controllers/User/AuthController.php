@@ -536,17 +536,17 @@ class AuthController extends Controller
 
     public function kirimUlangOtp(Request $req)
     {
-        $user = User::where('email', auth('api')->user()->email)->first();
+        $user = User::where('id', auth('api')->user()->id)->first();
 
         if ($user->email_verified_at == null) {
-            $verifEmail = verif_whatsapp::where('email', $user->email)->first();
+            $verifEmail = verif_whatsapp::where('id_user', $user->id)->first();
             if ($verifEmail !== null) {
-                $verifEmail->email = $user->email;
+                $verifEmail->id_user = $user->id;
                 $verifEmail->code_rand = rand(1000, 9999);;
                 $verifEmail->expired = Carbon::now()->addMinute(15);
             } else {
                 $verifEmail = new verif_whatsapp();
-                $verifEmail->email = $user->email;
+                $verifEmail->id_user = $user->id;
                 $verifEmail->code_rand = rand(1000, 9999);;
                 $verifEmail->expired = Carbon::now()->addMinute(15);
             }
@@ -562,7 +562,7 @@ class AuthController extends Controller
             // Mail::to($user->email)->send(new WelcomeEmail($data));
             return response()->json([
                 'status' => 200,
-                'message' => 'OTP berhasil dikirim',
+                'message' => 'OTP berhasil dikirim ke ' . $user->nohp,
             ], 200);
         } else {
             return response()->json([

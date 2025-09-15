@@ -34,4 +34,14 @@ class pinjaman extends Model
     {
         return $this->hasMany(jatuh_tempo::class, 'id_pinjaman', 'id');
     }
+
+    public function perusahaan()
+    {
+        return $this->hasOne(ListPerusahaan::class, 'id', 'id_perusahaan');
+    }
+
+    public function history_invoicing_lenders()
+    {
+        return $this->hasOne(pinjaman::class, 'id_list_perusahaan', 'id_list_perusahaan');
+    }
 }

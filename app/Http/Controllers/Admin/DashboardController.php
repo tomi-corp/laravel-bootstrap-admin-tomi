@@ -13,9 +13,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Barryvdh\DomPDF\Facade\Pdf;
-
-
-
+use Flasher\Laravel\Http\Request;
 
 class DashboardController extends Controller
 {
@@ -98,6 +96,6 @@ class DashboardController extends Controller
 
     public function test()
     {
-        //
+        //   
     }
 }

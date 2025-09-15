@@ -93,9 +93,9 @@ Route::middleware(['AdminMiddleware'])->group(
                 Route::post('/ksp/konfigurasi/detail', [KspController::class, 'detailKonfigurasi'])->name('admin.ksp.konfigurasi.detail');
                 Route::post('/ksp/konfigurasi/edit', [KspController::class, 'editKonfigurasi'])->name('admin.ksp.konfigurasi.edit');
                 // KSP => Pengajuan => invoicing
-                Route::post('/ksp/pengajuan/invoicing/table', [KspController::class, 'invoicingTable'])->name('admin.ksp.invoicing.table');
-                Route::get('/ksp/pengajuan/invoicing/pdf/{id}', [KspController::class, 'invoicingDownload'])->name('admin.ksp.invoicing.download');
-                Route::post('/ksp/pengajuan/invoicing/update', [KspController::class, 'invoicingUpdate'])->name('admin.ksp.invoicing.update');
+                Route::post('/ksp/invoicing/table', [KspController::class, 'invoicingTable'])->name('admin.ksp.invoicing.lender.table');
+                Route::get('/ksp/invoicing/pdf/{id}/{tahun}/{bulan}', [KspController::class, 'invoicingDownload'])->name('admin.ksp.invoicing.download');
+                Route::post('/ksp/invoicing/update', [KspController::class, 'invoicingUpdate'])->name('admin.ksp.invoicing.update');
                 // KSP => Pengajuan => pending
                 Route::post('/ksp/pengajuan/statistic', [KspController::class, 'pengajuanStatistic'])->name('admin.ksp.pengajuan.statistic');
                 Route::get('/ksp/pengajuan/{id}', [KspController::class, 'pengajuanIndex'])->name('admin.ksp.pengajuan');
