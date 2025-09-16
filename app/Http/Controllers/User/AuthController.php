@@ -507,7 +507,7 @@ class AuthController extends Controller
 
         if (isset($verifEmail)) {
             if ($verifEmail->expired > Carbon::now()) {
-                $user = User::where('id', $verifEmail->id)
+                $user = User::where('id', $verifEmail->id_user)
                     ->first();
                 $user->email_verified_at = Carbon::now();
                 $user->save();
