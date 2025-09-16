@@ -469,16 +469,22 @@ class AuthController extends Controller
 
         if (isset($verif_whatsapp)) {
             if ($verif_whatsapp->expired > Carbon::now()) {
-                $user = User::where('id', $verif_whatsapp->id)
+                $user = User::where('id', $verif_whatsapp->id_user)
                     ->first();
                 $user->whatsapp_verified_at = Carbon::now();
                 $user->save();
                 $verif_whatsapp->delete();
-
-                return response()->json([
-                    'status' => 200,
-                    'message' => 'Berhasil verifikasi whatsapp, silahkan lanjutkan untuk verifikasi email yang dikirim ke ' . $user->email,
-                ], 200);
+                if ($user->email_verified_at == null) {
+                    return response()->json([
+                        'status' => 200,
+                        'message' => 'Berhasil verifikasi whatsapp, silahkan lanjutkan untuk verifikasi email yang dikirim ke ' . $user->email,
+                    ], 200);
+                } else {
+                    return response()->json([
+                        'status' => 200,
+                        'message' => 'Berhasil verifikasi whatsapp',
+                    ], 200);
+                }
             } else {
                 return response()->json([
                     'status' => 400,
