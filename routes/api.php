@@ -46,7 +46,7 @@ Route::middleware(['LanguangeMiddleware'])->group(
                     Route::post('/verif/kirim/ulang/otp/email', [AuthController::class, 'kirimUlangOtpEmail']);
                     Route::post('/action/pinjaman/otp/ulang', [PinjamanController::class, 'actionPinjamanOTPUlang']);
                 });
-                Route::middleware(['EmailMiddleware, WhatsappMiddleware'])->group(function () {
+                Route::middleware(['EmailMiddleware', 'WhatsappMiddleware'])->group(function () {
                     Route::post('/email/update', [AuthController::class, 'emailUpdate']);
                     Route::post('/email/otp', [AuthController::class, 'emailOtp']);
                     Route::post('/password/update', [AuthController::class, 'updatePassword']);
