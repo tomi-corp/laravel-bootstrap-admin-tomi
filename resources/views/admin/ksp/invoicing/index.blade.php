@@ -43,12 +43,9 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mt-3">
-                                    <p><b>Hallo, KSPDDT</b></p>
-                                    <p class="text-muted">Berikut rincian tagihan layanan TOMI pada
-                                        <b>{{ $perusahaan->nama }}</b> untuk periode
-                                        <b>{{ Carbon::createFromDate($tahun, $bulan, 1)->format('Y-m-d') }}</b>
-                                        hingga
-                                        <b>{{ Carbon::createFromDate($tahun, $bulan, 1)->endOfMonth()->format('Y-m-d') }}</b>
+                                    <p><b>Hallo, Koperasi Simpan Pinjam Dumi Digital Teknologi</b></p>
+                                    <p class="text-muted">Berikut rincian tagihan Aplikasi Layanan Pelanggan Digital TOMI pada Koperasi Simpan Pinjam Dumi Digital Teknologi Pada bulan
+                                        <b>{{ Carbon::createFromDate($tahun, $bulan, 1)->endOfMonth()->format('M-Y') }}</b>
                                     </p>
                                 </div>
 
@@ -60,6 +57,7 @@
 
                         <div class="row">
                             <div class="col-12">
+                                {{-- <h4 class="heading-title">No. Invoice : INV-Aggr-{{ Carbon::createFromDate($tahun, $bulan, 1)->endOfMonth()->format('m-Y') }}-{{  }}</h4> --}}
                                 <h4 class="heading-title">Lampiran Pinjaman</h4>
                                 <h5 class="heading-title">ID Perusahaan :
                                     <b>{{ $perusahaan->id_code_perusahaan }}</b>

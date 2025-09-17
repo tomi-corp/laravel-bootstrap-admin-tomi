@@ -248,7 +248,7 @@ class PinjamanController extends Controller
                 ], 400);
             } elseif (auth('api')->user()->verified_privy == "n") {
 
-                if (isset($user->nik) && isset($user->nama_lengkap) && isset($user->selfie) && isset($user->ktp)) {
+                if (isset($user->nik) && isset($user->nama_lengkap) && isset($user->dob) && isset($user->selfie) && isset($user->ktp)) {
                     if ($user->register_token_privy == null) {
                         // tampilkan consent privy
                         return response()->json([
@@ -278,10 +278,19 @@ class PinjamanController extends Controller
                         }
                     }
                 } else {
-                    return response()->json([
-                        'status' => 400,
-                        'message' => 'Harap lengkapi data anda telebih dahulu',
-                    ], 400);
+                    if (!isset($user->nik) || !isset($user->nama_lengkap) && !isset($user->dob)) {
+                        return response()->json([
+                            'status' => 400,
+                            'message' => 'Harap lengkapi data anda telebih dahulu',
+                        ], 400);
+                    } else {
+                        if (!isset($user->selfie) && !isset($user->ktp)) {
+                            return response()->json([
+                                'status' => 400,
+                                'message' => 'Update selfie dan KTP anda',
+                            ], 400);
+                        }
+                    }
                 }
             } else {
                 if ($user->register_token_privy != null && $user->id_privy == null) {
@@ -404,7 +413,7 @@ class PinjamanController extends Controller
                     $jatuh_tempo->id_pinjaman = $pinjaman->id;
                     $jatuh_tempo->pembayaran = $oppca;
                     if ($oppca == 1) {
-                        if ($tanggal_sekarang->format('d') < $perusahaan->payment_date - $perusahaan->h_min_jatuh_tempo) {
+                        if ($tanggal_sekarang->format('d') <= $perusahaan->payment_date - $perusahaan->h_min_jatuh_tempo) {
                             $jatuh_tempo->jatuh_tempo =  $tanggal_sekarang->day($perusahaan->payment_date);
                         } else {
                             $jatuh_tempo->jatuh_tempo =  $tanggal_sekarang->day($perusahaan->payment_date)->addMonth(1);

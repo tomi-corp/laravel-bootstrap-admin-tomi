@@ -7,6 +7,7 @@ use App\Http\Requests\Admin\Ksp\Cost\CostAddRequest;
 use App\Http\Requests\Admin\Ksp\Cost\UpdateRekeningRequest;
 use App\Models\bank;
 use App\Models\cost;
+use App\Models\rekening_pandu;
 use App\Models\rekening_tomi;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
@@ -18,6 +19,7 @@ class CostController extends Controller
         $cost = cost::get()->toArray();
         $bank = bank::get();
         $bankTomi = rekening_tomi::first();
+        $bankPandu = rekening_pandu::first();
 
         $data = [
             'penerbitan_sertifikat_elektronik' => $cost[0]['biaya'],
@@ -25,7 +27,8 @@ class CostController extends Controller
             'wa_otp' => $cost[2]['biaya'],
             'disbursement' => $cost[3]['biaya'],
             'bank' => $bank,
-            'bankTomi' => $bankTomi
+            'bankTomi' => $bankTomi,
+            'bankPandu' => $bankPandu,
         ];
         return view('admin.ksp.cost.index', compact('data'));
     }
@@ -33,6 +36,20 @@ class CostController extends Controller
     public function saveRekening(UpdateRekeningRequest $req)
     {
         $bankTomi = rekening_tomi::firstOrNew();
+        $bankTomi->bank_id = $req->bank;
+        $bankTomi->nomor_rekening = $req->noRekening;
+        $bankTomi->atas_nama = $req->atasNamaRekening;
+        $bankTomi->updated_by = auth('admin')->user()->id;
+        $bankTomi->save();
+        return response()->json([
+            'status' => 200,
+            'message' => 'Rekening Repayment Berhasil Dirubah',
+        ], 200);
+    }
+
+    public function saveRekeningPandu(UpdateRekeningRequest $req)
+    {
+        $bankTomi = rekening_pandu::firstOrNew();
         $bankTomi->bank_id = $req->bank;
         $bankTomi->nomor_rekening = $req->noRekening;
         $bankTomi->atas_nama = $req->atasNamaRekening;

@@ -42,6 +42,6 @@ class pinjaman extends Model
 
     public function history_invoicing_lenders()
     {
-        return $this->hasOne(pinjaman::class, 'id_list_perusahaan', 'id_list_perusahaan');
+        return $this->hasOne(history_invoicing_lender::class, 'id_list_perusahaan', 'id_list_perusahaan');
     }
 }

@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\CostController;
 use App\Http\Controllers\Admin\DailyCheckinController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\KspController;
+use App\Http\Controllers\Admin\LenderController;
 use App\Http\Controllers\Admin\MenuMobileController;
 use App\Http\Controllers\Admin\PpobController;
 use App\Http\Controllers\Admin\ProfileController;
@@ -70,6 +71,9 @@ Route::middleware(['AdminMiddleware'])->group(
                 Route::post('/ksp/detail/perusahaan', [KspController::class, 'detailPerusahaan'])->name('admin.ksp.detail.perusahaan');
                 Route::post('/ksp/edit/perusahaan', [KspController::class, 'editPerusahaan'])->name('admin.ksp.edit.perusahaan');
                 Route::post('/ksp/delete/perusahaan', [KspController::class, 'deletePerusahaan'])->name('admin.ksp.delete.perusahaan');
+                // KSP => lender
+                Route::get('/ksp/lender', [LenderController::class, 'index'])->name('admin.lender.index');
+
                 // KSP => Karyawan
                 Route::get('/ksp/list/karyawan/{id}', [KspController::class, 'listKaryawan'])->name('admin.list.karyawan');
                 Route::post('/ksp/list/karyawan/{id}/table', [KspController::class, 'listKaryawanTable'])->name('admin.list.karyawan.table');
@@ -120,6 +124,7 @@ Route::middleware(['AdminMiddleware'])->group(
                 Route::get('/cost/ksp', [CostController::class, 'costIndex'])->name('admin.cost.index');
                 Route::post('/cost/ksp/add', [CostController::class, 'costAdd'])->name('admin.cost.add');
                 Route::post('/cost/ksp/save/rekening', [CostController::class, 'saveRekening'])->name('admin.cost.save.rekening');
+                Route::post('/cost/ksp/save/rekening/pandu', [CostController::class, 'saveRekeningPandu'])->name('admin.cost.save.rekeningPandu');
             }
         );
     }

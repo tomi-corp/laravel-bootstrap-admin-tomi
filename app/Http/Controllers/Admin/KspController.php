@@ -1085,8 +1085,10 @@ class KspController extends Controller
             ->orWhere('status', 'done')
             ->whereYear('created_at', $tahun)
             ->whereMonth('created_at', $bulan)
-            ->with(['data_karyawan', 'perusahaan'])
+            ->with(['data_karyawan', 'perusahaan', 'history_invoicing_lenders'])
             ->get();
+
+        dd($pinjaman);
 
         $perusahaan = ListPerusahaan::where('id', $id)->first();
         return view("admin.ksp.invoicing.index", compact('pinjaman', 'perusahaan', 'tahun', 'bulan'));
@@ -1114,6 +1116,8 @@ class KspController extends Controller
             ->orderByDesc('tahun')
             ->orderByDesc('bulan')
             ->get();
+
+        dd($pinjamanBulan);
 
         return DataTables::of($pinjamanBulan)
             ->addIndexColumn()

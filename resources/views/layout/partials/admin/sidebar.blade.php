@@ -44,9 +44,6 @@
                     </ul>
                 </li>
 
-
-
-
                 <li>
                     <a href="javascript: void(0);">
                         <i class="dripicons-network-3"></i>
@@ -56,6 +53,9 @@
                     <ul class="nav-second-level" aria-expanded="false">
                         <li>
                             <a href="{{ route('admin.ksp.index') }}">List Perusahaan</a>
+                        </li>
+                        <li>
+                            <a href="{{ route('admin.lender.index') }}">List Lender</a>
                         </li>
                         <li>
                             <a href="{{ route('admin.cost.index') }}">Cost</a>
