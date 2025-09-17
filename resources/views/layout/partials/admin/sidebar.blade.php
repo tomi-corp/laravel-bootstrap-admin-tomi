@@ -86,13 +86,24 @@
                 </li>
 
 
-                <li class="menu-title">Menu Mobile</li>
+                <li class="menu-title">Mobile</li>
+
                 <li>
-                    <a href="{{ route('admin.menumobile.index') }}">
-                        <i class=" dripicons-view-apps"></i>
-                        <span> Menu Mobile </span>
+                    <a href="javascript: void(0);">
+                        <i class="dripicons-view-apps"></i>
+                        <span> Mobile </span>
+                        <span class="menu-arrow"></span>
                     </a>
+                    <ul class="nav-second-level" aria-expanded="false">
+                        <li>
+                            <a href="{{ route('admin.menumobile.index') }}"> Menu Mobile</a>
+                        </li>
+                        <li>
+                            <a href="{{ route('admin.ota.index') }}"> OTA Mobile</a>
+                        </li>
+                    </ul>
                 </li>
+
 
 
                 {{-- <li>

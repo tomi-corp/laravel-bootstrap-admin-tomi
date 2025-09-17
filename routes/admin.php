@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\KspController;
 use App\Http\Controllers\Admin\LenderController;
 use App\Http\Controllers\Admin\MenuMobileController;
+use App\Http\Controllers\Admin\OtaController;
 use App\Http\Controllers\Admin\PpobController;
 use App\Http\Controllers\Admin\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -125,6 +126,11 @@ Route::middleware(['AdminMiddleware'])->group(
                 Route::post('/cost/ksp/add', [CostController::class, 'costAdd'])->name('admin.cost.add');
                 Route::post('/cost/ksp/save/rekening', [CostController::class, 'saveRekening'])->name('admin.cost.save.rekening');
                 Route::post('/cost/ksp/save/rekening/pandu', [CostController::class, 'saveRekeningPandu'])->name('admin.cost.save.rekeningPandu');
+                // ota => mobile
+                Route::get('/ota', [OtaController::class, 'otaIndex'])->name('admin.ota.index');
+                Route::post('/ota/upload', [OtaController::class, 'otaUpload'])->name('admin.ota.upload');
+                Route::post('/ota/table', [OtaController::class, 'otaTable'])->name('admin.ota.table');
+                Route::get('/ota/download/{id}', [OtaController::class, 'otaDownload'])->name('admin.ota.download');
             }
         );
     }

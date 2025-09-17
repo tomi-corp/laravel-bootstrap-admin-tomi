@@ -6,6 +6,7 @@ use App\Http\Controllers\User\DailyCheckinController;
 use App\Http\Controllers\User\HistoryController;
 use App\Http\Controllers\User\MenuController;
 use App\Http\Controllers\User\NotificationController;
+use App\Http\Controllers\User\OtaController;
 use App\Http\Controllers\User\PinjamanController;
 use App\Http\Controllers\User\PointController;
 use App\Http\Controllers\User\PrivyController;
@@ -15,6 +16,7 @@ Route::middleware(['CenterFileMiddleware'])->group(
     function () {
         Route::post('/get/pk', [DocumentController::class, 'pk']);
         Route::post('/get/image', [DocumentController::class, 'image']);
+        Route::get('/ota/check', [OtaController::class, 'checkUpdate']);
     }
 );
 
@@ -91,7 +93,7 @@ Route::middleware(['LanguangeMiddleware'])->group(
                     Route::post('/register/privy/check', [PrivyController::class, 'cekStatusPrivy']);
 
                     // Route::post('/testing/api/privy', [PinjamanController::class, 'testingApi']);
-
+                    // ota react native
                 });
                 // Route::post('/profile/update', [AuthController::class, 'login']);
                 // Route::post('/login', [AuthController::class, 'login']);
