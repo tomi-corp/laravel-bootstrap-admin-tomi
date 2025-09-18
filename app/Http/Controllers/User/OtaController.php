@@ -11,22 +11,42 @@ class OtaController extends Controller
     public function checkUpdate(Request $req)
     {
         $platform = $req->platform;
-        $currentVersion = $req->version;
+        $currentVersion = $req->current_version;
+        $manifest_version  = $req->manifest_version ;
+        $ota_update_id = $req->ota_update_id;
 
-        $latest = OtaUpdate::where('platform', $platform)
+        $lastest = OtaUpdate::where('platform', $platform)
             ->orderByDesc('id')
             ->first();
 
-        if ($latest && version_compare($latest->version, $currentVersion, '>')) {
+        if ($lastest && version_compare($lastest->versionMajor, $currentVersion, '>')) {
             return response()->json([
-                'update' => true,
-                'version' => $latest->version,
-                'changelog' => $latest->changelog,
-                'url' => url("/ota/download/" . encryptSecure($latest->id))
+                'updateMajor' => true,
+                'updateMinor' => false,
+                'versionMajor' => $lastest->versionMajor,
+                'versionMinor' => $lastest->versionMinor,
+                'changelog' => $lastest->changelog,
+                'url' => ''
+            ]);
+        } else if ($lastest && version_compare($lastest->versionMinor, $manifest_version , '>') && $ota_update_id != $lastest->otaUpdateID) {
+            return response()->json([
+                'updateMajor' => false,
+                'updateMinor' => true,
+                'versionMajor' => $lastest->versionMajor,
+                'versionMinor' => $lastest->versionMinor,
+                'changelog' => $lastest->changelog,
+                'url' => url("/ota/download/" . encryptSecure($lastest->id))
+            ]);
+        } else {
+            return response()->json([
+                'updateMajor' => false,
+                'updateMinor' => false,
+                'versionMajor' => $lastest->versionMajor,
+                'versionMinor' => $lastest->versionMinor,
+                'changelog' => $lastest->changelog,
+                'url' => ''
             ]);
         }
-
-        return response()->json(['update' => false]);
     }
 
     public function download($id)
