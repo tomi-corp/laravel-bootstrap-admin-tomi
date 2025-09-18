@@ -13,7 +13,9 @@ return new class extends Migration
     {
         Schema::create('ota_updates', function (Blueprint $table) {
             $table->id();
-            $table->string('version');
+            $table->string('versionMajor');
+            $table->string('versionMinor');
+            $table->string('otaUpdateID');
             $table->enum('platform', ['android', 'ios']);
             $table->string('file_path');
             $table->longText('changelog');

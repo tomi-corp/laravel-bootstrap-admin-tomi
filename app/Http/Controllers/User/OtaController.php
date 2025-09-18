@@ -10,7 +10,7 @@ class OtaController extends Controller
 {
     public function checkUpdate(Request $req)
     {
-        $platform = $req->platform; // android / ios
+        $platform = $req->platform;
         $currentVersion = $req->version;
 
         $latest = OtaUpdate::where('platform', $platform)

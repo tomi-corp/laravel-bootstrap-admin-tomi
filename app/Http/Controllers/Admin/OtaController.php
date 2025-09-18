@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Ota\OtaUploadRequest;
 use App\Models\OtaUpdate;
+use App\Models\provinsi;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
@@ -20,16 +21,20 @@ class OtaController extends Controller
     public function otaUpload(OtaUploadRequest $req)
     {
         $platform = $req->platform;
-        $version  = $req->version;
+        $versionMajor  = $req->versionMajor;
+        $versionMinor  = $req->versionMinor;
+        $otaUpdateID  = $req->otaUpdateID;
         $file     = $req->file('file');
 
         $ext      = $file->getClientOriginalExtension();
-        $filename = "ota_{$platform}_v{$version}_" . time() . ".{$ext}";
+        $filename = "ota_{$platform}_v{$versionMajor}_{$versionMinor}_{$otaUpdateID}" . time() . ".{$ext}";
         $path = $file->storeAs('ota', $filename);
 
         $ota = new OtaUpdate();
         $ota->platform = $platform;
-        $ota->version = $version;
+        $ota->versionMajor = $versionMajor;
+        $ota->versionMinor = $versionMinor;
+        $ota->otaUpdateID = $otaUpdateID;
         $ota->changelog = $req->changelog;
         $ota->file_path = $filename;
         $ota->save();
@@ -54,8 +59,9 @@ class OtaController extends Controller
                 // return $btn;
                 return "av";
             })
+
             ->editColumn('created_at', function ($row) {
-                return $datetime = Carbon::parse($row->created_at)->format('Y-m-d H:i:s');
+                return Carbon::parse($row->created_at)->format('Y-m-d H:i:s');
             })
             ->rawColumns(['file', 'action'])
             ->toJson();
