@@ -35,7 +35,7 @@ class OtaController extends Controller
                 'versionMajor' => $lastest->versionMajor,
                 'versionMinor' => $lastest->versionMinor,
                 'changelog' => $lastest->changelog,
-                'url' => url("/ota/download/" . encryptSecure($lastest->id))
+                'url' => url("backoffice/ota/download/" . encryptSecure($lastest->id))
             ]);
         } else {
             return response()->json([
