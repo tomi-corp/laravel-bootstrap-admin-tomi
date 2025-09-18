@@ -69,7 +69,8 @@ class OtaController extends Controller
 
     public function otaDownload($id)
     {
-        $update = OtaUpdate::findOrFail($id);
+        $dec = decryptSecure($id);
+        $update = OtaUpdate::findOrFail($dec);
         return Storage::disk('ota')->download($update->file_path);
     }
 }
