@@ -73,7 +73,7 @@
                 <div class="modal-body">
 
                     <div class="row">
-                      
+
 
                         <div class="col-md-6">
                             <div class="form-group">
@@ -86,7 +86,7 @@
 
                         <div class="col-md-6">
                             <div class="form-group">
-                                 <label>Nama PIC HC / HRD</label>
+                                <label>Nama PIC HC / HRD</label>
                                 <input class="form-control" id="namaPicInternal" placeholder="PIC Internal"></input>
                                 <small class="text-danger" id="errNamaPicInternal"></small>
                             </div>

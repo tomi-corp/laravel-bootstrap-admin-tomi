@@ -104,7 +104,13 @@
                     </ul>
                 </li>
 
-
+                <li class="menu-title">Manage</li>
+                <li>
+                    <a href="{{ route('admin.manage.admin.index') }}">
+                        <i class="dripicons-user-group"></i>
+                        <span> Manage Admin </span>
+                    </a>
+                </li>
 
                 {{-- <li>
                     <a href="{{ route('regis.view') }}">

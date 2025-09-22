@@ -27,23 +27,25 @@
                         style="width:100%">
                         <thead>
                             <tr>
-                                <th>ID Perusahaan</th>
-                                <th>Unique Code</th>
-                                <th>PIC Perusahaan</th>
-                                <th>PIC HC/HRD</th>
-                                <th>Nama Perusahaan</th>
-                                <th>Email Perusahaan</th>
+                                <th>Pending Approval</th>
+                                <th>Last Updated</th>
+                                <th>Expired Update</th>
+                                <th>ID Lender</th>
+                                <th>PKS</th>
+                                <th>No. perjanjian kerja sama lender x TOMI</th>
+                                <th>PIC Lender</th>
+                                <th>PIC Internal</th>
+                                <th>Nama Lender</th>
+                                <th>Email Lender</th>
                                 <th>Telepon</th>
                                 <th>Provinsi</th>
                                 <th>Kabupaten / Kota</th>
                                 <th>Kecamatan</th>
                                 <th>Desa</th>
                                 <th>Alamat Lengkap</th>
-                                <th>Payment Date</th>
-                                <th>No. perjanjian kerja sama lender x perusahaan</th>
-                                <th>List Karyawan</th>
-                                <th>Proses Pengajuan</th>
-                                <th>Konfigurasi Pinjaman</th>
+                                <th>Nama BANK</th>
+                                <th>A.N Rekening</th>
+                                <th>No. Rekening</th>
                                 <th>Status</th>
                                 <th>Action</th>
                             </tr>
@@ -73,14 +75,13 @@
                 <div class="modal-body">
 
                     <div class="row">
-                        <div class="col-6">
+                        <div class="col-md-6">
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Nama PIC Lender</label>
-                                        <input class="form-control" id="namaPicPerusahaan"
-                                            placeholder="PIC Perushaan"></input>
-                                        <small class="text-danger" id="errNamaPicPerusahaan"></small>
+                                        <input class="form-control" id="namaPicLender" placeholder="PIC Lender"></input>
+                                        <small class="text-danger" id="errNamaPicLender"></small>
                                     </div>
                                 </div>
 
@@ -96,17 +97,15 @@
                                 <div class="col-md-12">
                                     <div class="form-group">
                                         <label>Nama Lender</label>
-                                        <input class="form-control" id="namaPerusahaan"
-                                            placeholder="Nama Perusahaan"></input>
-                                        <small class="text-danger" id="errNamaPerusahaan"></small>
+                                        <input class="form-control" id="namaLender" placeholder="Nama Lender"></input>
+                                        <small class="text-danger" id="errNamaLender"></small>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Email Lender</label>
-                                        <input class="form-control" id="emailPerusahaan"
-                                            placeholder="Email Perusahaan"></input>
-                                        <small class="text-danger" id="errEmailPerusahaan"></small>
+                                        <input class="form-control" id="emailLender" placeholder="Email Lender"></input>
+                                        <small class="text-danger" id="errEmailLender"></small>
                                     </div>
                                 </div>
 
@@ -124,7 +123,7 @@
                                         <label>Provinsi</label>
                                         <select class="form-control" id="provinsiSelect" style="width: 100%">
                                             <option disabled>Select</option>
-                                            @foreach ($provinsis as $provinsi)
+                                            @foreach ($data['provinsis'] as $provinsi)
                                                 <option value="{{ $provinsi->provinsi }}">{{ $provinsi->provinsi }}</option>
                                             @endforeach
                                         </select>
@@ -176,7 +175,7 @@
                                     <div class="form-group">
                                         <label>No. perjanjian kerja sama Lender x TOMI</label>
                                         <input class="form-control" id="nomor_pks"
-                                            placeholder="012/KSPDUMI-FIT/VIII/2025" type="text"></input>
+                                            placeholder="012/TOMIKSP-FIT/VIII/2025" type="text"></input>
                                         <small class="text-danger" id="errNomor_pks"></small>
                                     </div>
                                 </div>
@@ -184,23 +183,48 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>File PKS</label>
-                                        <input class="form-control" id="nomor_pks"
-                                            placeholder="012/KSPDUMI-FIT/VIII/2025" type="file"></input>
-                                        <small class="text-danger" id="errNomor_pks"></small>
+                                        <input class="form-control" id="filePKS" type="file"></input>
+                                        <small class="text-danger" id="errPKS"></small>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-6">
-                            <div class="form-group">
-                                <label>Nama Rekening Lender</label>
-                                <input class="form-control" id="namaPicPerusahaan" placeholder="PIC Perushaan"></input>
-                                <small class="text-danger" id="errNamaPicPerusahaan"></small>
+                        <div class="col-md-6">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <label>Nama Bank</label>
+                                    <div class="form-group">
+                                        <select class="form-control" id="bank">
+                                            @foreach ($data['bank'] as $bank)
+                                                <option value="{{ $bank->id }}">
+                                                    {{ $bank->code_bank }}
+                                                </option>
+                                            @endforeach
+                                            <small id="errBank"></small>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label>A.N Rekening</label>
+                                        <input class="form-control" type="text" id="an_rekening"
+                                            value=""></input>
+                                        <small id="errANRekening"></small>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label>No Rekening</label>
+                                        <input class="form-control" type="number" id="no_rekening"
+                                            value=""></input>
+                                        <small id="errNoRekening"></small>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-
                 </div>
+
                 <div class="modal-footer">
                     <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                     <button class="btn btn-primary" type="button" id="buttonSubmit">Save <div id="loadingText">
@@ -211,9 +235,9 @@
     </div>
 
     {{-- modal edit --}}
-    {{-- <div class="modal fade" id="modalEdit" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+    <div class="modal fade" id="modalEdit" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
         aria-hidden="true">
-        <div class=" modal-dialog modal-lg modal-dialog-centered modal-dialog-centered modal-dialog-scrollable"
+        <div class=" modal-dialog modal-xl modal-dialog-centered modal-dialog-centered modal-dialog-scrollable"
             role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -223,166 +247,173 @@
 
                 </div>
                 <div class="modal-body">
+
+
                     <div class="row">
                         <div class="col-md-6">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Nama PIC Lender</label>
+                                        <input class="form-control" id="namaPicLenderEdit"
+                                            placeholder="PIC Lender"></input>
+                                        <small class="text-danger" id="errNamaPicLenderEdit"></small>
+                                    </div>
+                                </div>
 
-                            <div class="form-group">
-                                <label>Nama PIC Perusahaan</label>
-                                <input class="form-control" id="namaPicPerusahaanEdit"
-                                    placeholder="PIC Perushaan"></input>
-                                <small class="text-danger" id="errNamaPicPerusahaanEdit"></small>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Nama PIC HC / HRD</label>
+                                        <input class="form-control" id="namaPicInternalEdit"
+                                            placeholder="PIC Internal"></input>
+                                        <small class="text-danger" id="errNamaPicInternalEdit"></small>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label>Nama Lender</label>
+                                        <input class="form-control" id="namaLenderEdit"
+                                            placeholder="Nama Lender"></input>
+                                        <small class="text-danger" id="errNamaLenderEdit"></small>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Email Lender</label>
+                                        <input class="form-control" id="emailLenderEdit"
+                                            placeholder="Email Lender"></input>
+                                        <small class="text-danger" id="errEmailLenderEdit"></small>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Telepon</label>
+                                        <input class="form-control" id="teleponEdit" placeholder="62535252"
+                                            type="number"></input>
+                                        <small class="text-danger" id="errTeleponEdit"></small>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Provinsi</label>
+                                        <select class="form-control" id="provinsiSelectEdit" style="width: 100%">
+                                            <option disabled>Select</option>
+                                            @foreach ($data['provinsis'] as $provinsi)
+                                                <option value="{{ $provinsi->provinsi }}">{{ $provinsi->provinsi }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        <small class="text-danger" id="errProvinsiEdit"></small>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Kabupaten / Kota</label>
+                                        <select class="form-control" id="kabupatenSelectEdit" style="width: 100%">
+                                            <option disabled>Select</option>
+                                        </select>
+                                        <small class="text-danger" id="errKabupaten_kotaEdit"></small>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Kecamatan</label>
+                                        <select class="form-control" id="kecamatanSelectEdit" style="width: 100%">
+                                            <option disabled>Select</option>
+                                        </select>
+                                        <small class="text-danger" id="errKecamatanEdit"></small>
+                                    </div>
+                                </div>
+
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Desa</label>
+                                        <select class="form-control" id="desaSelectEdit" style="width: 100%">
+                                            <option disabled>Select</option>
+                                        </select>
+                                        <small class="text-danger" id="errDesaEdit"></small>
+                                    </div>
+                                </div>
+
+
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label>Alamat Lengkap</label>
+                                        <textarea class="form-control" id="alamatLengkapEdit" style="height: 70px;" placeholder="Alamat Lengkap"></textarea>
+                                        <small class="text-danger" id="errAlamatLengkapEdit"></small>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>No. perjanjian kerja sama Lender x TOMI</label>
+                                        <input class="form-control" id="nomor_pksEdit"
+                                            placeholder="012/TOMIKSP-FIT/VIII/2025" type="text"></input>
+                                        <small class="text-danger" id="errNomor_pksEdit"></small>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>File PKS</label>
+                                        <input class="form-control" id="filePKSEdit" type="file"></input>
+                                        <small class="text-danger" id="errPKSEdit"></small>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-
                         <div class="col-md-6">
-                            <div class="form-group">
-                                <label>Nama PIC HC / HRD</label>
-                                <input class="form-control" id="namaPicInternalEdit" placeholder="PIC Internal"></input>
-                                <small class="text-danger" id="errNamaPicInternalEdit"></small>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <label>Nama Bank</label>
+                                    <div class="form-group">
+                                        <select class="form-control" id="bankEdit">
+                                            @foreach ($data['bank'] as $bank)
+                                                <option value="{{ $bank->id }}">
+                                                    {{ $bank->code_bank }}
+                                                </option>
+                                            @endforeach
+                                            <small id="errBankEdit"></small>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label>A.N Rekening</label>
+                                        <input class="form-control" type="text" id="an_rekeningEdit"
+                                            value=""></input>
+                                        <small id="errANRekeningEdit"></small>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label>No Rekening</label>
+                                        <input class="form-control" type="number" id="no_rekeningEdit"
+                                            value=""></input>
+                                        <small id="errNoRekeningEdit"></small>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label>Status Lender :</label>
+                                        <select class="form-control" id="statusEdit">
+                                            <option value="active">ACTIVE</option>
+                                            <option value="nonactive">NONACTIVE</option>
+                                        </select>
+                                        <small id="errStatusEdit"></small>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>Nama Perusahaan</label>
-                                <input class="form-control" id="namaPerusahaanEdit"
-                                    placeholder="Nama Perusahaan"></input>
-                                <small class="text-danger" id="errNamaPerusahaanEdit"></small>
-                            </div>
-                        </div>
-
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>Telepon</label>
-                                <input class="form-control" id="teleponEdit" placeholder="62535252"
-                                    type="number"></input>
-                                <small class="text-danger" id="errTeleponEdit"></small>
-                            </div>
-                        </div>
-
-
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>Provinsi</label>
-                                <select class="form-control" id="provinsiSelectEdit" style="width: 100%">
-                                    <option disabled>Select</option>
-                                    @foreach ($provinsis as $provinsi)
-                                        <option value="{{ $provinsi->provinsi }}">{{ $provinsi->provinsi }}</option>
-                                    @endforeach
-                                </select>
-                                <small class="text-danger" id="errProvinsiEdit"></small>
-                            </div>
-                        </div>
-
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>Kabupaten / Kota</label>
-                                <select class="form-control" id="kabupatenSelectEdit" style="width: 100%">
-                                    <option disabled>Select</option>
-                                  
-                                </select>
-                                <small class="text-danger" id="errKabupaten_kotaEdit"></small>
-                            </div>
-                        </div>
-
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>Kecamatan</label>
-                                <select class="form-control" id="kecamatanSelectEdit" style="width: 100%">
-                                    <option disabled>Select</option>
-                                    
-                                </select>
-                                <small class="text-danger" id="errKecamatanEdit"></small>
-                            </div>
-                        </div>
-
-
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>Desa</label>
-                                <select class="form-control" id="desaSelectEdit" style="width: 100%">
-                                    <option disabled>Select</option>
-                                   
-                                </select>
-                                <small class="text-danger" id="errDesaEdit"></small>
-                            </div>
-                        </div>
-
-
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label>Alamat Lengkap</label>
-                                <textarea class="form-control" id="alamatEdit" style="height: 70px;" placeholder="Alamat Lengkap"></textarea>
-                                <small class="text-danger" id="errAlamatEdit"></small>
-                            </div>
-                        </div>
-
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>Payment Date</label>
-                                <select class="form-control" id="paymentDateEdit" placeholder="Alamat Lengkap"
-                                    type="date">
-                                    <option value="1">1</option>
-                                    <option value="2">2</option>
-                                    <option value="3">3</option>
-                                    <option value="4">4</option>
-                                    <option value="5">5</option>
-                                    <option value="6">6</option>
-                                    <option value="7">7</option>
-                                    <option value="8">8</option>
-                                    <option value="9">9</option>
-                                    <option value="10">10</option>
-                                    <option value="11">11</option>
-                                    <option value="12">12</option>
-                                    <option value="13">13</option>
-                                    <option value="14">14</option>
-                                    <option value="15">15</option>
-                                    <option value="16">16</option>
-                                    <option value="17">17</option>
-                                    <option value="18">18</option>
-                                    <option value="19">19</option>
-                                    <option value="20">20</option>
-                                    <option value="21">21</option>
-                                    <option value="22">22</option>
-                                    <option value="23">23</option>
-                                    <option value="24">24</option>
-                                    <option value="25">25</option>
-                                    <option value="26">26</option>
-                                    <option value="27">27</option>
-                                    <option value="28">28</option>
-                                    <option value="29">29</option>
-                                    <option value="30">30</option>
-                                    <option value="31">31</option>
-                                </select>
-                                <small class="text-danger" id="errPaymentDateEdit"></small>
-                            </div>
-
-                        </div>
-
-
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>No. perjanjian kerja sama lender x perusahaan</label>
-                                <input class="form-control" id="nomor_pksEdit" placeholder="42151231"
-                                    type="number"></input>
-                                <small class="text-danger" id="errNomor_pksEdit"></small>
-                            </div>
-                        </div>
-
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label>Status </label>
-                                <select class="form-control" id="statusEdit">
-                                    <option value="active">ACTIVE</option>
-                                    <option value="nonactive">NONACTIVE</option>
-                                </select>
-                            </div>
-                        </div>
-
-
                     </div>
-
-
 
                 </div>
                 <div class="modal-footer">
@@ -392,24 +423,24 @@
                 </div>
             </div>
         </div>
-    </div> --}}
+    </div>
 
 
     {{-- modal delete --}}
-    {{-- <div class="modal fade" id="modalDelete" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+    <div class="modal fade" id="modalDelete" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
         aria-hidden="true">
         <div class=" modal-dialog modal-dialog-centered modal-dialog-centered modal-dialog-scrollable" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalCenterTitle">Delete Perusahaan
+                    <h5 class="modal-title" id="exampleModalCenterTitle">Delete Lender
                     </h5>
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
                 </div>
                 <div class="modal-body">
                     <div class="text-center align-middle">
-                        <p>Apakah anda yakin menghapus perusahaan ini?, ini akan menghapus semua data karyawan dan
+                        <p>Apakah anda yakin menghapus lender ini?, ini akan berkaitan semua data karyawan dan
                             pinjaman
-                            yang bersangkutan dengan perusahaan ini</p>
+                            yang bersangkutan dengan lender ini</p>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -421,7 +452,7 @@
                 </div>
             </div>
         </div>
-    </div> --}}
+    </div>
 
 @endsection
 
@@ -509,65 +540,6 @@
 
 
 
-        // $('#provinsiSelectEdit').on('change', function() {
-        //     $.ajax({
-        //         url: '{!! route('admin.ksp.kabupaten') !!}',
-        //         data: {
-        //             '_token': "{{ csrf_token() }}",
-        //             'provinsi': this.value,
-        //         },
-        //         type: 'POST',
-        //         dataType: 'json',
-        //         success: function(result) {
-        //             result.map(item => {
-        //                 var option = new Option(item.kabupaten, item.kabupaten, true, true);
-        //                 $('#kabupatenSelectEdit').append(option);
-        //             })
-        //         }
-        //     });
-        // });
-
-        // $('#kabupatenSelectEdit').on('change', function() {
-        //     $.ajax({
-        //         url: '{!! route('admin.ksp.kecamatan') !!}',
-        //         data: {
-        //             '_token': "{{ csrf_token() }}",
-        //             'kabupaten': this.value,
-        //         },
-        //         type: 'POST',
-        //         dataType: 'json',
-        //         success: function(result) {
-        //             result.map(item => {
-        //                 var option = new Option(item.kecamatan, item.kecamatan, true, true);
-        //                 $('#kecamatanSelectEdit').append(option);
-        //             })
-        //         }
-        //     });
-        // });
-
-        // $('#kecamatanSelectEdit').on('change', function() {
-        //     $.ajax({
-        //         url: '{!! route('admin.ksp.desa') !!}',
-        //         data: {
-        //             '_token': "{{ csrf_token() }}",
-        //             'kecamatan': this.value,
-        //         },
-        //         type: 'POST',
-        //         dataType: 'json',
-        //         success: function(result) {
-        //             result.map(item => {
-        //                 var option = new Option(item.desa + ' - ' + item.kodepos, item.desa +
-        //                     '-' + item.kodepos,
-        //                     true,
-        //                     true);
-        //                 $('#desaSelectEdit').append(option);
-        //             })
-        //         }
-        //     });
-        // });
-
-
-
 
         var table = $('#tablelistLender').DataTable({
             dom: 'B<"clear">lfrtip',
@@ -576,7 +548,7 @@
                     className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
                     text: '<span class="mdi mdi-file-excel"><span class="pl-1">Excel</span></span>',
                     header: true,
-                    title: 'List Perusahaan',
+                    title: 'List Lender',
                     exportOptions: {
                         columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
                     },
@@ -612,23 +584,31 @@
             },
             ajax: {
                 "type": "POST",
-                "url": '{!! route('admin.ksp.perusahaan.table') !!}',
+                "url": '{!! route('admin.lender.table') !!}',
                 "data": function(xx) {
                     return $.extend(xx, dataTable);
                 },
             },
             columns: [{
-                data: 'id_code_perusahaan'
+                data: 'pendingApproval'
             }, {
-                data: 'unique_code'
+                data: 'last_updated'
             }, {
-                data: 'pic_perusahaan'
+                data: 'expired_updated'
+            }, {
+                data: 'id_code_lender'
+            }, {
+                data: 'pks'
+            }, {
+                data: 'nomor_pks'
+            }, {
+                data: 'pic_lender'
             }, {
                 data: 'pic_internal'
             }, {
                 data: 'nama'
             }, {
-                data: 'email_perusahaan'
+                data: 'email_lender'
             }, {
                 data: 'telp'
             }, {
@@ -642,51 +622,18 @@
             }, {
                 data: 'alamat_lengkap'
             }, {
-                data: 'payment_date'
+                data: 'bank'
             }, {
-                data: 'nomor_pks'
+                data: 'nama_rekening'
             }, {
-                data: 'list_karyawan'
-            }, {
-                data: 'proses_pengajuan'
-            }, {
-                data: 'konfigurasi_pinjaman'
+                data: 'no_rekening'
             }, {
                 data: 'status'
+            }, {
+                data: 'action'
             }]
         });
 
-        detail = (id) => {
-            $.ajax({
-                url: '{!! route('admin.ksp.detail') !!}',
-                data: {
-                    '_token': "{{ csrf_token() }}",
-                    'id': id,
-                },
-                type: 'POST',
-                dataType: 'json',
-                success: function(detail) {
-                    $("#modalShow").modal('show');
-                    $("#namePeminjam").text(detail.pengajuan.nama);
-                    $("#nik").text(detail.pengajuan.nik);
-                    $("#tanggalGabung").text(detail.pengajuan.tanggal_terdaftar);
-                    $("#alasanPengajuan").text(detail.pengajuan.tujuan);
-                    $("#idPengajuan").text(detail.pengajuan.id_pinjaman);
-                    $("#tanggalPengajuan").text(detail.pengajuan.tanggal_pengajuan);
-                    $("#statusPengajuan").text(detail.pengajuan.status);
-                    $("#plafonPinjaman").text(detail.pengajuan.plafon);
-                    $("#tenor").text(detail.pengajuan.tenor);
-                    $("#biayaAdmin").text(detail.pengajuan.percent);
-                    $("#angsuranPerbulan").text(detail.pengajuan.angsuran_perbulan);
-                    $("#jumlahDiterima").text(detail.pengajuan.jumlah_diterima);
-                }
-            });
-        }
-
-        approve = (id) => {
-            edit = id;
-            $("#modalApprove").modal('show');
-        }
 
         $('#saveVerif').on('click', function() {
             $.ajax({
@@ -713,33 +660,47 @@
             });
         })
 
-        $('#buttonSubmit').on('click', function() {
-            $.ajax({
-                url: '{!! route('admin.ksp.add.perusahaan') !!}',
-                data: {
-                    '_token': "{{ csrf_token() }}",
 
-                    'pic_perusahaan': $("#namaPicPerusahaan").val(),
-                    'pic_internal': $("#namaPicInternal").val(),
-                    'nama_perusahaan': $("#namaPerusahaan").val(),
-                    'email_perusahaan': $("#emailPerusahaan").val(),
-                    'telepon': $("#telepon").val(),
-                    'provinsi': $("#provinsiSelect").val(),
-                    'kabupaten': $("#kabupatenSelect").val(),
-                    'kecamatan': $("#kecamatanSelect").val(),
-                    'desa': $("#desaSelect").val(),
-                    'alamat_lengkap': $("#alamatLengkap").val(),
-                    'payment_date': $("#paymentDate").val(),
-                    'nomor_pks': $("#nomor_pks").val(),
-                },
+        $('#buttonSubmit').on('click', function() {
+            // Clear previous error messages
+            $('.text-danger').text('');
+
+            // Create a FormData object to handle both text and file inputs
+            const formData = new FormData();
+            formData.append('_token', "{{ csrf_token() }}");
+
+            // Append all form data using the new IDs
+            formData.append('pic_lender', $("#namaPicLender").val()); // Changed from namaPicPerusahaan
+            formData.append('pic_internal', $("#namaPicInternal").val());
+            formData.append('nama_lender', $("#namaLender").val()); // Changed from namaPerusahaan
+            formData.append('email_lender', $("#emailLender").val()); // Changed from emailPerusahaan
+            formData.append('telepon', $("#telepon").val());
+            formData.append('provinsi', $("#provinsiSelect").val());
+            formData.append('kabupaten', $("#kabupatenSelect")
+                .val()); // The HTML has errKabupaten_kota, but the field is named kabupatenSelect
+            formData.append('kecamatan', $("#kecamatanSelect").val());
+            formData.append('desa', $("#desaSelect").val());
+            formData.append('alamat_lengkap', $("#alamatLengkap").val());
+            formData.append('nomor_pks', $("#nomor_pks").val());
+            formData.append('file_pks', $('#filePKS')[0].files[0]); // Append the file
+            // Check for bank details
+            formData.append('bank', $("#bank").val());
+            formData.append('an_rekening', $("#an_rekening").val());
+            formData.append('no_rekening', $("#no_rekening").val());
+
+            $.ajax({
+                url: '{!! route('admin.lender.add') !!}',
+                data: formData,
                 type: 'POST',
                 dataType: 'json',
+                contentType: false, // Required for FormData
+                processData: false, // Required for FormData
                 beforeSend: function() {
                     $('#buttonSubmit').attr("disabled", true);
                     $('#loadingText').addClass("spinner-border");
                 },
                 success: function(add) {
-                    toastr.success(add.message)
+                    toastr.success(add.message);
                     table.ajax.reload();
                     $("#modalAdd").modal('hide');
                     $('#buttonSubmit').attr("disabled", false);
@@ -748,27 +709,40 @@
                 error: function(err) {
                     $('#buttonSubmit').attr("disabled", false);
                     $('#loadingText').removeClass("spinner-border");
-                    $('#errNamaPicPerusahaan').text(err.responseJSON.errors.nama_perusahaan);
-                    $('#errNamaPicInternal').text(err.responseJSON.errors.nama_perusahaan);
-                    $('#errNamaPerusahaan').text(err.responseJSON.errors.nama_perusahaan);
-                    $('#errEmailPerusahaan').text(err.responseJSON.errors.email_perusahaan);
-                    $('#errTelepon').text(err.responseJSON.errors.telepon);
-                    $('#errAlamatLengkap').text(err.responseJSON.errors.alamat_lengkap);
-                    $('#errNomor_pks').text(err.responseJSON.errors.nomor_pks);
-                    $('#errProvinsi').text(err.responseJSON.errors.provinsi);
-                    $('#errKabupaten').text(err.responseJSON.errors.kabupaten);
-                    $('#errKecamatan').text(err.responseJSON.errors.kecamatan);
-                    $('#errDesa').text(err.responseJSON.errors.desa);
-                    $('#errPaymentDate').text(err.responseJSON.errors.payment_date);
+
+                    // Map the errors to the new, correct IDs
+                    const errors = err.responseJSON.errors;
+                    if (errors) {
+                        $('#errNamaPicLender').text(errors.pic_lender ? errors.pic_lender[0] :
+                            '');
+                        $('#errNamaPicInternal').text(errors.pic_internal ? errors.pic_internal[0] :
+                            '');
+                        $('#errNamaLender').text(errors.nama_lender ? errors.nama_lender[0] :
+                            '');
+                        $('#errEmailLender').text(errors.email_lender ? errors.email_lender[0] :
+                            '');
+                        $('#errTelepon').text(errors.telepon ? errors.telepon[0] : '');
+                        $('#errAlamatLengkap').text(errors.alamat_lengkap ? errors.alamat_lengkap[0] :
+                            '');
+                        $('#errNomor_pks').text(errors.nomor_pks ? errors.nomor_pks[0] : '');
+                        $('#errPKS').text(errors.file_pks ? errors.file_pks[0] :
+                            '');
+                        $('#errProvinsi').text(errors.provinsi ? errors.provinsi[0] : '');
+                        $('#errKabupaten_kota').text(errors.kabupaten ? errors.kabupaten[0] : '');
+                        $('#errKecamatan').text(errors.kecamatan ? errors.kecamatan[0] : '');
+                        $('#errDesa').text(errors.desa ? errors.desa[0] : '');
+                        $('#errBank').text(errors.bank ? errors.bank[0] : '');
+                        $('#errANRekening').text(errors.an_rekening ? errors.an_rekening[0] : '');
+                        $('#errNoRekening').text(errors.no_rekening ? errors.no_rekening[0] : '');
+                    }
                 }
             });
-        })
+        });
 
-
-        edit = (id) => {
+        editLender = (id) => {
             editID = id;
             $.ajax({
-                url: '{!! route('admin.ksp.detail.perusahaan') !!}',
+                url: '{!! route('admin.lender.detail') !!}',
                 data: {
                     '_token': "{{ csrf_token() }}",
                     'id': editID,
@@ -776,14 +750,17 @@
                 type: 'POST',
                 dataType: 'json',
                 success: function(detail) {
-                    $("#namaPicPerusahaanEdit").val(detail.data.pic_perusahaan);
+                    $("#namaPicLenderEdit").val(detail.data.pic_lender);
                     $("#namaPicInternalEdit").val(detail.data.pic_internal);
-                    $("#namaPerusahaanEdit").val(detail.data.nama);
+                    $("#namaLenderEdit").val(detail.data.nama);
+                    $("#emailLenderEdit").val(detail.data.email_lender);
                     $("#teleponEdit").val(detail.data.telp);
-                    $("#alamatEdit").val(detail.data.alamat_lengkap);
+                    $("#alamatLengkapEdit").val(detail.data.alamat_lengkap);
                     $("#nomor_pksEdit").val(detail.data.nomor_pks);
                     $("#statusEdit").val(detail.data.status);
-                    $("#paymentDateEdit").val(detail.data.payment_date);
+                    $("#bankEdit").val(detail.data.id_bank);
+                    $("#an_rekeningEdit").val(detail.data.nama_rekening);
+                    $("#no_rekeningEdit").val(detail.data.no_rekening);
                     $("#provinsiSelectEdit").val(detail.data.provinsi).trigger('change');
                     $("#kabupatenSelectEdit").empty();
 
@@ -820,30 +797,46 @@
 
 
         $('#buttonSubmitEdit').on('click', function() {
+            // Clear previous error messages
+            $('.text-danger').text('');
+
+            // Create a FormData object to handle both text and file inputs
+            const formData = new FormData();
+            formData.append('_token', "{{ csrf_token() }}");
+            // Append all form data using the new IDs
+            formData.append('id', editID); // Changed from namaPicPerusahaan
+            formData.append('pic_lender', $("#namaPicLenderEdit").val()); // Changed from namaPicPerusahaan
+            formData.append('pic_internal', $("#namaPicInternalEdit").val());
+            formData.append('nama_lender', $("#namaLenderEdit").val()); // Changed from namaPerusahaan
+            formData.append('email_lender', $("#emailLenderEdit").val()); // Changed from emailPerusahaan
+            formData.append('telepon', $("#teleponEdit").val());
+            formData.append('provinsi', $("#provinsiSelectEdit").val());
+            formData.append('kabupaten', $("#kabupatenSelectEdit")
+                .val()); // The HTML has errKabupaten_kota, but the field is named kabupatenSelect
+            formData.append('kecamatan', $("#kecamatanSelectEdit").val());
+            formData.append('desa', $("#desaSelectEdit").val());
+            formData.append('alamat_lengkap', $("#alamatLengkapEdit").val());
+            formData.append('nomor_pks', $("#nomor_pksEdit").val());
+            formData.append("file_pks", $('#filePKSEdit')[0].files[0] ?? "");
+            // Check for bank details
+            formData.append('bank', $("#bankEdit").val());
+            formData.append('an_rekening', $("#an_rekeningEdit").val());
+            formData.append('no_rekening', $("#no_rekeningEdit").val());
+            formData.append('status', $("#statusEdit").val());
+
             $.ajax({
-                url: '{!! route('admin.ksp.edit.perusahaan') !!}',
-                data: {
-                    '_token': "{{ csrf_token() }}",
-                    'id': editID,
-                    'nama_perusahaan': $("#namaPerusahaanEdit").val(),
-                    'telepon': $("#teleponEdit").val(),
-                    'provinsi': $("#provinsiSelectEdit").val(),
-                    'kabupaten': $("#kabupatenSelectEdit").val(),
-                    'kecamatan': $("#kecamatanSelectEdit").val(),
-                    'desa': $("#desaSelectEdit").val(),
-                    'alamat_lengkap': $("#alamatEdit").val(),
-                    'payment_date': $("#paymentDateEdit").val(),
-                    'nomor_pks': $("#nomor_pksEdit").val(),
-                    'status': $("#statusEdit").val(),
-                },
+                url: '{!! route('admin.lender.update') !!}',
+                data: formData,
                 type: 'POST',
                 dataType: 'json',
+                contentType: false, // Required for FormData
+                processData: false, // Required for FormData
                 beforeSend: function() {
                     $('#buttonSubmitEdit').attr("disabled", true);
                     $('#loadingTextEdit').addClass("spinner-border");
                 },
                 success: function(add) {
-                    toastr.success(add.message)
+                    toastr.success(add.message);
                     table.ajax.reload();
                     $("#modalEdit").modal('hide');
                     $('#buttonSubmitEdit').attr("disabled", false);
@@ -852,22 +845,49 @@
                 error: function(err) {
                     $('#buttonSubmitEdit').attr("disabled", false);
                     $('#loadingTextEdit').removeClass("spinner-border");
-                    $('#errNamaPerusahaanEdit').text(err.responseJSON.errors.nama_perusahaan);
-                    $('#errTeleponEdit').text(err.responseJSON.errors.telepon);
-                    $('#errAlamatEdit').text(err.responseJSON.errors.alamat);
-                    $('#errNomor_pksEdit').text(err.responseJSON.errors.nomor_pks);
+
+                    // Map the errors to the new, correct IDs
+                    const errors = err.responseJSON.errors;
+                    if (errors) {
+                        $('#errNamaPicLenderEdit').text(errors.pic_lender ? errors.pic_lender[
+                                0] :
+                            '');
+                        $('#errNamaPicInternalEdit').text(errors.pic_internal ? errors.pic_internal[0] :
+                            '');
+                        $('#errNamaLenderEdit').text(errors.nama_lender ? errors.nama_lender[
+                                0] :
+                            '');
+                        $('#errEmailLenderEdit').text(errors.email_lender ? errors.email_lender[
+                                0] :
+                            '');
+                        $('#errTeleponEdit').text(errors.telepon ? errors.telepon[0] : '');
+                        $('#errAlamatLengkapEdit').text(errors.alamat_lengkap ? errors.alamat_lengkap[
+                                0] :
+                            '');
+                        $('#errNomor_pksEdit').text(errors.nomor_pks ? errors.nomor_pks[0] : '');
+                        $('#errPKSEdit').text(errors.file_pks ? errors.file_pks[0] :
+                            '');
+                        $('#errProvinsiEdit').text(errors.provinsi ? errors.provinsi[0] : '');
+                        $('#errKabupaten_kotaEdit').text(errors.kabupaten ? errors.kabupaten[0] : '');
+                        $('#errKecamatanEdit').text(errors.kecamatan ? errors.kecamatan[0] : '');
+                        $('#errDesaEdit').text(errors.desa ? errors.desa[0] : '');
+                        $('#errBankEdit').text(errors.bank ? errors.bank[0] : '');
+                        $('#errANRekeningEdit').text(errors.an_rekening ? errors.an_rekening[0] : '');
+                        $('#errNoRekeningEdit').text(errors.no_rekening ? errors.no_rekening[0] : '');
+                        $('#errStatusEdit').text(errors.status ? errors.status[0] : '');
+                    }
                 }
             });
-        })
+        });
 
-        deletePerusahaan = (id) => {
+        deleteLender = (id) => {
             deleteID = id;
             $('#modalDelete').modal('show');
         }
 
         buttonDelete = () => {
             $.ajax({
-                url: '{!! route('admin.ksp.delete.perusahaan') !!}',
+                url: '{!! route('admin.lender.delete') !!}',
                 data: {
                     '_token': "{{ csrf_token() }}",
                     'id': deleteID,
@@ -884,6 +904,38 @@
                     $("#modalDelete").modal('hide');
                     $('#buttonDelete').attr("disabled", false);
                     $('#loadingTextDelete').removeClass("spinner-border");
+                },
+                error: function(err) {
+                    toastr.success(err.message)
+                    table.ajax.reload();
+                    $("#modalDelete").modal('hide');
+                    $('#buttonDelete').attr("disabled", false);
+                    $('#loadingTextDelete').removeClass("spinner-border");
+                }
+            });
+        }
+
+        filePks = (id) => {
+            $.ajax({
+                url: '{!! route('admin.lender.pks.show') !!}',
+                data: {
+                    '_token': "{{ csrf_token() }}",
+                    'id': id,
+                },
+                type: 'POST',
+                xhrFields: {
+                    responseType: 'blob'
+                },
+                success: function(res) {
+                    const blob = new Blob([res], {
+                        type: 'application/pdf'
+                    });
+                    const url = window.URL.createObjectURL(blob);
+                    window.open(url, '_blank');
+                },
+                error: function(xhr, status, error) {
+                    console.error("Terjadi kesalahan:", status, error);
+                    alert("Gagal menampilkan dokumen. Silakan coba lagi.");
                 }
             });
         }

@@ -73,8 +73,14 @@ Route::middleware(['AdminMiddleware'])->group(
                 Route::post('/ksp/detail/perusahaan', [KspController::class, 'detailPerusahaan'])->name('admin.ksp.detail.perusahaan');
                 Route::post('/ksp/edit/perusahaan', [KspController::class, 'editPerusahaan'])->name('admin.ksp.edit.perusahaan');
                 Route::post('/ksp/delete/perusahaan', [KspController::class, 'deletePerusahaan'])->name('admin.ksp.delete.perusahaan');
-                // KSP => lender
-                Route::get('/ksp/lender', [LenderController::class, 'index'])->name('admin.lender.index');
+                // ksp => lender
+                Route::get('/ksp/lender', [LenderController::class, 'indexLender'])->name('admin.lender.index');
+                Route::post('/ksp/lender/add', [LenderController::class, 'addLender'])->name('admin.lender.add');
+                Route::post('/ksp/lender/table', [LenderController::class, 'lenderTable'])->name('admin.lender.table');
+                Route::post('/ksp/lender/pks/show', [LenderController::class, 'pksShow'])->name('admin.lender.pks.show');
+                Route::post('/ksp/lender/detail', [LenderController::class, 'lenderDetail'])->name('admin.lender.detail');
+                Route::post('/ksp/lender/update', [LenderController::class, 'updateLender'])->name('admin.lender.update');
+                Route::post('/ksp/lender/delete', [LenderController::class, 'deleteLender'])->name('admin.lender.delete');
 
                 // KSP => Karyawan
                 Route::get('/ksp/list/karyawan/{id}', [KspController::class, 'listKaryawan'])->name('admin.list.karyawan');
@@ -127,10 +133,18 @@ Route::middleware(['AdminMiddleware'])->group(
                 Route::post('/cost/ksp/add', [CostController::class, 'costAdd'])->name('admin.cost.add');
                 Route::post('/cost/ksp/save/rekening', [CostController::class, 'saveRekening'])->name('admin.cost.save.rekening');
                 Route::post('/cost/ksp/save/rekening/pandu', [CostController::class, 'saveRekeningPandu'])->name('admin.cost.save.rekeningPandu');
+
+
+
                 // ota => mobile
                 Route::get('/ota', [OtaController::class, 'otaIndex'])->name('admin.ota.index');
                 Route::post('/ota/upload', [OtaController::class, 'otaUpload'])->name('admin.ota.upload');
                 Route::post('/ota/table', [OtaController::class, 'otaTable'])->name('admin.ota.table');
+
+                // manage admin
+                Route::get('/manage/admin', [AuthController::class, 'manageAdminIndex'])->name('admin.manage.admin.index');
+                Route::post('/manage/admin/table', [AuthController::class, 'manageAdminTable'])->name('admin.manage.admin.table');
+                Route::post('/manage/admin/add', [AuthController::class, 'manageAdminAdd'])->name('admin.manage.admin.add');
             }
         );
     }

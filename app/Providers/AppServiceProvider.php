@@ -2,6 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\Admin;
+use App\Models\lender;
+use App\Observers\AdminObserver;
+use App\Observers\LenderObserver;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 
@@ -22,6 +26,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        lender::observe(LenderObserver::class);
+        Admin::observe(AdminObserver::class);
     }
 }

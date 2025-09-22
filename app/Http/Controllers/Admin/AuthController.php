@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\Auth\AddAdminRequest;
 use App\Http\Requests\Admin\Auth\DoForgorPasswordRequest;
 use App\Mail\ForgotEmailBackend;
 use App\Models\Admin;
@@ -13,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
+use Yajra\DataTables\Facades\DataTables;
 
 class AuthController extends Controller
 {
@@ -144,11 +146,83 @@ class AuthController extends Controller
         }
     }
 
-
     public function logoutAction()
     {
         session(['2fa_passed' => false]);
         auth('admin')->logout();
         return redirect()->route('admin.login');
+    }
+
+    // manage admin
+    public function manageAdminIndex()
+    {
+        return view('admin.auth.manage.index');
+    }
+
+
+    public function manageAdminTable()
+    {
+        $admin = Admin::get();
+        return DataTables::of($admin)
+            ->addIndexColumn()
+
+            ->addColumn('created_at', function ($row) {
+                return Carbon::parse($row->created_at)->format('Y-m-d H:i:s');
+            })
+
+            ->addColumn('updated_at', function ($row) {
+                return Carbon::parse($row->updated_at)->format('Y-m-d H:i:s');
+            })
+
+            ->addColumn('google2fa_secret', function ($row) {
+                if ($row->google2fa_secret != null) {
+                    $auth2fa = '<span class="badge badge-success">ACTIVE</span>';
+                } else {
+                    $auth2fa = '<span class="badge badge-warning">INACTIVE</span>';
+                }
+                return $auth2fa;
+            })
+
+            ->addColumn('type', function ($row) {
+                if ($row->type == "master") {
+                    $type = '<span class="badge badge-success">MASTER</span>';
+                } else {
+                    $type = '<span class="badge badge-warning">ADMIN</span>';
+                }
+                return $type;
+            })
+
+            ->addColumn('action', function ($row) {
+                return '<button class="btn btn-sm btn-primary mr-2" onclick="editLender(' . $row->id . ')"><i class="mdi mdi-pencil"></i> </button>
+                    <button class="btn btn-sm btn-danger mr-2" onclick="deleteLender(' . $row->id . ')"><i class=" mdi mdi-trash-can"></i> </button>';
+            })
+
+            ->rawColumns(['action', 'google2fa_secret', 'type'])
+            ->only([
+                'DT_RowIndex',
+                'created_at',
+                'updated_at',
+                'username',
+                'email',
+                'type',
+                'google2fa_secret',
+                'action'
+            ])
+            ->toJson();
+    }
+
+    public function manageAdminAdd(AddAdminRequest $req)
+    {
+        $admin = new Admin();
+        $admin->username = $req->username;
+        $admin->email = $req->email;
+        $admin->type = $req->type_admin;
+        $admin->password = Hash::make($req->password);
+        $admin->save();
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Admin Berhasil Ditambahkan'
+        ], 200);
     }
 }

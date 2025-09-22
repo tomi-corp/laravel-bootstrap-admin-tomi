@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('list_perusahaans', function (Blueprint $table) {
             $table->id();
+            $table->string('unique_code')->unique();
             $table->string('id_code_perusahaan')->unique();
             $table->string('pic_perusahaan');
             $table->string('pic_internal');

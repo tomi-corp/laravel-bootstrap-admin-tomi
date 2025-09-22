@@ -15,10 +15,11 @@ return new class extends Migration
             $table->id();
             $table->string('google2fa_secret')->nullable();
             $table->string('username');
-            $table->string('pin');
+            $table->string('pin')->nullable();
             $table->string('email');
             $table->string('password');
             $table->enum('type', ['admin', 'master']);
+            $table->softDeletes();
             $table->timestamps();
         });
     }

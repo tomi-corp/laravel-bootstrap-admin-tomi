@@ -175,7 +175,7 @@ class AuthController extends Controller
 
     public function revisiEmail(RevisiEmailRequest $req)
     {
-        $user = User::where('id', auth('admin')->user()->id)->first();
+        $user = User::where('id', auth('api')->user()->id)->first();
         $user->email = $req->email;
         $user->save();
 

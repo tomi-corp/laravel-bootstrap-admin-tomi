@@ -128,8 +128,7 @@
 
                     <div class="form-group">
                         <label>Wa OTP</label>
-                        <input class="form-control" id="waotp" type="number"
-                            value="{{ $data['wa_otp'] }}"></input>
+                        <input class="form-control" id="waotp" type="number" value="{{ $data['wa_otp'] }}"></input>
                         <small id="errwaotp"></small>
                     </div>
 
