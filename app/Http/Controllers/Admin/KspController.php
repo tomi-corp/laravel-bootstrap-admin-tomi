@@ -1085,28 +1085,14 @@ class KspController extends Controller
     public function invoicingTable(Request $req)
     {
 
-        $pinjamanBulan = Pinjaman::whereHas('perusahaan', function ($query) use ($req) {
-            $query->where('id', $req->id);
-        })
-            ->where('status', 'approve')
-            ->orWhere('status', 'done')
-            ->Leftjoin('history_invoicing_lenders', 'history_invoicing_lenders.id_list_perusahaan', '=', 'pinjamen.id_perusahaan')
-            ->selectRaw('
-                    COUNT(pinjamen.id) as total_pinjaman,
-                    SUM(pinjamen.biaya_admin_pandu) as biaya_admin_pandu,
-                    SUM(pinjamen.biaya_layanan) as biaya_layanan,
-                    YEAR(pinjamen.created_at) as tahun,
-                    MONTH(pinjamen.created_at) as bulan,
-                    history_invoicing_lenders.period
-                ')
-            ->groupBy('tahun', 'bulan', 'history_invoicing_lenders.period')
-            ->orderByDesc('tahun')
-            ->orderByDesc('bulan')
+        $invoice = invoicing_pinjaman::where('id_list_perusahaan', $req->id)
+            ->with(['pinjaman' => function ($q) {
+                $q->with('angsuran');
+            }, 'perusahaan'])
             ->get();
 
-        dd($pinjamanBulan);
 
-        return DataTables::of($pinjamanBulan)
+        return DataTables::of($invoice)
             ->addIndexColumn()
 
             ->addColumn('period', function ($row) {

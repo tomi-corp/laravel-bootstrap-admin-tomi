@@ -140,7 +140,8 @@
                 <ul>
                     <li>Tab <b>on proses</b> ketika peminjam melakukan peminjaman dan belum melakukan aksi OTP
                     </li>
-                    <li>Tab <b>pending</b> ketika end user melakukan peminjaman dan sudah sampai tahap tanda tangan privy, menunggu untuk dilakukan disbursement oleh admin</li>
+                    <li>Tab <b>pending</b> ketika end user melakukan peminjaman dan sudah sampai tahap tanda tangan privy,
+                        menunggu untuk dilakukan disbursement oleh admin</li>
                     <li>Tab <b>approve</b> ketika peminjam berhasil mendapatkan dana dan memiliki cicilan yang berjalan</li>
                     <li>Tab <b>done</b> ketika peminjam sudah melunasi semua cicilan yang berjalan</li>
                 </ul>
@@ -291,11 +292,11 @@
                     </div>
                 </div>
             </div>
-            <div class="card">
+            {{-- <div class="card">
                 <div class="card-body">
                     <div class="card">
                         <div class="card-body">
-                            {{-- <h4 class="header-title mb-3">Tagihan</h4> --}}
+                            <h4 class="header-title mb-3">Tagihan</h4>
                             <table id="tableInvoice" class="table dt-responsive table-hover text-center justify-center"
                                 style="width:100%">
                                 <thead>
@@ -312,7 +313,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> --}}
         </div>
 
         {{-- modal detail Angsuran --}}
@@ -352,9 +353,9 @@
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
                     </div>
                     <div class="modal-body text-center align-middle">
-                        <span >Apakah anda yakin untuk melunasi invoicing ini terhadap Lender ?</span>
+                        <span>Apakah anda yakin untuk melunasi invoicing ini terhadap Lender ?</span>
                     </div>
-                </hr>
+                    </hr>
                     <div class="container">
                         <div class="checkbox mb-2 checkbox-info">
                             <input id="checkbox04" type="checkbox" onchange="changeButton()">
@@ -369,7 +370,7 @@
                             onClick="saveInvoicing()">save <div id="loadingTextInvoicing">
                             </div></button>
                     </div>
-                    
+
                 </div>
             </div>
         </div>
@@ -467,7 +468,7 @@
                         className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
                         text: '<span class="mdi mdi-file-excel"><span class="pl-1">Excel</span></span>',
                         header: true,
-                         title: 'List On Process',
+                        title: 'List On Process',
                         exportOptions: {
                             columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
                         },
@@ -477,7 +478,7 @@
                         className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
                         text: '<span class="mdi mdi-content-copy"><span class="pl-1">Copy</span></span>',
                         header: true,
-                         title: 'List On Process',
+                        title: 'List On Process',
                         exportOptions: {
                             columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
                         },
@@ -487,7 +488,7 @@
                         className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
                         text: '<span class="mdi mdi-printer"><span class="pl-1">Print</span></span>',
                         header: true,
-                         title: 'List On Process',
+                        title: 'List On Process',
                         exportOptions: {
                             columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
                         },
@@ -630,7 +631,7 @@
                         extend: 'copy',
                         className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
                         text: '<span class="mdi mdi-content-copy"><span class="pl-1">Copy</span></span>',
-                            header: true,
+                        header: true,
                         title: 'List Approve',
                         exportOptions: {
                             columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
@@ -706,7 +707,7 @@
                         extend: 'excel',
                         className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
                         text: '<span class="mdi mdi-file-excel"><span class="pl-1">Excel</span></span>',
-                       header: true,
+                        header: true,
                         title: 'List Done',
                         exportOptions: {
                             columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
@@ -843,7 +844,7 @@
                 })
             }
 
-            editInvoicing  = (tahun, bulan) => {
+            editInvoicing = (tahun, bulan) => {
                 tahunInvoicing = tahun;
                 bulanInvoicing = bulan;
                 $('#modalUpdateInvoicing').modal('show');
@@ -938,11 +939,9 @@
                     data: 'download_invoice',
                 }, {
                     data: 'status_invoicing',
-                },  {
+                }, {
                     data: 'action',
                 }]
             });
-
-        
         </script>
     @endpush

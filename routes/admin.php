@@ -23,7 +23,6 @@ Route::middleware(['LoginAdminMiddleware'])->group(
         Route::get('/forgot/password/{token}', [AuthController::class, 'forgotUpdatePassword'])->name('admin.forgot.token');
         Route::post('/forgot/password/do/action/{token}', [AuthController::class, 'forgotActionDo'])->name('admin.do.forgot.action');
         Route::post('/login', [AuthController::class, 'loginAction'])->name('admin.login.action');
-        Route::get('/ota/download/{id}', [OtaController::class, 'otaDownload'])->name('admin.ota.download');
     }
 );
 
@@ -158,6 +157,7 @@ Route::middleware(['AdminMiddleware'])->group(
                 Route::get('/ota', [OtaController::class, 'otaIndex'])->name('admin.ota.index');
                 Route::post('/ota/upload', [OtaController::class, 'otaUpload'])->name('admin.ota.upload');
                 Route::post('/ota/table', [OtaController::class, 'otaTable'])->name('admin.ota.table');
+                Route::post('/ota/delete', [OtaController::class, 'deleteOta'])->name('admin.ota.delete');
 
                 // manage admin
                 Route::get('/manage/admin', [AuthController::class, 'manageAdminIndex'])->name('admin.manage.admin.index');

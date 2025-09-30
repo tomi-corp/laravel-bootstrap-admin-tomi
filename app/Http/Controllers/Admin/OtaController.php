@@ -24,11 +24,6 @@ class OtaController extends Controller
         $versionMajor  = $req->versionMajor;
         $versionMinor  = $req->versionMinor;
         $otaUpdateID  = $req->otaUpdateID;
-        $file     = $req->file('file');
-
-        $ext      = $file->getClientOriginalExtension();
-        $filename = "ota_{$platform}_v{$versionMajor}_{$versionMinor}_{$otaUpdateID}" . time() . ".{$ext}";
-        $path = $file->storeAs('ota', $filename);
 
         $ota = new OtaUpdate();
         $ota->platform = $platform;
@@ -36,7 +31,6 @@ class OtaController extends Controller
         $ota->versionMinor = $versionMinor;
         $ota->otaUpdateID = $otaUpdateID;
         $ota->changelog = $req->changelog;
-        $ota->file_path = $filename;
         $ota->save();
         return response()->json([
             'status' => 200,
@@ -48,16 +42,9 @@ class OtaController extends Controller
         $data = OtaUpdate::latest();
 
         return DataTables::of($data)
-            ->addColumn('file', function ($row) {
-                return '<a href="' . route('admin.ota.download', $row->id) . '" target="_blank">Download</a>';
-            })
             ->addColumn('action', function ($row) {
-                // $btn = '<form action="' . route('admin.ota.destroy', $row->id) . '" method="POST" style="display:inline-block;">';
-                // $btn .= csrf_field() . method_field('DELETE');
-                // $btn .= '<button type="submit" class="btn btn-sm btn-danger" onclick="return confirm(\'Hapus update ini?\')">Hapus</button>';
-                // $btn .= '</form>';
-                // return $btn;
-                return "av";
+                return '<button class="btn btn-sm btn-danger mr-2" onclick="deleteOta(' . $row->id . ')"><i class=" mdi mdi-trash-can"></i> </button>
+                ';
             })
 
             ->editColumn('created_at', function ($row) {
@@ -67,10 +54,13 @@ class OtaController extends Controller
             ->toJson();
     }
 
-    public function otaDownload($id)
+
+    public function deleteOta(Request $req)
     {
-        $dec = decryptSecure($id);
-        $update = OtaUpdate::findOrFail($dec);
-        return Storage::disk('ota')->download($update->file_path);
+        $data = OtaUpdate::where('id', $req->id)->first()->delete();
+        return response()->json([
+            'status' => 200,
+            'message' => 'OTA berhasil dihapus'
+        ], 200);
     }
 }

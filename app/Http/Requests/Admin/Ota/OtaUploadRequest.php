@@ -27,7 +27,6 @@ class OtaUploadRequest extends FormRequest
             'versionMinor'  => ['required', 'regex:/^\d+(\.\d+){2,3}$/'],
             'otaUpdateID'  => 'required',
             'changelog' => 'required',
-            'file' => 'required|mimes:zip,bundle|max:50000',
         ];
     }
 }

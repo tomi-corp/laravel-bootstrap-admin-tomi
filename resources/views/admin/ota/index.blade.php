@@ -58,22 +58,6 @@
                         <small class="text-danger" id="errChangelog"></small>
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">File OTA (.zip/.bundle)</label>
-                        <input type="file" name="file" class="form-control" accept=".zip,.bundle" required
-                            id="fileota">
-                        <small class="text-danger" id="errFileOTA"></small>
-                    </div>
-
-                    <!-- Progress bar -->
-                    <div class="mb-3" id="progressWrapper" style="display:none;">
-                        <label class="form-label">Upload Progress</label>
-                        <div class="progress">
-                            <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated"
-                                role="progressbar" style="width: 0%">0%</div>
-                        </div>
-                    </div>
-
                     <button class="btn btn-primary float-right" type="button" id="buttonSubmit">
                         Save
                         <div id="loadingText"></div>
@@ -96,11 +80,37 @@
                                 <th>Version Minor</th>
                                 <th>OTA Updates ID</th>
                                 <th>Changelog</th>
-                                <th>File</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
                     </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    {{-- modal delete --}}
+    <div class="modal fade" id="modalDelete" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+        aria-hidden="true">
+        <div class=" modal-dialog modal-dialog-centered modal-dialog-centered modal-dialog-scrollable" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalCenterTitle">Delete OTA
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center align-middle">
+                        <p>Apakah anda yakin menghapus OTA ini?</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button class="btn btn-danger" type="button" id="buttonDelete" onclick="buttonDelete()">Delete
+                        <div id="loadingTextDelete">
+                        </div>
+                    </button>
                 </div>
             </div>
         </div>
@@ -110,6 +120,7 @@
 @push('js')
     <script>
         let table;
+        let deleteID;
 
         $(document).ready(function() {
             // Init DataTable
@@ -174,13 +185,7 @@
                     },
                     {
                         data: 'changelog'
-                    },
-                    {
-                        data: 'file',
-                        orderable: false,
-                        searchable: false
-                    },
-                    {
+                    }, {
                         data: 'action',
                         orderable: false,
                         searchable: false
@@ -198,8 +203,6 @@
             formData.append('versionMinor', $("#versionMinor").val());
             formData.append('otaUpdateID', $("#otaUpdateID").val());
             formData.append('changelog', $("#changelog").val());
-            let file = $('#fileota')[0].files[0];
-            formData.append('file', file);
 
             $.ajax({
                 url: '{!! route('admin.ota.upload') !!}',
@@ -208,18 +211,6 @@
                 dataType: 'json',
                 processData: false,
                 contentType: false,
-                xhr: function() {
-                    let xhr = new window.XMLHttpRequest();
-                    xhr.upload.addEventListener("progress", function(evt) {
-                        if (evt.lengthComputable) {
-                            let percentComplete = Math.round((evt.loaded / evt.total) * 100);
-                            $("#progressWrapper").show();
-                            $("#progressBar").css("width", percentComplete + "%").text(
-                                percentComplete + "%");
-                        }
-                    }, false);
-                    return xhr;
-                },
                 beforeSend: function() {
                     $('#buttonSubmit').attr("disabled", true);
                     $('#loadingText').addClass("spinner-border");
@@ -228,10 +219,8 @@
                 },
                 success: function(res) {
                     toastr.success(res.message);
-
                     // reload datatable
                     table.ajax.reload();
-
                     $('#buttonSubmit').attr("disabled", false);
                     $('#loadingText').removeClass("spinner-border");
 
@@ -241,13 +230,10 @@
                     $('#versionMinor').val('');
                     $('#otaUpdateID').val('');
                     $('#changelog').val('');
-                    $('#fileota').val('');
-                    $("#progressWrapper").hide();
                 },
                 error: function(err) {
                     $('#buttonSubmit').attr("disabled", false);
                     $('#loadingText').removeClass("spinner-border");
-                    $("#progressWrapper").hide();
 
                     let errors = err.responseJSON.errors;
                     $('#errPlatform').text(errors?.platform ?? '');
@@ -255,9 +241,36 @@
                     $('#errVersionMinor').text(errors?.versionMinor ?? '');
                     $('#errUpdateID').text(errors?.otaUpdateID ?? '');
                     $('#errChangelog').text(errors?.changelog ?? '');
-                    $('#errFileOTA').text(errors?.file ?? '');
                 }
             });
         });
+
+        deleteOta = (id) => {
+            deleteID = id;
+            $('#modalDelete').modal('show');
+        }
+
+        buttonDelete = () => {
+            $.ajax({
+                url: '{!! route('admin.ota.delete') !!}',
+                data: {
+                    '_token': "{{ csrf_token() }}",
+                    'id': deleteID,
+                },
+                type: 'POST',
+                dataType: 'json',
+                beforeSend: function() {
+                    $('#buttonDelete').attr("disabled", true);
+                    $('#loadingTextDelete').addClass("spinner-border");
+                },
+                success: function(deleteSave) {
+                    toastr.success(deleteSave.message)
+                    table.ajax.reload();
+                    $("#modalDelete").modal('hide');
+                    $('#buttonDelete').attr("disabled", false);
+                    $('#loadingTextDelete').removeClass("spinner-border");
+                }
+            });
+        }
     </script>
 @endpush
