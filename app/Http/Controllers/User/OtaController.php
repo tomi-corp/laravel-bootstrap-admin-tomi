@@ -19,30 +19,39 @@ class OtaController extends Controller
             ->orderByDesc('versionMajor')
             ->orderByDesc('versionMinor')
             ->first();
-
-        if ($lastest && version_compare($lastest->versionMajor, $v1, '>')) {
-            return response()->json([
-                'updateMajor' => true,
-                'updateMinor' => false,
-                'versionMajor' => $lastest->versionMajor,
-                'versionMinor' => $lastest->versionMinor,
-                'changelog' => $lastest->changelog,
-            ]);
-        } else if ($lastest && version_compare($lastest->versionMinor, $v2, '>')) {
-            return response()->json([
-                'updateMajor' => false,
-                'updateMinor' => true,
-                'versionMajor' => $lastest->versionMajor,
-                'versionMinor' => $lastest->versionMinor,
-                'changelog' => $lastest->changelog,
-            ]);
+        if (isset($lastest)) {
+            if ($lastest && version_compare($lastest->versionMajor, $v1, '>')) {
+                return response()->json([
+                    'updateMajor' => true,
+                    'updateMinor' => false,
+                    'versionMajor' => $lastest->versionMajor,
+                    'versionMinor' => $lastest->versionMinor,
+                    'changelog' => $lastest->changelog,
+                ]);
+            } else if ($lastest && version_compare($lastest->versionMinor, $v2, '>')) {
+                return response()->json([
+                    'updateMajor' => false,
+                    'updateMinor' => true,
+                    'versionMajor' => $lastest->versionMajor,
+                    'versionMinor' => $lastest->versionMinor,
+                    'changelog' => $lastest->changelog,
+                ]);
+            } else {
+                return response()->json([
+                    'updateMajor' => false,
+                    'updateMinor' => false,
+                    'versionMajor' => $lastest->versionMajor,
+                    'versionMinor' => $lastest->versionMinor,
+                    'changelog' => $lastest->changelog,
+                ]);
+            }
         } else {
             return response()->json([
                 'updateMajor' => false,
                 'updateMinor' => false,
-                'versionMajor' => $lastest->versionMajor,
-                'versionMinor' => $lastest->versionMinor,
-                'changelog' => $lastest->changelog,
+                'versionMajor' => false,
+                'versionMinor' => false,
+                'changelog' => false,
             ]);
         }
     }
