@@ -392,6 +392,7 @@ class AuthController extends Controller
 
         $user->selfie = $output_file_selfie;
         $user->ktp = $output_file_ktp;
+        $user->save();
 
         return response()->json([
             'status' => 200,
