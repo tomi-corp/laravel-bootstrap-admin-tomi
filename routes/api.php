@@ -16,10 +16,10 @@ Route::middleware(['CenterFileMiddleware'])->group(
     function () {
         Route::post('/get/pk', [DocumentController::class, 'pk']);
         Route::post('/get/image', [DocumentController::class, 'image']);
-        Route::post('/ota/check', [OtaController::class, 'checkUpdate']);
     }
 );
 
+Route::post('/ota/check', [OtaController::class, 'checkUpdate']);
 
 Route::middleware(['LanguangeMiddleware'])->group(
     function () {

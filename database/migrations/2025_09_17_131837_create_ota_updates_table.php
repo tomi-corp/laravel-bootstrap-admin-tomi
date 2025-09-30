@@ -17,7 +17,6 @@ return new class extends Migration
             $table->string('versionMinor');
             $table->string('otaUpdateID');
             $table->enum('platform', ['android', 'ios']);
-            $table->string('file_path');
             $table->longText('changelog');
             $table->timestamps();
         });

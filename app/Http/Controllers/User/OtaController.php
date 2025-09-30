@@ -11,31 +11,30 @@ class OtaController extends Controller
     public function checkUpdate(Request $req)
     {
         $platform = $req->platform;
-        $currentVersion = $req->current_version;
-        $manifest_version  = $req->manifest_version ;
-        $ota_update_id = $req->ota_update_id;
+        $parts = explode('.', $req->version);
+        $v1 = $parts[0] . '.' . $parts[1];
+        $v2 = $parts[2] . '.' . $parts[3];
 
         $lastest = OtaUpdate::where('platform', $platform)
-            ->orderByDesc('id')
+            ->orderByDesc('versionMajor')
+            ->orderByDesc('versionMinor')
             ->first();
 
-        if ($lastest && version_compare($lastest->versionMajor, $currentVersion, '>')) {
+        if ($lastest && version_compare($lastest->versionMajor, $v1, '>')) {
             return response()->json([
                 'updateMajor' => true,
                 'updateMinor' => false,
                 'versionMajor' => $lastest->versionMajor,
                 'versionMinor' => $lastest->versionMinor,
                 'changelog' => $lastest->changelog,
-                'url' => ''
             ]);
-        } else if ($lastest && version_compare($lastest->versionMinor, $manifest_version , '>') && $ota_update_id != $lastest->otaUpdateID) {
+        } else if ($lastest && version_compare($lastest->versionMinor, $v2, '>')) {
             return response()->json([
                 'updateMajor' => false,
                 'updateMinor' => true,
                 'versionMajor' => $lastest->versionMajor,
                 'versionMinor' => $lastest->versionMinor,
                 'changelog' => $lastest->changelog,
-                'url' => url("/backoffice/ota/download/" . encryptSecure($lastest->id))
             ]);
         } else {
             return response()->json([
@@ -44,7 +43,6 @@ class OtaController extends Controller
                 'versionMajor' => $lastest->versionMajor,
                 'versionMinor' => $lastest->versionMinor,
                 'changelog' => $lastest->changelog,
-                'url' => ''
             ]);
         }
     }
