@@ -23,13 +23,11 @@ class OtaController extends Controller
         $platform = $req->platform;
         $versionMajor  = $req->versionMajor;
         $versionMinor  = $req->versionMinor;
-        $otaUpdateID  = $req->otaUpdateID;
 
         $ota = new OtaUpdate();
         $ota->platform = $platform;
         $ota->versionMajor = $versionMajor;
         $ota->versionMinor = $versionMinor;
-        $ota->otaUpdateID = $otaUpdateID;
         $ota->changelog = $req->changelog;
         $ota->save();
         return response()->json([
