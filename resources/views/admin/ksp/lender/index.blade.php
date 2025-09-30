@@ -14,7 +14,32 @@
             </div>
         </div>
 
-        <div class="col-12">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="pb-2">Pending Approval Lender</h4>
+
+                    <table id="tableapprovalLender" class="table dt-responsive table-hover mt-4 text-center justify-center"
+                        style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>DateTime</th>
+                                <th>Username Requester</th>
+                                <th>Status Approval Layer 1</th>
+                                <th>Status Approval Layer 2</th>
+                                <th>First Approval</th>
+                                <th>Second Approval</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+
+
+        <div class="col-md-8">
             <div class="card">
                 <div class="card-body">
 
@@ -31,11 +56,11 @@
                                 <th>Last Updated</th>
                                 <th>Expired Update</th>
                                 <th>ID Lender</th>
+                                <th>Nama Lender</th>
                                 <th>PKS</th>
                                 <th>No. perjanjian kerja sama lender x TOMI</th>
                                 <th>PIC Lender</th>
                                 <th>PIC Internal</th>
-                                <th>Nama Lender</th>
                                 <th>Email Lender</th>
                                 <th>Telepon</th>
                                 <th>Provinsi</th>
@@ -56,9 +81,8 @@
 
             </div>
         </div>
+
     </div>
-
-
 
 
     {{-- modal tambah --}}
@@ -124,7 +148,8 @@
                                         <select class="form-control" id="provinsiSelect" style="width: 100%">
                                             <option disabled>Select</option>
                                             @foreach ($data['provinsis'] as $provinsi)
-                                                <option value="{{ $provinsi->provinsi }}">{{ $provinsi->provinsi }}</option>
+                                                <option value="{{ $provinsi->provinsi }}">{{ $provinsi->provinsi }}
+                                                </option>
                                             @endforeach
                                         </select>
                                         <small class="text-danger" id="errProvinsi"></small>
@@ -426,6 +451,8 @@
     </div>
 
 
+
+
     {{-- modal delete --}}
     <div class="modal fade" id="modalDelete" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
         aria-hidden="true">
@@ -454,6 +481,105 @@
         </div>
     </div>
 
+    {{-- modal Approve --}}
+    <div class="modal fade" id="modalApproveEdit" tabindex="-1" role="dialog"
+        aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class=" modal-dialog modal-md modal-dialog-centered modal-dialog-centered modal-dialog-scrollable"
+            role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalCenterTitle">Detail Perubahan
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                </div>
+                <div class="modal-body">
+                    <h6>Lender yang diubah</h6>
+                    <div class="row">
+                        <div class="col-4">
+                            <span>ID Lender :</span>
+                        </div>
+                        <div class="col-8">
+                            <span id="id_lender_detail">Test</span>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-4">
+                            <span>Nama Lender :</span>
+                        </div>
+                        <div class="col-8">
+                            <span id="nama_lender_detail"></span>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-4">
+                            <span>Status Pertama :</span>
+                        </div>
+                        <div class="col-8">
+                            <span id="status_pertama"></span>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-4">
+                            <span>Status Kedua :</span>
+                        </div>
+                        <div class="col-8">
+                            <span id="status_kedua"></span>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <span>Data yang diubah</span>
+                            <div id="changedData"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-group pt-2">
+                        <label>Action</label>
+                        <select class="form-control" id="approveAction">
+                            <option value="approve">APPROVE</option>
+                            <option value="reject">REJECT</option>
+                        </select>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button class="btn btn-primary" type="button" id="buttonSubmitApprove">Save <div
+                            id="loadingTextApprove">
+                        </div></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- modal history update --}}
+    <div class="modal fade" id="modalHistoryUpdate" tabindex="-1" role="dialog" aria-labelledby="modalHistoryTitle"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalHistoryTitle">Update History
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 @endsection
 
 @push('js')
@@ -461,6 +587,7 @@
         var mulai = "";
         var akhir = "";
         var editID = "";
+        var editApprovalID = "";
         var deleteID = "";
 
         var dataTable = {
@@ -539,8 +666,6 @@
         });
 
 
-
-
         var table = $('#tablelistLender').DataTable({
             dom: 'B<"clear">lfrtip',
             buttons: [{
@@ -598,6 +723,8 @@
             }, {
                 data: 'id_code_lender'
             }, {
+                data: 'nama'
+            }, {
                 data: 'pks'
             }, {
                 data: 'nomor_pks'
@@ -605,8 +732,6 @@
                 data: 'pic_lender'
             }, {
                 data: 'pic_internal'
-            }, {
-                data: 'nama'
             }, {
                 data: 'email_lender'
             }, {
@@ -634,6 +759,71 @@
             }]
         });
 
+        var tableApproval = $('#tableapprovalLender').DataTable({
+            dom: 'B<"clear">lfrtip',
+            buttons: [{
+                    extend: 'excel',
+                    className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
+                    text: '<span class="mdi mdi-file-excel"><span class="pl-1">Excel</span></span>',
+                    header: true,
+                    title: 'List Lender',
+                    exportOptions: {
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+                    },
+                },
+                {
+                    extend: 'copy',
+                    className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
+                    text: '<span class="mdi mdi-content-copy"><span class="pl-1">Copy</span></span>',
+                    header: true,
+                    title: 'List Perusahaan',
+                    exportOptions: {
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+
+                    },
+                },
+                {
+                    extend: 'print',
+                    className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
+                    text: '<span class="mdi mdi-printer"><span class="pl-1">Print</span></span>',
+                    header: true,
+                    title: 'List Perusahaan',
+                    exportOptions: {
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+                    },
+                }
+            ],
+            "lengthMenu": [10, 50, 100, 500, 1000, 2000, 5000, 10000, 50000, 100000],
+            processing: true,
+            responsive: true,
+            serverSide: true,
+            language: {
+                processing: '<i class="dripicons-loading">autorenew</i>'
+            },
+            ajax: {
+                "type": "POST",
+                "url": '{!! route('admin.lender.approval.lender') !!}',
+                "data": function(xx) {
+                    return $.extend(xx, dataTable);
+                },
+            },
+            columns: [{
+                data: 'waktu'
+            }, {
+                data: 'requester'
+            }, {
+                data: 'status_pertama'
+            }, {
+                data: 'status_kedua'
+            }, {
+                data: 'first_approver_id'
+            }, {
+                data: 'second_approver_id'
+            }, {
+                data: 'action'
+            }]
+        });
+
 
         $('#saveVerif').on('click', function() {
             $.ajax({
@@ -653,6 +843,7 @@
                 success: function(approve) {
                     toastr.success(approve.message)
                     table.ajax.reload();
+                    tableApproval.ajax.reload();
                     $("#modalApprove").modal('hide');
                     $('#saveVerif').attr("disabled", false);
                     $('#loadingText').removeClass("spinner-border");
@@ -702,6 +893,7 @@
                 success: function(add) {
                     toastr.success(add.message);
                     table.ajax.reload();
+                    tableApproval.ajax.reload();
                     $("#modalAdd").modal('hide');
                     $('#buttonSubmit').attr("disabled", false);
                     $('#loadingText').removeClass("spinner-border");
@@ -795,6 +987,56 @@
             });
         }
 
+        editApproval = (id) => {
+            editApprovalID = id;
+            $.ajax({
+                url: '{!! route('admin.lender.approval.detail') !!}',
+                data: {
+                    '_token': "{{ csrf_token() }}",
+                    'id': editApprovalID,
+                },
+                type: 'POST',
+                dataType: 'json',
+                success: function(detail) {
+                    $('#id_lender_detail').text(detail.data.id_code_lender);
+                    $('#nama_lender_detail').text(detail.data.nama);
+                    $('#status_pertama').text(detail.data.status_pertama);
+                    $('#status_kedua').text(detail.data.status_kedua);
+
+                    const $changedDataContainer = $('#changedData');
+                    $changedDataContainer.empty();
+
+                    // Ambil old_data dan new_data
+                    let data = JSON.parse(detail.data.new_data);
+                    let oldData = data.old_data;
+                    let newData = data.new_data;
+
+                    if (newData && Object.keys(newData).length > 0) {
+                        let htmlContent = '<h6>Perubahan Data:</h6>';
+
+                        $.each(newData, function(key, newValue) {
+                            if (key === 'update_by') {
+                                return true; // continue
+                            }
+                            const oldValue = oldData[key] ?? '-';
+                            htmlContent += `
+                        <span>
+                            <strong>${key.replace(/_/g, ' ')}:</strong> 
+                            <span class="text-danger">${oldValue}</span> 
+                            &rarr; 
+                            <span class="text-success">${newValue}</span>
+                        </span></br>`;
+                        });
+
+                        $changedDataContainer.append(htmlContent);
+                    } else {
+                        $changedDataContainer.html('<p>Tidak ada data yang ditampilkan.</p>');
+                    }
+
+                    $('#modalApproveEdit').modal('show');
+                }
+            });
+        }
 
         $('#buttonSubmitEdit').on('click', function() {
             // Clear previous error messages
@@ -838,6 +1080,7 @@
                 success: function(add) {
                     toastr.success(add.message);
                     table.ajax.reload();
+                    tableApproval.ajax.reload();
                     $("#modalEdit").modal('hide');
                     $('#buttonSubmitEdit').attr("disabled", false);
                     $('#loadingTextEdit').removeClass("spinner-border");
@@ -880,6 +1123,42 @@
             });
         });
 
+        $('#buttonSubmitApprove').on('click', function() {
+            $.ajax({
+                url: '{!! route('admin.lender.approval.action') !!}',
+                data: {
+                    '_token': "{{ csrf_token() }}",
+                    'id': editApprovalID,
+                    'action': $('#approveAction').val(),
+                },
+                type: 'POST',
+                dataType: 'json',
+                beforeSend: function() {
+                    $('#buttonSubmitApprove').attr("disabled", true);
+                    $('#loadingTextApprove').addClass("spinner-border");
+                },
+                success: function(deleteSave) {
+                    toastr.success(deleteSave.message)
+                    table.ajax.reload();
+                    tableApproval.ajax.reload();
+                    $("#modalApproveEdit").modal('hide');
+                    $('#buttonSubmitApprove').attr("disabled", false);
+                    $('#loadingTextApprove').removeClass("spinner-border");
+                },
+                error: function(err) {
+                    toastr.success(err.message)
+                    table.ajax.reload();
+                    tableApproval.ajax.reload();
+                    $("#modalApproveEdit").modal('hide');
+                    $('#buttonSubmitApprove').attr("disabled", false);
+                    $('#loadingTextApprove').removeClass("spinner-border");
+                }
+            });
+        });
+
+
+
+
         deleteLender = (id) => {
             deleteID = id;
             $('#modalDelete').modal('show');
@@ -901,6 +1180,7 @@
                 success: function(deleteSave) {
                     toastr.success(deleteSave.message)
                     table.ajax.reload();
+                    tableApproval.ajax.reload();
                     $("#modalDelete").modal('hide');
                     $('#buttonDelete').attr("disabled", false);
                     $('#loadingTextDelete').removeClass("spinner-border");
@@ -908,6 +1188,7 @@
                 error: function(err) {
                     toastr.success(err.message)
                     table.ajax.reload();
+                    tableApproval.ajax.reload();
                     $("#modalDelete").modal('hide');
                     $('#buttonDelete').attr("disabled", false);
                     $('#loadingTextDelete').removeClass("spinner-border");
@@ -936,6 +1217,89 @@
                 error: function(xhr, status, error) {
                     console.error("Terjadi kesalahan:", status, error);
                     alert("Gagal menampilkan dokumen. Silakan coba lagi.");
+                }
+            });
+        }
+
+
+        historyUpdate = (id) => {
+            $('#modalHistoryUpdate').modal('show');
+            const modalBody = $('#modalHistoryUpdate .modal-body');
+            modalBody.html(`
+            <div class="text-center">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="sr-only">Loading...</span>
+                </div>
+            </div>
+        `);
+
+            $.ajax({
+                url: '{!! route('admin.lender.update.history') !!}',
+                data: {
+                    '_token': "{{ csrf_token() }}",
+                    'id': id,
+                },
+                type: 'POST',
+                dataType: 'json',
+                success: function(response) {
+                    if (response && response.data && response.data.length > 0) {
+                        let fullHtml = '';
+
+                        // Loop melalui setiap item dalam array 'data'
+                        response.data.forEach(historyItem => {
+                            const datetime = new Date(historyItem.datetime).toLocaleString();
+                            const changes = historyItem.data;
+
+                            let tableHtml = `
+                            <div class="card mb-3">
+                                <div class="card-header">
+                                    <h6 class="mb-0">Changes from: ${datetime}</h6>
+                                </div>
+                                <div class="card-body p-2">
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered table-striped mb-0">
+                                            <thead>
+                                                <tr>
+                                                    <th>Field</th>
+                                                    <th>Old Data</th>
+                                                    <th>New Data</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                        `;
+
+                            // Loop untuk setiap perubahan dalam item history
+                            for (const key in changes) {
+                                const row = changes[key];
+                                tableHtml += `
+                                <tr>
+                                    <td><strong>${key.replace(/_/g, ' ').toUpperCase()}</strong></td>
+                                    <td>${row.old_data}</td>
+                                    <td>${row.new_data}</td>
+                                </tr>
+                            `;
+                            }
+
+                            tableHtml += `
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+
+                            fullHtml += tableHtml;
+                        });
+
+                        modalBody.html(fullHtml);
+                    } else {
+                        modalBody.html('<p class="text-center text-muted">No update history found.</p>');
+                    }
+                },
+                error: function(err) {
+                    console.error("Error fetching history:", err);
+                    modalBody.html(
+                        '<p class="text-center text-danger">Failed to load data. Please try again.</p>');
                 }
             });
         }

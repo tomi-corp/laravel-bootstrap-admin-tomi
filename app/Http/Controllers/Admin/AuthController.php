@@ -7,8 +7,10 @@ use App\Http\Requests\Admin\Auth\AddAdminRequest;
 use App\Http\Requests\Admin\Auth\DoForgorPasswordRequest;
 use App\Mail\ForgotEmailBackend;
 use App\Models\Admin;
+use App\Models\lender_update;
 use App\Models\password_reset_admin;
 use App\Models\User;
+use App\Models\user_activity_logs;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -193,8 +195,8 @@ class AuthController extends Controller
             })
 
             ->addColumn('action', function ($row) {
-                return '<button class="btn btn-sm btn-primary mr-2" onclick="editLender(' . $row->id . ')"><i class="mdi mdi-pencil"></i> </button>
-                    <button class="btn btn-sm btn-danger mr-2" onclick="deleteLender(' . $row->id . ')"><i class=" mdi mdi-trash-can"></i> </button>';
+                // <button class="btn btn-sm btn-primary mr-2" onclick="editAdmin(' . $row->id . ')"><i class="mdi mdi-pencil"></i> </button>
+                return '<button class="btn btn-sm btn-danger mr-2" onclick="deleteAdmin(' . $row->id . ')"><i class=" mdi mdi-trash-can"></i> </button>';
             })
 
             ->rawColumns(['action', 'google2fa_secret', 'type'])
@@ -225,4 +227,57 @@ class AuthController extends Controller
             'message' => 'Admin Berhasil Ditambahkan'
         ], 200);
     }
+
+    public function manageAdminDelete(Request $req)
+    {
+        $admin = Admin::where('id', $req->id)->first();
+        $admin->delete();
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Admin Berhasil Dihapus'
+        ], 200);
+    }
+
+
+    public function manageAuditTable()
+    {
+        $admin = user_activity_logs::with('admin')->get();
+        return DataTables::of($admin)
+            ->addIndexColumn()
+
+            ->addColumn('created_at', function ($row) {
+                return Carbon::parse($row->created_at)->format('Y-m-d H:i:s');
+            })
+
+            ->addColumn('username', function ($row) {
+                return $row->admin->username;
+            })
+
+            ->addColumn('activity_type', function ($row) {
+                if ($row->activity_type == "delete") {
+                    $activ = '<span class="badge badge-danger">DELETE</span>';
+                } elseif ($row->activity_type == "create") {
+                    $activ = '<span class="badge badge-primary">CREATE</span>';
+                } elseif ($row->activity_type == "update") {
+                    $activ = '<span class="badge badge-success">UPDATE</span>';
+                }
+                return $activ;
+            })
+
+            ->rawColumns(['activity_type'])
+            ->only([
+                'DT_RowIndex',
+                'created_at',
+                'username',
+                'activity_type',
+                'description',
+                'ip_address',
+                'user_agent'
+            ])
+            ->toJson();
+    }
+
+
+    public function test() {}
 }

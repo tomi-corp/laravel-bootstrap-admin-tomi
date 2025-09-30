@@ -26,9 +26,11 @@ use App\Models\bank;
 use App\Models\cost;
 use App\Models\history_invoicing_lender;
 use App\Models\invoicing_pinjaman;
+use App\Models\jatuh_tempo;
 use App\Models\kecamatan;
 use App\Models\kelurahan;
 use App\Models\kota;
+use App\Models\lender;
 use App\Models\list_karyawan;
 use App\Models\ListPerusahaan;
 use App\Models\notification;
@@ -172,6 +174,7 @@ class KspController extends Controller
     public function listPerusahaanTable()
     {
         $perusahaan = ListPerusahaan::with([
+            'lender',
             'karyawan',
             'karyawanPending',
             'pinjaman',
@@ -184,6 +187,9 @@ class KspController extends Controller
         return DataTables::of($perusahaan)
             ->addIndexColumn()
 
+            ->addColumn('lender', function ($row) {
+                return $row->lender->nama;
+            })
             ->addColumn('list_karyawan', function ($row) {
                 return '<a href="' . route('admin.list.karyawan', encryptSecure($row->id)) . '" target="_blank">
                 <span class="badge badge-info" title="Total karyawan yang telah di approve 2 layer">' . $row->karyawan->count() . '</span> 
@@ -1075,25 +1081,6 @@ class KspController extends Controller
         ], 200);
     }
 
-    public function invoicingDownload($id, $tahun, $bulan)
-    {
-        $id = decryptSecure($id);
-        $tahun = decryptSecure($tahun);
-        $bulan = decryptSecure($bulan);
-        $pinjaman = pinjaman::where('id_perusahaan', $id)
-            ->where('status', 'approve')
-            ->orWhere('status', 'done')
-            ->whereYear('created_at', $tahun)
-            ->whereMonth('created_at', $bulan)
-            ->with(['data_karyawan', 'perusahaan', 'history_invoicing_lenders'])
-            ->get();
-
-        dd($pinjaman);
-
-        $perusahaan = ListPerusahaan::where('id', $id)->first();
-        return view("admin.ksp.invoicing.index", compact('pinjaman', 'perusahaan', 'tahun', 'bulan'));
-    }
-
 
     public function invoicingTable(Request $req)
     {
@@ -1195,5 +1182,158 @@ class KspController extends Controller
             'status' => 200,
             'message' =>  CheckAngsuranResource::collection($pinjaman->angsuran),
         ], 200);
+    }
+
+    public function kspInvoicingIndex()
+    {
+        return view('admin.ksp.perusahaan.invoicing.index');
+    }
+
+    public function listPerusahaanInvoicingTable()
+    {
+        $invoice = invoicing_pinjaman::with(['pinjaman' => function ($q) {;
+            $q->with('angsuran');
+            $q->where('status', 'approve');
+            $q->orwhere('status', 'done');
+        }, 'perusahaan'])
+            ->get();
+
+        $today = Carbon::today();
+
+        return DataTables::of($invoice)
+            ->addIndexColumn()
+            ->addColumn('id_code_perusahaan', function ($row) {
+                return "<b>" . $row->perusahaan->id_code_perusahaan . "</b>";
+            })
+
+            ->addColumn('nama_perusahaan', function ($row) {
+                return "<b>" . $row->perusahaan->nama . "</b>";
+            })
+
+            ->addColumn('prioritas', function ($row) use ($today) {
+                if ($row->status == "lunas") {
+                    return '<span class="badge badge-success">Lunas</span>';
+                } else {
+
+                    $parse = Carbon::parse($row->period)->startOfDay();
+                    $diffInDays = $parse->diffInDays($today, false);
+
+                    if ($diffInDays <= -5) {
+                        return '⚪️ Belum Jatuh Tempo (H-5)';
+                    } elseif ($diffInDays == -4) {
+                        return '⚪️ Belum Jatuh Tempo (H-4)';
+                    } elseif ($diffInDays == -3) {
+                        return '⚪️ Belum Jatuh Tempo (H-3)';
+                    } elseif ($diffInDays == -2) {
+                        return '⚪️ Belum Jatuh Tempo (H-2)';
+                    } elseif ($diffInDays == -1) {
+                        return '⚪️ Belum Jatuh Tempo (H-1)';
+                    } elseif ($diffInDays == 0) {
+                        return '🔵 Baru Masuk (H0)';
+                    } elseif ($diffInDays == 1) {
+                        return '🟡 Normal (H+1)';
+                    } elseif ($diffInDays == 2) {
+                        return '🟠 Mendesak (H+2)';
+                    } elseif ($diffInDays >= 3) {
+                        return '🔴 Sangat Mendesak (H+' . $diffInDays . ')';
+                    } else {
+                        return '⛔ Status Tidak Dikenal';
+                    }
+                }
+            })
+
+            ->addColumn('tanggal_period', function ($row) {
+                return $row->period;
+            })
+
+            ->addColumn('total_tagihan', function ($row) {
+                $totalPeminjam = 0;
+                // $totalTagihan = [];
+
+                if ($row->pinjaman->isNotEmpty()) {
+                    foreach ($row->pinjaman as $pinjaman) {
+                        if ($pinjaman->angsuran->isNotEmpty()) {
+                            $filteredAngsuran = $pinjaman->angsuran->filter(function ($angsuran) use ($row) {
+                                return Carbon::parse($angsuran->jatuh_tempo)->format('m-Y') === Carbon::parse($row->period)->format('m-Y');
+                            });
+                            if (isset($filteredAngsuran)) {
+                                foreach ($filteredAngsuran as $filter) {
+                                    $filteredAngsuran = $pinjaman->where('id', $filter->id_pinjaman)->first();
+                                    $totalPeminjam = $totalPeminjam + 1;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // return '<button class="btn btn-sm btn-primary mr-2" onclick="showJatuhTempo(' . $row->id . ')"><i class=" dripicons-checklist"></i></button>' .  $totalPeminjam . " Pinjaman";
+                return $totalPeminjam . " Pinjaman";
+            })
+
+            ->addColumn('total_pinjaman', function ($row) {
+                $totalTagihan = 0;
+                // $totalTagihan = [];
+
+                if ($row->pinjaman->isNotEmpty()) {
+                    foreach ($row->pinjaman as $pinjaman) {
+                        if ($pinjaman->angsuran->isNotEmpty()) {
+                            $filteredAngsuran = $pinjaman->angsuran->filter(function ($angsuran) use ($row) {
+                                return Carbon::parse($angsuran->jatuh_tempo)->format('m-Y') === Carbon::parse($row->period)->format('m-Y');
+                            });
+                            if (isset($filteredAngsuran)) {
+                                foreach ($filteredAngsuran as $filter) {
+                                    $filteredAngsuran = $pinjaman->where('id', $filter->id_pinjaman)->first();
+                                    $totalTagihan += $filteredAngsuran->total_angsuran_perbulan;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                return "Rp " . number_format($totalTagihan);
+            })
+
+
+            ->addColumn('status_invoicing', function ($row) {
+                if ($row->status == "belum_lunas") {
+                    return "Belum Lunas";
+                } else {
+                    return "Lunas";
+                }
+            })
+
+
+            ->rawColumns([
+                'nama_perusahaan',
+                'id_code_perusahaan',
+                'prioritas',
+                'total_tagihan'
+            ])
+            ->toJson();
+    }
+
+    public function invoicingDownload($id)
+    {
+        $dec = decryptSecure($id);
+        $invoice = invoicing_pinjaman::where('id', $dec)->first();
+        $periodMonth = Carbon::parse($invoice->period)->format('m');
+        $periodMonthT = Carbon::parse($invoice->period)->format('M');
+        $jatuhTempo  = jatuh_tempo::whereMonth('jatuh_tempo', $periodMonth)->get();
+        $perusahaan = ListPerusahaan::where('id', $invoice->id_list_perusahaan)->first();
+
+        $invoice = invoicing_pinjaman::where('id', $dec)
+            ->with(['pinjaman' => function ($query) use ($periodMonth) {
+                $query->whereHas('jatuh_tempoSesuaiInvoice', function ($q) use ($periodMonth) {
+                    $q->whereMonth('jatuh_tempo', $periodMonth);
+                });
+            }, 'pinjaman.angsuran'])
+            ->first();
+        $pinjaman = $invoice->pinjaman;
+        $noInv = "INV-" . $periodMonthT . '-' . $perusahaan->id_code_perusahaan . "-" . $invoice->id;
+        // ada perbaikan invoicing nantiiii
+        // $rekeningRepayment = rekening_tomi::with('bank')->first();
+        $lender = lender::where('id', auth('admin')->user()->id_lender)->with('bank')->first();
+
+        return view("admin.ksp.invoicing.perusahaan.index", compact('invoice', 'lender', 'pinjaman', 'noInv'));
     }
 }

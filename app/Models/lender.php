@@ -6,6 +6,31 @@ use Illuminate\Database\Eloquent\Model;
 
 class lender extends Model
 {
+    protected $fillable = [
+        'id_code_lender',
+        'pic_lender',
+        'pic_internal',
+        'nama',
+        'email_lender',
+        'id_provinsi',
+        'id_kabupaten',
+        'id_kecamatan',
+        'id_desa',
+        'alamat_lengkap',
+        'telp',
+        'nomor_pks',
+        'file_pks',
+        'last_update_file_pks',
+        'id_bank',
+        'nama_rekening',
+        'no_rekening',
+        'status',
+        'created_by',
+        'updated_by',
+        'logo',
+        'color',
+    ];
+
     public function provinsi()
     {
         return $this->hasOne(provinsi::class, 'id', 'id_provinsi');
@@ -36,5 +61,10 @@ class lender extends Model
     public function bank()
     {
         return $this->hasOne(bank::class, 'id', 'id_bank');
+    }
+
+    public function pinjaman()
+    {
+        return $this->hasMany(pinjaman::class, 'id_lender', 'id');
     }
 }

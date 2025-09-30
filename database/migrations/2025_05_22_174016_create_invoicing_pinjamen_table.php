@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->bigInteger('id_list_perusahaan')->unsigned();
             $table->foreign('id_list_perusahaan')->references('id')->on('list_perusahaans');
+            $table->string('no_invoice')->nullable();
             $table->date('period');
             $table->enum('status', ['lunas', 'belum_lunas']);
             $table->timestamps();

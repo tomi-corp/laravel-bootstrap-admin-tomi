@@ -27,12 +27,13 @@ class LenderObserver
      */
     public function updated(Lender $lender): void
     {
-        user_activity_logs::create([
-            'activity_type' => 'update',
-            'description' => "Updated lender with ID: {$lender->id}",
-            'ip_address' => request()->ip(),
-            'user_agent' => request()->userAgent(),
-        ]);
+        $activityCreate = new user_activity_logs();
+        $activityCreate->admin_id = $lender->requester_id;
+        $activityCreate->activity_type = 'update';
+        $activityCreate->description = "Updated lender with ID: {$lender->id}";
+        $activityCreate->ip_address = request()->ip();
+        $activityCreate->user_agent = request()->userAgent();
+        $activityCreate->save();
     }
 
     /**

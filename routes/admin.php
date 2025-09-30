@@ -73,6 +73,10 @@ Route::middleware(['AdminMiddleware'])->group(
                 Route::post('/ksp/detail/perusahaan', [KspController::class, 'detailPerusahaan'])->name('admin.ksp.detail.perusahaan');
                 Route::post('/ksp/edit/perusahaan', [KspController::class, 'editPerusahaan'])->name('admin.ksp.edit.perusahaan');
                 Route::post('/ksp/delete/perusahaan', [KspController::class, 'deletePerusahaan'])->name('admin.ksp.delete.perusahaan');
+                // KSP => Perusahaan => invoiving
+                Route::get('/ksp/pinjaman/invoicing', [KspController::class, 'kspInvoicingIndex'])->name('admin.ksp.invoicing.index');
+                Route::post('/ksp/list/perusahaan/invoicing/table', [KspController::class, 'listPerusahaanInvoicingTable'])->name('admin.ksp.perusahaan.invoicing.table');
+                Route::get('/ksp/pengajuan/invoicing/pdf/{id}', [KspController::class, 'invoicingDownload'])->name('admin.ksp.invoicing.download');
                 // ksp => lender
                 Route::get('/ksp/lender', [LenderController::class, 'indexLender'])->name('admin.lender.index');
                 Route::post('/ksp/lender/add', [LenderController::class, 'addLender'])->name('admin.lender.add');
@@ -81,6 +85,21 @@ Route::middleware(['AdminMiddleware'])->group(
                 Route::post('/ksp/lender/detail', [LenderController::class, 'lenderDetail'])->name('admin.lender.detail');
                 Route::post('/ksp/lender/update', [LenderController::class, 'updateLender'])->name('admin.lender.update');
                 Route::post('/ksp/lender/delete', [LenderController::class, 'deleteLender'])->name('admin.lender.delete');
+                Route::post('/ksp/lender/approval/table', [LenderController::class, 'approvalTableLender'])->name('admin.lender.approval.lender');
+                Route::post('/ksp/lender/approval/detail', [LenderController::class, 'approvalDetail'])->name('admin.lender.approval.detail');
+                Route::post('/ksp/lender/approval/action', [LenderController::class, 'approvalAction'])->name('admin.lender.approval.action');
+                Route::post('/ksp/lender/update/history', [LenderController::class, 'updateHistoryLender'])->name('admin.lender.update.history');
+                // ksp => lender => invoicing
+                Route::get('/ksp/lender/invoicing', [LenderController::class, 'indexInvoicingLender'])->name('admin.lender.invoicing.index');
+                Route::post('/ksp/lender/invoicing/sementara/table', [LenderController::class, 'invoicingSementaraTable'])->name('admin.lender.invoicing.sementara.table');
+                Route::post('/ksp/lender/invoicing/pending/table', [LenderController::class, 'invoicingLenderPending'])->name('admin.lender.invoicing.pending.table');
+                Route::post('/ksp/lender/invoicing/done/table', [LenderController::class, 'invoicingLenderDone'])->name('admin.lender.invoicing.done.table');
+                Route::post('/ksp/lender/invoicing/pending/update', [LenderController::class, 'invoicingLenderPendingUpdate'])->name('admin.lender.invoicing.pending.update');
+                Route::get('/ksp/lender/invoicing/{id}', [LenderController::class, 'downloadInvoice'])->name('admin.lender.invoicing.download');
+                Route::post('/ksp/lender/invocing/approval/table', [LenderController::class, 'approvePendingInvoice'])->name('admin.lender.approval.invoicing.lender');
+                Route::post('/ksp/lender/invocing/approval/detail', [LenderController::class, 'approvalDetailInvocing'])->name('admin.lender.approval.invoicing.detail');
+                Route::post('/ksp/lender/invocing/approval/action', [LenderController::class, 'approvalInvoicingAction'])->name('admin.lender.approval.invoicing.action');
+
 
                 // KSP => Karyawan
                 Route::get('/ksp/list/karyawan/{id}', [KspController::class, 'listKaryawan'])->name('admin.list.karyawan');
@@ -106,7 +125,6 @@ Route::middleware(['AdminMiddleware'])->group(
                 Route::post('/ksp/konfigurasi/edit', [KspController::class, 'editKonfigurasi'])->name('admin.ksp.konfigurasi.edit');
                 // KSP => Pengajuan => invoicing
                 Route::post('/ksp/invoicing/table', [KspController::class, 'invoicingTable'])->name('admin.ksp.invoicing.lender.table');
-                Route::get('/ksp/invoicing/pdf/{id}/{tahun}/{bulan}', [KspController::class, 'invoicingDownload'])->name('admin.ksp.invoicing.download');
                 Route::post('/ksp/invoicing/update', [KspController::class, 'invoicingUpdate'])->name('admin.ksp.invoicing.update');
                 // KSP => Pengajuan => pending
                 Route::post('/ksp/pengajuan/statistic', [KspController::class, 'pengajuanStatistic'])->name('admin.ksp.pengajuan.statistic');
@@ -145,6 +163,8 @@ Route::middleware(['AdminMiddleware'])->group(
                 Route::get('/manage/admin', [AuthController::class, 'manageAdminIndex'])->name('admin.manage.admin.index');
                 Route::post('/manage/admin/table', [AuthController::class, 'manageAdminTable'])->name('admin.manage.admin.table');
                 Route::post('/manage/admin/add', [AuthController::class, 'manageAdminAdd'])->name('admin.manage.admin.add');
+                Route::post('/manage/admin/delete', [AuthController::class, 'manageAdminDelete'])->name('admin.manage.admin.delete');
+                Route::post('/manage/admin/audit/table', [AuthController::class, 'manageAuditTable'])->name('admin.manage.admin.audit.table');
             }
         );
     }

@@ -4,7 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Mail\InvoiceEmail;
+use App\Models\history_invoicing_lender;
 use App\Models\invoicing_pinjaman;
+use App\Models\lender;
+use App\Models\lender_update;
 use App\Models\ListPerusahaan;
 use App\Models\pinjaman;
 use App\Models\User;
@@ -96,6 +99,41 @@ class DashboardController extends Controller
 
     public function test()
     {
-        //   
+        $id  = 3;
+        $historyInvoicingLenderPending = history_invoicing_lender::where('id', $id)->with([
+            'lender' => function ($q) {
+                $q->withWhereHas('pinjaman', function ($sub) {
+                    $sub->whereBetween('created_at', [
+                        Carbon::now()->startOfMonth(),
+                        Carbon::now()->endOfMonth()
+                    ])
+                        ->whereIn('status', ['approve', 'done']);
+                })
+                    ->withCount(['pinjaman as total_pinjaman' => function ($sub) {
+                        $sub->whereBetween('created_at', [
+                            Carbon::now()->startOfMonth(),
+                            Carbon::now()->endOfMonth()
+                        ])
+                            ->whereIn('status', ['approve', 'done']);
+                    }])
+                    ->withSum(['pinjaman as total_biaya_admin' => function ($sub) {
+                        $sub->whereBetween('created_at', [
+                            Carbon::now()->startOfMonth(),
+                            Carbon::now()->endOfMonth()
+                        ])
+                            ->whereIn('status', ['approve', 'done']);
+                    }], 'biaya_admin_pandu')
+                    ->withSum(['pinjaman as total_biaya_layanan' => function ($sub) {
+                        $sub->whereBetween('created_at', [
+                            Carbon::now()->startOfMonth(),
+                            Carbon::now()->endOfMonth()
+                        ])
+                            ->whereIn('status', ['approve', 'done']);
+                    }], 'biaya_layanan');
+            }
+        ])->get();
+
+
+        dd($historyInvoicingLenderPending);
     }
 }

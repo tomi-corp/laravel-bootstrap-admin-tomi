@@ -17,8 +17,8 @@ class user_activity_logs extends Model
         'user_agent',
     ];
 
-    public function user()
+    public function admin()
     {
-        return $this->belongsTo(User::class);
+        return $this->hasOne(Admin::class, 'id', 'admin_id');
     }
 }

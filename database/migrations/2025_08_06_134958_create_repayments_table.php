@@ -18,7 +18,7 @@ return new class extends Migration
             $table->bigInteger('ksp_admin_id')->unsigned();
             $table->foreign('ksp_admin_id')->references('id')->on('ksp_admins');
             $table->double('amount_total');
-            $table->longText('note')->nullable();
+            $table->dateTime('tanggal_pembayaran')->nullable();
             $table->timestamps();
         });
     }

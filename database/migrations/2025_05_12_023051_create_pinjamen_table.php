@@ -19,6 +19,8 @@ return new class extends Migration
             $table->foreign('id_perusahaan')->references('id')->on('list_perusahaans');
             $table->bigInteger('id_karyawan')->unsigned();
             $table->foreign('id_karyawan')->references('id')->on('list_karyawans');
+            $table->bigInteger('id_lender')->unsigned();
+            $table->foreign('id_lender')->references('id')->on('lenders');
             $table->string('id_pinjaman')->unique();
             $table->double('nominal');
             $table->integer('tenor');

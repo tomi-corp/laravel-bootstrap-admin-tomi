@@ -13,9 +13,14 @@ return new class extends Migration
     {
         Schema::create('history_invoicing_lenders', function (Blueprint $table) {
             $table->id();
+            $table->bigInteger('id_lender')->unsigned();
+            $table->foreign('id_lender')->references('id')->on('lenders');
+            $table->string('no_invoice')->nullable();
             $table->date('period');
-            $table->bigInteger('id_list_perusahaan')->unsigned();
-            $table->foreign('id_list_perusahaan')->references('id')->on('list_perusahaans');
+            $table->enum('status', ['lunas', 'belum_lunas']);
+            $table->bigInteger('update_by')->unsigned()->nullable();
+            $table->foreign('update_by')->references('id')->on('admins');
+            $table->datetime('tanggal_pembayaran')->nullable();
             $table->timestamps();
         });
     }

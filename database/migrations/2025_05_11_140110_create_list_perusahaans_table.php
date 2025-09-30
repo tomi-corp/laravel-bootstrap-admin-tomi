@@ -14,6 +14,8 @@ return new class extends Migration
         Schema::create('list_perusahaans', function (Blueprint $table) {
             $table->id();
             $table->string('unique_code')->unique();
+            $table->bigInteger('id_lender');
+            $table->foreign('id_lender')->references('id')->on('lenders');
             $table->string('id_code_perusahaan')->unique();
             $table->string('pic_perusahaan');
             $table->string('pic_internal');

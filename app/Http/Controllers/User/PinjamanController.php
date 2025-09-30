@@ -16,6 +16,7 @@ use App\Http\Resources\User\Pinjaman\HistroyPinjamanResource;
 use App\Http\Resources\User\Pinjaman\TenorPinjamanResource;
 use App\Models\cost;
 use App\Models\jatuh_tempo;
+use App\Models\lender;
 use App\Models\ListPerusahaan;
 use App\Models\pinjaman;
 use App\Models\rekening_tomi;
@@ -218,7 +219,7 @@ class PinjamanController extends Controller
             ->with(['karyawanSingle' => function ($q) use ($nip) {
                 $q->where('nip', '=', $nip[1]);
                 $q->first();
-            }, 'amount_pinjaman'])
+            }, 'amount_pinjaman', 'lender'])
             ->first();
 
 
@@ -364,6 +365,7 @@ class PinjamanController extends Controller
                 $pinjaman->user_id = auth('api')->user()->id;
                 $pinjaman->id_perusahaan = $perusahaan->id;
                 $pinjaman->id_karyawan = $perusahaan->karyawanSingle->id;
+                $pinjaman->id_lender = $perusahaan->id_lender;
                 $pinjaman->id_pinjaman = $code;
                 $pinjaman->nominal = $req->nominal;
                 $pinjaman->tenor = $tenor->tenor;
@@ -460,7 +462,11 @@ class PinjamanController extends Controller
             ->with(['pinjaman' => function ($q) {
                 $q->with(['data_karyawan' => function ($w) {
                     $w->with('bank');
-                    $w->with('perusahaan');
+                    $w->with(['perusahaan' => function ($p) {
+                        $p->with(['lender' => function ($o) {
+                            $o->with('bank');
+                        }]);
+                    }]);
                 }, 'jatuh_tempo']);
             }, 'user'])
             ->first();
@@ -526,7 +532,7 @@ class PinjamanController extends Controller
                 $bulan_romawi = $bulanRomawi[$bulanAngka];
 
                 $pinjamanCount = pinjaman::count();
-                $rekeningTomi = rekening_tomi::with('bank')->first();
+                // $rekeningTomi = rekening_tomi::with('bank')->first();
 
                 $random = rand(1000, 9999);
                 $usia =  Carbon::parse($verif->user->dob)->age;
@@ -587,9 +593,9 @@ class PinjamanController extends Controller
                     'atas_nama_rekening_pencairan' => $verif->pinjaman->data_karyawan->nama_rekening,
                     'jumlah_pencairan' => 'Rp  ' . number_format($verif->pinjaman->jumlah_yang_diterima),
                     'terbilang_jumlah_pencairan' => ' (' . terbilang($verif->pinjaman->jumlah_yang_diterima) . ' Rupiah)',
-                    'bankTomi' => $rekeningTomi->bank->code_bank,
-                    'rekeningTomi' => $rekeningTomi->nomor_rekening,
-                    'atasNamaBankTomi' => $rekeningTomi->atas_nama,
+                    'bankLender' => $verif->pinjaman->data_karyawan->perusahaan->lender->bank->code_bank,
+                    'rekeningLender' =>  $verif->pinjaman->data_karyawan->perusahaan->lender->nomor_rekening,
+                    'atasNamaBankLender' =>  $verif->pinjaman->data_karyawan->perusahaan->lender->atas_nama,
                     'penerima_pinjaman' => strtoupper($user->nama_lengkap)
                 ];
 

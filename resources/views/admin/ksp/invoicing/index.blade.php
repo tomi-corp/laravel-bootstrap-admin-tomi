@@ -44,7 +44,8 @@
                             <div class="col-md-6">
                                 <div class="mt-3">
                                     <p><b>Hallo, Koperasi Simpan Pinjam Dumi Digital Teknologi</b></p>
-                                    <p class="text-muted">Berikut rincian tagihan Aplikasi Layanan Pelanggan Digital TOMI pada Koperasi Simpan Pinjam Dumi Digital Teknologi Pada bulan
+                                    <p class="text-muted">Berikut rincian tagihan Aplikasi Layanan Pelanggan Digital
+                                        TOMI pada Koperasi Simpan Pinjam Dumi Digital Teknologi Pada bulan
                                         <b>{{ Carbon::createFromDate($tahun, $bulan, 1)->endOfMonth()->format('M-Y') }}</b>
                                     </p>
                                 </div>

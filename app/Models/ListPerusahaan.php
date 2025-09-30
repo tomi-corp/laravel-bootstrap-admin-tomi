@@ -31,6 +31,11 @@ class ListPerusahaan extends Model
             ->where('status_otp', 'success');
     }
 
+    public function lender()
+    {
+        return $this->hasOne(lender::class, 'id', 'id_lender');
+    }
+
     public function karyawanPending()
     {
         $admin = auth('admin')->user()->type;

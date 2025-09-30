@@ -34,7 +34,13 @@ class AdminObserver
      */
     public function deleted(Admin $admin): void
     {
-        //
+        $activityCreate = new user_activity_logs();
+        $activityCreate->admin_id = auth('admin')->user()->id;
+        $activityCreate->activity_type = 'delete';
+        $activityCreate->description = "Delete admin with ID: {$admin->id}";
+        $activityCreate->ip_address = request()->ip();
+        $activityCreate->user_agent = request()->userAgent();
+        $activityCreate->save();
     }
 
     /**

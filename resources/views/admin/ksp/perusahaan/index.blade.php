@@ -7,10 +7,10 @@
                 <div class="page-title-right">
                     <ol class="breadcrumb m-0">
                         <li class="breadcrumb-item"><a href="javascript: void(0);">Tomi</a></li>
-                        <li class="breadcrumb-item active">MoU perusahaan x lender</li>
+                        <li class="breadcrumb-item active">MoU perusahaan >< lender</li>
                     </ol>
                 </div>
-                <h4 class="page-title">MoU perusahaan x lender</h4>
+                <h4 class="page-title">MoU perusahaan >< lender</h4>
             </div>
         </div>
 
@@ -28,6 +28,7 @@
                         <thead>
                             <tr>
                                 <th>ID Perusahaan</th>
+                                <th>Lender</th>
                                 <th>Unique Code</th>
                                 <th>PIC Perusahaan</th>
                                 <th>PIC HC/HRD</th>
@@ -648,6 +649,8 @@
             },
             columns: [{
                 data: 'id_code_perusahaan'
+            }, {
+                data: 'lender'
             }, {
                 data: 'unique_code'
             }, {

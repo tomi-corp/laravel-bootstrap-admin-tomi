@@ -4,22 +4,29 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Ksp\Lender\AddLenderRequest;
+use App\Http\Requests\Admin\Lender\UpdateInvoiceRequest;
 use App\Http\Requests\Admin\Lender\UpdateLenderRequest;
 use App\Http\Resources\Admin\Lender\DetailLenderResource;
+use App\Http\Resources\Admin\Lender\Invocing\InvoicingUpdateDetailResource;
+use App\Http\Resources\Admin\Lender\LenderDetailResource;
+use App\Http\Resources\Admin\Lender\LenderHistoryUpdateResource;
 use App\Models\bank;
 use App\Models\configurasi_lender;
+use App\Models\history_invoicing_lender;
+use App\Models\history_invoicing_lender_update;
 use App\Models\kecamatan;
 use App\Models\kelurahan;
 use App\Models\kota;
 use App\Models\lender;
 use App\Models\lender_update;
 use App\Models\provinsi;
+use App\Models\rekening_pandu;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Response;
-
+use PhpParser\Node\Stmt\Return_;
 
 class LenderController extends Controller
 {
@@ -75,6 +82,7 @@ class LenderController extends Controller
         $lender->last_update_file_pks = Carbon::now()->format('Y-m-d');
         // bank 
         $lender->id_bank = $req->bank;
+        $lender->status = 'nonactive';
         $lender->nama_rekening = $req->an_rekening;
         $lender->no_rekening = $req->no_rekening;
         $lender->created_by = auth('admin')->user()->id;
@@ -152,10 +160,14 @@ class LenderController extends Controller
 
                 if (isset($row->pendingApproval)) {
                     $action = '<button class="btn btn-sm btn-primary mr-2 disabled" ><i class="mdi mdi-pencil"></i> </button>
-                    <button class="btn btn-sm btn-danger mr-2 disabled"><i class=" mdi mdi-trash-can"></i> </button>';
+                    <button class="btn btn-sm btn-info mr-2" onclick="historyUpdate(' . $row->id . ')"><i class="mdi mdi-history"></i> </button>
+                    <button class="btn btn-sm btn-danger mr-2 disabled"><i class=" mdi mdi-trash-can"></i> </button>
+                    ';
                 } else {
                     $action = '<button class="btn btn-sm btn-primary mr-2" onclick="editLender(' . $row->id . ')"><i class="mdi mdi-pencil"></i> </button>
-                    <button class="btn btn-sm btn-danger mr-2" onclick="deleteLender(' . $row->id . ')"><i class=" mdi mdi-trash-can"></i> </button>';
+                    <button class="btn btn-sm btn-info mr-2" onclick="historyUpdate(' . $row->id . ')"><i class="mdi mdi-history"></i> </button>
+                    <button class="btn btn-sm btn-danger mr-2" onclick="deleteLender(' . $row->id . ')"><i class=" mdi mdi-trash-can"></i> </button>
+                    ';
                 }
                 return $action;
             })
@@ -311,6 +323,594 @@ class LenderController extends Controller
         return response()->json([
             'status' => 200,
             'message' => 'Request Delete Lender Berhasil, Harap menunggu approval',
+        ], 200);
+    }
+
+    public function approvalTableLender()
+    {
+        $lenderUpdate = lender_update::where(function ($query) {
+            $query->where('first_approver_id', '!=', auth('admin')->user()->id)
+                ->orWhereNull('first_approver_id');
+        })
+            ->where(function ($query) {
+                $query->where('second_approver_id', '!=', auth('admin')->user()->id)
+                    ->orWhereNull('second_approver_id');
+            })
+            ->where(function ($query) {
+                $query->where('second_approver_id', '!=', auth('admin')->user()->id)
+                    ->orWhereNull('second_approver_id');
+            })
+            ->with(['lender', 'requester', 'first_approver', 'second_approver'])
+            ->get();
+
+
+        return DataTables::of($lenderUpdate)
+            ->addIndexColumn()
+
+            ->addColumn('waktu', function ($row) {;
+                return Carbon::parse($row->created_at)->format('Y-m-d H:i:s');
+            })
+
+            ->addColumn('requester', function ($row) {
+                return $row->requester->username;
+            })
+
+            ->addColumn('status_pertama', function ($row) {
+                if ($row->status_pertama == "pending") {
+                    $badge = '<span class="badge badge-warning">PENDING</span>';
+                } elseif ($row->status_pertama == "reject") {
+                    $badge = '<span class="badge badge-danger">REJECT</span>';
+                } else {
+                    $badge = '<span class="badge badge-success">APPROVE</span>';
+                }
+                return $badge;
+            })
+
+
+            ->addColumn('status_kedua', function ($row) {
+                if ($row->status_kedua == "pending") {
+                    $badge = '<span class="badge badge-warning">PENDING</span>';
+                } elseif ($row->status_kedua == "reject") {
+                    $badge = '<span class="badge badge-danger">REJECT</span>';
+                } else {
+                    $badge = '<span class="badge badge-success">APPROVE</span>';
+                }
+                return $badge;
+            })
+
+            ->addColumn('first_approver_id', function ($row) {
+                return $row->first_approver == null ? "-" :  $row->first_approver->username;
+            })
+
+            ->addColumn('second_approver_id', function ($row) {
+                return $row->second_approver == null ? "-" :  $row->second_approver->username;
+            })
+
+            ->addColumn('action', function ($row) {
+                return '<button class="btn btn-sm btn-primary mr-2" onclick="editApproval(' . $row->id . ')"><i class="mdi mdi-pencil"></i> </button>';
+            })
+
+            ->rawColumns(['action', 'status_kedua', 'status_pertama'])
+            ->only([
+                'DT_RowIndex',
+                'waktu',
+                'requester',
+                'status_pertama',
+                'status_kedua',
+                'first_approver_id',
+                'second_approver_id',
+                'action',
+            ])
+            ->toJson();
+    }
+
+    public function approvalDetail(Request $req)
+    {
+        $lenderUpdate = lender_update::where(function ($query) {
+            $query->where('first_approver_id', '!=', auth('admin')->user()->id)
+                ->orWhereNull('first_approver_id');
+        })
+            ->where(function ($query) {
+                $query->where('second_approver_id', '!=', auth('admin')->user()->id)
+                    ->orWhereNull('second_approver_id');
+            })
+            ->where(function ($query) {
+                $query->where('second_approver_id', '!=', auth('admin')->user()->id)
+                    ->orWhereNull('second_approver_id');
+            })
+            ->where(function ($query) use ($req) {
+                $query->where('id', $req->id);
+            })
+            ->with(['lender', 'requester', 'first_approver', 'second_approver'])
+            ->first();
+
+        return response()->json([
+            'status' => 200,
+            'data' => new LenderDetailResource($lenderUpdate),
+        ], 200);
+    }
+
+    public function approvalAction(Request $req)
+    {
+        $lender_updates = lender_update::where('id', $req->id)->first();
+        // cek status pertama
+        if ($lender_updates->status_pertama == "pending" || $lender_updates->first_approver_id == null) {
+            $lender_updates->status_pertama = $req->action;
+            $lender_updates->first_approver_id = auth('admin')->user()->id;
+        } elseif ($lender_updates->status_kedua == "pending" || $lender_updates->second_approver_id == null) {
+            $lender_updates->status_kedua = $req->action;
+            $lender_updates->second_approver_id = auth('admin')->user()->id;
+        }
+        $lender_updates->save();
+
+        if ($lender_updates->status_pertama == "approve" && $lender_updates->status_kedua == "approve") {
+            $lender = lender::where('id', $lender_updates->lender_id)->first();
+            if ($lender) {
+                // $newData = json_decode($lender_updates->new_data, true);
+                $lender->update($lender_updates->new_data['new_data']);
+            }
+        }
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Berhasil mengupdate data approval',
+        ], 200);
+    }
+
+
+    public function updateHistoryLender(Request $req)
+    {
+        $perubahan = lender_update::where('lender_id', $req->id)
+            ->where('status_pertama', 'approve')
+            ->where('status_kedua', 'approve')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->json([
+            'status' => 200,
+            'data' => LenderHistoryUpdateResource::collection($perubahan),
+        ], 200);
+    }
+
+
+    public function indexInvoicingLender()
+    {
+        $bulanIni = Carbon::now()->isoFormat('MMMM Y');
+        return view('admin.ksp.lender.invoicing.index', compact('bulanIni'));
+    }
+
+
+    public function invoicingSementaraTable()
+    {
+        $lender = Lender::withWhereHas('pinjaman', function ($q) {
+            $q->whereYear('created_at', Carbon::now()->year)
+                ->whereMonth('created_at', Carbon::now()->month)
+                ->whereIn('status', ['approve', 'done']);
+        })->get();
+
+
+        return DataTables::of($lender)
+            ->addIndexColumn()
+
+            ->addColumn('total_pinjaman', function ($row) {
+                return '<span class="badge badge-success">' . $row->pinjaman->count() . '</span>';
+            })
+
+            ->addColumn('revenue', function ($row) {
+                return "Rp  " . number_format($row->pinjaman->sum('biaya_admin_pandu') + $row->pinjaman->sum('biaya_layanan'));
+            })
+
+            ->rawColumns(['total_pinjaman'])
+            ->only([
+                'DT_RowIndex',
+                'id_code_lender',
+                'nama',
+                'total_pinjaman',
+                'revenue'
+            ])
+            ->toJson();
+    }
+
+    public function invoicingLenderPending()
+    {
+        $historyInvoicingLenderPending = history_invoicing_lender::where('status', 'belum_lunas')->with([
+            'lender' => function ($q) {
+                $q->withWhereHas('pinjaman', function ($sub) {
+                    $sub->whereBetween('created_at', [
+                        Carbon::now()->startOfMonth(),
+                        Carbon::now()->endOfMonth()
+                    ])
+                        ->whereIn('status', ['approve', 'done']);
+                })
+                    ->withCount(['pinjaman as total_pinjaman' => function ($sub) {
+                        $sub->whereBetween('created_at', [
+                            Carbon::now()->startOfMonth(),
+                            Carbon::now()->endOfMonth()
+                        ])
+                            ->whereIn('status', ['approve', 'done']);
+                    }])
+                    ->withSum(['pinjaman as total_biaya_admin' => function ($sub) {
+                        $sub->whereBetween('created_at', [
+                            Carbon::now()->startOfMonth(),
+                            Carbon::now()->endOfMonth()
+                        ])
+                            ->whereIn('status', ['approve', 'done']);
+                    }], 'biaya_admin_pandu')
+                    ->withSum(['pinjaman as total_biaya_layanan' => function ($sub) {
+                        $sub->whereBetween('created_at', [
+                            Carbon::now()->startOfMonth(),
+                            Carbon::now()->endOfMonth()
+                        ])
+                            ->whereIn('status', ['approve', 'done']);
+                    }], 'biaya_layanan');
+            },
+            'pendingApproval'
+        ])->get();
+
+
+
+        return DataTables::of($historyInvoicingLenderPending)
+            ->addIndexColumn()
+
+            ->addColumn('pendingApproval', function ($row) {
+                if (isset($row->pendingApproval)) {
+                    $pendingApproval = '<span class="badge badge-warning">Locked</span>';
+                } else {
+                    $pendingApproval = '<span class="badge badge-success">Available to Edit</span>';
+                }
+                return $pendingApproval;
+            })
+
+            ->addColumn('period', function ($row) {
+                return Carbon::parse($row->period)->format('Y-m-d');
+            })
+
+            ->addColumn('id_invoice_tomi', function ($row) {
+                return $row->lender->id_code_lender;
+            })
+
+            ->addColumn('id_code_lender', function ($row) {
+                return $row->lender->id_code_lender;
+            })
+
+            ->addColumn('nama_lender', function ($row) {
+                return $row->lender->nama;
+            })
+
+            ->addColumn('total_pinjaman', function ($row) {
+                return '<span class="badge badge-success">' . $row->lender->total_pinjaman . '</span>';
+            })
+
+            ->addColumn('revenue', function ($row) {
+                return "Rp  " .  number_format(
+                    $row->lender->total_biaya_admin + $row->lender->total_biaya_layanan
+                );
+            })
+
+            ->addColumn('download', function ($row) {
+                $url = route('admin.lender.invoicing.download', encryptSecure($row->id));
+                return '<a href="' . $url . '" target="_blank"><i class="mdi mdi-download"></i></a>';
+            })
+
+            ->addColumn('action', function ($row) {
+                // return '<button class="btn btn-sm btn-primary mr-2" onclick="editInvocingLender(' . $row->id . ')"><i class="mdi mdi-pencil"></i> </button>';
+                if (isset($row->pendingApproval)) {
+                    $action = '<button class="btn btn-sm btn-primary mr-2 disabled" ><i class="mdi mdi-pencil"></i> </button>';
+                } else {
+                    $action = '<button class="btn btn-sm btn-primary mr-2" onclick="editInvocingLender(' . $row->id . ')"><i class="mdi mdi-pencil"></i> </button>';
+                }
+                return $action;
+            })
+
+            ->rawColumns(['total_pinjaman', 'download', 'action', 'pendingApproval'])
+            ->only([
+                'DT_RowIndex',
+                'no_invoice',
+                'pendingApproval',
+                'period',
+                'id_code_lender',
+                'nama_lender',
+                'total_pinjaman',
+                'revenue',
+                'download',
+                'action',
+            ])
+            ->toJson();
+    }
+
+    public function invoicingLenderDone()
+    {
+        $historyInvoicingLenderPending = history_invoicing_lender::where('status', 'lunas')->with([
+            'lender' => function ($q) {
+                $q->withWhereHas('pinjaman', function ($sub) {
+                    $sub->whereBetween('created_at', [
+                        Carbon::now()->startOfMonth(),
+                        Carbon::now()->endOfMonth()
+                    ])
+                        ->whereIn('status', ['approve', 'done']);
+                })
+                    ->withCount(['pinjaman as total_pinjaman' => function ($sub) {
+                        $sub->whereBetween('created_at', [
+                            Carbon::now()->startOfMonth(),
+                            Carbon::now()->endOfMonth()
+                        ])
+                            ->whereIn('status', ['approve', 'done']);
+                    }])
+                    ->withSum(['pinjaman as total_biaya_admin' => function ($sub) {
+                        $sub->whereBetween('created_at', [
+                            Carbon::now()->startOfMonth(),
+                            Carbon::now()->endOfMonth()
+                        ])
+                            ->whereIn('status', ['approve', 'done']);
+                    }], 'biaya_admin_pandu')
+                    ->withSum(['pinjaman as total_biaya_layanan' => function ($sub) {
+                        $sub->whereBetween('created_at', [
+                            Carbon::now()->startOfMonth(),
+                            Carbon::now()->endOfMonth()
+                        ])
+                            ->whereIn('status', ['approve', 'done']);
+                    }], 'biaya_layanan');
+            },
+            'pendingApproval'
+        ])->get();
+
+
+
+        return DataTables::of($historyInvoicingLenderPending)
+            ->addIndexColumn()
+
+            ->addColumn('period', function ($row) {
+                return Carbon::parse($row->period)->format('Y-m-d');
+            })
+
+            ->addColumn('id_invoice_tomi', function ($row) {
+                return $row->lender->id_code_lender;
+            })
+
+            ->addColumn('id_code_lender', function ($row) {
+                return $row->lender->id_code_lender;
+            })
+
+            ->addColumn('nama_lender', function ($row) {
+                return $row->lender->nama;
+            })
+
+            ->addColumn('total_pinjaman', function ($row) {
+                return '<span class="badge badge-success">' . $row->lender->total_pinjaman . '</span>';
+            })
+
+            ->addColumn('revenue', function ($row) {
+                return "Rp  " .  number_format(
+                    $row->lender->total_biaya_admin + $row->lender->total_biaya_layanan
+                );
+            })
+
+            ->addColumn('download', function ($row) {
+                $url = route('admin.lender.invoicing.download', encryptSecure($row->id));
+                return '<a href="' . $url . '" target="_blank"><i class="mdi mdi-download"></i></a>';
+            })
+
+
+            ->rawColumns(['total_pinjaman', 'download', 'action', 'pendingApproval'])
+            ->only([
+                'DT_RowIndex',
+                'no_invoice',
+                'pendingApproval',
+                'period',
+                'id_code_lender',
+                'nama_lender',
+                'total_pinjaman',
+                'revenue',
+                'download'
+            ])
+            ->toJson();
+    }
+
+    public function downloadInvoice($id)
+    {
+        $id = decryptSecure($id);
+        $historyInvoicingLenderPending = history_invoicing_lender::where('id', $id)->with([
+            'lender' => function ($q) {
+                $q->withWhereHas('pinjaman', function ($sub) {
+                    $sub->whereBetween('created_at', [
+                        Carbon::now()->startOfMonth(),
+                        Carbon::now()->endOfMonth()
+                    ])
+                        ->whereIn('status', ['approve', 'done']);
+                })
+                    ->withCount(['pinjaman as total_pinjaman' => function ($sub) {
+                        $sub->whereBetween('created_at', [
+                            Carbon::now()->startOfMonth(),
+                            Carbon::now()->endOfMonth()
+                        ])
+                            ->whereIn('status', ['approve', 'done']);
+                    }])
+                    ->withSum(['pinjaman as total_biaya_admin' => function ($sub) {
+                        $sub->whereBetween('created_at', [
+                            Carbon::now()->startOfMonth(),
+                            Carbon::now()->endOfMonth()
+                        ])
+                            ->whereIn('status', ['approve', 'done']);
+                    }], 'biaya_admin_pandu')
+                    ->withSum(['pinjaman as total_biaya_layanan' => function ($sub) {
+                        $sub->whereBetween('created_at', [
+                            Carbon::now()->startOfMonth(),
+                            Carbon::now()->endOfMonth()
+                        ])
+                            ->whereIn('status', ['approve', 'done']);
+                    }], 'biaya_layanan');
+            }
+        ])->first();
+
+        $rekening = rekening_pandu::with('bank')->first();
+        return view("admin.ksp.lender.invoicing.invoicing", compact('historyInvoicingLenderPending', 'rekening'));
+    }
+
+    public function approvePendingInvoice()
+    {
+        $lenderUpdate = history_invoicing_lender_update::query()
+            ->where(function ($query) {
+                $query->where('first_approver_id', '!=', auth('admin')->id())
+                    ->orWhereNull('first_approver_id');
+            })
+            ->where(function ($query) {
+                $query->where('second_approver_id', '!=', auth('admin')->id())
+                    ->orWhereNull('second_approver_id');
+            })
+            ->with([
+                'history_invoicing.lender',
+                'requester',
+                'first_approver',
+                'second_approver'
+            ])
+            ->get();
+
+
+        return DataTables::of($lenderUpdate)
+            ->addIndexColumn()
+
+            ->addColumn('waktu', function ($row) {;
+                return Carbon::parse($row->created_at)->format('Y-m-d H:i:s');
+            })
+
+            ->addColumn('requester', function ($row) {
+                return $row->requester->username;
+            })
+
+            ->addColumn('status_pertama', function ($row) {
+                if ($row->status_pertama == "pending") {
+                    $badge = '<span class="badge badge-warning">PENDING</span>';
+                } elseif ($row->status_pertama == "reject") {
+                    $badge = '<span class="badge badge-danger">REJECT</span>';
+                } else {
+                    $badge = '<span class="badge badge-success">APPROVE</span>';
+                }
+                return $badge;
+            })
+
+
+            ->addColumn('status_kedua', function ($row) {
+                if ($row->status_kedua == "pending") {
+                    $badge = '<span class="badge badge-warning">PENDING</span>';
+                } elseif ($row->status_kedua == "reject") {
+                    $badge = '<span class="badge badge-danger">REJECT</span>';
+                } else {
+                    $badge = '<span class="badge badge-success">APPROVE</span>';
+                }
+                return $badge;
+            })
+
+            ->addColumn('first_approver_id', function ($row) {
+                return $row->first_approver == null ? "-" :  $row->first_approver->username;
+            })
+
+            ->addColumn('second_approver_id', function ($row) {
+                return $row->second_approver == null ? "-" :  $row->second_approver->username;
+            })
+
+            ->addColumn('action', function ($row) {
+                return '<button class="btn btn-sm btn-primary mr-2" onclick="editApproval(' . $row->id . ')"><i class="mdi mdi-pencil"></i> </button>';
+            })
+
+            ->rawColumns(['action', 'status_kedua', 'status_pertama'])
+            ->only([
+                'DT_RowIndex',
+                'waktu',
+                'requester',
+                'status_pertama',
+                'status_kedua',
+                'first_approver_id',
+                'second_approver_id',
+                'action',
+            ])
+            ->toJson();
+    }
+
+    public function invoicingLenderPendingUpdate(UpdateInvoiceRequest $req)
+    {
+        $invocingLender = history_invoicing_lender::where('id', $req->id)->first();
+        $oldData = $invocingLender->getOriginal();
+
+        $invocingLender->status = 'lunas';
+        $invocingLender->update_by = auth('admin')->user()->id;
+        $invocingLender->tanggal_pembayaran = $req->tanggal;
+
+        $changedData = $invocingLender->getDirty();
+
+        $invocingLender->update_by = auth('admin')->user()->id;
+
+
+        $logData = [
+            'old_data' => array_intersect_key($oldData, $changedData), // Ambil data lama hanya untuk kolom yang berubah
+            'new_data' => $changedData
+        ];
+
+        $lender_updates = new history_invoicing_lender_update();
+        $lender_updates->invoicing_lender_id = $invocingLender->id;
+        $lender_updates->new_data = json_encode($logData);
+        $lender_updates->requester_id = auth('admin')->user()->id;
+        $lender_updates->status_pertama = 'pending';
+        $lender_updates->status_kedua = 'pending';
+        $lender_updates->save();
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Request perubahan transaksi invoicing Lender Berhasil, Harap menunggu approval',
+        ], 200);
+    }
+
+    public function approvalDetailInvocing(Request $req)
+    {
+        $history_invoicing_lender = history_invoicing_lender_update::query()
+            ->where('id', $req->id)
+            ->where(function ($query) {
+                $query->where('first_approver_id', '!=', auth('admin')->id())
+                    ->orWhereNull('first_approver_id');
+            })
+            ->where(function ($query) {
+                $query->where('second_approver_id', '!=', auth('admin')->id())
+                    ->orWhereNull('second_approver_id');
+            })
+            ->with([
+                'history_invoicing.lender',
+                'requester',
+                'first_approver',
+                'second_approver'
+            ])
+            ->first();
+
+        return response()->json([
+            'status' => 200,
+            'data' => new InvoicingUpdateDetailResource($history_invoicing_lender),
+        ], 200);
+    }
+
+
+    public function approvalInvoicingAction(Request $req)
+    {
+        $lender_updates = history_invoicing_lender_update::where('id', $req->id)->first();
+        // cek status pertama
+        if ($lender_updates->status_pertama == "pending" || $lender_updates->first_approver_id == null) {
+            $lender_updates->status_pertama = $req->action;
+            $lender_updates->first_approver_id = auth('admin')->user()->id;
+        } elseif ($lender_updates->status_kedua == "pending" || $lender_updates->second_approver_id == null) {
+            $lender_updates->status_kedua = $req->action;
+            $lender_updates->second_approver_id = auth('admin')->user()->id;
+        }
+        $lender_updates->save();
+
+        if ($lender_updates->status_pertama == "approve" && $lender_updates->status_kedua == "approve") {
+            $lender_invocing = history_invoicing_lender::where('id', $lender_updates->invoicing_lender_id)->first();
+
+            if ($lender_invocing) {
+                $newData = json_decode($lender_updates->new_data, true);
+                $lender_invocing->update($newData['new_data']);
+            }
+        }
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Berhasil mengupdate invocing approval lender',
         ], 200);
     }
 }

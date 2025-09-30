@@ -8,7 +8,7 @@ class invoicing_pinjaman extends Model
 {
     public function pinjaman()
     {
-        return $this->hasOne(pinjaman::class, 'id', 'id_pinjaman');
+        return $this->hasMany(pinjaman::class, 'id_perusahaan', 'id_list_perusahaan');
     }
 
     public function perusahaan()

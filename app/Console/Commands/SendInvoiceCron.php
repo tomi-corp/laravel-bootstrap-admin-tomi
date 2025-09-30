@@ -77,6 +77,6 @@ class SendInvoiceCron extends Command
         }
 
 
-        Log::channel('cronjob')->info($sekarang . ' Cronjob Invoice telah dijalankan');
+        Log::channel('cronjob')->info($sekarang . ' Cronjob Invoice perusahaan telah dijalankan');
     }
 }

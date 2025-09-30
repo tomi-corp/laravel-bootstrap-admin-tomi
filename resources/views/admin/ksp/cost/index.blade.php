@@ -17,7 +17,7 @@
 
 
         <div class="col-6">
-            <div class="card">
+            {{-- <div class="card">
                 <div class="card-body">
                     <h4>Rekening Repayment</h4>
                     <div class="form-group">
@@ -47,9 +47,6 @@
                                 value="{{ $data['bankTomi']['nomor_rekening'] }}"></input>
                             <small id="errNoRekening"></small>
                         </div>
-                        {{-- <input class="form-control format-currency" id="penerbitan_sertifikat_elektronik" type="number"
-                            value="{{ $data['identity_verifikasi'] }}"></input>
-                        <small id="errpenerbitan_sertifikat_elektronik"></small> --}}
                     </div>
 
                     <button class="btn btn-primary float-right" type="button" id="buttonSubmitRekening"
@@ -60,7 +57,7 @@
                 </div>
 
 
-            </div>
+            </div> --}}
 
             <div class="card">
                 <div class="card-body">

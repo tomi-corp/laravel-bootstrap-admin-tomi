@@ -14,3 +14,9 @@ Artisan::command('inspire', function () {
 Schedule::command('invoice:send')
     ->daily()
     ->at('23:59');
+
+Schedule::command('lender:invoicing')
+    ->dailyAt('23:59:58')
+    ->when(function () {
+        return now()->isLastOfMonth();
+    });
