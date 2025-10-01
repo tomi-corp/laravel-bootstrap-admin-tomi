@@ -23,9 +23,8 @@ class OtaUploadRequest extends FormRequest
     {
         return [
             'platform' => 'required|in:android,ios',
-            'versionMajor'  => ['required', 'regex:/^\d+(\.\d+){2,3}$/'],
-            'versionMinor'  => ['required', 'regex:/^\d+(\.\d+){2,3}$/'],
-            'otaUpdateID'  => 'required',
+            'versionMajor' => ['required', 'regex:/^\d+\.\d+$/'],
+            'versionMinor' => ['required', 'regex:/^\d+\.\d+$/'],
             'changelog' => 'required',
         ];
     }

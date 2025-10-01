@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Mail\InvoiceEmail;
+use App\Models\disbursement;
 use App\Models\history_invoicing_lender;
 use App\Models\invoicing_pinjaman;
 use App\Models\lender;
@@ -17,6 +18,10 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Flasher\Laravel\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Builder;
+
+
 
 class DashboardController extends Controller
 {
@@ -99,41 +104,16 @@ class DashboardController extends Controller
 
     public function test()
     {
-        $id  = 3;
-        $historyInvoicingLenderPending = history_invoicing_lender::where('id', $id)->with([
-            'lender' => function ($q) {
-                $q->withWhereHas('pinjaman', function ($sub) {
-                    $sub->whereBetween('created_at', [
-                        Carbon::now()->startOfMonth(),
-                        Carbon::now()->endOfMonth()
-                    ])
-                        ->whereIn('status', ['approve', 'done']);
-                })
-                    ->withCount(['pinjaman as total_pinjaman' => function ($sub) {
-                        $sub->whereBetween('created_at', [
-                            Carbon::now()->startOfMonth(),
-                            Carbon::now()->endOfMonth()
-                        ])
-                            ->whereIn('status', ['approve', 'done']);
-                    }])
-                    ->withSum(['pinjaman as total_biaya_admin' => function ($sub) {
-                        $sub->whereBetween('created_at', [
-                            Carbon::now()->startOfMonth(),
-                            Carbon::now()->endOfMonth()
-                        ])
-                            ->whereIn('status', ['approve', 'done']);
-                    }], 'biaya_admin_pandu')
-                    ->withSum(['pinjaman as total_biaya_layanan' => function ($sub) {
-                        $sub->whereBetween('created_at', [
-                            Carbon::now()->startOfMonth(),
-                            Carbon::now()->endOfMonth()
-                        ])
-                            ->whereIn('status', ['approve', 'done']);
-                    }], 'biaya_layanan');
-            }
-        ])->get();
+        // $disbursement = disbursement::
+
+        // dd($historyInvoicingLenderPending);
 
 
-        dd($historyInvoicingLenderPending);
+        // foreach ($historyInvoicingLenderPending as $qqq) {
+        //     foreach ($qqq->lender->pinjaman as $ppp) {
+        //         // dd($ppp);
+        //         echo $ppp->disbursement;
+        //     }
+        // }
     }
 }

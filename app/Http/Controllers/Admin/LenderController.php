@@ -23,10 +23,12 @@ use App\Models\provinsi;
 use App\Models\rekening_pandu;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Response;
-use PhpParser\Node\Stmt\Return_;
+use Illuminate\Database\Eloquent\Builder;
+
 
 class LenderController extends Controller
 {
@@ -483,11 +485,14 @@ class LenderController extends Controller
     public function invoicingSementaraTable()
     {
         $lender = Lender::withWhereHas('pinjaman', function ($q) {
-            $q->whereYear('created_at', Carbon::now()->year)
-                ->whereMonth('created_at', Carbon::now()->month)
-                ->whereIn('status', ['approve', 'done']);
+            $q->withWhereHas('disbursement', function ($p) {
+                $p->whereYear('created_at', Carbon::now()->year)
+                    ->whereMonth('created_at', Carbon::now()->month);
+            })->with(['disbursement' => function ($p) {
+                $p->whereYear('created_at', Carbon::now()->year)
+                    ->whereMonth('created_at', Carbon::now()->month);
+            }]);
         })->get();
-
 
         return DataTables::of($lender)
             ->addIndexColumn()
@@ -513,41 +518,38 @@ class LenderController extends Controller
 
     public function invoicingLenderPending()
     {
-        $historyInvoicingLenderPending = history_invoicing_lender::where('status', 'belum_lunas')->with([
-            'lender' => function ($q) {
-                $q->withWhereHas('pinjaman', function ($sub) {
-                    $sub->whereBetween('created_at', [
-                        Carbon::now()->startOfMonth(),
-                        Carbon::now()->endOfMonth()
-                    ])
-                        ->whereIn('status', ['approve', 'done']);
-                })
-                    ->withCount(['pinjaman as total_pinjaman' => function ($sub) {
-                        $sub->whereBetween('created_at', [
-                            Carbon::now()->startOfMonth(),
-                            Carbon::now()->endOfMonth()
-                        ])
-                            ->whereIn('status', ['approve', 'done']);
+
+        $historyInvoicingLenderPending = history_invoicing_lender::where('status', 'belum_lunas')
+            ->with([
+                'lender' => function ($q) {
+                    $q->with(['pinjaman' => function ($sub) {
+                        $sub->whereIn('status', ['approve', 'done'])
+                            ->with('disbursement');
                     }])
-                    ->withSum(['pinjaman as total_biaya_admin' => function ($sub) {
-                        $sub->whereBetween('created_at', [
-                            Carbon::now()->startOfMonth(),
-                            Carbon::now()->endOfMonth()
-                        ])
-                            ->whereIn('status', ['approve', 'done']);
-                    }], 'biaya_admin_pandu')
-                    ->withSum(['pinjaman as total_biaya_layanan' => function ($sub) {
-                        $sub->whereBetween('created_at', [
-                            Carbon::now()->startOfMonth(),
-                            Carbon::now()->endOfMonth()
-                        ])
-                            ->whereIn('status', ['approve', 'done']);
-                    }], 'biaya_layanan');
-            },
-            'pendingApproval'
-        ])->get();
-
-
+                        ->withCount(['pinjaman as total_pinjaman' => function ($sub) {
+                            $sub->whereIn('status', ['approve', 'done']);
+                        }])
+                        ->withSum(['pinjaman as total_biaya_admin' => function ($sub) {
+                            $sub->whereIn('status', ['approve', 'done']);
+                        }], 'biaya_admin_pandu')
+                        ->withSum(['pinjaman as total_biaya_layanan' => function ($sub) {
+                            $sub->whereIn('status', ['approve', 'done']);
+                        }], 'biaya_layanan');
+                },
+                'pendingApproval'
+            ])->get()
+            ->each(function ($invoice) {
+                if ($invoice->lender && $invoice->lender->pinjaman) {
+                    $filteredPinjaman = $invoice->lender->pinjaman->filter(function ($pinjaman) use ($invoice) {
+                        return $pinjaman->disbursement &&
+                            Carbon::parse($pinjaman->disbursement->created_at)->format('Y-m') === Carbon::parse($invoice->period)->format('Y-m');
+                    });
+                    $invoice->lender->total_pinjaman = $filteredPinjaman->count();
+                    $invoice->lender->total_biaya_admin = $filteredPinjaman->sum('biaya_admin_pandu');
+                    $invoice->lender->total_biaya_layanan = $filteredPinjaman->sum('biaya_layanan');
+                    $invoice->lender->setRelation('pinjaman', $filteredPinjaman);
+                }
+            });
 
         return DataTables::of($historyInvoicingLenderPending)
             ->addIndexColumn()
@@ -563,10 +565,6 @@ class LenderController extends Controller
 
             ->addColumn('period', function ($row) {
                 return Carbon::parse($row->period)->format('Y-m-d');
-            })
-
-            ->addColumn('id_invoice_tomi', function ($row) {
-                return $row->lender->id_code_lender;
             })
 
             ->addColumn('id_code_lender', function ($row) {
@@ -620,40 +618,37 @@ class LenderController extends Controller
 
     public function invoicingLenderDone()
     {
-        $historyInvoicingLenderPending = history_invoicing_lender::where('status', 'lunas')->with([
-            'lender' => function ($q) {
-                $q->withWhereHas('pinjaman', function ($sub) {
-                    $sub->whereBetween('created_at', [
-                        Carbon::now()->startOfMonth(),
-                        Carbon::now()->endOfMonth()
-                    ])
-                        ->whereIn('status', ['approve', 'done']);
-                })
-                    ->withCount(['pinjaman as total_pinjaman' => function ($sub) {
-                        $sub->whereBetween('created_at', [
-                            Carbon::now()->startOfMonth(),
-                            Carbon::now()->endOfMonth()
-                        ])
-                            ->whereIn('status', ['approve', 'done']);
+        $historyInvoicingLenderPending = history_invoicing_lender::where('status', 'lunas')
+            ->with([
+                'lender' => function ($q) {
+                    $q->with(['pinjaman' => function ($sub) {
+                        $sub->whereIn('status', ['approve', 'done'])
+                            ->with('disbursement');
                     }])
-                    ->withSum(['pinjaman as total_biaya_admin' => function ($sub) {
-                        $sub->whereBetween('created_at', [
-                            Carbon::now()->startOfMonth(),
-                            Carbon::now()->endOfMonth()
-                        ])
-                            ->whereIn('status', ['approve', 'done']);
-                    }], 'biaya_admin_pandu')
-                    ->withSum(['pinjaman as total_biaya_layanan' => function ($sub) {
-                        $sub->whereBetween('created_at', [
-                            Carbon::now()->startOfMonth(),
-                            Carbon::now()->endOfMonth()
-                        ])
-                            ->whereIn('status', ['approve', 'done']);
-                    }], 'biaya_layanan');
-            },
-            'pendingApproval'
-        ])->get();
-
+                        ->withCount(['pinjaman as total_pinjaman' => function ($sub) {
+                            $sub->whereIn('status', ['approve', 'done']);
+                        }])
+                        ->withSum(['pinjaman as total_biaya_admin' => function ($sub) {
+                            $sub->whereIn('status', ['approve', 'done']);
+                        }], 'biaya_admin_pandu')
+                        ->withSum(['pinjaman as total_biaya_layanan' => function ($sub) {
+                            $sub->whereIn('status', ['approve', 'done']);
+                        }], 'biaya_layanan');
+                },
+                'pendingApproval'
+            ])->get()
+            ->each(function ($invoice) {
+                if ($invoice->lender && $invoice->lender->pinjaman) {
+                    $filteredPinjaman = $invoice->lender->pinjaman->filter(function ($pinjaman) use ($invoice) {
+                        return $pinjaman->disbursement &&
+                            Carbon::parse($pinjaman->disbursement->created_at)->format('Y-m') === Carbon::parse($invoice->period)->format('Y-m');
+                    });
+                    $invoice->lender->total_pinjaman = $filteredPinjaman->count();
+                    $invoice->lender->total_biaya_admin = $filteredPinjaman->sum('biaya_admin_pandu');
+                    $invoice->lender->total_biaya_layanan = $filteredPinjaman->sum('biaya_layanan');
+                    $invoice->lender->setRelation('pinjaman', $filteredPinjaman);
+                }
+            });
 
 
         return DataTables::of($historyInvoicingLenderPending)
@@ -661,10 +656,6 @@ class LenderController extends Controller
 
             ->addColumn('period', function ($row) {
                 return Carbon::parse($row->period)->format('Y-m-d');
-            })
-
-            ->addColumn('id_invoice_tomi', function ($row) {
-                return $row->lender->id_code_lender;
             })
 
             ->addColumn('id_code_lender', function ($row) {
@@ -709,38 +700,64 @@ class LenderController extends Controller
     public function downloadInvoice($id)
     {
         $id = decryptSecure($id);
-        $historyInvoicingLenderPending = history_invoicing_lender::where('id', $id)->with([
-            'lender' => function ($q) {
-                $q->withWhereHas('pinjaman', function ($sub) {
-                    $sub->whereBetween('created_at', [
-                        Carbon::now()->startOfMonth(),
-                        Carbon::now()->endOfMonth()
-                    ])
-                        ->whereIn('status', ['approve', 'done']);
-                })
-                    ->withCount(['pinjaman as total_pinjaman' => function ($sub) {
-                        $sub->whereBetween('created_at', [
-                            Carbon::now()->startOfMonth(),
-                            Carbon::now()->endOfMonth()
-                        ])
-                            ->whereIn('status', ['approve', 'done']);
-                    }])
-                    ->withSum(['pinjaman as total_biaya_admin' => function ($sub) {
-                        $sub->whereBetween('created_at', [
-                            Carbon::now()->startOfMonth(),
-                            Carbon::now()->endOfMonth()
-                        ])
-                            ->whereIn('status', ['approve', 'done']);
-                    }], 'biaya_admin_pandu')
-                    ->withSum(['pinjaman as total_biaya_layanan' => function ($sub) {
-                        $sub->whereBetween('created_at', [
-                            Carbon::now()->startOfMonth(),
-                            Carbon::now()->endOfMonth()
-                        ])
-                            ->whereIn('status', ['approve', 'done']);
-                    }], 'biaya_layanan');
-            }
-        ])->first();
+        $historyInvoicingLenderPending = history_invoicing_lender::where('id', $id)
+            ->with([
+                'lender.pinjaman.disbursement',
+                'pendingApproval'
+            ])->first();
+
+        if ($historyInvoicingLenderPending && $historyInvoicingLenderPending->lender) {
+            $filteredPinjaman = $historyInvoicingLenderPending->lender->pinjaman->filter(function ($pinjaman) use ($historyInvoicingLenderPending) {
+                return $pinjaman->disbursement &&
+                    Carbon::parse($pinjaman->disbursement->created_at)->format('Y-m') === Carbon::parse($historyInvoicingLenderPending->period)->format('Y-m');
+            });
+
+            $historyInvoicingLenderPending->lender->total_pinjaman = $filteredPinjaman->count();
+            $historyInvoicingLenderPending->lender->total_biaya_admin = $filteredPinjaman->sum('biaya_admin_pandu');
+            $historyInvoicingLenderPending->lender->total_biaya_layanan = $filteredPinjaman->sum('biaya_layanan');
+            $historyInvoicingLenderPending->lender->setRelation('pinjaman', $filteredPinjaman);
+        }
+
+        // $historyInvoicingLenderPending = history_invoicing_lender::where('id', $id)->with([
+        //     'lender' => function ($q) {
+        //         $q->withWhereHas('pinjaman', function ($sub) {
+        //             $sub->whereBetween('created_at', [
+        //                 // Carbon::now()->startOfMonth(),
+        //                 // Carbon::now()->endOfMonth()
+        //                 Carbon::parse('2025-09-01'),
+        //                 Carbon::parse('2025-09-30'),
+        //             ])
+        //                 ->whereIn('status', ['approve', 'done']);
+        //         })
+        //             ->withCount(['pinjaman as total_pinjaman' => function ($sub) {
+        //                 $sub->whereBetween('created_at', [
+        //                     // Carbon::now()->startOfMonth(),
+        //                     // Carbon::now()->endOfMonth()
+        //                     Carbon::parse('2025-09-01'),
+        //                     Carbon::parse('2025-09-30'),
+        //                 ])
+        //                     ->whereIn('status', ['approve', 'done']);
+        //             }])
+        //             ->withSum(['pinjaman as total_biaya_admin' => function ($sub) {
+        //                 $sub->whereBetween('created_at', [
+        //                     // Carbon::now()->startOfMonth(),
+        //                     // Carbon::now()->endOfMonth()
+        //                     Carbon::parse('2025-09-01'),
+        //                     Carbon::parse('2025-09-30'),
+        //                 ])
+        //                     ->whereIn('status', ['approve', 'done']);
+        //             }], 'biaya_admin_pandu')
+        //             ->withSum(['pinjaman as total_biaya_layanan' => function ($sub) {
+        //                 $sub->whereBetween('created_at', [
+        //                     // Carbon::now()->startOfMonth(),
+        //                     // Carbon::now()->endOfMonth()
+        //                     Carbon::parse('2025-09-01'),
+        //                     Carbon::parse('2025-09-30'),
+        //                 ])
+        //                     ->whereIn('status', ['approve', 'done']);
+        //             }], 'biaya_layanan');
+        //     }
+        // ])->first();
 
         $rekening = rekening_pandu::with('bank')->first();
         return view("admin.ksp.lender.invoicing.invoicing", compact('historyInvoicingLenderPending', 'rekening'));

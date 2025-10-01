@@ -46,13 +46,6 @@
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Ota Update ID</label>
-                        <input type="text" name="otaUpdateID" class="form-control" placeholder="1.0.3" required
-                            id="otaUpdateID">
-                        <small class="text-danger" id="errUpdateID"></small>
-                    </div>
-
-                    <div class="mb-3">
                         <label class="form-label">Changelog</label>
                         <textarea name="changelog" class="form-control" rows="3" id="changelog"></textarea>
                         <small class="text-danger" id="errChangelog"></small>
@@ -78,7 +71,6 @@
                                 <th>Platform</th>
                                 <th>Version Major</th>
                                 <th>Version Minor</th>
-                                <th>OTA Updates ID</th>
                                 <th>Changelog</th>
                                 <th>Action</th>
                             </tr>
@@ -181,9 +173,6 @@
                         data: 'versionMinor'
                     },
                     {
-                        data: 'otaUpdateID'
-                    },
-                    {
                         data: 'changelog'
                     }, {
                         data: 'action',
@@ -201,7 +190,6 @@
             formData.append('platform', $("#plafrom").val());
             formData.append('versionMajor', $("#versionMajor").val());
             formData.append('versionMinor', $("#versionMinor").val());
-            formData.append('otaUpdateID', $("#otaUpdateID").val());
             formData.append('changelog', $("#changelog").val());
 
             $.ajax({
@@ -230,6 +218,8 @@
                     $('#versionMinor').val('');
                     $('#otaUpdateID').val('');
                     $('#changelog').val('');
+                    $('#errVersionMajor').text('');
+                    $('#errVersionMinor').text('');
                 },
                 error: function(err) {
                     $('#buttonSubmit').attr("disabled", false);
@@ -239,7 +229,6 @@
                     $('#errPlatform').text(errors?.platform ?? '');
                     $('#errVersionMajor').text(errors?.versionMajor ?? '');
                     $('#errVersionMinor').text(errors?.versionMinor ?? '');
-                    $('#errUpdateID').text(errors?.otaUpdateID ?? '');
                     $('#errChangelog').text(errors?.changelog ?? '');
                 }
             });
