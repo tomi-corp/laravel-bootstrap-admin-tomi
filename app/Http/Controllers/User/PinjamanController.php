@@ -594,8 +594,8 @@ class PinjamanController extends Controller
                     'jumlah_pencairan' => 'Rp  ' . number_format($verif->pinjaman->jumlah_yang_diterima),
                     'terbilang_jumlah_pencairan' => ' (' . terbilang($verif->pinjaman->jumlah_yang_diterima) . ' Rupiah)',
                     'bankLender' => $verif->pinjaman->data_karyawan->perusahaan->lender->bank->code_bank,
-                    'rekeningLender' =>  $verif->pinjaman->data_karyawan->perusahaan->lender->nomor_rekening,
-                    'atasNamaBankLender' =>  $verif->pinjaman->data_karyawan->perusahaan->lender->atas_nama,
+                    'rekeningLender' =>  $verif->pinjaman->data_karyawan->perusahaan->lender->no_rekening,
+                    'atasNamaBankLender' =>  $verif->pinjaman->data_karyawan->perusahaan->lender->nama_rekening,
                     'penerima_pinjaman' => strtoupper($user->nama_lengkap)
                 ];
 
