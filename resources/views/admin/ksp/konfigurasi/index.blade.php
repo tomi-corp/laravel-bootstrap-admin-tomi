@@ -72,6 +72,7 @@
                             <tr>
                                 <th>Tenor</th>
                                 <th>Rate</th>
+                                <th>Asuransi</th>
                                 <th>Biaya Admin</th>
                                 <th>Fee Tomi</th>
                                 <th>Iuran Anggota</th>
@@ -104,50 +105,72 @@
 
                     <div class="form-group">
                         <label>Tenor</label>
-                        <input class="form-control" id="tenor" placeholder="Tenor" type="number"></input>
+                        <div class="input-group"> <input class="form-control" id="tenor" placeholder="Tenor"
+                                type="number">
+                            <span class="input-group-text">bulan</span>
+                        </div>
                         <small class="text-danger" id="errTenor"></small>
                     </div>
 
                     <div class="form-group">
                         <label>Rate</label>
-                        <input class="form-control" id="rate" placeholder="Rate" type="number"></input>
+                        <div class="input-group"> <input class="form-control" id="rate" placeholder="Rate"
+                                type="number">
+                            <span class="input-group-text">%</span>
+                        </div>
                         <small class="text-danger" id="errRate"></small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Biaya asuransi</label>
+                        <div class="input-group"> <input class="form-control" id="asuransi" placeholder="Biaya asuransi"
+                                type="number">
+                            <span class="input-group-text">%</span>
+                        </div>
+                        <small class="text-danger" id="errAsuransi"></small>
                     </div>
 
 
                     <div class="form-group">
                         <label>Biaya Admin</label>
-                        <input class="form-control" id="biayaadmin" placeholder="Biaya Admin" type="number"></input>
+                        <div class="input-group"> <input class="form-control" id="biayaadmin" placeholder="Biaya Admin"
+                                type="number">
+                            <span class="input-group-text">%</span>
+                        </div>
                         <small class="text-danger" id="errBiayaAdmin"></small>
                     </div>
 
                     <div class="form-group">
                         <label>Fee Tomi</label>
-                        <input class="form-control" id="feeTomi" placeholder="Fee Tomi" type="number"></input>
+                        <div class="input-group"> <input class="form-control" id="feeTomi" placeholder="Fee Tomi"
+                                type="number">
+                            <span class="input-group-text">%</span>
+                        </div>
                         <small class="text-danger" id="errfeeTomi"></small>
                     </div>
 
 
                     <div class="form-group">
                         <label>Biaya Layanan</label>
-                        <input class="form-control" id="biayalayanan" placeholder="Biaya Layanan" type="number"></input>
-                        <small class="text-danger" id="errBiayalayanan"></small>
+                        <input class="form-control rupiah-input" id="biayalayanan" placeholder="Biaya Layanan"
+                            type="text" data-original-value="0"> <small class="text-danger"
+                            id="errBiayalayanan"></small>
                     </div>
 
                     <div class="row">
                         <div class="col-6">
                             <div class="form-group">
                                 <label>Minimal Nominal</label>
-                                <input class="form-control" id="minimalNominalTenor" placeholder="Minimal Nominal Tenor"
-                                    type="number"></input>
+                                <input class="form-control rupiah-input" id="minimalNominalTenor"
+                                    placeholder="Minimal Nominal Tenor" type="text" data-original-value="0">
                                 <small class="text-danger" id="errMinimalNominalTenor"></small>
                             </div>
                         </div>
                         <div class="col-6">
                             <div class="form-group">
                                 <label>Maximal Nominal</label>
-                                <input class="form-control" id="maximalNominalTenor" placeholder="Maximal Nominal Tenor"
-                                    type="number"></input>
+                                <input class="form-control rupiah-input" id="maximalNominalTenor"
+                                    placeholder="Maximal Nominal Tenor" type="text" data-original-value="0">
                                 <small class="text-danger" id="errMaximalNominalTenor"></small>
                             </div>
                         </div>
@@ -181,37 +204,58 @@
                 </div>
                 <div class="modal-body">
 
+                    <input type="hidden" id="konfigurasiId">
+
                     <div class="form-group">
                         <label>Tenor</label>
-                        <input class="form-control" id="tenorEdit" placeholder="Tenor" type="number"></input>
+                        <div class="input-group"> <input class="form-control" id="tenorEdit" placeholder="Tenor"
+                                type="number">
+                            <span class="input-group-text">bulan</span>
+                        </div>
                         <small class="text-danger" id="errTenorEdit"></small>
                     </div>
 
                     <div class="form-group">
                         <label>Rate</label>
-                        <input class="form-control" id="rateEdit" placeholder="Rate" type="number"></input>
+                        <div class="input-group"> <input class="form-control" id="rateEdit" placeholder="Rate"
+                                type="number">
+                            <span class="input-group-text">%</span>
+                        </div>
                         <small class="text-danger" id="errRateEdit"></small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Biaya Asuransi</label>
+                        <div class="input-group"> <input class="form-control" id="asuransiEdit"
+                                placeholder="Biaya Asuransi" type="number">
+                            <span class="input-group-text">%</span>
+                        </div>
+                        <small class="text-danger" id="errAsuransiEdit"></small>
                     </div>
 
 
                     <div class="form-group">
                         <label>Biaya Admin</label>
-                        <input class="form-control" id="biayaadminEdit" placeholder="Biaya Admin"
-                            type="number"></input>
+                        <div class="input-group"> <input class="form-control" id="biayaadminEdit"
+                                placeholder="Biaya Admin" type="number">
+                            <span class="input-group-text">%</span>
+                        </div>
                         <small class="text-danger" id="errBiayaAdminEdit"></small>
                     </div>
 
                     <div class="form-group">
                         <label>Fee Tomi</label>
-                        <input class="form-control" id="feeTomiEdit" placeholder="Biaya Admin"
-                            type="number"></input>
+                        <div class="input-group"> <input class="form-control" id="feeTomiEdit" placeholder="Fee Tomi"
+                                type="number">
+                            <span class="input-group-text">%</span>
+                        </div>
                         <small class="text-danger" id="errfeeTomiEdit"></small>
                     </div>
 
                     <div class="form-group">
                         <label>Biaya Layanan</label>
-                        <input class="form-control" id="biayalayananEdit" placeholder="Biaya Layanan"
-                            type="number"></input>
+                        <input class="form-control rupiah-input-edit" id="biayalayananEdit" placeholder="Biaya Layanan"
+                            type="text" data-original-value="0">
                         <small class="text-danger" id="errBiayaLayananEdit"></small>
                     </div>
 
@@ -220,16 +264,16 @@
                         <div class="col-6">
                             <div class="form-group">
                                 <label>Minimal Nominal</label>
-                                <input class="form-control" id="minimalNominalTenorEdit"
-                                    placeholder="Minimal Nominal Tenor" type="number"></input>
+                                <input class="form-control rupiah-input-edit" id="minimalNominalTenorEdit"
+                                    placeholder="Minimal Nominal Tenor" type="text" data-original-value="0">
                                 <small class="text-danger" id="errMinimalNominalTenorEdit"></small>
                             </div>
                         </div>
                         <div class="col-6">
                             <div class="form-group">
                                 <label>Maximal Nominal</label>
-                                <input class="form-control" id="maximalNominalTenorEdit"
-                                    placeholder="Maximal Nominal Tenor" type="number"></input>
+                                <input class="form-control rupiah-input-edit" id="maximalNominalTenorEdit"
+                                    placeholder="Maximal Nominal Tenor" type="text" data-original-value="0">
                                 <small class="text-danger" id="errMaximalNominalTenorEdit"></small>
                             </div>
                         </div>
@@ -344,10 +388,12 @@
             }, {
                 data: 'rate'
             }, {
+                data: 'asuransi'
+            }, {
                 data: 'biaya_admin'
-            },  {
+            }, {
                 data: 'fee_tomi'
-            },{
+            }, {
                 data: 'iuran_anggota'
             }, {
                 data: 'biaya_layanan'
@@ -364,9 +410,21 @@
             deleteID = id;
             $('#modalDelete').modal('show');
         }
-
         edit = (id) => {
-            editID = id;
+            editID = id; // Menyimpan ID ke variabel global
+            // Bersihkan pesan error sebelum memuat data baru
+            $('#errTenorEdit').text('');
+            $('#errRateEdit').text('');
+            $('#errAsuransiEdit').text('');
+            $('#errBiayaAdminEdit').text('');
+            $('#errfeeTomiEdit').text('');
+            $('#errBiayaLayananEdit').text('');
+            $('#errMinimalNominalTenorEdit').text('');
+            $('#errMaximalNominalTenorEdit').text('');
+
+            // Pastikan hidden input ID ada di modal Edit: <input type="hidden" id="konfigurasiId">
+            $('#konfigurasiId').val(id);
+
             $.ajax({
                 url: '{!! route('admin.ksp.konfigurasi.detail') !!}',
                 data: {
@@ -376,20 +434,37 @@
                 type: 'POST',
                 dataType: 'json',
                 success: function(detail) {
-                    $('#tenorEdit').val(detail.data.tenor);
-                    $('#rateEdit').val(detail.data.rate);
-                    $('#biayaadminEdit').val(detail.data.biaya_admin);
-                    $('#feeTomiEdit').val(detail.data.fee_tomi);
-                    $('#iurananggotaEdit').val(detail.data.iuran_anggota);
-                    $('#biayalayananEdit').val(detail.data.biaya_layanan);
-                    $('#minimalNominalTenorEdit').val(detail.data.minimal_nominal);
-                    $('#maximalNominalTenorEdit').val(detail.data.maximal_nominal);
+                    const data = detail.data;
+
+                    // 1. Input Non-Rupiah (Tenor, Rate, Biaya Admin, Fee Tomi)
+                    $('#tenorEdit').val(data.tenor);
+                    $('#rateEdit').val(data.rate);
+                    $('#asuransiEdit').val(data.asuransi);
+                    $('#biayaadminEdit').val(data.biaya_admin);
+                    $('#feeTomiEdit').val(data.fee_tomi);
+                    // $('#iurananggotaEdit').val(data.iuran_anggota); // Input ini tidak ada di HTML modal, jadi saya komentari.
+
+                    // 2. Input Rupiah (Biaya Layanan, Minimal, Maximal Nominal)
+
+                    // Biaya Layanan
+                    $('#biayalayananEdit')
+                        .attr('data-original-value', data.biaya_layanan) // Simpan nilai integer mentah
+                        .val(formatRupiah(data.biaya_layanan)); // Tampilkan nilai yang diformat
+
+                    // Minimal Nominal
+                    $('#minimalNominalTenorEdit')
+                        .attr('data-original-value', data.minimal_nominal) // Simpan nilai integer mentah
+                        .val(formatRupiah(data.minimal_nominal)); // Tampilkan nilai yang diformat
+
+                    // Maximal Nominal
+                    $('#maximalNominalTenorEdit')
+                        .attr('data-original-value', data.maximal_nominal) // Simpan nilai integer mentah
+                        .val(formatRupiah(data.maximal_nominal)); // Tampilkan nilai yang diformat
+
                     $('#modalEdit').modal('show');
                 }
             });
-
         }
-
         buttonDelete = () => {
             $.ajax({
                 url: '{!! route('admin.ksp.konfigurasi.delete') !!}',
@@ -419,46 +494,86 @@
         }
 
         buttonSubmit = () => {
+            // 1. Ambil nilai untuk input non-Rupiah (tenor, rate, biayaadmin, feeTomi) menggunakan .val()
+            var tenor = $("#tenor").val();
+            var rate = $("#rate").val();
+            var asuransi = $("#asuransi").val();
+            var biayaAdmin = $("#biayaadmin").val();
+            var feeTomi = $("#feeTomi").val();
+
+            // 2. Ambil nilai untuk input Rupiah dari atribut data-original-value,
+            //    yang menyimpan nilai integer mentah tanpa titik/koma.
+            //    Pastikan untuk mengkonversinya menjadi integer jika perlu,
+            //    tetapi di sini kita ambil sebagai string karena jQuery .attr() mengembalikannya sebagai string.
+            var biayaLayananRaw = $('#biayalayanan').attr('data-original-value');
+            var minimalNominalRaw = $('#minimalNominalTenor').attr('data-original-value');
+            var maximalNominalRaw = $('#maximalNominalTenor').attr('data-original-value');
+
+            // Fallback/Safety Check: Pastikan nilai yang dikirim adalah string angka atau 0 jika kosong
+            var biayaLayanan = biayaLayananRaw ? biayaLayananRaw : '0';
+            var minimalNominal = minimalNominalRaw ? minimalNominalRaw : '0';
+            var maximalNominal = maximalNominalRaw ? maximalNominalRaw : '0';
+
+
             $.ajax({
                 url: '{!! route('admin.ksp.konfigurasi.add') !!}',
                 data: {
                     '_token': "{{ csrf_token() }}",
                     'id': "{{ $list_perusahaan->id }}",
-                    'tenor': $("#tenor").val(),
-                    'rate': $("#rate").val(),
-                    'biaya_admin': $("#biayaadmin").val(),
-                    'fee_tomi': $("#fee_tomi").val(),
-                    'biaya_layanan': $("#biayalayanan").val(),
-                    'minimal_nominal': $("#minimalNominalTenor").val(),
-                    'maximal_nominal': $("#maximalNominalTenor").val(),
+                    'tenor': tenor, // Nilai integer/angka
+                    'rate': rate, // Nilai integer/angka
+                    'asuransi': asuransi, // Nilai integer/angka
+                    'biaya_admin': biayaAdmin, // Nilai integer/angka
+                    'fee_tomi': feeTomi, // Nilai integer/angka
+
+                    // Kirim nilai Rupiah dalam format integer mentah (tanpa titik)
+                    'biaya_layanan': biayaLayanan,
+                    'minimal_nominal': minimalNominal,
+                    'maximal_nominal': maximalNominal,
                 },
                 type: 'POST',
                 dataType: 'json',
                 beforeSend: function() {
                     $('#buttonSubmit').attr("disabled", true);
                     $('#loadingText').addClass("spinner-border");
+                    // Sembunyikan pesan error lama
+                    $('#errTenor').text('');
+                    $('#errRate').text('');
+                    $('#errAsuransi').text('');
+                    $('#errBiayaAdmin').text('');
+                    $('#errfeeTomi').text('');
+                    $('#errBiayaLayanan').text(''); // Perbaikan ID: errBiayaLayanan
+                    $('#errMinimalNominalTenor').text('');
+                    $('#errMaximalNominalTenor').text('');
                 },
                 success: function(saveConfig) {
                     toastr.success(saveConfig.message)
                     // listMenu();
                     table.ajax.reload();
                     $("#modalAdd").modal('hide');
-                    $('#errTenor').text();
-                    $('#errRate').text();
-                    $('#errBiayaAdmin').text();
-                    $('#errfeeTomi').text();
-                    $('#errBiayalayanan').text();
-                    $('#errMinimalNominalTenor').text();
-                    $('#errMaximalNominalTenor').text();
+
+                    // Clear input fields after success (optional but recommended)
+                    $('#tenor').val('');
+                    $('#rate').val('');
+                    $('#asuransi').val('');
+                    $('#biayaadmin').val('');
+                    $('#feeTomi').val('');
+                    $('#biayalayanan').val('').attr('data-original-value', '0');
+                    $('#minimalNominalTenor').val('').attr('data-original-value', '0');
+                    $('#maximalNominalTenor').val('').attr('data-original-value', '0');
+
                     $('#buttonSubmit').attr("disabled", false);
                     $('#loadingText').removeClass("spinner-border");
                 },
                 error: function(saveConfig) {
+                    // Pastikan ID error untuk Biaya Layanan sudah benar di sini: 'errBiayaLayanan'
                     $('#errTenor').text(saveConfig.responseJSON.errors.tenor);
                     $('#errRate').text(saveConfig.responseJSON.errors.rate);
+                    $('#errAsuransi').text(saveConfig.responseJSON.errors.asuransi);
                     $('#errBiayaAdmin').text(saveConfig.responseJSON.errors.biaya_admin);
                     $('#errfeeTomi').text(saveConfig.responseJSON.errors.fee_tomi);
-                    $('#errBiayaLayanan').text(saveConfig.responseJSON.errors.biaya_layanan);
+                    $('#errBiayaLayanan').text(saveConfig.responseJSON.errors
+                        .biaya_layanan); // Perbaikan ID
                     $('#errMinimalNominalTenor').text(saveConfig.responseJSON.errors.minimal_nominal);
                     $('#errMaximalNominalTenor').text(saveConfig.responseJSON.errors.maximal_nominal);
                     $('#buttonSubmit').attr("disabled", false);
@@ -468,45 +583,80 @@
         }
 
         buttonSubmitEdit = () => {
+            // 1. Ambil ID Konfigurasi
+            var konfigurasiId = editID;
+
+            // 2. Ambil nilai non-Rupiah
+            var tenor = $("#tenorEdit").val();
+            var rate = $("#rateEdit").val();
+            var asuransi = $("#asuransiEdit").val();
+            var biayaAdmin = $("#biayaadminEdit").val();
+            var feeTomi = $("#feeTomiEdit").val();
+
+            // 3. Ambil nilai Rupiah RAW INTEGER dari data-original-value
+            var biayaLayananRaw = $('#biayalayananEdit').attr('data-original-value');
+            var minimalNominalRaw = $('#minimalNominalTenorEdit').attr('data-original-value');
+            var maximalNominalRaw = $('#maximalNominalTenorEdit').attr('data-original-value');
+
+            // Fallback/Safety Check: Pastikan nilai yang dikirim adalah string angka atau 0 jika kosong
+            var biayaLayanan = biayaLayananRaw ? biayaLayananRaw : '0';
+            var minimalNominal = minimalNominalRaw ? minimalNominalRaw : '0';
+            var maximalNominal = maximalNominalRaw ? maximalNominalRaw : '0';
+
             $.ajax({
                 url: '{!! route('admin.ksp.konfigurasi.edit') !!}',
                 data: {
                     '_token': "{{ csrf_token() }}",
-                    'id': editID,
-                    'tenor': $("#tenorEdit").val(),
-                    'rate': $("#rateEdit").val(),
-                    'biaya_admin': $("#biayaadminEdit").val(),
-                    'fee_tomi': $("#feeTomiEdit").val(),
-                    'biaya_layanan': $("#biayalayananEdit").val(),
-                    'minimal_nominal': $("#minimalNominalTenorEdit").val(),
-                    'maximal_nominal': $("#maximalNominalTenorEdit").val(),
+                    'id': konfigurasiId, // Menggunakan editID yang sudah diset di fungsi edit()
+                    'tenor': tenor,
+                    'rate': rate,
+                    'asuransi': asuransi,
+                    'biaya_admin': biayaAdmin,
+                    'fee_tomi': feeTomi,
+
+                    // Kirim nilai Rupiah dalam format integer mentah
+                    'biaya_layanan': biayaLayanan,
+                    'minimal_nominal': minimalNominal,
+                    'maximal_nominal': maximalNominal,
                 },
                 type: 'POST',
                 dataType: 'json',
                 beforeSend: function() {
                     $('#buttonSubmitEdit').attr("disabled", true);
                     $('#loadingTextEdit').addClass("spinner-border");
+                    // Bersihkan pesan error saat mulai proses
+                    $('#errTenorEdit').text('');
+                    $('#errRateEdit').text('');
+                    $('#errAsuransiEdit').text('');
+                    $('#errBiayaAdminEdit').text('');
+                    $('#errfeeTomiEdit').text('');
+                    $('#errBiayaLayananEdit').text('');
+                    $('#errMinimalNominalTenorEdit').text('');
+                    $('#errMaximalNominalTenorEdit').text('');
                 },
                 success: function(saveConfig) {
                     toastr.success(saveConfig.message)
-                    // listMenu();
                     table.ajax.reload();
                     $("#modalEdit").modal('hide');
-                    $('#errTenorEdit').text();
-                    $('#errRateEdit').text();
-                    $('#errBiayaAdminEdit').text();
-                    $('#errfeeTomiEdit').text();
-                    $('#errBiayaLayananEdit').text();
 
-                    $('#errMinimalNominalTenorEdit').text();
-                    $('#errMaximalNominalTenorEdit').text();
+                    // Clear errors on success (redundant but safe)
+                    $('#errTenorEdit').text('');
+                    $('#errRateEdit').text('');
+                    $('#errAsuransiEdit').text('');
+                    $('#errBiayaAdminEdit').text('');
+                    $('#errfeeTomiEdit').text('');
+                    $('#errBiayaLayananEdit').text('');
+                    $('#errMinimalNominalTenorEdit').text('');
+                    $('#errMaximalNominalTenorEdit').text('');
 
                     $('#buttonSubmitEdit').attr("disabled", false);
                     $('#loadingTextEdit').removeClass("spinner-border");
                 },
                 error: function(saveConfig) {
+                    // Tampilkan error dari backend
                     $('#errTenorEdit').text(saveConfig.responseJSON.errors.tenor);
                     $('#errRateEdit').text(saveConfig.responseJSON.errors.rate);
+                    $('#errAsuransiEdit').text(saveConfig.responseJSON.errors.asuransi);
                     $('#errBiayaAdminEdit').text(saveConfig.responseJSON.errors.biaya_admin);
                     $('#errfeeTomiEdit').text(saveConfig.responseJSON.errors.fee_tomi);
                     $('#errBiayaLayananEdit').text(saveConfig.responseJSON.errors.biaya_layanan);
@@ -543,5 +693,67 @@
                 }
             });
         }
+    </script>
+
+    <script>
+        // Function to format a number into Rupiah format (e.g., 100000 -> 100.000)
+        function formatRupiah(angka) {
+            if (angka == null || angka === '') return '';
+            var number_string = angka.toString().replace(/[^,\d]/g, '').toString(),
+                split = number_string.split(','),
+                sisa = split[0].length % 3,
+                rupiah = split[0].substr(0, sisa),
+                ribuan = split[0].substr(sisa).match(/\d{3}/gi);
+
+            if (ribuan) {
+                separator = sisa ? '.' : '';
+                rupiah += separator + ribuan.join('.');
+            }
+
+            rupiah = split[1] != undefined ? rupiah + ',' + split[1] : rupiah;
+            return rupiah;
+        }
+
+        // Function to remove Rupiah formatting and return an integer (e.g., 100.000 -> 100000)
+        function unformatRupiah(rupiah) {
+            return parseInt(rupiah.replace(/[^0-9]/g, ''), 10);
+        }
+
+        $('.rupiah-input').on('keyup', function() {
+            var input = $(this).val();
+            // Remove all non-digit characters to get the raw number
+            var rawValue = input.replace(/[^0-9]/g, '');
+
+            // Store the raw integer value in a data attribute
+            $(this).attr('data-original-value', rawValue);
+
+            // Format and display the Rupiah value
+            $(this).val(formatRupiah(rawValue));
+        });
+
+        // Optional: Re-format on focus loss (blur)
+        $('.rupiah-input').on('blur', function() {
+            var input = $(this).val();
+            var rawValue = input.replace(/[^0-9]/g, '');
+            $(this).val(formatRupiah(rawValue));
+        });
+
+        $('.rupiah-input-edit').on('keyup', function() {
+            var input = $(this).val();
+            // Hapus semua karakter non-digit kecuali titik koma
+            var rawValue = input.replace(/[^0-9]/g, '');
+
+            // Simpan nilai integer mentah di data attribute
+            $(this).attr('data-original-value', rawValue);
+
+            // Format dan tampilkan nilai Rupiah
+            $(this).val(formatRupiah(rawValue));
+        });
+
+        $('.rupiah-input-edit').on('blur', function() {
+            var input = $(this).val();
+            var rawValue = input.replace(/[^0-9]/g, '');
+            $(this).val(formatRupiah(rawValue));
+        });
     </script>
 @endpush

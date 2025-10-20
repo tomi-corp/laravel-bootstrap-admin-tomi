@@ -127,12 +127,19 @@ class HistoryController extends Controller
                 ->where('id', $req->id)
                 ->with('jatuh_tempo')
                 ->first();
-
-            return response()->json([
-                'status' => 200,
-                'message' => 'success',
-                'historyDetail' => new HistoryDetailResource($historyPinjam)
-            ], 200);
+            if (isset($historyPinjam)) {
+                return response()->json([
+                    'status' => 200,
+                    'message' => 'success',
+                    'historyDetail' => new HistoryDetailResource($historyPinjam)
+                ], 200);
+            } else {
+                return response()->json([
+                    'status' => 200,
+                    'message' => 'success',
+                    'historyDetail' => []
+                ], 200);
+            }
         }
     }
 }

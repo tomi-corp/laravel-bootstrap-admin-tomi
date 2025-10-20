@@ -18,6 +18,7 @@ class TenorPinjamanResource extends JsonResource
             'id_tenor_pinjaman' => $this->id,
             'tenor' => $this->tenor . " bulan",
             'rate' => $this->rate . " %",
+            'asuransi' => $this->asuransi . " %",
             'biaya_admin' => $this->biaya_admin . " %",
             'iuran_anggota' => "Rp  " . number_format($this->amount_pinjaman->iuran_anggota * $this->tenor)
         ];

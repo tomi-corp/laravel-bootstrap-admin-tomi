@@ -555,6 +555,10 @@ class KspController extends Controller
                 return $row->rate . ' %';
             })
 
+            ->addColumn('asuransi', function ($row) {
+                return $row->rate . ' %';
+            })
+
             ->addColumn('biaya_admin', function ($row) {
                 return $row->biaya_admin . ' %';
             })
@@ -596,6 +600,7 @@ class KspController extends Controller
         $tenor->id_perusahaan = $req->id;
         $tenor->tenor = $req->tenor;
         $tenor->rate = $req->rate;
+        $tenor->asuransi = $req->asuransi;
         $tenor->biaya_admin = $req->biaya_admin;
         $tenor->fee_tomi = $req->fee_tomi;
         $tenor->biaya_layanan = $req->biaya_layanan;
@@ -631,6 +636,7 @@ class KspController extends Controller
         $tenor =  tenor_pinjaman::where('id', $req->id)->first();
         $tenor->tenor = $req->tenor;
         $tenor->rate = $req->rate;
+        $tenor->asuransi = $req->asuransi;
         $tenor->biaya_admin = $req->biaya_admin;
         $tenor->fee_tomi = $req->fee_tomi;
         $tenor->biaya_layanan = $req->biaya_layanan;

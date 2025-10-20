@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreign('id_perusahaan')->references('id')->on('list_perusahaans');
             $table->integer('tenor');
             $table->double('rate');
+            $table->double('asuransi');
             $table->double('biaya_admin');
             $table->double('fee_tomi');
             $table->double('biaya_layanan');

@@ -17,6 +17,7 @@ class TenorPinjamanResource extends JsonResource
         return [
             'tenor' => $this->tenor,
             'rate' => $this->rate,
+            'asuransi' => $this->asuransi,
             'biaya_admin' => $this->biaya_admin,
             'fee_tomi' => $this->fee_tomi,
             'iuran_anggota' => $this->iuran_anggota,
