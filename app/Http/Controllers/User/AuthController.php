@@ -65,6 +65,9 @@ class AuthController extends Controller
     {
         $credentials = $request->only('email', 'password');
         if ($token = auth('api')->attempt($credentials)) {
+            $user = User::where('id', auth('api')->user()->id)->first();
+            $user->token_firebase = $request->token_firebase;
+            $user->save();
             return $this->respondWithToken($token);
         } else {
             return response()->json(['error' => 'Unauthorized'], 401);

@@ -192,17 +192,24 @@ class KspController extends Controller
             })
             ->addColumn('list_karyawan', function ($row) {
                 return '<a href="' . route('admin.list.karyawan', encryptSecure($row->id)) . '" target="_blank">
-                <span class="badge badge-info" title="Total karyawan yang telah di approve 2 layer">' . $row->karyawan->count() . '</span> 
-                <span class="badge badge-pink" title="Total karyawan yang menunggu di approve">' . $row->karyawanPending->count() . '</span></a>';
+                <span class="badge badge-primary">
+                            <span class="badge badge-info" title="Total karyawan yang telah di approve 2 layer">' . $row->karyawan->count() . '</span> 
+                            <span class="badge badge-pink" title="Total karyawan yang menunggu di approve">' . $row->karyawanPending->count() . '</span>
+                </span>
+                 </a>';
             })
 
             ->addColumn('proses_pengajuan', function ($row) {
                 return '<a href="' . route('admin.ksp.pengajuan',  encryptSecure($row->id)) . '" target="_blank">
+                <span class="badge badge-primary">
+
                     <span class="badge badge-warning" title="Proses pengajuan dengan status on proses">' . $row->pinjaman->where('status', 'on_proses')->count() . '</span>
                     <span class="badge badge-purple" title="Proses pengajuan dengan status exported">' . $row->pinjaman->where('status', 'exported')->count() . '</span>
                     <span class="badge badge-info" title="Proses pengajuan dengan status approve">' . $row->pinjaman->where('status', 'approve')->count() . '</span>
                     <span class="badge badge-pink" title="Proses pengajuan dengan status reject">' . $row->pinjaman->where('status', 'reject')->count() . '</span>
-                </a>';
+                </span>
+                
+                    </a>';
             })
 
             ->addColumn('provinsi', function ($row) {
@@ -556,7 +563,11 @@ class KspController extends Controller
             })
 
             ->addColumn('asuransi', function ($row) {
-                return $row->rate . ' %';
+                return $row->asuransi . ' %';
+            })
+
+            ->addColumn('provisi', function ($row) {
+                return $row->provisi . ' %';
             })
 
             ->addColumn('biaya_admin', function ($row) {
@@ -601,6 +612,7 @@ class KspController extends Controller
         $tenor->tenor = $req->tenor;
         $tenor->rate = $req->rate;
         $tenor->asuransi = $req->asuransi;
+        $tenor->provisi = $req->asuransi;
         $tenor->biaya_admin = $req->biaya_admin;
         $tenor->fee_tomi = $req->fee_tomi;
         $tenor->biaya_layanan = $req->biaya_layanan;
@@ -637,6 +649,7 @@ class KspController extends Controller
         $tenor->tenor = $req->tenor;
         $tenor->rate = $req->rate;
         $tenor->asuransi = $req->asuransi;
+        $tenor->provisi = $req->provisi;
         $tenor->biaya_admin = $req->biaya_admin;
         $tenor->fee_tomi = $req->fee_tomi;
         $tenor->biaya_layanan = $req->biaya_layanan;

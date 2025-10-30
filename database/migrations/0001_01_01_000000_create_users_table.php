@@ -38,6 +38,7 @@ return new class extends Migration
             $table->string('enterprise_token_privy');
             $table->string('reference_number_privy');
             $table->string('register_token_privy');
+            $table->string('token_firebase');
             $table->json('reason_privy');
             $table->tinyInteger('resend_privy');
             $table->tinyInteger('update_data_privy');

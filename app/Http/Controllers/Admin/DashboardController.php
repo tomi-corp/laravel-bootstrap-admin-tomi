@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Mail\InvoiceEmail;
+use App\Mail\ReminderPinjamanPayroll;
 use App\Models\disbursement;
 use App\Models\history_invoicing_lender;
 use App\Models\invoicing_pinjaman;
@@ -104,6 +105,8 @@ class DashboardController extends Controller
 
     public function test()
     {
+
+
         // $disbursement = disbursement::
 
         // dd($historyInvoicingLenderPending);

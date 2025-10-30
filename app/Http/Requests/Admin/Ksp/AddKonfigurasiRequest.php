@@ -26,6 +26,7 @@ class AddKonfigurasiRequest extends FormRequest
             'tenor' => 'required',
             'rate' => 'required',
             'asuransi' => 'required',
+            'provisi' => 'required',
             'biaya_admin' => 'required',
             'fee_tomi' => 'required',
             'biaya_layanan' => 'required',

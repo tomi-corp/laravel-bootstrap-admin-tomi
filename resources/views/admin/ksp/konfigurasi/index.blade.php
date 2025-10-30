@@ -73,6 +73,7 @@
                                 <th>Tenor</th>
                                 <th>Rate</th>
                                 <th>Asuransi</th>
+                                <th>Provisi</th>
                                 <th>Biaya Admin</th>
                                 <th>Fee Tomi</th>
                                 <th>Iuran Anggota</th>
@@ -128,6 +129,15 @@
                             <span class="input-group-text">%</span>
                         </div>
                         <small class="text-danger" id="errAsuransi"></small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Biaya Provisi</label>
+                        <div class="input-group"> <input class="form-control" id="provisi" placeholder="Biaya provisi"
+                                type="number">
+                            <span class="input-group-text">%</span>
+                        </div>
+                        <small class="text-danger" id="errProvisi"></small>
                     </div>
 
 
@@ -231,6 +241,15 @@
                             <span class="input-group-text">%</span>
                         </div>
                         <small class="text-danger" id="errAsuransiEdit"></small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Biaya Provisi</label>
+                        <div class="input-group"> <input class="form-control" id="provisiEdit"
+                                placeholder="Biaya Provisi" type="number">
+                            <span class="input-group-text">%</span>
+                        </div>
+                        <small class="text-danger" id="errProvisiEdit"></small>
                     </div>
 
 
@@ -390,6 +409,8 @@
             }, {
                 data: 'asuransi'
             }, {
+                data: 'provisi'
+            }, {
                 data: 'biaya_admin'
             }, {
                 data: 'fee_tomi'
@@ -416,6 +437,7 @@
             $('#errTenorEdit').text('');
             $('#errRateEdit').text('');
             $('#errAsuransiEdit').text('');
+            $('#errProvisiEdit').text('');
             $('#errBiayaAdminEdit').text('');
             $('#errfeeTomiEdit').text('');
             $('#errBiayaLayananEdit').text('');
@@ -435,11 +457,12 @@
                 dataType: 'json',
                 success: function(detail) {
                     const data = detail.data;
-
+                    console.log(data.provisi);
                     // 1. Input Non-Rupiah (Tenor, Rate, Biaya Admin, Fee Tomi)
                     $('#tenorEdit').val(data.tenor);
                     $('#rateEdit').val(data.rate);
                     $('#asuransiEdit').val(data.asuransi);
+                    $('#provisiEdit').val(data.provisi);
                     $('#biayaadminEdit').val(data.biaya_admin);
                     $('#feeTomiEdit').val(data.fee_tomi);
                     // $('#iurananggotaEdit').val(data.iuran_anggota); // Input ini tidak ada di HTML modal, jadi saya komentari.
@@ -494,17 +517,13 @@
         }
 
         buttonSubmit = () => {
-            // 1. Ambil nilai untuk input non-Rupiah (tenor, rate, biayaadmin, feeTomi) menggunakan .val()
             var tenor = $("#tenor").val();
             var rate = $("#rate").val();
             var asuransi = $("#asuransi").val();
+            var provisi = $("#provisi").val();
             var biayaAdmin = $("#biayaadmin").val();
             var feeTomi = $("#feeTomi").val();
 
-            // 2. Ambil nilai untuk input Rupiah dari atribut data-original-value,
-            //    yang menyimpan nilai integer mentah tanpa titik/koma.
-            //    Pastikan untuk mengkonversinya menjadi integer jika perlu,
-            //    tetapi di sini kita ambil sebagai string karena jQuery .attr() mengembalikannya sebagai string.
             var biayaLayananRaw = $('#biayalayanan').attr('data-original-value');
             var minimalNominalRaw = $('#minimalNominalTenor').attr('data-original-value');
             var maximalNominalRaw = $('#maximalNominalTenor').attr('data-original-value');
@@ -523,6 +542,7 @@
                     'tenor': tenor, // Nilai integer/angka
                     'rate': rate, // Nilai integer/angka
                     'asuransi': asuransi, // Nilai integer/angka
+                    'provisi': provisi, // Nilai integer/angka
                     'biaya_admin': biayaAdmin, // Nilai integer/angka
                     'fee_tomi': feeTomi, // Nilai integer/angka
 
@@ -540,6 +560,7 @@
                     $('#errTenor').text('');
                     $('#errRate').text('');
                     $('#errAsuransi').text('');
+                    $('#errProvisi').text('');
                     $('#errBiayaAdmin').text('');
                     $('#errfeeTomi').text('');
                     $('#errBiayaLayanan').text(''); // Perbaikan ID: errBiayaLayanan
@@ -556,6 +577,7 @@
                     $('#tenor').val('');
                     $('#rate').val('');
                     $('#asuransi').val('');
+                    $('#provisi').val('');
                     $('#biayaadmin').val('');
                     $('#feeTomi').val('');
                     $('#biayalayanan').val('').attr('data-original-value', '0');
@@ -570,6 +592,7 @@
                     $('#errTenor').text(saveConfig.responseJSON.errors.tenor);
                     $('#errRate').text(saveConfig.responseJSON.errors.rate);
                     $('#errAsuransi').text(saveConfig.responseJSON.errors.asuransi);
+                    $('#errProvisi').text(saveConfig.responseJSON.errors.provisi);
                     $('#errBiayaAdmin').text(saveConfig.responseJSON.errors.biaya_admin);
                     $('#errfeeTomi').text(saveConfig.responseJSON.errors.fee_tomi);
                     $('#errBiayaLayanan').text(saveConfig.responseJSON.errors
@@ -590,6 +613,7 @@
             var tenor = $("#tenorEdit").val();
             var rate = $("#rateEdit").val();
             var asuransi = $("#asuransiEdit").val();
+            var provisi = $("#asuransiEdit").val();
             var biayaAdmin = $("#biayaadminEdit").val();
             var feeTomi = $("#feeTomiEdit").val();
 
@@ -611,6 +635,7 @@
                     'tenor': tenor,
                     'rate': rate,
                     'asuransi': asuransi,
+                    'provisi': provisi,
                     'biaya_admin': biayaAdmin,
                     'fee_tomi': feeTomi,
 
@@ -628,6 +653,7 @@
                     $('#errTenorEdit').text('');
                     $('#errRateEdit').text('');
                     $('#errAsuransiEdit').text('');
+                    $('#errProvisiEdit').text('');
                     $('#errBiayaAdminEdit').text('');
                     $('#errfeeTomiEdit').text('');
                     $('#errBiayaLayananEdit').text('');
@@ -643,6 +669,7 @@
                     $('#errTenorEdit').text('');
                     $('#errRateEdit').text('');
                     $('#errAsuransiEdit').text('');
+                    $('#errProvisiEdit').text('');
                     $('#errBiayaAdminEdit').text('');
                     $('#errfeeTomiEdit').text('');
                     $('#errBiayaLayananEdit').text('');
@@ -657,6 +684,7 @@
                     $('#errTenorEdit').text(saveConfig.responseJSON.errors.tenor);
                     $('#errRateEdit').text(saveConfig.responseJSON.errors.rate);
                     $('#errAsuransiEdit').text(saveConfig.responseJSON.errors.asuransi);
+                    $('#errProvisiEdit').text(saveConfig.responseJSON.errors.provisi);
                     $('#errBiayaAdminEdit').text(saveConfig.responseJSON.errors.biaya_admin);
                     $('#errfeeTomiEdit').text(saveConfig.responseJSON.errors.fee_tomi);
                     $('#errBiayaLayananEdit').text(saveConfig.responseJSON.errors.biaya_layanan);

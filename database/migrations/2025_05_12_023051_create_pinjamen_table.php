@@ -26,6 +26,7 @@ return new class extends Migration
             $table->integer('tenor');
             $table->double('rate');
             $table->double('asuransi');
+            $table->double('provisi');
             $table->double('biaya_admin');
             $table->double('iuran_anggota');
             $table->double('total_biaya_admin');
@@ -44,6 +45,7 @@ return new class extends Migration
             $table->double('total_angsuran_perbulan');
             $table->double('jumlah_yang_diterima');
             $table->double('jumlah_asuransi');
+            $table->double('jumlah_provisi');
 
             $table->double('cost_tomi');
             $table->double('cost_ksp');
