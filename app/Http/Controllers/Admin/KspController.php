@@ -681,11 +681,31 @@ class KspController extends Controller
 
     public function pengajuanOnprosesTable(Request $req)
     {
-        $pinjaman = pinjaman::where('id_perusahaan', $req->id)
+        $startDate = null;
+        $endDate = null;
+
+        if (!empty($req->range)) {
+            $dates = explode(' - ', $req->range);
+            if (count($dates) === 2) {
+                try {
+                    $startDate = Carbon::createFromFormat('m/d/Y', trim($dates[0]))->startOfDay();
+                    $endDate = Carbon::createFromFormat('m/d/Y', trim($dates[1]))->endOfDay();
+                } catch (\Exception $e) {
+                    $startDate = null;
+                    $endDate = null;
+                }
+            }
+        }
+
+        $query = pinjaman::where('id_perusahaan', $req->id)
             ->where('status', 'on_proses')
             ->where('status_otp', 'success')
-            ->with('data_karyawan')
-            ->get();
+            ->with('data_karyawan');
+
+        if ($startDate && $endDate) {
+            $query->whereBetween('created_at', [$startDate, $endDate]);
+        }
+        $pinjaman = $query->get();
 
         return DataTables::of($pinjaman)
             ->addIndexColumn()
@@ -751,13 +771,34 @@ class KspController extends Controller
             // ->rawColumns(['action'])
             ->toJson();
     }
+
     public function pengajuanPendingTable(Request $req)
     {
-        $pinjaman = pinjaman::where('id_perusahaan', $req->id)
+        $startDate = null;
+        $endDate = null;
+
+        if (!empty($req->range)) {
+            $dates = explode(' - ', $req->range);
+            if (count($dates) === 2) {
+                try {
+                    $startDate = Carbon::createFromFormat('m/d/Y', trim($dates[0]))->startOfDay();
+                    $endDate = Carbon::createFromFormat('m/d/Y', trim($dates[1]))->endOfDay();
+                } catch (\Exception $e) {
+                    $startDate = null;
+                    $endDate = null;
+                }
+            }
+        }
+
+        $query = pinjaman::where('id_perusahaan', $req->id)
             ->where('status', 'pending')
             ->where('status_otp', 'success')
-            ->with('data_karyawan')
-            ->get();
+            ->with('data_karyawan');
+
+        if ($startDate && $endDate) {
+            $query->whereBetween('created_at', [$startDate, $endDate]);
+        }
+        $pinjaman = $query->get();
 
         return DataTables::of($pinjaman)
             ->addIndexColumn()
@@ -824,11 +865,32 @@ class KspController extends Controller
 
     public function pengajuanApproveTable(Request $req)
     {
-        $pinjaman = pinjaman::where('id_perusahaan', $req->id)
+
+        $startDate = null;
+        $endDate = null;
+
+        if (!empty($req->range)) {
+            $dates = explode(' - ', $req->range);
+            if (count($dates) === 2) {
+                try {
+                    $startDate = Carbon::createFromFormat('m/d/Y', trim($dates[0]))->startOfDay();
+                    $endDate = Carbon::createFromFormat('m/d/Y', trim($dates[1]))->endOfDay();
+                } catch (\Exception $e) {
+                    $startDate = null;
+                    $endDate = null;
+                }
+            }
+        }
+
+        $query = pinjaman::where('id_perusahaan', $req->id)
             ->where('status', 'approve')
             ->where('status_otp', 'success')
-            ->with('data_karyawan')
-            ->get();
+            ->with('data_karyawan');
+
+        if ($startDate && $endDate) {
+            $query->whereBetween('created_at', [$startDate, $endDate]);
+        }
+        $pinjaman = $query->get();
 
         return DataTables::of($pinjaman)
             ->addIndexColumn()
@@ -909,11 +971,32 @@ class KspController extends Controller
 
     public function pengajuanRejectTable(Request $req)
     {
-        $pinjaman = pinjaman::where('id_perusahaan', $req->id)
+        $startDate = null;
+        $endDate = null;
+
+        if (!empty($req->range)) {
+            $dates = explode(' - ', $req->range);
+            if (count($dates) === 2) {
+                try {
+                    $startDate = Carbon::createFromFormat('m/d/Y', trim($dates[0]))->startOfDay();
+                    $endDate = Carbon::createFromFormat('m/d/Y', trim($dates[1]))->endOfDay();
+                } catch (\Exception $e) {
+                    $startDate = null;
+                    $endDate = null;
+                }
+            }
+        }
+
+        $query =  pinjaman::where('id_perusahaan', $req->id)
             ->where('status', 'reject')
             ->where('status_otp', 'success')
-            ->with('data_karyawan')
-            ->get();
+            ->with('data_karyawan');
+
+        if ($startDate && $endDate) {
+            $query->whereBetween('created_at', [$startDate, $endDate]);
+        }
+        $pinjaman = $query->get();
+
 
         return DataTables::of($pinjaman)
             ->addIndexColumn()
@@ -980,11 +1063,32 @@ class KspController extends Controller
 
     public function pengajuanDoneTable(Request $req)
     {
-        $pinjaman = pinjaman::where('id_perusahaan', $req->id)
+
+        $startDate = null;
+        $endDate = null;
+
+        if (!empty($req->range)) {
+            $dates = explode(' - ', $req->range);
+            if (count($dates) === 2) {
+                try {
+                    $startDate = Carbon::createFromFormat('m/d/Y', trim($dates[0]))->startOfDay();
+                    $endDate = Carbon::createFromFormat('m/d/Y', trim($dates[1]))->endOfDay();
+                } catch (\Exception $e) {
+                    $startDate = null;
+                    $endDate = null;
+                }
+            }
+        }
+
+        $query =  pinjaman::where('id_perusahaan', $req->id)
             ->where('status', 'done')
             ->where('status_otp', 'success')
-            ->with('data_karyawan')
-            ->get();
+            ->with('data_karyawan');
+
+        if ($startDate && $endDate) {
+            $query->whereBetween('created_at', [$startDate, $endDate]);
+        }
+        $pinjaman = $query->get();
 
         return DataTables::of($pinjaman)
             ->addIndexColumn()

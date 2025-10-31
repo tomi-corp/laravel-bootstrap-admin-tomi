@@ -50,6 +50,7 @@ class ReminderPinjamanPayrollCron extends Command
                     ];
                     try {
                         Mail::to($data['to'])->send(new ReminderPinjamanPayroll($data));
+                        sendNotification($berjalan->user->token_firebase, "Siap-siap Gajian! 💸", "Pemotongan angsuran pinjaman payroll Anda akan diproses otomatis 2 hari lagi, pada " . $tanggalTarget . ". Cek aplikasi/email untuk rincian.");
                     } catch (\Throwable $th) {
                         Log::channel('cronjob')->info($sekarang . ' Error : ' . $th);
                     }

@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\KspController;
 use App\Http\Controllers\Admin\LenderController;
 use App\Http\Controllers\Admin\MenuMobileController;
+use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\OtaController;
 use App\Http\Controllers\Admin\PpobController;
 use App\Http\Controllers\Admin\ProfileController;
@@ -130,7 +131,7 @@ Route::middleware(['AdminMiddleware'])->group(
                 Route::get('/ksp/pengajuan/{id}', [KspController::class, 'pengajuanIndex'])->name('admin.ksp.pengajuan');
                 Route::post('/ksp/pengajuan/onproses/table', [KspController::class, 'pengajuanOnprosesTable'])->name('admin.ksp.pengajuan.onproses.table');
                 // KSP => Pengajuan => pending
-                Route::post('/ksp/pengajuan/pendin/table', [KspController::class, 'pengajuanPendingTable'])->name('admin.ksp.pengajuan.pending.table');
+                Route::post('/ksp/pengajuan/pending/table', [KspController::class, 'pengajuanPendingTable'])->name('admin.ksp.pengajuan.pending.table');
                 // KSP => Pengajuan => Approve
                 Route::post('/ksp/pengajuan/approve/table', [KspController::class, 'pengajuanApproveTable'])->name('admin.ksp.pengajuan.approve.table');
                 // KSP => Pengajuan => Reject
@@ -158,6 +159,12 @@ Route::middleware(['AdminMiddleware'])->group(
                 Route::post('/ota/upload', [OtaController::class, 'otaUpload'])->name('admin.ota.upload');
                 Route::post('/ota/table', [OtaController::class, 'otaTable'])->name('admin.ota.table');
                 Route::post('/ota/delete', [OtaController::class, 'deleteOta'])->name('admin.ota.delete');
+
+                // send notification
+                // admin.sendnotif.index
+                Route::get('/send/notification', [NotificationController::class, 'notificationPushIndex'])->name('admin.sendnotif.index');
+                Route::post('/send/notification/action', [NotificationController::class, 'notificationPushAction'])->name('admin.sendnotif.action');
+                Route::post('/send/notification/table', [NotificationController::class, 'notificationPushTable'])->name('admin.sendnotif.table');
 
                 // manage admin
                 Route::get('/manage/admin', [AuthController::class, 'manageAdminIndex'])->name('admin.manage.admin.index');

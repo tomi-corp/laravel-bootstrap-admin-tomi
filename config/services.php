@@ -13,6 +13,10 @@ return [
     | a conventional file to locate the various service credentials.
     |
     */
+    'fcm' => [
+        'project_id' => env('FCM_PROJECT_ID', null),
+    ],
+
 
     'postmark' => [
         'token' => env('POSTMARK_TOKEN'),

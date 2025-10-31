@@ -105,18 +105,8 @@ class DashboardController extends Controller
 
     public function test()
     {
+        // $user = User::where('id', 48)->first();
+        // $notif = sendNotification($user->token_firebase, "abcd", "abcded");
 
-
-        // $disbursement = disbursement::
-
-        // dd($historyInvoicingLenderPending);
-
-
-        // foreach ($historyInvoicingLenderPending as $qqq) {
-        //     foreach ($qqq->lender->pinjaman as $ppp) {
-        //         // dd($ppp);
-        //         echo $ppp->disbursement;
-        //     }
-        // }
     }
 }

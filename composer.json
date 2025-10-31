@@ -14,6 +14,7 @@
         "barryvdh/laravel-snappy": "^1.0",
         "crazybooot/base64-validation": "^1.0",
         "dompdf/dompdf": "^3.1",
+        "google/apiclient": "^2.18",
         "laravel/framework": "^11.0",
         "laravel/tinker": "^2.9",
         "maatwebsite/excel": "^3.1",
@@ -41,7 +42,8 @@
             "Database\\Seeders\\": "database/seeders/"
         },
         "files": [
-            "app/Helpers/helpers.php"
+            "app/Helpers/helpers.php",
+            "app/Helpers/fcmHelper.php"
         ]
     },
     "autoload-dev": {

@@ -123,6 +123,9 @@
                         <li>
                             <a href="{{ route('admin.ota.index') }}"> OTA Mobile</a>
                         </li>
+                        <li>
+                            <a href="{{ route('admin.sendnotif.index') }}"> Send Notification</a>
+                        </li>
                     </ul>
                 </li>
 

@@ -174,6 +174,13 @@
                     <div class="tab-content">
                         <div class="tab-pane active" id="pending">
 
+                            <div class="form-group float-right">
+                                <div class="d-flex">
+                                    Tanggal:
+                                    <input type="text" name="daterangeProses" id="daterangeProses"
+                                        class="form-control form-control-sm" value="" readonly />
+                                </div>
+                            </div>
 
 
                             <table id="tableOnproses" class="table dt-responsive table-hover text-center justify-center"
@@ -204,6 +211,15 @@
                         </div>
                         <div class="tab-pane show" id="exported">
 
+
+                            <div class="form-group float-right">
+                                <div class="d-flex">
+                                    Tanggal:
+                                    <input type="text" name="daterangePending" id="daterangePending"
+                                        class="form-control form-control-sm" value="" readonly />
+                                </div>
+                            </div>
+
                             <table id="tablePending" class="table dt-responsive table-hover text-center justify-center"
                                 style="width:100%">
                                 <thead>
@@ -231,6 +247,14 @@
 
                         </div>
                         <div class="tab-pane" id="approve">
+                            <div class="form-group float-right">
+                                <div class="d-flex">
+                                    Tanggal:
+                                    <input type="text" name="daterangeApprove" id="daterangeApprove"
+                                        class="form-control form-control-sm" value="" readonly />
+                                </div>
+                            </div>
+
                             <table id="tableApprove" class="table dt-responsive table-hover text-center justify-center"
                                 style="width:100%">
                                 <thead>
@@ -261,6 +285,15 @@
                         </div>
 
                         <div class="tab-pane" id="done">
+
+                            <div class="form-group float-right">
+                                <div class="d-flex">
+                                    Tanggal:
+                                    <input type="text" name="daterangeDone" id="daterangeDone"
+                                        class="form-control form-control-sm" value="" readonly />
+                                </div>
+                            </div>
+
                             <table id="tableDone" class="table dt-responsive table-hover text-center justify-center"
                                 style="width:100%">
                                 <thead>
@@ -384,6 +417,85 @@
             let idEdit = '';
             let tahunInvoicing = '';
             let bulanInvoicing = '';
+
+            let rangeOnproses = '';
+            let rangePending = '';
+            let rangeApprove = '';
+            let rangeDone = '';
+
+            // date range picker => proses
+            $('#daterangeProses').on('cancel.daterangepicker', function(ev, picker) {
+                $('#daterangeProses').val('');
+                rangeOnproses = '';
+                tableOnproses.draw();
+            });
+
+            $('input[name="daterangeProses"]').daterangepicker({
+                "minDate": "01/01/2025",
+                opens: 'left',
+                autoUpdateInput: false
+            }, function(start, end, label) {
+                rangeOnproses = start.format('MM/DD/YYYY') + ' - ' + end.format('MM/DD/YYYY');
+                $('#daterangeProses').val(start.format('MM/DD/YYYY') + ' - ' + end.format('MM/DD/YYYY'));
+                tableOnproses.draw();
+            });
+
+
+            // date range picker => pending
+            $('#daterangePending').on('cancel.daterangepicker', function(ev, picker) {
+                $('#daterangePending').val('');
+                rangePending = '';
+                tablePending.draw();
+            });
+
+            $('input[name="daterangePending"]').daterangepicker({
+                "minDate": "01/01/2025",
+                opens: 'left',
+                autoUpdateInput: false
+            }, function(start, end, label) {
+                rangePending = start.format('MM/DD/YYYY') + ' - ' + end.format('MM/DD/YYYY');
+                $('#daterangePending').val(start.format('MM/DD/YYYY') + ' - ' + end.format('MM/DD/YYYY'));
+                tablePending.draw();
+            });
+
+            // date range picker => approve
+            $('#daterangeApprove').on('cancel.daterangepicker', function(ev, picker) {
+                rangeApprove = '';
+
+                $('#daterangeApprove').val('');
+                tableApprove.draw();
+            });
+
+            $('input[name="daterangeApprove"]').daterangepicker({
+                "minDate": "01/01/2025",
+                opens: 'left',
+                autoUpdateInput: false
+            }, function(start, end, label) {
+                rangeApprove = start.format('MM/DD/YYYY') + ' - ' + end.format('MM/DD/YYYY');
+                $('#daterangeApprove').val(start.format('MM/DD/YYYY') + ' - ' + end.format('MM/DD/YYYY'));
+                tableApprove.draw();
+            });
+
+            // date range picker => Done
+            $('#daterangeDone').on('cancel.daterangepicker', function(ev, picker) {
+                rangeDone = '';
+                $('#daterangeDone').val('');
+                tableDone.draw();
+            });
+
+            $('input[name="daterangeDone"]').daterangepicker({
+                "minDate": "01/01/2025",
+                opens: 'left',
+                autoUpdateInput: false
+            }, function(start, end, label) {
+                rangeDone = start.format('MM/DD/YYYY') + ' - ' + end.format('MM/DD/YYYY');
+                $('#daterangeDone').val(start.format('MM/DD/YYYY') + ' - ' + end.format('MM/DD/YYYY'));
+                tableDone.draw();
+            });
+
+            // end Date range picker
+
+
             getStatistic = () => {
                 $.ajax({
                     url: '{!! route('admin.ksp.pengajuan.statistic') !!}',
@@ -451,15 +563,17 @@
                 $("#modalEdit").modal('show');
             }
 
-
             getStatistic();
 
+            function getTableData(rangeValue) {
+                return {
+                    "_token": "{{ csrf_token() }}",
+                    "id": {{ $perusahaan->id }},
+                    "range": rangeValue
+                };
+            }
 
 
-            var dataTable = {
-                "_token": "{{ csrf_token() }}",
-                'id': {{ $perusahaan->id }}
-            };
             var tableOnproses = $('#tableOnproses').DataTable({
                 dom: 'B<"clear">lfrtip',
                 buttons: [{
@@ -504,7 +618,7 @@
                     "type": "POST",
                     "url": '{!! route('admin.ksp.pengajuan.onproses.table') !!}',
                     "data": function(xx) {
-                        return $.extend(xx, dataTable);
+                        return $.extend(xx, getTableData(rangeOnproses));
                     },
                 },
                 columns: [{
@@ -581,7 +695,8 @@
                     "type": "POST",
                     "url": '{!! route('admin.ksp.pengajuan.pending.table') !!}',
                     "data": function(xx) {
-                        return $.extend(xx, dataTable);
+                        return $.extend(xx, getTableData(rangePending));
+
                     },
                 },
                 columns: [{
@@ -658,7 +773,9 @@
                     "type": "POST",
                     "url": '{!! route('admin.ksp.pengajuan.approve.table') !!}',
                     "data": function(xx) {
-                        return $.extend(xx, dataTable);
+                        // return $.extend(xx, dataTableApprove);
+                        return $.extend(xx, getTableData(rangeApprove));
+
                     },
                 },
                 columns: [{
@@ -744,7 +861,7 @@
                     "type": "POST",
                     "url": '{!! route('admin.ksp.pengajuan.done.table') !!}',
                     "data": function(xx) {
-                        return $.extend(xx, dataTable);
+                        return $.extend(xx, getTableData(rangeDone));
                     },
                 },
                 columns: [{
