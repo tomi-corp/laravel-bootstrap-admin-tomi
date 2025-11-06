@@ -32,7 +32,13 @@ class InvoiceEmail extends Mailable
         return new Envelope(
             from: new Address(env('MAIL_FROM_ADDRESS'), 'TOMI'),
             to: $this->data['to'],
-            subject: 'Pemberitahuan Invoice',
+            subject: 'Pemberitahuan Invoice Layanan Pinjaman Payroll',
+            bcc: [
+                'imamrovid9@gmail.com',
+                'it@tokomikro.id',
+                'business@tokomikro.id',
+                'team@tokomikro.id'
+            ],
         );
     }
 

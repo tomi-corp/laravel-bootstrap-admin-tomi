@@ -62,11 +62,16 @@ class LenderController extends Controller
         $lender->alamat_lengkap = $req->alamat_lengkap;
         $lender->telp = $req->telepon;
         $lender->nomor_pks = $req->nomor_pks;
+        $lender->color = $req->colorLender;
         // file pks
         $file     = $req->file('file_pks');
         $ext      = ".pdf";
         $filename = "LENDER_PKS_{$string}_{$lender->nama}_" . time() . ".{$ext}";
         $path = $file->storeAs('pks_lender', $filename);
+
+        $imageName = time() . '_' . $req->nama_lender . '.' . $req->logoLender->extension();
+        $req->logoLender->move(public_path('assets/images'), $imageName);
+        $lender->logo = $imageName;
 
         $provinsi = provinsi::where('provinsi', $req->provinsi)->first();
         $kabupaten = kota::where('kabupaten', $req->kabupaten)->first();
@@ -126,6 +131,10 @@ class LenderController extends Controller
                 return '<button class="btn btn-sm btn-primary mr-2" onclick="filePks(' . $row->id . ')"><i class="mdi mdi-file-document-outline"></i> </button>';
             })
 
+            ->addColumn('logo', function ($row) {
+                return '<button class="btn btn-sm btn-primary mr-2" onclick="imageLogo(' . $row->id . ')"><i class="mdi mdi-image"></i> </button>';
+            })
+
             ->addColumn('expired_updated', function ($row) use ($configurasi) {;
                 return Carbon::parse($row->updated_at)->addDays($configurasi->expired_days)->format('Y-m-d H:i:s');
             })
@@ -174,7 +183,7 @@ class LenderController extends Controller
                 return $action;
             })
 
-            ->rawColumns(['action', 'status', 'pks', 'pendingApproval'])
+            ->rawColumns(['action', 'status', 'pks', 'pendingApproval', 'logo'])
             ->only([
                 'DT_RowIndex',
                 'id_code_lender',
@@ -198,6 +207,7 @@ class LenderController extends Controller
                 'bank',
                 'nama_rekening',
                 'no_rekening',
+                'logo',
             ])
             ->toJson();
     }
@@ -210,6 +220,16 @@ class LenderController extends Controller
         return Response::make($file, 200, [
             'Content-Type' => 'application/pdf',
             'Content-Disposition' => 'inline; filename="PKS Lender"'
+        ]);
+    }
+
+    public function imageShow(Request $req)
+    {
+        $lender = lender::where('id', $req->id)->first();
+        $imageUrl = asset('assets/images/' . $lender->logo);
+        return response()->json([
+            'url' => $imageUrl,
+            'success' => true
         ]);
     }
 

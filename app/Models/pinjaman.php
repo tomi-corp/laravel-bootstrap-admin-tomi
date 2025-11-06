@@ -49,4 +49,9 @@ class pinjaman extends Model
     {
         return $this->hasOne(disbursement::class, 'pinjaman_id', 'id');
     }
+
+    public function lender()
+    {
+        return $this->hasOne(lender::class, 'id', 'id_lender');
+    }
 }

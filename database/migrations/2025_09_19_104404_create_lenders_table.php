@@ -35,13 +35,13 @@ return new class extends Migration
             $table->foreign('id_bank')->references('id')->on('banks');
             $table->string('nama_rekening');
             $table->string('no_rekening');
+            $table->string('logo')->nullable();
+            $table->string('color')->nullable();
             $table->enum('status', ['active', 'nonactive']);
             $table->bigInteger('created_by')->unsigned();
             $table->foreign('created_by')->references('id')->on('admins');
             $table->bigInteger('updated_by')->nullable()->unsigned();
             $table->foreign('updated_by')->references('id')->on('admins');
-            $table->string('logo')->nullable();
-            $table->string('color')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

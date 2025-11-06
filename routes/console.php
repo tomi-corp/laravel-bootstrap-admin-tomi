@@ -16,7 +16,4 @@ Schedule::command('invoice:send')
     ->at('23:59');
 
 Schedule::command('lender:invoicing')
-    ->dailyAt('23:59:58')
-    ->when(function () {
-        return now()->isLastOfMonth();
-    });
+    ->monthlyOn(1, '00:01'); // Jalan tiap tanggal 1 jam 00:01 pagi

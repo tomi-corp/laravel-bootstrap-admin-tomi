@@ -35,6 +35,8 @@ class AddLenderRequest extends FormRequest
             'nomor_pks' => 'required',
             'bank' => 'required',
             'file_pks' => 'required|mimes:pdf|max:5120',
+            'logoLender' => 'required|mimes:jpeg,jpg,png|max:2048',
+            'colorLender' => 'required',
             'an_rekening' => 'required',
             'no_rekening' => 'required|numeric',
         ];

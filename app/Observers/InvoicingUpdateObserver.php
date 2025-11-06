@@ -21,7 +21,7 @@ class InvoicingUpdateObserver
     public function updated(history_invoicing_lender $history_invoicing_lender): void
     {
         $activityCreate = new user_activity_logs();
-        $activityCreate->admin_id = $history_invoicing_lender->update_by;
+        $activityCreate->admin_id = $history_invoicing_lender->update_by !== null ? $history_invoicing_lender->update_by : null;
         $activityCreate->activity_type = 'update';
         $activityCreate->description = "Updated invoicing with ID: {$history_invoicing_lender->id}";
         $activityCreate->ip_address = request()->ip();

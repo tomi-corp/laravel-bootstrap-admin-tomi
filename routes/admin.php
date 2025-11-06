@@ -82,6 +82,7 @@ Route::middleware(['AdminMiddleware'])->group(
                 Route::post('/ksp/lender/add', [LenderController::class, 'addLender'])->name('admin.lender.add');
                 Route::post('/ksp/lender/table', [LenderController::class, 'lenderTable'])->name('admin.lender.table');
                 Route::post('/ksp/lender/pks/show', [LenderController::class, 'pksShow'])->name('admin.lender.pks.show');
+                Route::post('/ksp/lender/image/show', [LenderController::class, 'imageShow'])->name('admin.lender.image.show');
                 Route::post('/ksp/lender/detail', [LenderController::class, 'lenderDetail'])->name('admin.lender.detail');
                 Route::post('/ksp/lender/update', [LenderController::class, 'updateLender'])->name('admin.lender.update');
                 Route::post('/ksp/lender/delete', [LenderController::class, 'deleteLender'])->name('admin.lender.delete');

@@ -46,6 +46,7 @@ class DetailLenderResource extends JsonResource
             'id_bank' => $this->id_bank,
             'nama_rekening' => $this->nama_rekening,
             'no_rekening' => $this->no_rekening,
+            'color' => $this->color,
         ];
     }
 }

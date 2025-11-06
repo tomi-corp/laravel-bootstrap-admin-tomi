@@ -58,6 +58,7 @@
                                 <th>ID Lender</th>
                                 <th>Nama Lender</th>
                                 <th>PKS</th>
+                                <th>Logo</th>
                                 <th>No. perjanjian kerja sama lender x TOMI</th>
                                 <th>PIC Lender</th>
                                 <th>PIC Internal</th>
@@ -212,6 +213,23 @@
                                         <small class="text-danger" id="errPKS"></small>
                                     </div>
                                 </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Logo Lender</label>
+                                        <input class="form-control" id="logoLender" type="file"></input>
+                                        <small class="text-danger" id="errLogoLender"></small>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label>Tema Warna Lender</label>
+                                    <input class="form-control" type="color" id="colorLender" name="color"
+                                        value="#188ae2">
+                                    <small class="text-danger" id="errColorLender"></small>
+
+                                </div>
+
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -390,7 +408,27 @@
                                         <label>File PKS</label>
                                         <input class="form-control" id="filePKSEdit" type="file"></input>
                                         <small class="text-danger" id="errPKSEdit"></small>
+                                        <small class="text-small">Note: Biarkan kosong jika anda tidak ingin mengubah File
+                                            PKS</small>
                                     </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Logo Lender</label>
+                                        <input class="form-control" id="logoLenderEdit" type="file"></input>
+                                        <small class="text-danger" id="errLogoLenderEdit"></small>
+                                        <small class="text-small">Note: Biarkan kosong jika anda tidak ingin mengubah logo
+                                            Lender</small>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label>Tema Warna Lender</label>
+                                    <input class="form-control" type="color" id="colorLenderEdit" name="color"
+                                        value="#188ae2">
+                                    <small class="text-danger" id="errColorLenderEdit"></small>
+
                                 </div>
                             </div>
                         </div>
@@ -580,6 +618,30 @@
         </div>
     </div>
 
+    {{-- modal untuk detail logo --}}
+
+    <div class="modal fade" id="imageModal" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="imageModalLabel">Detail Gambar</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body text-center">
+                    <div id="image-container">
+                        <p>Memuat gambar...</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 @endsection
 
 @push('js')
@@ -726,6 +788,8 @@
                 data: 'nama'
             }, {
                 data: 'pks'
+            }, {
+                data: 'logo'
             }, {
                 data: 'nomor_pks'
             }, {
@@ -874,6 +938,8 @@
             formData.append('alamat_lengkap', $("#alamatLengkap").val());
             formData.append('nomor_pks', $("#nomor_pks").val());
             formData.append('file_pks', $('#filePKS')[0].files[0]); // Append the file
+            formData.append('logoLender', $('#logoLender')[0].files[0]); // Append the file
+            formData.append('colorLender', $("#colorLender").val()); // Append the file
             // Check for bank details
             formData.append('bank', $("#bank").val());
             formData.append('an_rekening', $("#an_rekening").val());
@@ -919,6 +985,10 @@
                         $('#errNomor_pks').text(errors.nomor_pks ? errors.nomor_pks[0] : '');
                         $('#errPKS').text(errors.file_pks ? errors.file_pks[0] :
                             '');
+                        $('#errLogoLender').text(errors.logoLender ? errors.logoLender[0] :
+                            '');
+                        $('#errColorLender').text(errors.colorLender ? errors.colorLender[0] :
+                            '');
                         $('#errProvinsi').text(errors.provinsi ? errors.provinsi[0] : '');
                         $('#errKabupaten_kota').text(errors.kabupaten ? errors.kabupaten[0] : '');
                         $('#errKecamatan').text(errors.kecamatan ? errors.kecamatan[0] : '');
@@ -953,6 +1023,7 @@
                     $("#bankEdit").val(detail.data.id_bank);
                     $("#an_rekeningEdit").val(detail.data.nama_rekening);
                     $("#no_rekeningEdit").val(detail.data.no_rekening);
+                    $("#colorLenderEdit").val(detail.data.color);
                     $("#provinsiSelectEdit").val(detail.data.provinsi).trigger('change');
                     $("#kabupatenSelectEdit").empty();
 
@@ -1060,6 +1131,8 @@
             formData.append('alamat_lengkap', $("#alamatLengkapEdit").val());
             formData.append('nomor_pks', $("#nomor_pksEdit").val());
             formData.append("file_pks", $('#filePKSEdit')[0].files[0] ?? "");
+            formData.append("logoLender", $('#logoLenderEdit')[0].files[0] ?? "");
+            formData.append('colorLender', $("#colorLenderEdit").val()); // Append the file
             // Check for bank details
             formData.append('bank', $("#bankEdit").val());
             formData.append('an_rekening', $("#an_rekeningEdit").val());
@@ -1109,6 +1182,10 @@
                             '');
                         $('#errNomor_pksEdit').text(errors.nomor_pks ? errors.nomor_pks[0] : '');
                         $('#errPKSEdit').text(errors.file_pks ? errors.file_pks[0] :
+                            '');
+                        $('#errLogoLenderEdit').text(errors.logoLender ? errors.logoLender[0] :
+                            '');
+                        $('#errColorLenderEdit').text(errors.colorLender ? errors.colorLender[0] :
                             '');
                         $('#errProvinsiEdit').text(errors.provinsi ? errors.provinsi[0] : '');
                         $('#errKabupaten_kotaEdit').text(errors.kabupaten ? errors.kabupaten[0] : '');
@@ -1217,6 +1294,47 @@
                 error: function(xhr, status, error) {
                     console.error("Terjadi kesalahan:", status, error);
                     alert("Gagal menampilkan dokumen. Silakan coba lagi.");
+                }
+            });
+        }
+
+        const imageLogo = (id) => {
+
+            $('#image-container').html(
+                '<div class="spinner-border text-primary" role="status"><span class="sr-only">Loading...</span></div>'
+            );
+            $('#imageModal').modal('show');
+
+            $.ajax({
+                // Ganti ini dengan route Laravel yang akan dibuat
+                url: '{!! route('admin.lender.image.show') !!}',
+                data: {
+                    '_token': "{{ csrf_token() }}",
+                    'id': id,
+                },
+                type: 'POST',
+                dataType: 'json',
+
+                success: function(response) {
+                    if (response.url) {
+                        console.log(response.url);
+                        const imageUrl = response.url;
+                        const imageHtml = `
+                        <img src="${imageUrl}" 
+                                alt="Detail Gambar ID: ${id}" 
+                                class="img-fluid" 
+                                style="max-height: 80vh; max-width: 100%;">
+                    `;
+                        $('#image-container').html(imageHtml);
+                    } else {
+                        $('#image-container').html(
+                            '<p class="text-danger">URL Gambar tidak ditemukan.</p>');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error("AJAX Error:", status, error);
+                    $('#image-container').html(
+                        '<p class="text-danger">Gagal memuat gambar. Silakan coba lagi.</p>');
                 }
             });
         }

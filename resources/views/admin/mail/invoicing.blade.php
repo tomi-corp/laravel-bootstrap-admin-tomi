@@ -3,26 +3,30 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
 @php
     use Carbon\Carbon;
+    $startDate = Carbon::parse($data['invoice']['period']);
+    $dueDate = Carbon::parse($data['invoice']['period'])->addDays(3);
+    $total = $data['invoice']['perusahaan']['pinjamanBerjalan']->sum('total_angsuran_perbulan');
 @endphp
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Invoice Bulanan - {{ $data['invoice']['perusahaan']['nama'] }}</title>
     <style type="text/css">
-        /* Basic styles, these will be inlined by a pre-processor like Juice */
         body {
             margin: 0;
             padding: 0;
-            background-color: #f4f4f4;
+            background-color: #f6f8fa;
             font-family: 'Poppins', Arial, sans-serif;
-            -webkit-text-size-adjust: 100%;
-            -ms-text-size-adjust: 100%;
+            color: #333333;
+            line-height: 1.5;
         }
 
         table {
             border-collapse: collapse;
             mso-table-lspace: 0pt;
             mso-table-rspace: 0pt;
+            width: 100%;
         }
 
         td,
@@ -40,236 +44,179 @@
         }
 
         a {
-            text-decoration: none;
             color: #007bff;
+            text-decoration: none;
         }
 
-        /* Add specific styles for your layout, these will be inlined */
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .email-wrapper {
+            padding: 20px 10px;
+        }
+
         .container {
             background-color: #ffffff;
-            margin: 20px auto;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
             max-width: 600px;
-            width: 100%;
+            margin: 0 auto;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            overflow: hidden;
         }
 
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #e0e0e0;
-            margin-bottom: 20px;
+        .content {
+            padding: 30px 30px;
+            /* Padding utama diperbesar */
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 25px;
         }
 
         .logo img {
-            max-height: 40px;
+            max-height: 60px;
         }
 
-        .header-title {
-            font-size: 24px;
-            font-weight: 600;
-            color: #333;
-        }
-
-        .invoice-info p {
-            margin: 0;
-            font-size: 14px;
-            color: #666;
-            line-height: 1.5;
-        }
-
-        .section-title {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 15px;
-            color: #333;
-        }
-
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-        }
-
-        .data-table th,
-        .data-table td {
-            padding: 12px 15px;
-            text-align: left;
-            border-bottom: 1px solid #e0e0e0;
-            font-size: 14px;
-        }
-
-        .data-table th {
-            background-color: #f8f9fa;
-            font-weight: 600;
-            color: #333;
-        }
-
-        .total-angsuran {
-            text-align: right;
-            margin-top: 20px;
+        .greeting {
             font-size: 16px;
+            margin-bottom: 12px;
+        }
+
+        .intro {
+            font-size: 15px;
+            color: #555555;
+            margin-bottom: 22px;
+        }
+
+        .highlight-box {
+            background-color: #f8fafc;
+            border-left: 4px solid #007bff;
+            padding: 16px 20px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+
+        .payment-details {
+            font-size: 15px;
+            margin: 28px 0;
+        }
+
+        .payment-details p {
+            margin: 10px 0;
+        }
+
+        .amount {
+            font-size: 20px;
+            font-weight: 700;
+            color: #d32f2f;
+            margin: 18px 0;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+        }
+
+        .button {
+            display: inline-block;
+            background-color: #007bff;
+            color: #ffffff !important;
+            padding: 11px 24px;
+            border-radius: 6px;
             font-weight: 600;
+            text-decoration: none !important;
+            margin: 12px 0 18px;
         }
 
-        .total-angsuran strong {
-            font-size: 24px;
-            color: #007bff;
-            margin-left: 10px;
-        }
-
-        .noted-section {
+        .footer-note {
             font-size: 13px;
-            color: #666;
+            color: #777777;
             margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #e0e0e0;
+            padding-top: 24px;
+            border-top: 1px solid #eeeeee;
+            line-height: 1.6;
         }
 
-        .noted-section strong {
-            color: #333;
-        }
-
-        /* Fallback for email clients that don't support media queries well */
         @media only screen and (max-width: 620px) {
-            .container {
-                padding: 15px !important;
+            .content {
+                padding: 24px 20px !important;
             }
 
-            .header-title {
-                font-size: 20px !important;
+            .highlight-box,
+            .payment-details {
+                padding: 14px 16px !important;
+                margin: 20px 0 !important;
             }
 
-            .data-table th,
-            .data-table td {
-                padding: 8px 10px !important;
-                font-size: 13px !important;
-            }
-
-            .total-angsuran strong {
-                font-size: 20px !important;
+            .button {
+                padding: 10px 20px !important;
+                margin: 12px 0 !important;
             }
         }
     </style>
 </head>
 
-<body
-    style="margin: 0; padding: 0; background-color: #f4f4f4; font-family: 'Poppins', Arial, sans-serif; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%;">
-    <center>
-        <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%"
-            style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+<body>
+    <div class="email-wrapper">
+        <table class="container" align="center" border="0" cellpadding="0" cellspacing="0">
             <tr>
-                <td style="padding: 20px 20px;">
-                    <table border="0" cellpadding="0" cellspacing="0" class="container"
-                        style="background-color: #ffffff; margin: 0 auto; padding: 20px 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); max-width: 600px; width: 100%;">
-                        <tr>
-                            <td style="padding: 20px 20px;">
-                                <img src="{{ url('assets/images/ksp.png') }}" alt="Tomi" width="200"
-                                    height="100" data-image-whitelisted="" class="CToWUd" data-bit="iit">
-                            </td>
-                        <tr>
-                        <tr>
-                            <td style="padding: 20px 20px;">
-                                <p>Hallo {{ $data['invoice']['perusahaan']['nama'] }},
-                            </td>
-                        <tr>
-                        <tr>
-                            <td style="padding: 20px 20px;">
-                                Semoga hari Anda menyenangkan!
-                            </td>
-                        <tr>
-                        <tr>
-                            <td style="padding: 0px 20px;">
-                                Kami harap Anda menikmati layanan kami. Berikut adalah invoice terbaru Anda
-                                untuk
-                                layanan yang telah diberikan:
-                            </td>
-                        <tr>
-                        <tr>
-                            <td style="padding: 20px 20px;">
-                                Untuk Periode:
-                                {{ Carbon::parse($data['invoice']['perusahaan']['jatuh_tempo'])->subDays(5)->subMonth(1)->format('Y-m-d') }}
-                                -
-                                {{ Carbon::parse($data['invoice']['perusahaan']['jatuh_tempo'])->subDays(5)->format('Y-m-d') }}
-                            </td>
-                        <tr>
+                <td class="content">
+                    <div class="logo">
+                        <img src="{{ $message->embed(public_path('assets/images/logo.jpg')) }}" alt="PT. TOMI"
+                            width="200" />
+                    </div>
 
-                        <tr>
-                            <td style="padding: 0px 20px;">
-                                Detail lengkapnya bisa Anda lihat pada link invoice ini <a
-                                    href="{{ $data['link'] }}">Invoicing List</a>.
-                            </td>
-                        <tr>
-                        <tr>
-                            <td style="padding: 0px 20px;">
-                                Pembayaran dapat
-                                dilakukan
-                                sebelum
-                                {{ Carbon::parse($data['invoice']['perusahaan']['jatuh_tempo'])->addDays(3)->format('Y-m-d') }}
-                                (Payment date + H+3).
-                            </td>
-                        <tr>
+                    <p class="greeting">Halo {{ $data['invoice']['perusahaan']['nama'] }},</p>
 
-                        <tr>
-                            <td style="padding: 20px 20px;">
-                                Anda bisa melakukan pembayaran via transfer ke:
-                            </td>
-                        <tr>
+                    <p class="intro">
+                        Terima kasih telah menggunakan layanan kami. Berikut adalah invoice bulanan Anda untuk periode:
+                    </p>
 
-                        <tr>
-                            <td style="padding: 0px 20px;">
-                                Tim PT.KSP DDT
-                            </td>
-                        <tr>
+                    <div class="highlight-box">
+                        <p><strong>Periode Tagihan:</strong><br />
+                            {{ $startDate->format('F Y') }} </p>
+                    </div>
 
-                        <tr>
-                            <td style="padding: 0px 20px;">
-                                Bank: {{ $data['rekening']['bank']['code_bank'] }}
-                            </td>
-                        <tr>
-                        <tr>
-                            <td style="padding: 0px 20px;">
-                                Atas Nama:
-                                {{ $data['rekening']['atas_nama'] }}
-                            </td>
-                        <tr>
-                        <tr>
-                            <td style="padding: 0px 20px;">
-                                No. Rekening:
-                                {{ $data['rekening']['nomor_rekening'] }}
-                            </td>
-                        <tr>
-                        <tr>
-                            <td style="padding: 0px 20px;">
-                                Jumlah yang Harus Dibayar: Rp
-                                {{ number_format($data['invoice']['perusahaan']['pinjamanBerjalan']->sum('total_angsuran_perbulan')) }}
-                            </td>
-                        <tr>
+                    <p class="intro">
+                        Silakan akses detail lengkap invoice melalui tautan berikut:
+                    </p>
 
-                        <tr>
-                            <td style="padding: 20px 20px;">
-                                Ada pertanyaan? Jangan sungkan untuk membalas email ini atau hubungi kami di <a href="https://wa.me/6281111181888">CS Tomi</a>. Kami siap membantu!
-                            </td>
-                        <tr>
+                    <a href="{{ $data['link'] }}" class="button">Lihat Invoice</a>
 
-                        <tr>
-                            <td style="padding: 20px 20px;">
-                                Terima kasih banyak!
-                            </td>
-                        <tr>
-                        <tr>
-                            <td style="padding: 20px 20px;">
-                                Salam
-                            </td>
-                        <tr>
-                    </table>
+                    <div class="payment-details">
+                        <p><strong>Batas Waktu Pembayaran maksimum:</strong><br />
+                            {{ $dueDate->format('d F Y') }} </p>
+
+                        <p><strong>Rekening Pembayaran kepada pihak lender:</strong></p>
+                        <div class="logo">
+                            <img src="{{ $message->embed(public_path('assets/images/' . $data['invoice']['perusahaan']['lender']['logo'])) }}"
+                                alt="PT. TOMI" width="100" />
+                        </div>
+                        <p>
+                            Bank: <strong>{{ $data['rekening']['bank']['code_bank'] }}</strong><br />
+                            Atas Nama: <strong>{{ $data['rekening']['nama_rekening'] }}</strong><br />
+                            Nomor Rekening: <strong>{{ $data['rekening']['no_rekening'] }}</strong>
+                        </p>
+
+                        <div class="amount">
+                            Total Tagihan: <strong>Rp {{ number_format($total, 0, ',', '.') }}</strong>
+                        </div>
+                    </div>
+
+                    <p class="intro">
+                        Untuk pertanyaan atau bantuan lebih lanjut, jangan ragu menghubungi kami melalui:
+                        <br>
+                        <a href="https://wa.me/6281111181888">Customer Service – Tomi (WhatsApp)</a>
+                    </p>
+
+                    <div class="footer-note">
+                        <p>Terima kasih atas kepercayaan Anda kepada PT. TOMI. Kami senantiasa berkomitmen memberikan
+                            layanan terbaik.</p>
+                        <p>Salam hormat,<br /><strong>Tim PT. TOMI</strong></p>
+                    </div>
                 </td>
             </tr>
         </table>
-    </center>
+    </div>
 </body>
 
 </html>
