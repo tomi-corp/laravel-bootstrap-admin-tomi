@@ -93,9 +93,6 @@ if (!function_exists('sendNotification')) {
                 $notificationPayload
             );
 
-
-        dd($response);
-
         return true;
         // if ($response->failed()) {
         //     return [
