@@ -93,20 +93,6 @@ if (!function_exists('sendNotification')) {
                 $notificationPayload
             );
 
-        return $response;
         return true;
-        // if ($response->failed()) {
-        //     return [
-        //         'success' => false,
-        //         'message' => 'Failed to send notification',
-        //         'error' => $response->json(),
-        //     ];
-        // }
-
-        // return [
-        //     'success' => true,
-        //     'message' => 'Notification has been sent',
-        //     'response' => $response->json(),
-        // ];
     }
 }

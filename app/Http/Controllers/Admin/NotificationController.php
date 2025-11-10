@@ -18,21 +18,15 @@ class NotificationController extends Controller
 
     public function notificationPushAction(NotificationActionRequest $req)
     {
-        try {
-            $response = sendNotification('news', $req->title, $req->isiPesan);
-            dd($response);
-            // $newHistoryNotification = new history_notification();
-            // $newHistoryNotification->title = $req->title;
-            // $newHistoryNotification->isipesan = $req->isiPesan;
-            // $newHistoryNotification->save();
-            // return response()->json([
-            //     'status' => 200,
-            //     'message' => 'Pesan berhasil dikirim!'
-            // ], 200);
-        } catch (\Throwable $th) {
-            //throw $th;
-            dd($th);
-        }
+        sendNotification('news', $req->title, $req->isiPesan);
+        $newHistoryNotification = new history_notification();
+        $newHistoryNotification->title = $req->title;
+        $newHistoryNotification->isipesan = $req->isiPesan;
+        $newHistoryNotification->save();
+        return response()->json([
+            'status' => 200,
+            'message' => 'Pesan berhasil dikirim!'
+        ], 200);
     }
 
 
