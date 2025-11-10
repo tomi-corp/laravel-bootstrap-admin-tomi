@@ -20,8 +20,6 @@ use GuzzleHttp\Client as GuzzleClient;
 if (!function_exists('sendNotification')) {
     function sendNotification($token, $title, $body)
     {
-        dd($token);
-
         $projectId = config('services.fcm.project_id');
         if (!$projectId) {
             return [
@@ -94,7 +92,7 @@ if (!function_exists('sendNotification')) {
                 "https://fcm.googleapis.com/v1/projects/{$projectId}/messages:send",
                 $notificationPayload
             );
-
+        dd($response);
         return true;
         // if ($response->failed()) {
         //     return [
