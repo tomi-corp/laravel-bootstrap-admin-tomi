@@ -21,7 +21,7 @@
         <div class="col-md-4">
             <div class="card">
                 <div class="card-body">
-                    <h4>Upload Update OTA</h4>
+                    <div class="text-xs font-weight-bold text-uppercase mb-1">Upload Update OTA</div>
                     <div class="mb-3">
                         <label class="form-label">Platform</label>
                         <select name="platform" class="form-control" required id="plafrom">
@@ -63,7 +63,7 @@
         <div class="col-md-8">
             <div class="card">
                 <div class="card-body">
-                    <h4>Daftar Update OTA</h4>
+                    <div class="text-xs font-weight-bold text-uppercase mb-1">Daftar update ota</div>
                     <table id="tableOta" class="table dt-responsive table-hover mt-4 text-center" style="width:100%">
                         <thead>
                             <tr>

@@ -54,7 +54,13 @@ class KspController extends Controller
     public function index()
     {
         $provinsis = provinsi::get();
-        return view('admin.ksp.perusahaan.index', compact('provinsis'));
+        $perusahaan = ListPerusahaan::select('id', 'status')->get();
+
+        $perusahaanTidakAktif = $perusahaan->where('status', 'nonactive')->count();
+        $perusahaanAktif = $perusahaan->where('status', 'active')->count();
+
+
+        return view('admin.ksp.perusahaan.index', compact('provinsis', 'perusahaanTidakAktif', 'perusahaanAktif'));
     }
 
     public function kabupaten(Request $req)
@@ -1300,126 +1306,100 @@ class KspController extends Controller
 
     public function listPerusahaanInvoicingTable()
     {
-        $invoice = invoicing_pinjaman::with(['pinjaman' => function ($q) {;
-            $q->with('angsuran');
-            $q->where('status', 'approve');
-            $q->orwhere('status', 'done');
-        }, 'perusahaan'])
+        $today = Carbon::today();
+
+        $invoice = invoicing_pinjaman::with([
+            'perusahaan:id,id_code_perusahaan,nama',
+            'pinjaman' => function ($q) {
+                $q->whereIn('status', ['approve', 'done'])
+                    ->select(['id', 'id_perusahaan', 'total_angsuran_perbulan']); // ambil langsung dari tabel pinjaman
+                // ->with(['angsuran:id,id_pinjaman,jatuh_tempo']);
+            }
+        ])
+            // ->select(['id', 'period', 'status', 'id_list_perusahaan'])
             ->get();
 
-        $today = Carbon::today();
 
         return DataTables::of($invoice)
             ->addIndexColumn()
-            ->addColumn('id_code_perusahaan', function ($row) {
-                return "<b>" . $row->perusahaan->id_code_perusahaan . "</b>";
-            })
+            ->addColumn(
+                'id_code_perusahaan',
+                function ($row) {
+                    return "<b>{$row->perusahaan->id_code_perusahaan}</b>";
+                }
+            )
 
-            ->addColumn('nama_perusahaan', function ($row) {
-                return "<b>" . $row->perusahaan->nama . "</b>";
-            })
+            ->addColumn(
+                'nama_perusahaan',
+                function ($row) {
+                    return "<b>{$row->perusahaan->nama}</b>";
+                }
+            )
 
             ->addColumn('prioritas', function ($row) use ($today) {
-                if ($row->status == "lunas") {
+                if ($row->status === "lunas") {
                     return '<span class="badge badge-success">Lunas</span>';
-                } else {
-
-                    $parse = Carbon::parse($row->period)->startOfDay();
-                    $diffInDays = $parse->diffInDays($today, false);
-
-                    if ($diffInDays <= -5) {
-                        return '⚪️ Belum Jatuh Tempo (H-5)';
-                    } elseif ($diffInDays == -4) {
-                        return '⚪️ Belum Jatuh Tempo (H-4)';
-                    } elseif ($diffInDays == -3) {
-                        return '⚪️ Belum Jatuh Tempo (H-3)';
-                    } elseif ($diffInDays == -2) {
-                        return '⚪️ Belum Jatuh Tempo (H-2)';
-                    } elseif ($diffInDays == -1) {
-                        return '⚪️ Belum Jatuh Tempo (H-1)';
-                    } elseif ($diffInDays == 0) {
-                        return '🔵 Baru Masuk (H0)';
-                    } elseif ($diffInDays == 1) {
-                        return '🟡 Normal (H+1)';
-                    } elseif ($diffInDays == 2) {
-                        return '🟠 Mendesak (H+2)';
-                    } elseif ($diffInDays >= 3) {
-                        return '🔴 Sangat Mendesak (H+' . $diffInDays . ')';
-                    } else {
-                        return '⛔ Status Tidak Dikenal';
-                    }
                 }
+
+                $parse = Carbon::parse($row->period)->startOfDay();
+                $diffInDays = $parse->diffInDays($today, false);
+
+                return match (true) {
+                    $diffInDays <= -5 => '⚪️ Belum Jatuh Tempo (H-5)',
+                    $diffInDays == -4 => '⚪️ Belum Jatuh Tempo (H-4)',
+                    $diffInDays == -3 => '⚪️ Belum Jatuh Tempo (H-3)',
+                    $diffInDays == -2 => '⚪️ Belum Jatuh Tempo (H-2)',
+                    $diffInDays == -1 => '⚪️ Belum Jatuh Tempo (H-1)',
+                    $diffInDays == 0  => '🔵 Baru Masuk (H0)',
+                    $diffInDays == 1  => '🟡 Normal (H+1)',
+                    $diffInDays == 2  => '🟠 Mendesak (H+2)',
+                    $diffInDays >= 3  => '🔴 Sangat Mendesak (H+' . $diffInDays . ')',
+                    default            => '⛔ Status Tidak Dikenal'
+                };
             })
 
-            ->addColumn('tanggal_period', function ($row) {
-                return $row->period;
-            })
+            ->addColumn('tanggal_period', fn($row) => $row->period)
 
             ->addColumn('total_tagihan', function ($row) {
+                $targetMonth = Carbon::parse($row->period)->format('m-Y');
                 $totalPeminjam = 0;
-                // $totalTagihan = [];
 
-                if ($row->pinjaman->isNotEmpty()) {
-                    foreach ($row->pinjaman as $pinjaman) {
-                        if ($pinjaman->angsuran->isNotEmpty()) {
-                            $filteredAngsuran = $pinjaman->angsuran->filter(function ($angsuran) use ($row) {
-                                return Carbon::parse($angsuran->jatuh_tempo)->format('m-Y') === Carbon::parse($row->period)->format('m-Y');
-                            });
-                            if (isset($filteredAngsuran)) {
-                                foreach ($filteredAngsuran as $filter) {
-                                    $filteredAngsuran = $pinjaman->where('id', $filter->id_pinjaman)->first();
-                                    $totalPeminjam = $totalPeminjam + 1;
-                                }
-                            }
-                        }
-                    }
+                foreach ($row->pinjaman as $pinjaman) {
+                    $totalPeminjam += $pinjaman->angsuran
+                        ->filter(fn($a) => Carbon::parse($a->jatuh_tempo)->format('m-Y') === $targetMonth)
+                        ->count();
                 }
 
-                // return '<button class="btn btn-sm btn-primary mr-2" onclick="showJatuhTempo(' . $row->id . ')"><i class=" dripicons-checklist"></i></button>' .  $totalPeminjam . " Pinjaman";
-                return $totalPeminjam . " Pinjaman";
+                return "{$totalPeminjam} Pinjaman";
             })
 
             ->addColumn('total_pinjaman', function ($row) {
+                $targetMonth = Carbon::parse($row->period)->format('m-Y');
                 $totalTagihan = 0;
-                // $totalTagihan = [];
 
-                if ($row->pinjaman->isNotEmpty()) {
-                    foreach ($row->pinjaman as $pinjaman) {
-                        if ($pinjaman->angsuran->isNotEmpty()) {
-                            $filteredAngsuran = $pinjaman->angsuran->filter(function ($angsuran) use ($row) {
-                                return Carbon::parse($angsuran->jatuh_tempo)->format('m-Y') === Carbon::parse($row->period)->format('m-Y');
-                            });
-                            if (isset($filteredAngsuran)) {
-                                foreach ($filteredAngsuran as $filter) {
-                                    $filteredAngsuran = $pinjaman->where('id', $filter->id_pinjaman)->first();
-                                    $totalTagihan += $filteredAngsuran->total_angsuran_perbulan;
-                                }
-                            }
-                        }
+                foreach ($row->pinjaman as $pinjaman) {
+                    $hasAngsuranBulanIni = $pinjaman->angsuran
+                        ->contains(fn($a) => Carbon::parse($a->jatuh_tempo)->format('m-Y') === $targetMonth);
+
+                    if ($hasAngsuranBulanIni) {
+                        $totalTagihan += $pinjaman->total_angsuran_perbulan; // ambil dari tabel pinjaman
                     }
                 }
 
                 return "Rp " . number_format($totalTagihan);
             })
 
+            ->addColumn(
+                'status_invoicing',
+                fn($row) =>
+                $row->status === "belum_lunas" ? "Belum Lunas" : "Lunas"
+            )
 
-            ->addColumn('status_invoicing', function ($row) {
-                if ($row->status == "belum_lunas") {
-                    return "Belum Lunas";
-                } else {
-                    return "Lunas";
-                }
-            })
-
-
-            ->rawColumns([
-                'nama_perusahaan',
-                'id_code_perusahaan',
-                'prioritas',
-                'total_tagihan'
-            ])
+            ->rawColumns(['nama_perusahaan', 'id_code_perusahaan', 'prioritas', 'total_tagihan'])
             ->toJson();
     }
+
+
 
     public function invoicingDownload($id)
     {

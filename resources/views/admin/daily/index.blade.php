@@ -20,8 +20,8 @@
                 <div class="col-md-4">
                     <div class="card">
                         <div class="card-body">
-                            <h4>Konfigurasi Poin Harian
-                            </h4>
+                            <div class="text-xs font-weight-bold text-uppercase mb-1">Konfigurasi Poin Harian</div>
+
                             <small class="text-muted">Kelola pengaturan poin harian untuk program reward. Tentukan
                                 berapa banyak poin yang
                                 bisa didapatkan pengguna setiap kali mereka melakukan aktivitas harian yang
@@ -57,8 +57,7 @@
                 <div class="col-md-8">
                     <div class="card">
                         <div class="card-body">
-                            <h4>Laporan Aktivitas Daily Check-in
-                            </h4>
+                            <div class="text-xs font-weight-bold text-uppercase mb-1">Laporan Aktivitas Daily Check-in</div>
                             <small class="text-muted">Menampilkan daftar pengguna yang telah berhasil
                                 melakukan daily check-in. Anda bisa melihat status check-in harian mereka, termasuk waktu
                                 check-in dan informasi terkait lainnya, untuk memantau partisipasi dan memberikan reward

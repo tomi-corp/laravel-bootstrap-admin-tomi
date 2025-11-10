@@ -100,8 +100,6 @@ Route::middleware(['AdminMiddleware'])->group(
                 Route::post('/ksp/lender/invocing/approval/table', [LenderController::class, 'approvePendingInvoice'])->name('admin.lender.approval.invoicing.lender');
                 Route::post('/ksp/lender/invocing/approval/detail', [LenderController::class, 'approvalDetailInvocing'])->name('admin.lender.approval.invoicing.detail');
                 Route::post('/ksp/lender/invocing/approval/action', [LenderController::class, 'approvalInvoicingAction'])->name('admin.lender.approval.invoicing.action');
-
-
                 // KSP => Karyawan
                 Route::get('/ksp/list/karyawan/{id}', [KspController::class, 'listKaryawan'])->name('admin.list.karyawan');
                 Route::post('/ksp/list/karyawan/{id}/table', [KspController::class, 'listKaryawanTable'])->name('admin.list.karyawan.table');

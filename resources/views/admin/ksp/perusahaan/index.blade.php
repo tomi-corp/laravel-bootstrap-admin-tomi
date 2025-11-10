@@ -7,14 +7,51 @@
                 <div class="page-title-right">
                     <ol class="breadcrumb m-0">
                         <li class="breadcrumb-item"><a href="javascript: void(0);">Tomi</a></li>
-                        <li class="breadcrumb-item active">MoU perusahaan >< lender</li>
+                        <li class="breadcrumb-item active">MoU perusahaan <i class="dripicons-cross "></i> lender</li>
                     </ol>
                 </div>
-                <h4 class="page-title">MoU perusahaan >< lender</h4>
+                <h4 class="page-title">MoU perusahaan <i class="dripicons-cross "></i> lender</h4>
             </div>
         </div>
 
         <div class="col-12">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-uppercase mb-1">PERUSAHAAN DENGAN STATUS
+                                        ACTIVE</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $perusahaanAktif }}</div>
+
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fa fa-check fa-2x text-primary"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-uppercase mb-1">PERUSAHAAN DENGAN STATUS
+                                        NON ACTIVE</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $perusahaanTidakAktif }}</div>
+
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fa fa-ban fa-2x text-danger"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div class="card">
                 <div class="card-body">
 
@@ -25,7 +62,7 @@
 
                     <table id="tableListPerusahaan" class="table dt-responsive table-hover mt-4 text-center justify-center"
                         style="width:100%">
-                        <thead>
+                        {{-- <thead>
                             <tr>
                                 <th>ID Perusahaan</th>
                                 <th>Lender</th>
@@ -46,7 +83,42 @@
                                 <th>Proses Pengajuan</th>
                                 <th>Konfigurasi Pinjaman</th>
                                 <th>Status</th>
-                                {{-- <th>Action</th> --}}
+                            </tr>
+                        </thead> --}}
+
+                        <thead>
+                            <tr>
+                                <!-- 1. Identitas Utama -->
+                                <th>Nama Perusahaan</th> <!-- Informasi utama -->
+                                <th>PIC Perusahaan</th> <!-- PIC utama -->
+                                <th>Nama PIC HC / HRD</th> <!-- PIC tambahan -->
+                                <th>Email Perusahaan</th> <!-- Kontak utama -->
+                                <th>Telepon</th> <!-- Kontak utama -->
+
+                                <!-- 2. Informasi Operasional/Keuangan -->
+                                <th>Payment Date</th> <!-- Jadwal penting -->
+                                <th>H-Jatuh Tempo</th> <!-- Jadwal penting -->
+                                <th>Status</th> <!-- Status penting -->
+                                <th class="none">Lender</th> <!-- Status penting -->
+
+                                <!-- 3. Identifikasi -->
+                                <th class="none">Unique Code</th> <!-- ID unik untuk referensi -->
+                                <th class="none">ID Perusahaan</th> <!-- ID sistem -->
+
+                                <!-- 4. Detail Alamat -->
+                                <th class="none">Provinsi</th>
+                                <th class="none">Kabupaten / Kota</th>
+                                <th class="none">Kecamatan</th>
+                                <th class="none">Desa</th>
+                                <th class="none">Alamat Lengkap</th>
+
+                                <!-- 5. Konfigurasi -->
+                                <th class="none">Konfigurasi Pinjaman</th> <!-- Fitur penting -->
+                                <th class="none">Proses Pengajuan</th> <!-- Proses terkait -->
+                                <th class="none">List Karyawan</th> <!-- Data terkait -->
+                                <th class="none">Nomor PKS</th> <!-- Dokumen terkait -->
+
+                                <!-- 6. Aksi -->
                             </tr>
                         </thead>
                     </table>
@@ -648,21 +720,27 @@
                 },
             },
             columns: [{
-                data: 'id_code_perusahaan'
+                data: 'nama'
+            }, {
+                data: 'pic_internal'
+            }, {
+                data: 'pic_perusahaan'
+            }, {
+                data: 'email_perusahaan'
+            }, {
+                data: 'telp'
+            }, {
+                data: 'payment_date'
+            }, {
+                data: 'h_min_jatuh_tempo'
+            }, {
+                data: 'status'
             }, {
                 data: 'lender'
             }, {
                 data: 'unique_code'
             }, {
-                data: 'pic_perusahaan'
-            }, {
-                data: 'pic_internal'
-            }, {
-                data: 'nama'
-            }, {
-                data: 'email_perusahaan'
-            }, {
-                data: 'telp'
+                data: 'id_code_perusahaan'
             }, {
                 data: 'provinsi'
             }, {
@@ -674,18 +752,14 @@
             }, {
                 data: 'alamat_lengkap'
             }, {
-                data: 'payment_date'
-            }, {
-                data: 'nomor_pks'
-            }, {
-                data: 'list_karyawan'
+                data: 'konfigurasi_pinjaman'
             }, {
                 data: 'proses_pengajuan'
             }, {
-                data: 'konfigurasi_pinjaman'
+                data: 'list_karyawan'
             }, {
-                data: 'status'
-            }]
+                data: 'nomor_pks'
+            }, ]
         });
 
         detail = (id) => {

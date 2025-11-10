@@ -11,7 +11,7 @@
                         <li class="breadcrumb-item active">Prabayar</li>
                     </ol>
                 </div>
-                <h4 class="page-title">PPOB</h4>
+                <h4 class="page-title">Transaksi PraBayar</h4>
             </div>
         </div>
 
@@ -20,9 +20,11 @@
                 <div class="col-md-6">
                     <div class="card">
                         <div class="card-body">
-                            <span>Total penjualan prabayar tanggal
-                                <span id="tanggalPrabayar"></span>
-                            </span>
+
+                            <div class="text-xs font-weight-semibold text-uppercase mb-1">Total penjualan prabayar tanggal
+                                <span class="float-right" id="tanggalPrabayar"></span>
+                            </div>
+
                             <h2 id="today">Rp 0</h2>
                             <div class="d-flex justify-content-between">
                                 <p>Total Sukses </br><span id="todaySukses"></span> </br>
@@ -42,7 +44,8 @@
                 <div class="col-md-6">
                     <div class="card">
                         <div class="card-body">
-                            <span>Total penjualan prabayar keseluruhan</span>
+                            <div class="text-xs font-weight-semibold text-uppercase mb-1">Total penjualan prabayar
+                                keseluruhan</div>
                             <h2 id="kesuluruhan">Rp 0</h2>
                             <div class="d-flex justify-content-between">
                                 <p>Total Sukses </br><span id="keseluruhanSukses"></span> </br>

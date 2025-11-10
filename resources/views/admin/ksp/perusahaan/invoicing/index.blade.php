@@ -17,7 +17,8 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-body">
-                    <h4>List Invocing Perusahaan</h4>
+                    <div class="text-xs font-weight-bold text-uppercase mb-1">List Invocing Perusahaan</div>
+
 
                     <table id="tableDisbursement" class="table dt-responsive table-hover mt-4 text-center justify-center"
                         style="width:100%">

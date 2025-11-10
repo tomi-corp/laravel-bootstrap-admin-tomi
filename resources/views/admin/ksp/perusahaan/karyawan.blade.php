@@ -77,15 +77,10 @@
                         <span>Last Updated :</span>
                         <span>{{ $perusahaan->updated_at }}</span>
                     </div>
-
-
-
                 </div>
-
-
             </div>
 
-            <div class="card">
+            {{-- <div class="card">
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-12">
@@ -113,10 +108,10 @@
                         </div></button>
                     </form>
                 </div>
-            </div>
+            </div> --}}
 
 
-            <div class="card">
+            {{-- <div class="card">
                 <div class="card-body">
                     <h5>List Karyawan Penambahan</h5>
                     <span>Total Karyawan Pending Approve: </span>
@@ -127,7 +122,7 @@
                     <button class="btn btn-primary btn-sm float-right mt-4"
                         onclick="aprroveKaryawanPending({{ $perusahaan->id }})">Approve</button>
                 </div>
-            </div>
+            </div> --}}
 
         </div>
         <div class="col-md-8">

@@ -7,6 +7,7 @@ use App\Mail\InvoiceEmail;
 use App\Mail\InvoiceKeLender;
 use App\Mail\ReminderPinjamanPayroll;
 use App\Models\disbursement;
+use App\Models\download;
 use App\Models\history_invoicing_lender;
 use App\Models\invoicing_pinjaman;
 use App\Models\lender;
@@ -31,17 +32,28 @@ class DashboardController extends Controller
     public function dashboard()
     {
         // register
-        $registerBulanIni = User::whereMonth('created_at', Carbon::now()->month)
+        $register = User::select(['id', 'created_at']);
+        $totalRegister = $register->count();
+        $registerBulanIni = $register->whereMonth('created_at', Carbon::now()->month)
             ->count();
-        $registerBulanKemarin = User::whereMonth('created_at', Carbon::now()->subMonth()->month)
+        $registerBulanKemarin = $register->whereMonth('created_at', Carbon::now()->subMonth()->month)
             ->count();
 
-        $register = User::orderBy('created_at', 'desc')->take(3)
+        $download = download::select(['id', 'created_at']);
+        $totalDownload = $download->count();
+        $downloadBulanIni = $download->whereMonth('created_at', Carbon::now()->month)
+            ->count();
+        $downloadBulanKemarin = $download->whereMonth('created_at', Carbon::now()->subMonth()->month)
+            ->count();
+
+
+        $registerRiwayat = User::orderBy('created_at', 'desc')->take(3)
             ->get()
             ->map(function ($item) {
                 $item->type = 'Registrasi';
                 return $item;
             });
+
         $pinjaman = pinjaman::orderBy('created_at', 'desc')->take(3)->with('data_karyawan')
             ->get()
             ->map(function ($item) {
@@ -49,7 +61,7 @@ class DashboardController extends Controller
                 return $item;
             });
 
-        $merged = $register->merge($pinjaman);
+        $merged = $registerRiwayat->merge($pinjaman);
         $sorted = $merged->sortByDesc('created_at')->values();
         $dataFinal = [];
         foreach ($sorted as $data) {
@@ -65,11 +77,17 @@ class DashboardController extends Controller
             ];
         }
 
-        $persentase =  ($registerBulanIni - $registerBulanKemarin) * $registerBulanKemarin * 100 / 100;
+        $persentaseRegister =  ($registerBulanIni - $registerBulanKemarin) * $registerBulanKemarin * 100 / 100;
+        $persentaseUnduhan =  ($downloadBulanIni - $downloadBulanKemarin) * $downloadBulanKemarin * 100 / 100;
+
         $register = [
-            'persentase' => $persentase,
+            'persentaseRegister' => $persentaseRegister,
             'registerBulanIni' => $registerBulanIni,
             'activiti' => $dataFinal,
+            'totalRegister' => $totalRegister,
+            'jumlahDownload' => $totalDownload,
+            'downloadBulanIni' => $downloadBulanIni,
+            'persentaseDonwnload' => $persentaseUnduhan,
         ];
         // transaction
         return view('admin.dashboard.index', compact('register'));

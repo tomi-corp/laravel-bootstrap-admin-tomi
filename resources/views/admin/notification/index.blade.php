@@ -20,7 +20,7 @@
         <div class="col-md-4">
             <div class="card">
                 <div class="card-body">
-                    <h4>Send Notification</h4>
+                    <div class="text-xs font-weight-bold text-uppercase mb-1">Send Notification</div>
 
                     <div class="mb-3">
                         <label class="form-label">Title</label>
@@ -46,7 +46,7 @@
         <div class="col-md-8">
             <div class="card">
                 <div class="card-body">
-                    <h4>History Send Push Notification</h4>
+                    <div class="text-xs font-weight-bold text-uppercase mb-1">History Send Push Notification</div>
                     <table id="tableNotif" class="table dt-responsive table-hover mt-4 text-center" style="width:100%">
                         <thead>
                             <tr>
