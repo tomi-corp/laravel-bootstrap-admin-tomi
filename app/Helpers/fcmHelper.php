@@ -20,6 +20,8 @@ use GuzzleHttp\Client as GuzzleClient;
 if (!function_exists('sendNotification')) {
     function sendNotification($token, $title, $body)
     {
+        dd($token);
+
         $projectId = config('services.fcm.project_id');
         if (!$projectId) {
             return [
