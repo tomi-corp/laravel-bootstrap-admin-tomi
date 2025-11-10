@@ -92,7 +92,8 @@ if (!function_exists('sendNotification')) {
                 "https://fcm.googleapis.com/v1/projects/{$projectId}/messages:send",
                 $notificationPayload
             );
-        dd($response);
+
+        return $response;
         return true;
         // if ($response->failed()) {
         //     return [

@@ -19,8 +19,8 @@ class NotificationController extends Controller
     public function notificationPushAction(NotificationActionRequest $req)
     {
         try {
-            sendNotification('news', $req->title, $req->isiPesan);
-            dd("sdsadsadasd");
+            $response = sendNotification('news', $req->title, $req->isiPesan);
+            dd($response);
             // $newHistoryNotification = new history_notification();
             // $newHistoryNotification->title = $req->title;
             // $newHistoryNotification->isipesan = $req->isiPesan;
