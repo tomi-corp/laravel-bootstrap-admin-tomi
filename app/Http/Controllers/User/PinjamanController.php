@@ -343,7 +343,7 @@ class PinjamanController extends Controller
                 if (isset($cekPinjamanData) || isset($cekPinjamanUser)) {
                     return response()->json([
                         'status' => 400,
-                        'message' => 'anda memiliki pinjaman yang belum lunas atau terselesaikan',
+                        'message' => 'Mohon maaf, saat ini Anda masih memiliki pinjaman aktif. Terima kasih',
                     ], 400);
                 }
 
@@ -351,7 +351,7 @@ class PinjamanController extends Controller
                     return response()->json([
                         'status' => 200,
                         'pinjaman' => false,
-                        'message' => 'anda memiliki validasi otp yang belum diselesaikan',
+                        'message' => 'Anda memiliki validasi otp yang belum diselesaikan',
                     ], 200);
                 }
 
@@ -851,25 +851,25 @@ class PinjamanController extends Controller
             ], 400);
         } else {
 
-            $cekPinjamanData = pinjaman::where('id_karyawan', $perusahaan->karyawanSingle->id)
-                ->where(function ($q) {
-                    $q->orWhere('status', 'exported')
-                        ->orWhere('status', 'on_proses')
-                        ->orWhere('status', 'approve');
-                })
-                ->where('id_karyawan', $perusahaan->karyawanSingle->id)
-                ->where('status_otp', 'success')
-                ->first();
+            // $cekPinjamanData = pinjaman::where('id_karyawan', $perusahaan->karyawanSingle->id)
+            //     ->where(function ($q) {
+            //         $q->orWhere('status', 'exported')
+            //             ->orWhere('status', 'on_proses')
+            //             ->orWhere('status', 'approve');
+            //     })
+            //     ->where('id_karyawan', $perusahaan->karyawanSingle->id)
+            //     ->where('status_otp', 'success')
+            //     ->first();
 
-            $cekPinjamanUser = pinjaman::where('user_id', auth('api')->user()->id)
-                ->where(function ($q) {
-                    $q->orWhere('status', 'exported')
-                        ->orWhere('status', 'on_proses')
-                        ->orWhere('status', 'approve');
-                })
-                ->where('id_karyawan', $perusahaan->karyawanSingle->id)
-                ->where('status_otp', 'success')
-                ->first();
+            // $cekPinjamanUser = pinjaman::where('user_id', auth('api')->user()->id)
+            //     ->where(function ($q) {
+            //         $q->orWhere('status', 'exported')
+            //             ->orWhere('status', 'on_proses')
+            //             ->orWhere('status', 'approve');
+            //     })
+            //     ->where('id_karyawan', $perusahaan->karyawanSingle->id)
+            //     ->where('status_otp', 'success')
+            //     ->first();
 
 
             // where('user_id', auth('api')->user()->id)
@@ -878,12 +878,12 @@ class PinjamanController extends Controller
                 ->where('status_otp', 'pending')
                 ->first();
 
-            if (isset($cekPinjamanData) || isset($cekPinjamanUser)) {
-                return response()->json([
-                    'status' => 400,
-                    'message' => 'anda memiliki pinjaman yang belum selesai',
-                ], 400);
-            }
+            // if (isset($cekPinjamanData) || isset($cekPinjamanUser)) {
+            //     return response()->json([
+            //         'status' => 400,
+            //         'message' => 'anda memiliki pinjaman yang belum selesai',
+            //     ], 400);
+            // }
 
             if (isset($cekPinjamanPendingOTP)) {
                 return response()->json([

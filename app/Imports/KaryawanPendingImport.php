@@ -19,7 +19,6 @@ class KaryawanPendingImport implements ToModel, WithHeadingRow
      */
     public function model(array $row)
     {
-
         $listPerusahaan = ListPerusahaan::where('id_code_perusahaan', $row['code_perusahaan'])
             ->first();
 
