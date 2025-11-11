@@ -341,6 +341,13 @@ class PinjamanController extends Controller
                     ->first();
 
 
+                // pinjaman aktif
+                if (isset($cekPinjamanData) || isset($cekPinjamanUser)) {
+                    return response()->json([
+                        'status' => 400,
+                        'message' => 'Mohon maaf, saat ini Anda masih memiliki pinjaman aktif. Terima kasih',
+                    ], 400);
+                }
 
                 // pembaruan data karyawan tiap tanggal 1
                 if ($perusahaan->karyawanSingle->created_at && Carbon::parse($perusahaan->karyawanSingle->created_at)->lessThan(Carbon::now()->startOfMonth())) {
@@ -350,14 +357,6 @@ class PinjamanController extends Controller
                     ], 400);
                 }
 
-
-                // pinjaman aktif
-                if (isset($cekPinjamanData) || isset($cekPinjamanUser)) {
-                    return response()->json([
-                        'status' => 400,
-                        'message' => 'Mohon maaf, saat ini Anda masih memiliki pinjaman aktif. Terima kasih',
-                    ], 400);
-                }
 
 
                 if (isset($cekPinjamanPendingOTP)) {
