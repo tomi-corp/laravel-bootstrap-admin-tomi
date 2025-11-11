@@ -342,12 +342,12 @@ class PinjamanController extends Controller
 
 
                 // pinjaman aktif
-                if (isset($cekPinjamanData) || isset($cekPinjamanUser)) {
-                    return response()->json([
-                        'status' => 400,
-                        'message' => 'Mohon maaf, saat ini Anda masih memiliki pinjaman aktif. Terima kasih',
-                    ], 400);
-                }
+                // if (isset($cekPinjamanData) || isset($cekPinjamanUser)) {
+                //     return response()->json([
+                //         'status' => 400,
+                //         'message' => 'Mohon maaf, saat ini Anda masih memiliki pinjaman aktif. Terima kasih',
+                //     ], 400);
+                // }
 
                 // pembaruan data karyawan tiap tanggal 1
                 if ($perusahaan->karyawanSingle->created_at && Carbon::parse($perusahaan->karyawanSingle->created_at)->lessThan(Carbon::now()->startOfMonth())) {
@@ -356,8 +356,6 @@ class PinjamanController extends Controller
                         'message' => 'Kami melihat pembaruan data Anda sudah melewati batas waktu yang ditentukan, Mohon bantuannya untuk segera menghubungi Direksi Human Capital (HC) Anda agar mereka dapat memproses dan mengirimkan data terbaru Anda ke aplikasi TOMI. Kami siap membantu menyelesaikan prosesnya setelah data dari HC kami terima. Terima kasih!',
                     ], 400);
                 }
-
-
 
                 if (isset($cekPinjamanPendingOTP)) {
                     return response()->json([
