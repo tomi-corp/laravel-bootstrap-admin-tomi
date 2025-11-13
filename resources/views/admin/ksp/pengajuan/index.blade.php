@@ -231,13 +231,13 @@
                                         <th>Tenor</th>
 
                                         <th>Rate</th>
-                                        <th>Biaya ADM KSP DDT</th>
-                                        <th>DPP KSP</th>
-                                        <th>PPN KSP</th>
-                                        <th>Biaya ADM PANDU</th>
+                                        <th class="none">Biaya ADM KSP DDT</th>
+                                        <th class="none">DPP KSP</th>
+                                        <th class="none">PPN KSP</th>
+                                        <th class="none">Biaya ADM PANDU</th>
 
-                                        <th>DPP PANDU</th>
-                                        <th>PPN PANDU</th>
+                                        <th class="none">DPP PANDU</th>
+                                        <th class="none">PPN PANDU</th>
                                         {{-- <th>Biaya KYC</th>
                                         <th>Pendapatan Pandu</th> --}}
                                         <th>Jumlah Yang Diterima</th>
@@ -266,15 +266,15 @@
                                         <th>Tenor</th>
 
                                         <th>Rate</th>
-                                        <th>Biaya ADM KSP DDT</th>
-                                        <th>DPP KSP</th>
-                                        <th>PPN KSP</th>
-                                        <th>Biaya ADM PANDU</th>
+                                        <th class="none">Biaya ADM KSP DDT</th>
+                                        <th class="none">DPP KSP</th>
+                                        <th class="none">PPN KSP</th>
+                                        <th class="none">Biaya ADM PANDU</th>
 
-                                        <th>DPP PANDU</th>
-                                        <th>PPN PANDU</th>
-                                        <th>Biaya E-KYC</th>
-                                        <th>Pendapatan Pandu</th>
+                                        <th class="none">DPP PANDU</th>
+                                        <th class="none">PPN PANDU</th>
+                                        <th class="none">Biaya E-KYC</th>
+                                        <th class="none">Pendapatan Pandu</th>
                                         <th>Jumlah Yang Diterima</th>
 
                                         <th>Detail Angsuran</th>
@@ -305,15 +305,15 @@
                                         <th>Tenor</th>
 
                                         <th>Rate</th>
-                                        <th>Biaya ADM KSP DDT</th>
-                                        <th>DPP KSP</th>
-                                        <th>PPN KSP</th>
-                                        <th>Biaya ADM PANDU</th>
+                                        <th class="none">Biaya ADM KSP DDT</th>
+                                        <th class="none">DPP KSP</th>
+                                        <th class="none">PPN KSP</th>
+                                        <th class="none">Biaya ADM PANDU</th>
 
-                                        <th>DPP PANDU</th>
-                                        <th>PPN PANDU</th>
-                                        <th>Biaya E-KYC</th>
-                                        <th>Pendapatan Pandu</th>
+                                        <th class="none">DPP PANDU</th>
+                                        <th class="none">PPN PANDU</th>
+                                        <th class="none">Biaya E-KYC</th>
+                                        <th class="none">Pendapatan Pandu</th>
                                         <th>Jumlah Yang Diterima</th>
 
                                         <th>Detail Angsuran</th>

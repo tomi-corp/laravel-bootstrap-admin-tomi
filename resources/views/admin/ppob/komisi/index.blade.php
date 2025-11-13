@@ -39,15 +39,27 @@
                                     </div>
                                 </div>
 
-
                                 <div class="d-flex justify-content-between pt-4">
-                                    <div class="text-xs font-weight-semibold text-uppercase mb-1"><span
-                                            id="memberSalesPrabayarTanggal">Rp 0</span> </br>Member sales</div>
-                                    <div class="text-xs font-weight-semibold text-uppercase mb-1"><span
-                                            id="commisionMemberPrabayarTanggal">Rp 0</span> </br>Komisi member</div>
-                                    <div class="text-xs font-weight-semibold text-uppercase mb-1"><span
-                                            id="leaderCommisionPrabayarTanggal">Rp 0</span> </br>Komisi leader</div>
+                                    <p>Total Penjualan :</p>
+                                    <p> <span id="memberSalesPrabayarTanggal">Rp 0</span></p>
                                 </div>
+                                <hr class="grid">
+
+                                <div class="d-flex justify-content-between ">
+                                    <p>Komisi Member :</p>
+                                    <p> <span id="commisionMemberPrabayarTanggal">Rp 0</span></p>
+                                </div>
+
+                                <div class="d-flex justify-content-between ">
+                                    <p>Komisi Leader :</p>
+                                    <p> <span id="leaderCommisionPrabayarTanggal">Rp 0</span></p>
+                                </div>
+
+                                <div class="d-flex justify-content-between ">
+                                    <p>Total Komisi :</p>
+                                    <p> <span id="totalCommisionPrabayar">Rp 0</span></p>
+                                </div>
+
                             </div>
                         </div>
                     </div>
@@ -64,14 +76,27 @@
                                 </div>
 
                                 <div class="d-flex justify-content-between pt-4">
-                                    <div class="text-xs font-weight-semibold text-uppercase mb-1"><span
-                                            id="memberSalesPascabayarTanggal">Rp 0</span> </br>Member sales</div>
-                                    <div class="text-xs font-weight-semibold text-uppercase mb-1"><span
-                                            id="commisionMemberPascabayarTanggal">Rp 0</span> </br>Komisi member</div>
-                                    <div class="text-xs font-weight-semibold text-uppercase mb-1"><span
-                                            id="leaderCommisionPascabayarTanggal">Rp 0</span> </br>Komisi leader</h6>
-                                    </div>
+                                    <p>Total Penjualan :</p>
+                                    <p> <span id="memberSalesPascabayarTanggal">Rp 0</span></p>
                                 </div>
+                                <hr class="grid">
+
+                                <div class="d-flex justify-content-between ">
+                                    <p>Komisi Member :</p>
+                                    <p> <span id="commisionMemberPascabayarTanggal">Rp 0</span></p>
+                                </div>
+
+                                <div class="d-flex justify-content-between ">
+                                    <p>Komisi Leader :</p>
+                                    <p> <span id="leaderCommisionPascabayarTanggal">Rp 0</span></p>
+                                </div>
+
+                                <div class="d-flex justify-content-between ">
+                                    <p>Total Komisi :</p>
+                                    <p> <span id="totalCommisionPascabayar">Rp 0</span></p>
+                                </div>
+
+
                             </div>
                         </div>
 
@@ -113,6 +138,7 @@
                             $("#contentMaster").addClass('loading-skeleton');
                         },
                         success: function(summaryKomisi) {
+                            console.log(summaryKomisi);
                             $("#contentMaster").removeClass('loading-skeleton');
                             // tanggal
                             $('#tanggalKomisiPrabayar').text(summaryKomisi.date);
@@ -124,6 +150,17 @@
                                 .member_commission);
                             $('#leaderCommisionPrabayarTanggal').text(summaryKomisi.dataPrepaid.data
                                 .leader_commission);
+
+                            const leaderCommissionNominal = parseFloat(summaryKomisi.dataPrepaid.data
+                                .leader_commission.replace(
+                                    'Rp', '').replace('.', ''));
+                            const memberCommissionNominal = parseFloat(summaryKomisi.dataPrepaid.data
+                                .member_commission.replace(
+                                    'Rp', '').replace('.', ''));
+
+                            $('#totalCommisionPrabayar').text("Rp" +
+                                (leaderCommissionNominal +
+                                    memberCommissionNominal));
                             // pascabayar
                             $('#memberSalesPascabayarTanggal').text(summaryKomisi.dataPostPaid.data
                                 .member_sales);
@@ -131,6 +168,19 @@
                                 .member_commission);
                             $('#leaderCommisionPascabayarTanggal').text(summaryKomisi.dataPostPaid.data
                                 .leader_commission);
+
+                            const leaderCommissionNominalPasca = parseFloat(summaryKomisi.dataPostPaid
+                                .data
+                                .leader_commission.replace(
+                                    'Rp', '').replace('.', ''));
+                            const memberCommissionNominalPasca = parseFloat(summaryKomisi.dataPostPaid
+                                .data
+                                .member_commission.replace(
+                                    'Rp', '').replace('.', ''));
+
+                            $('#totalCommisionPascabayar').text("Rp" +
+                                (leaderCommissionNominalPasca +
+                                    memberCommissionNominalPasca));
                         }
                     });
                 }

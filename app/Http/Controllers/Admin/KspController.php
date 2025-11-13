@@ -891,7 +891,8 @@ class KspController extends Controller
         $query = pinjaman::where('id_perusahaan', $req->id)
             ->where('status', 'approve')
             ->where('status_otp', 'success')
-            ->with('data_karyawan');
+            ->with('data_karyawan')
+            ->with('angsuran');
 
         if ($startDate && $endDate) {
             $query->whereBetween('created_at', [$startDate, $endDate]);
@@ -968,7 +969,7 @@ class KspController extends Controller
             })
 
             ->addColumn('detail_angsuran', function ($row) {
-                return '<button class="btn btn-sm btn-primary mr-2" onclick="detailAngsuran(' . $row->id . ')"><i class="mdi mdi-eye"></i></button>';
+                return '<span class="text-center align-middle">' . $row->angsuran->where('status', 'lunas')->count() . '/' .  $row->angsuran->count() . '<span><br>' . '<button class="btn btn-sm btn-primary mr-2" onclick="detailAngsuran(' . $row->id . ')"><i class="mdi mdi-eye"></i></button>';
             })
 
             ->rawColumns(['detail_angsuran'])
@@ -1089,7 +1090,8 @@ class KspController extends Controller
         $query =  pinjaman::where('id_perusahaan', $req->id)
             ->where('status', 'done')
             ->where('status_otp', 'success')
-            ->with('data_karyawan');
+            ->with('data_karyawan')
+            ->with('angsuran');;
 
         if ($startDate && $endDate) {
             $query->whereBetween('created_at', [$startDate, $endDate]);
@@ -1165,8 +1167,9 @@ class KspController extends Controller
                 return "Rp  " . number_format($row->dpp_adm_pandu - $row->cost_tomi);
             })
 
+
             ->addColumn('detail_angsuran', function ($row) {
-                return '<button class="btn btn-sm btn-primary mr-2" onclick="detailAngsuran(' . $row->id . ')"><i class="mdi mdi-eye"></i></button>';
+                return '<span class="text-center align-middle">' . $row->angsuran->where('status', 'lunas')->count() . '/' .  $row->angsuran->count() . '<span><br>' . '<button class="btn btn-sm btn-primary mr-2" onclick="detailAngsuran(' . $row->id . ')"><i class="mdi mdi-eye"></i></button>';
             })
 
             ->rawColumns(['detail_angsuran'])
