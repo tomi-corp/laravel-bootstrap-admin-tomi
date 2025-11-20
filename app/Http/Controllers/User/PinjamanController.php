@@ -226,7 +226,7 @@ class PinjamanController extends Controller
         $user = User::where('id', auth('api')->user()->id)
             ->with('kyc')
             ->first();
-        return $user;
+
         $nip = explode("-", $req->nip);
 
         $perusahaan = ListPerusahaan::where('unique_code', $nip[0])
@@ -299,7 +299,7 @@ class PinjamanController extends Controller
                             'message' => 'Harap lengkapi data anda telebih dahulu',
                         ], 400);
                     } else {
-                        if (!isset($user->kyc)) {
+                        if ($user->kyc == null) {
                             return response()->json([
                                 'status' => 400,
                                 'message' => 'Maaf, proses tidak dapat dilanjutkan. Kami memerlukan pembaruan foto selfie dan KTP Anda.',
@@ -308,6 +308,14 @@ class PinjamanController extends Controller
                     }
                 }
             } else {
+
+                if ($user->kyc == null) {
+                    return response()->json([
+                        'status' => 400,
+                        'message' => 'Maaf, proses tidak dapat dilanjutkan. Kami memerlukan pembaruan foto selfie dan KTP Anda.',
+                    ], 400);
+                }
+
                 if ($user->register_token_privy != null && $user->id_privy == null) {
                     $checkStatusPrivy = checkStatus();
                     if ($checkStatusPrivy['data']['privy_id']) {
