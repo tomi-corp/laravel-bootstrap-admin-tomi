@@ -14,6 +14,7 @@ use App\Models\lender;
 use App\Models\lender_update;
 use App\Models\ListPerusahaan;
 use App\Models\pinjaman;
+use App\Models\pinjaman_pending_notification;
 use App\Models\rekening_pandu;
 use App\Models\rekening_tomi;
 use App\Models\User;
@@ -169,52 +170,54 @@ class DashboardController extends Controller
         }
     }
 
-    public function test()
-    {
-        $sekarang = Carbon::now()->format('Y-m-d');
-        // $date = Carbon::now()->lastOfMonth()->endOfDay();
-        $date = Carbon::parse('2025-10-1');
+    // public function test()
+    // {
+    //     $sekarang = Carbon::now()->format('Y-m-d');
+    //     // $date = Carbon::now()->lastOfMonth()->endOfDay();
+    //     $date = Carbon::parse('2025-10-1');
 
-        $lenders = lender::withWhereHas('pinjaman', function ($q) use ($date) {
-            $q->whereYear('created_at', $date)
-                ->whereMonth('created_at', $date)
-                ->whereIn('status', ['approve', 'done']);
-        })->get();
+    //     $lenders = lender::withWhereHas('pinjaman', function ($q) use ($date) {
+    //         $q->whereYear('created_at', $date)
+    //             ->whereMonth('created_at', $date)
+    //             ->whereIn('status', ['approve', 'done']);
+    //     })->get();
 
-        foreach ($lenders as $lender) {
-            $cekAdaAtauTidak =  history_invoicing_lender::where('id_lender', $lender->id)
-                ->where('period', $date->firstOfMonth()->format('Y-m-d'))->first();
-            if (!isset($cekAdaAtauTidak)) {
-                $historyInvocing = new history_invoicing_lender();
-                $historyInvocing->id_lender = $lender->id;
-                $historyInvocing->period = $date->firstOfMonth()->format('Y-m-d');
-                $historyInvocing->status = 'belum_lunas';
-                $historyInvocing->save();
-                $historyInvocing->no_invoice = "INV-TOMI-" . $date->firstOfMonth()->format('M') . "-" . $lender->id_code_lender . "-" . $historyInvocing->id;
-                $historyInvocing->save();
-                $encrypted = Crypt::encryptString('penagihanInvoicingKelender');
-                $unique = Crypt::encryptString('uniqueCodeDariBackendTomi');
-                $idEnc = Crypt::encryptString($historyInvocing->id);
-                $codeLenderEnc = Crypt::encryptString(substr($historyInvocing->lender->id_code_lender, 1));
+    //     foreach ($lenders as $lender) {
+    //         $cekAdaAtauTidak =  history_invoicing_lender::where('id_lender', $lender->id)
+    //             ->where('period', $date->firstOfMonth()->format('Y-m-d'))->first();
+    //         if (!isset($cekAdaAtauTidak)) {
+    //             $historyInvocing = new history_invoicing_lender();
+    //             $historyInvocing->id_lender = $lender->id;
+    //             $historyInvocing->period = $date->firstOfMonth()->format('Y-m-d');
+    //             $historyInvocing->status = 'belum_lunas';
+    //             $historyInvocing->save();
+    //             $historyInvocing->no_invoice = "INV-TOMI-" . $date->firstOfMonth()->format('M') . "-" . $lender->id_code_lender . "-" . $historyInvocing->id;
+    //             $historyInvocing->save();
+    //             $encrypted = Crypt::encryptString('penagihanInvoicingKelender');
+    //             $unique = Crypt::encryptString('uniqueCodeDariBackendTomi');
+    //             $idEnc = Crypt::encryptString($historyInvocing->id);
+    //             $codeLenderEnc = Crypt::encryptString(substr($historyInvocing->lender->id_code_lender, 1));
 
-                $link = url(env('APP_URL')) . '/invoicing-layanan' . '/' . $encrypted . '/' . $unique . '/' . $idEnc . '/' . $codeLenderEnc;
-                // 'to' => $historyInvocing->lender->email_lender,
-                $data = [
-                    'title' => 'Pemberitahuan Invoice Biaya Layanan dan Fee',
-                    'to' => 'imamrovid9@gmail.com',
-                    'link' => $link,
-                    'rekening' => $historyInvocing->lender
-                ];
+    //             $link = url(env('APP_URL')) . '/invoicing-layanan' . '/' . $encrypted . '/' . $unique . '/' . $idEnc . '/' . $codeLenderEnc;
+    //             // 'to' => $historyInvocing->lender->email_lender,
+    //             $data = [
+    //                 'title' => 'Pemberitahuan Invoice Biaya Layanan dan Fee',
+    //                 'to' => 'imamrovid9@gmail.com',
+    //                 'link' => $link,
+    //                 'rekening' => $historyInvocing->lender
+    //             ];
 
-                try {
-                    Mail::to($data['to'])->send(new InvoiceKeLender($data));
-                } catch (\Throwable $th) {
-                    dd($th);
-                    Log::channel('cronjob')->info($sekarang . ' Error : ' . $th);
-                }
-            }
-        }
+    //             try {
+    //                 Mail::to($data['to'])->send(new InvoiceKeLender($data));
+    //             } catch (\Throwable $th) {
+    //                 dd($th);
+    //                 Log::channel('cronjob')->info($sekarang . ' Error : ' . $th);
+    //             }
+    //         }
+    //     }
 
-        Log::channel('cronjob')->info($date . ' Cronjob Create Invoice lender telah dijalankan');
-    }
+    //     Log::channel('cronjob')->info($date . ' Cronjob Create Invoice lender telah dijalankan');
+    // }
+
+    public function test() {}
 }

@@ -223,7 +223,10 @@ class PinjamanController extends Controller
 
     public function actionPinjaman(ActionPinjamRequest $req)
     {
-        $user = User::where('id', auth('api')->user()->id)->first();
+        $user = User::where('id', auth('api')->user()->id)
+            ->with('kyc')
+            ->first();
+
         $nip = explode("-", $req->nip);
 
         $perusahaan = ListPerusahaan::where('unique_code', $nip[0])
@@ -296,10 +299,10 @@ class PinjamanController extends Controller
                             'message' => 'Harap lengkapi data anda telebih dahulu',
                         ], 400);
                     } else {
-                        if (!isset($user->selfie) && !isset($user->ktp)) {
+                        if (!isset($user->kyc)) {
                             return response()->json([
                                 'status' => 400,
-                                'message' => 'Update selfie dan KTP anda',
+                                'message' => 'Maaf, proses tidak dapat dilanjutkan. Kami memerlukan pembaruan foto selfie dan KTP Anda.',
                             ], 400);
                         }
                     }
@@ -387,6 +390,7 @@ class PinjamanController extends Controller
                 $pinjaman->id_perusahaan = $perusahaan->id;
                 $pinjaman->id_karyawan = $perusahaan->karyawanSingle->id;
                 $pinjaman->id_lender = $perusahaan->id_lender;
+                $pinjaman->id_kyc = $user->kyc->id;
                 $pinjaman->id_pinjaman = $code;
                 $pinjaman->nominal = $req->nominal;
                 $pinjaman->tenor = $tenor->tenor;

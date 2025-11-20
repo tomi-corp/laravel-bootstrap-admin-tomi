@@ -54,4 +54,9 @@ class pinjaman extends Model
     {
         return $this->hasOne(lender::class, 'id', 'id_lender');
     }
+
+    public function pinjaman_pending_notification()
+    {
+        return $this->hasOne(pinjaman_pending_notification::class, 'id', 'pinjaman_id');
+    }
 }

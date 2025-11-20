@@ -15,6 +15,7 @@ return [
     */
     'fcm' => [
         'project_id' => env('FCM_PROJECT_ID', null),
+        'project_id_production' => env('FCM_PROJECT_ID_PROD', null),
     ],
 
 

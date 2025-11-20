@@ -20,7 +20,13 @@ use GuzzleHttp\Client as GuzzleClient;
 if (!function_exists('sendNotification')) {
     function sendNotification($token, $title, $body)
     {
-        $projectId = config('services.fcm.project_id');
+
+        if (App::environment('production')) {
+            $projectId = config('services.fcm.project_id_production');
+        } elseif (App::environment('local')) {
+            $projectId = config('services.fcm.project_id');
+        }
+
         if (!$projectId) {
             return [
                 'success' => false,
@@ -28,7 +34,12 @@ if (!function_exists('sendNotification')) {
             ];
         }
 
-        $credentialsPath = Storage::path('fcm/fcmDevelopment.json');
+
+        if (App::environment('production')) {
+            $credentialsPath = Storage::path('fcm/fcmProduction.json');
+        } elseif (App::environment('local')) {
+            $credentialsPath = Storage::path('fcm/fcmDevelopment.json');
+        }
 
         if (!file_exists($credentialsPath)) {
             return [

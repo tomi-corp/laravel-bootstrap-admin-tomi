@@ -64,7 +64,7 @@ class InvoicingToLenderCron extends Command
 
                 $data = [
                     'title' => 'Pemberitahuan Invoice Biaya Layanan dan Fee',
-                    'to' => 'imamrovid9@gmail.com',
+                    'to' => $historyInvocing->lender->email_lender,
                     'link' => $link,
                     'rekening' => $historyInvocing->lender
                 ];

@@ -22,17 +22,17 @@ return new class extends Migration
             $table->string('gauth_type')->nullable();
             $table->date('dob')->nullable();
             $table->double('point')->default(0);
-            $table->string('selfie')->nullable();
-            $table->string('ktp')->nullable();
-            $table->string('stnk')->nullable();
+            // $table->string('selfie')->nullable();
+            // $table->string('ktp')->nullable();
+            // $table->string('stnk')->nullable();
 
 
-            $table->string('nip')->nullable();
-            $table->string('nama_perusahaan')->nullable();
-            $table->string('jabatan')->nullable();
-            $table->double('penghasilan')->nullable();
-            $table->string('slip_gaji')->nullable();
-            $table->string('selfie_ktp')->nullable();
+            // $table->string('nip')->nullable();
+            // $table->string('nama_perusahaan')->nullable();
+            // $table->string('jabatan')->nullable();
+            // $table->double('penghasilan')->nullable();
+            // $table->string('slip_gaji')->nullable();
+            // $table->string('selfie_ktp')->nullable();
             $table->enum('verified_privy', [1, 0])->default(0);
             $table->string('id_privy');
             $table->string('enterprise_token_privy');

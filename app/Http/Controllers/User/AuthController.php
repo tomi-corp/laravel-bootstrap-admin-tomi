@@ -19,6 +19,7 @@ use App\Mail\PergantianPasswordEmail;
 use App\Mail\VerifikasiEmail;
 use App\Mail\VerifOtpNewMail;
 use App\Mail\WelcomeEmail;
+use App\Models\kyc_user;
 use App\Models\notification;
 use App\Models\password_reset_user;
 use App\Models\perubahaan_email;
@@ -77,7 +78,9 @@ class AuthController extends Controller
 
     public function me()
     {
-        $user = User::where('id', auth('api')->user()->id)->first();
+        $user = User::where('id', auth('api')->user()->id)
+            ->with('kyc')
+            ->first();
         return response()->json([
             'status' => 200,
             'detail' => new ProfileDetailResource($user)
@@ -93,7 +96,6 @@ class AuthController extends Controller
             'message' => 'Successfully logged out',
         ], 200);
     }
-
 
     public function refresh()
     {
@@ -393,13 +395,15 @@ class AuthController extends Controller
             $user->kartu_keluarga = $output_file_kk;
         }
 
-        $user->selfie = $output_file_selfie;
-        $user->ktp = $output_file_ktp;
-        $user->save();
+        $kyc_user = new kyc_user();
+        $kyc_user->user_id = $user->id;
+        $kyc_user->selfie = $output_file_selfie;
+        $kyc_user->ktp = $output_file_ktp;
+        $kyc_user->save();
 
         return response()->json([
             'status' => 200,
-            'message' => 'Liveness berhasil'
+            'message' => 'Liveness telah berhasil'
         ], 200);
     }
 

@@ -19,10 +19,10 @@
                                     <div id="m_-6672365049897085236m_-4638579949527573636:pm"></div>
                                     <div style="background-color:#f3f5f7;margin:0!important;padding:0!important"><span
                                             class="im"><span><span>
-                                                    <div
+                                                    {{-- <div
                                                         style="display:none;font-size:1px;color:#fefefe;line-height:1px;font-family:'Lato',Helvetica,Arial,sans-serif;max-height:0px;max-width:0px;opacity:0;overflow:hidden">
                                                         Permintaan reset password akun anda, abaikan jika anda tidak
-                                                        merasa melakukan reset password akun anda.</div>
+                                                        merasa melakukan reset password akun anda.</div> --}}
                                                 </span> </span> </span>
                                         <table width="100%" cellspacing="0" cellpadding="0" border="0">
                                             <tbody>
@@ -67,9 +67,10 @@
                                                                 <tr>
                                                                     <td bgcolor="#ffffff" align="left"
                                                                         style="padding:20px 30px 10px 30px;color:#666666;font-family:'Lato',Helvetica,Arial,sans-serif;font-size:16px;font-weight:400;line-height:25px">
-                                                                        <p style="margin:0">Salin kode OTP berikut untuk memverifikasi email Anda. 
-                                                                        Jangan bagikan kode ini kepada siapapun. 
-                                                                        Terima kasih telah mendaftar di TOMI.</p>
+                                                                        <p style="margin:0">Salin kode OTP berikut untuk
+                                                                            memverifikasi email Anda.
+                                                                            Jangan bagikan kode ini kepada siapapun.
+                                                                            Terima kasih telah mendaftar di TOMI.</p>
                                                                     </td>
                                                                 </tr>
                                                                 <tr>
@@ -101,18 +102,21 @@
                                                                 <tr>
                                                                     <td bgcolor="#ffffff" align="left"
                                                                         style="padding:0 30px 10px 20px;color:#666666;font-family:'Lato',Helvetica,Arial,sans-serif;font-size:16px;font-weight:400;line-height:25px">
-                                                                        <p style="margin:0">Email ini dikirim secara otomatis, mohon tidak membalas.</p>
+                                                                        <p style="margin:0">Email ini dikirim secara
+                                                                            otomatis, mohon tidak membalas.</p>
                                                                         <p style="margin:0">
-                                                                           Jika Anda tidak melakukan pendaftaran, abaikan email ini.
+                                                                            Jika Anda tidak melakukan pendaftaran,
+                                                                            abaikan email ini.
                                                                         </p>
-                                                                        <p>Terima kasih atas kepercayaan Anda terhadap layanan kami.</p>
+                                                                        <p>Terima kasih atas kepercayaan Anda terhadap
+                                                                            layanan kami.</p>
                                                                     </td>
                                                                 </tr>
                                                                 <tr>
                                                                     <td bgcolor="#ffffff" align="left"
                                                                         style="padding:0px 30px 40px 20px;border-radius:0px 0px 4px 4px;color:#666666;font-family:'Lato',Helvetica,Arial,sans-serif;font-size:14px;font-weight:400;line-height:25px">
-                                                                        <p style="margin:0">Hormat Kami,<br> <b>PT
-                                                                                TOMI</b> </p>
+                                                                        <p style="margin:0">Hormat Kami,<br> <b>PT TOKO
+                                                                                MIKRO INDONESIA </b> </p>
                                                                     </td>
                                                                 </tr>
                                                             </tbody>

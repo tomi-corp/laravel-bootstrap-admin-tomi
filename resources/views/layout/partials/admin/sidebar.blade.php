@@ -47,7 +47,7 @@
                 <li>
                     <a href="javascript: void(0);">
                         <i class="dripicons-network-3"></i>
-                        <span> Pinjaman Payroll </span>
+                        <span> e-Kasbon </span>
                         <span class="menu-arrow"></span>
                     </a>
 

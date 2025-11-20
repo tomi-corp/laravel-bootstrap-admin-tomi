@@ -70,7 +70,7 @@
 
                     <tr>
                         <td bgcolor="#f4f4f4" align="center" style="padding:10px; color:#aaaaaa; font-size:12px;">
-                            © {{ date('Y') }} PT TOMI. All rights reserved.
+                            © {{ date('Y') }} PT TOKO MIKRO INDONESIA. All rights reserved.
                         </td>
                     </tr>
 
