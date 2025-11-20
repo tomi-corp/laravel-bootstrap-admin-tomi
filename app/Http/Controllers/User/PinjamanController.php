@@ -353,7 +353,7 @@ class PinjamanController extends Controller
                 }
 
                 // pembaruan data karyawan tiap tanggal 1
-                if ($perusahaan->karyawanSingle->created_at && Carbon::parse($perusahaan->karyawanSingle->created_at)->lessThan(Carbon::now()->startOfMonth())) {
+                if ($perusahaan->karyawanSingle->updated_at && Carbon::parse($perusahaan->karyawanSingle->updated_at)->lessThan(Carbon::now()->startOfMonth())) {
                     return response()->json([
                         'status' => 400,
                         'message' => 'Kami melihat pembaruan data Anda sudah melewati batas waktu yang ditentukan, Mohon bantuannya untuk segera menghubungi Human Capital (HC) Perusahaan Anda agar mereka dapat memproses dan mengirimkan data terbaru Anda ke aplikasi TOMI. Kami siap membantu menyelesaikan prosesnya setelah data dari HC kami terima. Terima kasih!',
