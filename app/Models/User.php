@@ -51,7 +51,7 @@ class User extends Authenticatable implements JWTSubject
 
     public function kyc()
     {
-        return $this->hasOne(kyc_user::class, 'id', 'user_id');
+        return $this->hasOne(kyc_user::class, 'user_id', 'id');
     }
 
     protected function casts(): array
