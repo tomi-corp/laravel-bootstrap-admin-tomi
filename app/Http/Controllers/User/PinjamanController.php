@@ -226,7 +226,7 @@ class PinjamanController extends Controller
         $user = User::where('id', auth('api')->user()->id)
             ->with('kyc')
             ->first();
-
+        return $user;
         $nip = explode("-", $req->nip);
 
         $perusahaan = ListPerusahaan::where('unique_code', $nip[0])
