@@ -8,19 +8,11 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 
 class DaftarEkasbonRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, mixed>
-     */
     public function rules(): array
     {
         return [
@@ -30,16 +22,11 @@ class DaftarEkasbonRequest extends FormRequest
             'whatsapp' => ['required', 'string', 'regex:/^08[0-9]{9,12}$/'],
             'email' => ['required', 'email', 'max:255'],
 
-            // Geetest v4 fields (wajib untuk verifikasi anti-bot)
-            'geetest_challenge' => ['required', 'string'],
-            'geetest_validate'  => ['required', 'string'],
-            'geetest_seccode'   => ['required', 'string'],
+            // Google reCAPTCHA v3
+            'g-recaptcha-response' => ['required', 'string'],
         ];
     }
 
-    /**
-     * Custom error messages.
-     */
     public function messages(): array
     {
         return [
@@ -52,15 +39,10 @@ class DaftarEkasbonRequest extends FormRequest
             'email.required' => 'Email wajib diisi.',
             'email.email' => 'Format email tidak valid.',
 
-            'geetest_challenge.required' => 'Verifikasi CAPTCHA diperlukan.',
-            'geetest_validate.required' => 'Verifikasi CAPTCHA tidak lengkap.',
-            'geetest_seccode.required' => 'Kode keamanan CAPTCHA hilang.',
+            'g-recaptcha-response.required' => 'Verifikasi keamanan diperlukan. Pastikan JavaScript aktif.',
         ];
     }
 
-    /**
-     * Handle validation failure with JSON response (for API).
-     */
     protected function failedValidation(Validator $validator)
     {
         throw new HttpResponseException(response()->json([

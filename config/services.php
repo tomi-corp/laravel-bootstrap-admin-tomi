@@ -19,7 +19,7 @@ return [
     ],
 
     'geetest' => [
-        'key' => env('GEETEST_KEY', null)
+        'key' => env('SECRET_G_CAPTCHA', null)
     ],
 
     'postmark' => [

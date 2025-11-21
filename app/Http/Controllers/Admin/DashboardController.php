@@ -28,6 +28,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Crypt;
 use App\Http\Requests\Public\Ekasbon\DaftarEkasbonRequest;
+use Illuminate\Support\Facades\Http;
+
 
 class DashboardController extends Controller
 {
@@ -175,23 +177,48 @@ class DashboardController extends Controller
     public function registerEkasbon(DaftarEkasbonRequest $req)
     {
         $data = $req->validated();
-        if (!$this->verifyGeetest(
-            $data['geetest_challenge'],
-            $data['geetest_validate']
-        )) {
-            return response()->json(['error' => 'Verifikasi CAPTCHA gagal'], 400);
+
+        // Ambil token reCAPTCHA
+        $recaptchaToken = $data['g-recaptcha-response'];
+
+        // Verifikasi token
+        if (!$this->verifyRecaptcha($recaptchaToken)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Verifikasi keamanan gagal. Anda mungkin dianggap bot.',
+            ], 400);
         }
+
+        // 👉 LANJUTKAN SIMPAN DATA KE DATABASE DI SINI
+        // Contoh:
+        // Perusahaan::create([
+        //     'nama' => $data['nama_perusahaan'],
+        //     'jumlah_karyawan' => $data['jumlah_karyawan'],
+        //     // dll...
+        // ]);
 
         return response()->json([
             'success' => true,
-            'message' => 'Pendaftaran berhasil. Pihak kami akan menghubungi anda secepatnya.'
+            'message' => 'Pendaftaran berhasil. Pihak kami akan menghubungi Anda secepatnya.'
         ]);
     }
 
-    private function verifyGeetest(string $challenge, string $validate): bool
+    protected function verifyRecaptcha(string $token): bool
     {
-        $expected = md5($challenge . config('services.geetest.key'));
-        return hash_equals($expected, $validate);
+        try {
+            $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
+                'secret' => config('services.recaptcha.secret'),
+                'response' => $token,
+                'remoteip' => request()->ip(),
+            ]);
+
+            $result = $response->json();
+            // Verifikasi: success = true dan score >= 0.5 (opsional, tapi disarankan)
+            return $result['success'] && ($result['score'] ?? 1.0) >= 0.5;
+        } catch (\Exception $e) {
+            // \Log::error('reCAPTCHA verification failed: ' . $e->getMessage());
+            return false;
+        }
     }
 
     // public function test()
