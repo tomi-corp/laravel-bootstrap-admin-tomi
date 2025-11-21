@@ -173,7 +173,7 @@ class PrivyController extends Controller
         $user = User::where('id', auth('api')->user()->id)
             ->with('kyc')
             ->first();
-        if (isset($user->nik) && isset($user->nama_lengkap) && isset($user->selfie) && isset($user->ktp) && isset($user->kartu_keluarga) && ($user->update_data_privy == true)) {
+        if (isset($user->nik) && isset($user->nama_lengkap) && isset($user->kyc->selfie) && isset($user->kyc->ktp) && isset($user->kartu_keluarga) && ($user->update_data_privy == true)) {
             $privy = privy::first();
             $login = loginPrivy();
             $uri = $privy->url . '/web/api/v2/register/resend';
