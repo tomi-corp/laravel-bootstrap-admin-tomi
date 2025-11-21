@@ -24,3 +24,4 @@ Route::get('/preview', [AuthController::class, 'preview'])
 //     return view('welcome');
 // });
 Route::get('/download/aplikasi/{id}', [DownloadController::class, 'download']);
+Route::post('/daftar/ekasbon', [DashboardController::class, 'registerEkasbon']);

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Server\DocumentController;
 use App\Http\Controllers\User\AuthController;
 use App\Http\Controllers\User\DailyCheckinController;

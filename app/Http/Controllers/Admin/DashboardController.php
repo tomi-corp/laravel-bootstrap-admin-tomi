@@ -27,6 +27,7 @@ use Flasher\Laravel\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Crypt;
+use App\Http\Requests\Public\Ekasbon\DaftarEkasbonRequest;
 
 class DashboardController extends Controller
 {
@@ -168,6 +169,29 @@ class DashboardController extends Controller
         } else {
             abort(404);
         }
+    }
+
+
+    public function registerEkasbon(DaftarEkasbonRequest $req)
+    {
+        $data = $req->validated();
+        if (!$this->verifyGeetest(
+            $data['geetest_challenge'],
+            $data['geetest_validate']
+        )) {
+            return response()->json(['error' => 'Verifikasi CAPTCHA gagal'], 400);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Pendaftaran berhasil. Pihak kami akan menghubungi anda secepatnya.'
+        ]);
+    }
+
+    private function verifyGeetest(string $challenge, string $validate): bool
+    {
+        $expected = md5($challenge . config('services.geetest.key'));
+        return hash_equals($expected, $validate);
     }
 
     // public function test()

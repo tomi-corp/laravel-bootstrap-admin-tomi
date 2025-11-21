@@ -18,6 +18,9 @@ return [
         'project_id_production' => env('FCM_PROJECT_ID_PROD', null),
     ],
 
+    'geetest' => [
+        'key' => env('GEETEST_KEY', null)
+    ],
 
     'postmark' => [
         'token' => env('POSTMARK_TOKEN'),
