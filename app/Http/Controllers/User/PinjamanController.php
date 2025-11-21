@@ -263,7 +263,7 @@ class PinjamanController extends Controller
                 ], 400);
             } elseif (auth('api')->user()->verified_privy == "n") {
 
-                if (isset($user->nik) && isset($user->nama_lengkap) && isset($user->dob) && isset($user->selfie) && isset($user->ktp)) {
+                if (isset($user->nik) && isset($user->nama_lengkap) && isset($user->dob) && isset($user->kyc->selfie) && isset($user->kyc->ktp)) {
                     if ($user->register_token_privy == null) {
                         // tampilkan consent privy
                         return response()->json([

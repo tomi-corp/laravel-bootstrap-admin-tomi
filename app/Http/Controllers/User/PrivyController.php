@@ -13,8 +13,11 @@ class PrivyController extends Controller
     public function registerPrivy()
     {
         // 
-        $user = User::where('id', auth('api')->user()->id)->first();
-        if (isset($user->nik) && isset($user->nama_lengkap) && isset($user->selfie) && isset($user->ktp)) {
+        $user = User::where('id', auth('api')->user()->id)
+            ->with('kyc')
+            ->first();
+
+        if (isset($user->nik) && isset($user->nama_lengkap) && isset($user->kyc->selfie) && isset($user->kyc->ktp)) {
             if ($user->register_token_privy == null) {
                 // register privy
                 $privy = privy::first();
@@ -30,8 +33,8 @@ class PrivyController extends Controller
                     "nik" =>  $user->nik,
                     "name" => $user->nama_lengkap,
                     "dob" =>  $user->dob,
-                    "selfie" =>  encodeBase64('image', $user->selfie),
-                    "identity" =>  encodeBase64('image', $user->ktp),
+                    "selfie" =>  encodeBase64('image', $user->kyc->selfie),
+                    "identity" =>  encodeBase64('image', $user->kyc->ktp),
                 ];
 
                 $signature = signature($requestBody, $privy->username, $privy->password, 'POST');
@@ -167,7 +170,9 @@ class PrivyController extends Controller
     public function resendRegister()
     {
         // register privy
-        $user = User::where('id', auth('api')->user()->id)->first();
+        $user = User::where('id', auth('api')->user()->id)
+            ->with('kyc')
+            ->first();
         if (isset($user->nik) && isset($user->nama_lengkap) && isset($user->selfie) && isset($user->ktp) && isset($user->kartu_keluarga) && ($user->update_data_privy == true)) {
             $privy = privy::first();
             $login = loginPrivy();
@@ -182,8 +187,8 @@ class PrivyController extends Controller
                 "nik" =>  $user->nik,
                 "name" => $user->nama_lengkap,
                 "dob" =>  $user->dob,
-                "selfie" =>  encodeBase64('image', $user->selfie),
-                "identity" =>  encodeBase64('image', $user->ktp),
+                "selfie" =>  encodeBase64('image', $user->kyc->selfie),
+                "identity" =>  encodeBase64('image', $user->kyc->ktp),
                 "supporting_document" => [
                     [
                         "document_name" => "Kartu Keluarga",
