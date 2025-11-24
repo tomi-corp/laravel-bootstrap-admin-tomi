@@ -15,11 +15,10 @@ class CorsMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        return $next($request);
-        $allowedOrigin = 'https://tokomikro.id';
-        $response->headers->set('Access-Control-Allow-Origin', $allowedOrigin);
-        $response->headers->set('Access-Control-Allow-Methods', 'POST, OPTIONS');
-        $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, X-Auth-Token, Origin, Authorization');
-        return $response;
+        return $next($request)
+            ->header('Access-Control-Allow-Origin', '*')
+            ->header('Access-Control-Allow-Methods', '*')
+            ->header('Access-Control-Allow-Headers', ' Origin, Content-Type, Accept, Authorization, X-Request-With')
+            ->header('Access-Control-Allow-Credentials', ' true');
     }
 }
