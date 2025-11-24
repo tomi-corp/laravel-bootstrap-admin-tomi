@@ -37,6 +37,10 @@ return Application::configure(basePath: dirname(__DIR__))
     // )
 
     ->withMiddleware(function (Middleware $middleware) {
+        // Tambahkan CORS sebagai middleware GLOBAL (berlaku untuk SEMUA request)
+        $middleware->prepend([
+            \App\Http\Middleware\CorsMiddleware::class,
+        ]);
         $middleware->alias([
             'LanguangeMiddleware' => \App\Http\Middleware\LanguangeMiddleware::class,
             'ApiMiddleware' => \App\Http\Middleware\ApiMiddleware::class,
