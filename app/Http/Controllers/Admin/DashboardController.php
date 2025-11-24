@@ -182,6 +182,9 @@ class DashboardController extends Controller
         $recaptchaToken = $data['g-recaptcha-response'];
 
         // Verifikasi token
+        $add =  $this->verifyRecaptcha($recaptchaToken);
+        dd($add);
+
         if (!$this->verifyRecaptcha($recaptchaToken)) {
             return response()->json([
                 'success' => false,
