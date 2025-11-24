@@ -185,7 +185,7 @@ class DashboardController extends Controller
         // $add =  $this->verifyRecaptcha($recaptchaToken);
 
         $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
-            'secret' => config('services.recaptcha.secret'),
+            'secret' => '6LecwRMsAAAAABq2MIyPOmUO_RtBgFHeOb6AT0TC',
             'response' => $recaptchaToken,
             'remoteip' => request()->ip(),
         ]);
