@@ -182,13 +182,16 @@ class DashboardController extends Controller
         $recaptchaToken = $data['g-recaptcha-response'];
 
         // Verifikasi token
-        $add =  $this->verifyRecaptcha($recaptchaToken);
-        return $add;
-        if ($add === true) {
-            dd("true");
-        } else {
-            dd("false");
-        }
+        // $add =  $this->verifyRecaptcha($recaptchaToken);
+
+        $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
+            'secret' => config('services.recaptcha.secret'),
+            'response' => $recaptchaToken,
+            'remoteip' => request()->ip(),
+        ]);
+
+        return $response;
+
 
         if (!$this->verifyRecaptcha($recaptchaToken)) {
             return response()->json([
@@ -222,7 +225,7 @@ class DashboardController extends Controller
 
             $result = $response->json();
 
-            // ✅ Untuk reCAPTCHA v2: cukup cek 'success'
+            dd($result);
             return $result['success'] ?? false;
         } catch (\Exception $e) {
             \Log::error('reCAPTCHA verification failed: ' . $e->getMessage());
