@@ -18,16 +18,13 @@ class CorsMiddleware
         // Jika request method adalah OPTIONS, langsung kembalikan respons tanpa lanjut ke controller
         if ($request->isMethod('OPTIONS')) {
             return response('', 200)
-                ->header('Access-Control-Allow-Origin', '*')
+                ->header('Access-Control-Allow-Origin', 'https://tokomikro.id')
                 ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
                 ->header('Access-Control-Allow-Headers', 'Origin, Content-Type, Accept, Authorization, X-Requested-With')
                 ->header('Access-Control-Allow-Credentials', 'true');
         }
-
-        // Untuk request selain OPTIONS, lanjutkan seperti biasa
         $response = $next($request);
-
-        $response->headers->set('Access-Control-Allow-Origin', '*');
+        $response->headers->set('Access-Control-Allow-Origin', 'https://tokomikro.id');
         $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
         $response->headers->set('Access-Control-Allow-Headers', 'Origin, Content-Type, Accept, Authorization, X-Requested-With');
         $response->headers->set('Access-Control-Allow-Credentials', 'true');
