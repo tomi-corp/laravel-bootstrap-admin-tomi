@@ -213,10 +213,11 @@ class DashboardController extends Controller
             ]);
 
             $result = $response->json();
-            // Verifikasi: success = true dan score >= 0.5 (opsional, tapi disarankan)
-            return $result['success'] && ($result['score'] ?? 1.0) >= 0.5;
+
+            // ✅ Untuk reCAPTCHA v2: cukup cek 'success'
+            return $result['success'] ?? false;
         } catch (\Exception $e) {
-            // \Log::error('reCAPTCHA verification failed: ' . $e->getMessage());
+            \Log::error('reCAPTCHA verification failed: ' . $e->getMessage());
             return false;
         }
     }
