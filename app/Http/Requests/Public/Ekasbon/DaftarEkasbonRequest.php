@@ -21,8 +21,6 @@ class DaftarEkasbonRequest extends FormRequest
             'pic' => ['required', 'string', 'max:255'],
             'whatsapp' => ['required', 'string', 'regex:/^08[0-9]{9,12}$/'],
             'email' => ['required', 'email', 'max:255'],
-
-            // Google reCAPTCHA v3
             'g-recaptcha-response' => ['required', 'string'],
         ];
     }

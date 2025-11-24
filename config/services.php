@@ -18,6 +18,10 @@ return [
         'project_id_production' => env('FCM_PROJECT_ID_PROD', null),
     ],
 
+    'recaptcha' => [
+        'secret' => env('SECRET_G_CAPTCHA'),
+    ],
+
     'geetest' => [
         'key' => env('SECRET_G_CAPTCHA', null)
     ],
