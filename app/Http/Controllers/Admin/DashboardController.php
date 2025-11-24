@@ -183,7 +183,12 @@ class DashboardController extends Controller
 
         // Verifikasi token
         $add =  $this->verifyRecaptcha($recaptchaToken);
-        dd($add);
+        return $add;
+        if ($add === true) {
+            dd("true");
+        } else {
+            dd("false");
+        }
 
         if (!$this->verifyRecaptcha($recaptchaToken)) {
             return response()->json([
