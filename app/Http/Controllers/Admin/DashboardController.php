@@ -28,6 +28,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Crypt;
 use App\Http\Requests\Public\Ekasbon\DaftarEkasbonRequest;
+use App\Models\daftar_e_kasbon;
 use Illuminate\Support\Facades\Http;
 
 
@@ -178,35 +179,27 @@ class DashboardController extends Controller
     {
         $data = $req->validated();
 
-        // Ambil token reCAPTCHA
         $recaptchaToken = $data['g-recaptcha-response'];
-
-        // Verifikasi token
-        // $add =  $this->verifyRecaptcha($recaptchaToken);
-
         $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
-            'secret' => '6LecwRMsAAAAABq2MIyPOmUO_RtBgFHeOb6AT0TC',
+            'secret' => env('SECRET_G_CAPTCHA'),
             'response' => $recaptchaToken,
             'remoteip' => request()->ip(),
         ]);
 
-        return $response;
-
-
-        if (!$this->verifyRecaptcha($recaptchaToken)) {
+        if (!$response['success']) {
             return response()->json([
                 'success' => false,
                 'message' => 'Verifikasi keamanan gagal. Anda mungkin dianggap bot.',
             ], 400);
         }
 
-        // 👉 LANJUTKAN SIMPAN DATA KE DATABASE DI SINI
-        // Contoh:
-        // Perusahaan::create([
-        //     'nama' => $data['nama_perusahaan'],
-        //     'jumlah_karyawan' => $data['jumlah_karyawan'],
-        //     // dll...
-        // ]);
+        $daftar = new daftar_e_kasbon();
+        $daftar->nama_perusahaan = $req->namaPerusahaan;
+        $daftar->jumlahKaryawan = $req->jumlahKaryawan;
+        $daftar->pic = $req->pic;
+        $daftar->whatsapp = $req->whatsapp;
+        $daftar->email = $req->email;
+        $daftar->save();
 
         return response()->json([
             'success' => true,
@@ -214,24 +207,7 @@ class DashboardController extends Controller
         ]);
     }
 
-    protected function verifyRecaptcha(string $token): bool
-    {
-        try {
-            $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
-                'secret' => config('services.recaptcha.secret'),
-                'response' => $token,
-                'remoteip' => request()->ip(),
-            ]);
 
-            $result = $response->json();
-
-            dd($result);
-            return $result['success'] ?? false;
-        } catch (\Exception $e) {
-            \Log::error('reCAPTCHA verification failed: ' . $e->getMessage());
-            return false;
-        }
-    }
 
     // public function test()
     // {
