@@ -18,7 +18,7 @@ class CorsMiddleware
         return $next($request);
         $allowedOrigin = 'https://tokomikro.id';
         $response->headers->set('Access-Control-Allow-Origin', $allowedOrigin);
-        $response->headers->set('Access-Control-Allow-Methods', 'POST');
+        $response->headers->set('Access-Control-Allow-Methods', 'POST, OPTIONS');
         $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, X-Auth-Token, Origin, Authorization');
         return $response;
     }
