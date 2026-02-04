@@ -24,6 +24,9 @@ return new class extends Migration
             $table->double('biaya_layanan');
             $table->double('minimal_nominal');
             $table->double('maximal_nominal');
+            $table->double('profesional_fee_1');
+            $table->double('profesional_fee_2');
+            $table->double('ksp');
             $table->timestamps();
         });
     }

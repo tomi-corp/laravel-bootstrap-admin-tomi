@@ -436,8 +436,9 @@ class PinjamanController extends Controller
                 $pinjaman->profesional_fee_1 = $tenor->profesional_fee_1;
                 $pinjaman->profesional_fee_2 = $tenor->profesional_fee_2;
 
-                $pinjaman->jumlah_profesional_1 = $tenor->profesional_fee_1 / 100 *  $req->nominal;;
-                $pinjaman->jumlah_profesional_2 = $tenor->profesional_fee_2 / 100 *  $req->nominal;;
+                $pinjaman->jumlah_profesional_1 = $tenor->profesional_fee_1 / 100 *  $req->nominal;
+                $pinjaman->jumlah_profesional_2 = $tenor->profesional_fee_2 / 100 *  $req->nominal;
+                $pinjaman->ksp_fee = $tenor->ksp / 100 *  $req->nominal;
 
                 $pinjaman->iuran_anggota = $simulation['iuran_anggota'];
                 $pinjaman->biaya_layanan = $simulation['biaya_layanan'];
