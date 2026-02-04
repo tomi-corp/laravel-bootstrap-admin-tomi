@@ -42,7 +42,8 @@ class PinjamanController extends Controller
         $biaya_admin = $tenor->biaya_admin / 100 * $data['nominal'];
         $biaya_admin_tomi = $tenor->fee_tomi / 100 * $data['nominal'];
         $biaya_asuransi = $tenor->asuransi / 100 * $data['nominal'];
-        $biaya_provisi = $tenor->provisi / 100 * $data['nominal'];
+        $biaya_provisi_1 = $tenor->provisi_1 / 100 * $data['nominal'];
+        $biaya_provisi_2 = $tenor->provisi_2 / 100 * $data['nominal'];
 
         $biaya_layanan = $tenor->biaya_layanan;
         $iuran_anggota = $tenor->amount_pinjaman->iuran_anggota * $tenor->tenor;
@@ -58,8 +59,9 @@ class PinjamanController extends Controller
             'rate_persen' => $tenor->rate . "%",
             'asuransi_persen' => $tenor->asuransi . "%",
             'asuransi' => $biaya_asuransi,
-            'provisi_persen' => $tenor->provisi . "%",
-            'provisi' => $biaya_provisi,
+            'provisi_persen' => $tenor->provisi_1 + $tenor->provisi_2 . "%",
+            'provisi_1' => $biaya_provisi_1,
+            'provisi_2' => $biaya_provisi_2,
             'biaya_admin_persen' => $tenor->biaya_admin . "%",
             'tenor' => $tenor->tenor,
             'biaya_admin' => $biaya_admin,
@@ -209,7 +211,7 @@ class PinjamanController extends Controller
             'asuransi_persen' => $simulation['asuransi_persen'],
             'provisi_persen' => $simulation['provisi_persen'],
             'asuransi' => "Rp  " .  number_format($simulation['asuransi']),
-            'provisi' => "Rp  " .  number_format($simulation['provisi']),
+            'provisi' => "Rp  " .  number_format($simulation['provisi_1'] + $simulation['provisi_2']),
             'biaya_admin_persen' => $simulation['biaya_admin_persen'],
             'tenor' => $simulation['tenor'] . " bulan",
             'angsuran_perbulan' => "Rp  " .  number_format($simulation['angsuran_perbulan']),
@@ -404,7 +406,8 @@ class PinjamanController extends Controller
                 $pinjaman->tenor = $tenor->tenor;
                 $pinjaman->rate = $tenor->rate;
                 $pinjaman->asuransi = $tenor->asuransi;
-                $pinjaman->provisi = $tenor->provisi;
+                $pinjaman->provisi_1 = $tenor->provisi_1;
+                $pinjaman->provisi_2 = $tenor->provisi_2;
                 $pinjaman->biaya_admin =  $tenor->biaya_admin;
                 $pinjaman->status = 'on_proses';
                 $pinjaman->status_otp = 'pending';
@@ -431,7 +434,8 @@ class PinjamanController extends Controller
                 $pinjaman->total_angsuran_perbulan = $simulation['angsuran_perbulan'];
                 $pinjaman->jumlah_yang_diterima = $simulation['jumlah_diterima'];
                 $pinjaman->jumlah_asuransi = $simulation['asuransi'];
-                $pinjaman->jumlah_provisi = $simulation['provisi'];
+                $pinjaman->jumlah_provisi_1 = $simulation['provisi_1'];
+                $pinjaman->jumlah_provisi_2 = $simulation['provisi_2'];
                 $pinjaman->iuran_anggota = $simulation['iuran_anggota'];
                 $pinjaman->biaya_layanan = $simulation['biaya_layanan'];
 
@@ -624,7 +628,7 @@ class PinjamanController extends Controller
                     'angsuran_perbulan_terbilang' =>  ' (' . terbilang($verif->pinjaman->total_angsuran_perbulan) . ' Rupiah)',
                     'administrasi' => 'Rp  ' . number_format($verif->pinjaman->total_biaya_admin),
                     'asuransi' => 'Rp  ' . number_format($verif->pinjaman->jumlah_asuransi),
-                    'provisi' => 'Rp  ' . number_format($verif->pinjaman->jumlah_provisi),
+                    'provisi' => 'Rp  ' . number_format($verif->pinjaman->jumlah_provisi_1 + $verif->pinjaman->jumlah_provisi_2),
                     'biaya_layanan' => 'Rp  ' . number_format($verif->pinjaman->biaya_layanan),
                     'iuran_anggota' => 'Rp  ' . number_format($verif->pinjaman->iuran_anggota),
                     'rekening_pencairan' => $verif->pinjaman->data_karyawan->nomor_bank,

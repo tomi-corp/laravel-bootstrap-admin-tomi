@@ -20,6 +20,9 @@ return Application::configure(basePath: dirname(__DIR__))
             Route::middleware('api')
                 ->prefix('v1/api')
                 ->group(base_path('routes/api.php'));
+            Route::middleware('web')
+                ->prefix('bta')
+                ->group(base_path('routes/bta.php'));
         }
     )
     // ->withRouting(

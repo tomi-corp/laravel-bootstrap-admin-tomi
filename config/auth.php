@@ -52,6 +52,10 @@ return [
             'driver' => 'session',
             'provider' => 'admins',
         ],
+        'bta' => [
+            'driver' => 'session',
+            'provider' => 'btas',
+        ],
     ],
 
     /*
@@ -79,6 +83,10 @@ return [
         'admins' => [
             'driver' => 'eloquent',
             'model' => env('AUTH_MODEL', App\Models\Admin::class),
+        ],
+        'btas' => [
+            'driver' => 'eloquent',
+            'model' => env('AUTH_MODEL', App\Models\bta_user::class),
         ],
         'superadmins' => [
             'driver' => 'eloquent',

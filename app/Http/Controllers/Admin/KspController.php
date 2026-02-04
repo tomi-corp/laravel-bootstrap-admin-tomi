@@ -572,8 +572,12 @@ class KspController extends Controller
                 return $row->asuransi . ' %';
             })
 
-            ->addColumn('provisi', function ($row) {
-                return $row->provisi . ' %';
+            ->addColumn('provisi_1', function ($row) {
+                return $row->provisi_1 . ' %';
+            })
+
+            ->addColumn('provisi_2', function ($row) {
+                return $row->provisi_2 . ' %';
             })
 
             ->addColumn('biaya_admin', function ($row) {

@@ -609,68 +609,6 @@
             });
         });
 
-
-
-        // $('#provinsiSelectEdit').on('change', function() {
-        //     $.ajax({
-        //         url: '{!! route('admin.ksp.kabupaten') !!}',
-        //         data: {
-        //             '_token': "{{ csrf_token() }}",
-        //             'provinsi': this.value,
-        //         },
-        //         type: 'POST',
-        //         dataType: 'json',
-        //         success: function(result) {
-        //             result.map(item => {
-        //                 var option = new Option(item.kabupaten, item.kabupaten, true, true);
-        //                 $('#kabupatenSelectEdit').append(option);
-        //             })
-        //         }
-        //     });
-        // });
-
-        // $('#kabupatenSelectEdit').on('change', function() {
-        //     $.ajax({
-        //         url: '{!! route('admin.ksp.kecamatan') !!}',
-        //         data: {
-        //             '_token': "{{ csrf_token() }}",
-        //             'kabupaten': this.value,
-        //         },
-        //         type: 'POST',
-        //         dataType: 'json',
-        //         success: function(result) {
-        //             result.map(item => {
-        //                 var option = new Option(item.kecamatan, item.kecamatan, true, true);
-        //                 $('#kecamatanSelectEdit').append(option);
-        //             })
-        //         }
-        //     });
-        // });
-
-        // $('#kecamatanSelectEdit').on('change', function() {
-        //     $.ajax({
-        //         url: '{!! route('admin.ksp.desa') !!}',
-        //         data: {
-        //             '_token': "{{ csrf_token() }}",
-        //             'kecamatan': this.value,
-        //         },
-        //         type: 'POST',
-        //         dataType: 'json',
-        //         success: function(result) {
-        //             result.map(item => {
-        //                 var option = new Option(item.desa + ' - ' + item.kodepos, item.desa +
-        //                     '-' + item.kodepos,
-        //                     true,
-        //                     true);
-        //                 $('#desaSelectEdit').append(option);
-        //             })
-        //         }
-        //     });
-        // });
-
-
-
-
         var table = $('#tableListPerusahaan').DataTable({
             dom: 'B<"clear">lfrtip',
             buttons: [{

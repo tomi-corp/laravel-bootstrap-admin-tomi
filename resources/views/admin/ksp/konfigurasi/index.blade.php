@@ -73,7 +73,8 @@
                                 <th>Tenor</th>
                                 <th>Rate</th>
                                 <th>Asuransi</th>
-                                <th>Provisi</th>
+                                <th>Provisi 1</th>
+                                <th>Provisi 2</th>
                                 <th>Biaya Admin</th>
                                 <th>Fee Tomi</th>
                                 <th>Iuran Anggota</th>
@@ -409,7 +410,9 @@
             }, {
                 data: 'asuransi'
             }, {
-                data: 'provisi'
+                data: 'provisi_1'
+            }, {
+                data: 'provisi_2'
             }, {
                 data: 'biaya_admin'
             }, {

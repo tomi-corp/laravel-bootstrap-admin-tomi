@@ -1,0 +1,45 @@
+<?php
+
+use App\Http\Controllers\Bta\AnalystController;
+use App\Http\Controllers\Bta\AuthController;
+use App\Http\Controllers\Bta\CredamController;
+use App\Http\Controllers\Bta\DashboardController;
+use App\Http\Controllers\Bta\NasabahController;
+use App\Http\Controllers\Bta\WilayahController;
+use Illuminate\Support\Facades\Route;
+
+Route::get('/login', [AuthController::class, 'login'])->name('bta.login');
+Route::post('/login', [AuthController::class, 'actionLogin'])->name('bta.login.action');
+Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('bta.dashboard.index');
+
+// nasabah
+Route::get('/nasabah', [NasabahController::class, 'nasabahIndex'])->name('bta.nasabah.index');
+Route::post('/nasabah/edit', [NasabahController::class, 'nasabahDetail'])->name('bta.nasabah.detail');
+Route::post('/nasabah/insert', [NasabahController::class, 'nasabahInsert'])->name('bta.nasabah.insert');
+Route::post('/nasabah/update', [NasabahController::class, 'nasabahUpdate'])->name('bta.nasabah.update');
+Route::post('/nasabah/admin/analyst/table', [NasabahController::class, 'analystTable'])->name('bta.admin.nasabah.analyst.table');
+Route::post('/nasabah/admin/revisi/table', [NasabahController::class, 'revisiTable'])->name('bta.admin.nasabah.revisi.table');
+Route::post('/nasabah/admin/disetujui/table', [NasabahController::class, 'disetujuiTable'])->name('bta.admin.nasabah.disetujui.table');
+Route::post('/nasabah/admin/ditolak/table', [NasabahController::class, 'ditolakTable'])->name('bta.admin.nasabah.ditolak.table');
+
+
+Route::get('/secure-file/{token}', [AnalystController::class, 'downloadFile'])
+    ->name('bta.secure.file.download');
+
+Route::get('/analyst', [AnalystController::class, 'analystIndex'])->name('bta.analyst.index');
+Route::post('/analyst/table', [AnalystController::class, 'analystTable'])->name('bta.analyst.table');
+Route::get('/analyst/action/review/{noktp}', [AnalystController::class, 'analystReview'])->name('bta.analyst.review');
+Route::post('/analyst/action/submit/{noktp}', [AnalystController::class, 'analystUpdate'])->name('bta.analyst.update');
+Route::get('/credam', [CredamController::class, 'credamIndex'])->name('bta.credam.index');
+
+// provinsi
+Route::post('/provinsi', [WilayahController::class, 'provinsi'])->name('bta.wilayah.provinsi');
+Route::post('/kota', [WilayahController::class, 'kota'])->name('bta.wilayah.kota');
+Route::post('/kota/edit', [WilayahController::class, 'kotaEdit'])->name('bta.wilayah.kota.edit');
+Route::post('/kecamatan', [WilayahController::class, 'kecamatan'])->name('bta.wilayah.kecamatan');
+Route::post('/kecamatan/edit', [WilayahController::class, 'kecamatanEdit'])->name('bta.wilayah.kecamatan.edit');
+Route::post('/kelurahan', [WilayahController::class, 'kelurahan'])->name('bta.wilayah.kelurahan');
+Route::post('/kelurahan/edit', [WilayahController::class, 'kelurahanEdit'])->name('bta.wilayah.kelurahan.edit');
+Route::post('/kodepos', [WilayahController::class, 'kodepos'])->name('bta.wilayah.kodepos');
+Route::post('/dati', [WilayahController::class, 'dati'])->name('bta.wilayah.dati');
+Route::post('/bank', [WilayahController::class, 'bank'])->name('bta.wilayah.bank');

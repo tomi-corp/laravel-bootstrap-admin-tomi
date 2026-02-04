@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/confirmation/{code}', [VerifEmailController::class, 'verifEmail'])->name('verif.email');
 Route::post('/callback/peminjaman/payroll/disbursement', [CallbackController::class, 'callbackDisbursement']);
 Route::post('/callback/pembayaran/tagihan/perusahaan/tomi', [CallbackController::class, 'callbackPaymentInvoicing']);
-Route::get('{encrypted}/{unique}/{idEnc}/{codePerusahaanEnc}', [DashboardController::class, 'invoicee']);
+Route::get('invoicee/{encrypted}/{unique}/{idEnc}/{codePerusahaanEnc}', [DashboardController::class, 'invoicee']);
 Route::get('/invoicing-layanan/{encrypted}/{unique}/{idEnc}/{codePerusahaanEnc}', [DashboardController::class, 'invoiceeLender']);
 
 
