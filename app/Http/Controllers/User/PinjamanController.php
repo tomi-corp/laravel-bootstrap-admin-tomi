@@ -47,7 +47,7 @@ class PinjamanController extends Controller
 
         $biaya_layanan = $tenor->biaya_layanan;
         $iuran_anggota = $tenor->amount_pinjaman->iuran_anggota * $tenor->tenor;
-        $nilai_yang_diterima = $data['nominal'] - $biaya_admin - $biaya_layanan - $iuran_anggota - $biaya_asuransi - $biaya_provisi;
+        $nilai_yang_diterima = $data['nominal'] - $biaya_admin - $biaya_layanan - $iuran_anggota - $biaya_asuransi - $biaya_provisi_1 - $biaya_provisi_2;
 
         $rate = $tenor->rate / 100;
         $angsuran_perbulan = $data['nominal'] + $data['nominal'] * $rate * $tenor->tenor;
