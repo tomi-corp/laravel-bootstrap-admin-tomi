@@ -249,7 +249,7 @@
                                 <div class="form-group">
                                     <label>No. NPWP</label>
                                     <input class="form-control" id="noNpwp" placeholder="Contoh: 012345678901234"
-                                        maxlength="15" />
+                                        maxlength="16" />
                                     <small class="text-danger" id="errNoNpwp"></small>
                                 </div>
                             </div>
@@ -814,7 +814,7 @@
                                 <div class="form-group">
                                     <label>No. NPWP</label>
                                     <input class="form-control" id="editNoNpwp" placeholder="Contoh: 012345678901234"
-                                        maxlength="15" />
+                                        maxlength="16" />
                                     <small class="text-danger" id="errEditNoNpwp"></small>
                                 </div>
                             </div>
