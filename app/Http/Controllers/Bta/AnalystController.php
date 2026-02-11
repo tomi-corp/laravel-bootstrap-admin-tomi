@@ -65,11 +65,9 @@ class AnalystController extends Controller
                 'bank',
                 'dati'
             ])
-            ->where('position', 'admin')
+            ->where('position', 'analyst')
             ->where('status', 'pending')
             ->first();
-
-        dd($nasabah);
 
 
         if (!isset($nasabah)) {
