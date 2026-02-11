@@ -178,6 +178,20 @@
                                                             value="{{ $nasabah->no_ktp ?? '-' }}" readonly>
                                                     </div>
 
+
+                                                    <div class="form-group mb-3">
+                                                        <label for="agama" class="form-label">Agama</label>
+                                                        <input type="text" class="form-control" id="agama"
+                                                            value="{{ $nasabah->agama ?? '-' }}" readonly>
+                                                    </div>
+
+
+                                                    <div class="form-group mb-3">
+                                                        <label for="no_ktp" class="form-label">No NPWP</label>
+                                                        <input type="text" class="form-control" id="no_npwp"
+                                                            value="{{ $nasabah->no_npwp ?? '-' }}" readonly>
+                                                    </div>
+
                                                     <div class="form-group mb-3">
                                                         <label for="jenis_kelamin" class="form-label">Jenis Kelamin</label>
                                                         <input type="text" class="form-control" id="jenis_kelamin"
