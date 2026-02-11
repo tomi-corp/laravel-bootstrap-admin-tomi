@@ -25,6 +25,10 @@ class TenorPinjamanResource extends JsonResource
             'biaya_layanan' => $this->biaya_layanan,
             'minimal_nominal' => $this->minimal_nominal,
             'maximal_nominal' => $this->maximal_nominal,
+
+            'profesional_fee_1' => $this->profesional_fee_1,
+            'profesional_fee_2' => $this->profesional_fee_2,
+            'ksp' => $this->ksp,
         ];
     }
 }

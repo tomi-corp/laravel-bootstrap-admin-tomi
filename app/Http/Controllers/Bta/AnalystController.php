@@ -44,15 +44,18 @@ class AnalystController extends Controller
             ->addIndexColumn()
             ->addColumn('action', function ($row) {
                 return '
-                    <a href="' . route('bta.analyst.review', $row->no_ktp) . '" target="_blank" class="btn btn-warning btn-sm">Review</a>
+                    <a href="' . route('bta.analyst.review', $row->no_ktp) . '" class="btn btn-success btn-sm"><i class="mdi mdi-magnify"></i></a>
                 ';
             })
             ->rawColumns(['action'])
             ->toJson();
     }
 
+
+
     public function analystReview($noktp)
     {
+
         $nasabah = nasabah::where('no_ktp', $noktp)
             ->with([
                 'provinsi',
@@ -62,13 +65,17 @@ class AnalystController extends Controller
                 'bank',
                 'dati'
             ])
+            ->where('position', 'admin')
+            ->where('status', 'pending')
             ->first();
+
+        dd($nasabah);
+
 
         if (!isset($nasabah)) {
             return abort(404);
         }
 
-        // --- Baris baru untuk membuat URL aman ---
         $documents = [
             'ktp' => $nasabah->ktp,
             'npwp' => $nasabah->npwp,
@@ -106,7 +113,7 @@ class AnalystController extends Controller
                 $safeUrls[$key] = null;
             }
         }
-        // --- Selesai ---
+
 
         return view('bta.analyst.review.index', compact('nasabah', 'safeUrls'));
     }
@@ -156,6 +163,7 @@ class AnalystController extends Controller
     public function analystUpdate(UpdateAnalystRequest $request)
     // public function analystUpdate(Request $request)
     {
+
         $nasabah = Nasabah::findOrFail($request->nasabah_id);
 
         // 1. Mapping Status Rekomendasi
@@ -203,27 +211,111 @@ class AnalystController extends Controller
         $nasabah->position = 'analyst';
 
         // 3. Update Status Dokumen (Mapping Field Request -> Database)
-        $nasabah->status_npwp      = $request->status_npwp;
-        $nasabah->note_npwp    = $request->note_npwp;
 
-        $nasabah->status_ktp    = $request->status_ktp;
-        $nasabah->note_ktp      = $request->note_ktp;
+        // KTP
+        $nasabah->status_ktp = $request->status_ktp;
+        if ($request->status_ktp == "approve") {
+            $nasabah->note_ktp = null;
+        } else {
+            $nasabah->note_ktp = $request->note_ktp;
+        }
+
+        // NPWP
+        $nasabah->status_npwp = $request->status_npwp;
+        if ($request->status_npwp == "approve") {
+            $nasabah->note_npwp = null;
+        } else {
+            $nasabah->note_npwp    = $request->note_npwp;
+        }
+
+        // ID CARD
         $nasabah->status_id_card   = $request->status_id_card;
-        $nasabah->note_id_card     = $request->note_id_card;
-        $nasabah->status_kk     = $request->status_kk;
-        $nasabah->note_kk       = $request->note_kk;
-        $nasabah->status_slip_gaji   = $request->status_slip_gaji;
-        $nasabah->note_slip_gaji     = $request->note_slip_gaji;
-        $nasabah->status_sk_karyawan     = $request->status_sk_karyawan;
-        $nasabah->note_sk_karyawan       = $request->note_sk_karyawan;
-        $nasabah->status_mutasi_rekening = $request->status_mutasi_rekening;
-        $nasabah->note_mutasi_rekening   = $request->note_mutasi_rekening;
+        if ($request->status_id_card == "approve") {
+            $nasabah->note_id_card = null;
+        } else {
+            $nasabah->note_id_card = $request->note_id_card;
+        }
 
-        // Field tambahan yang ada di request JSON Anda
-        $nasabah->status_form_slik     = $request->status_form_slik;
-        $nasabah->note_form_slik       = $request->note_form_slik;
-        $nasabah->status_form_bta      = $request->status_form_bta;
-        $nasabah->note_form_bta        = $request->note_form_bta;
+        // KK
+        $nasabah->status_kk = $request->status_kk;
+        if ($request->status_kk == "approve") {
+            $nasabah->note_kk = null;
+        } else {
+            $nasabah->note_kk = $request->note_kk;
+        }
+
+        // SLIP GAJI
+        $nasabah->status_slip_gaji   = $request->status_slip_gaji;
+        if ($request->status_slip_gaji == "approve") {
+            $nasabah->note_slip_gaji = null;
+        } else {
+            $nasabah->note_slip_gaji = $request->note_slip_gaji;
+        }
+
+        // SK KARYAWAN
+        $nasabah->status_sk_karyawan = $request->status_sk_karyawan;
+        if ($request->status_sk_karyawan == "approve") {
+            $nasabah->note_sk_karyawan = null;
+        } else {
+            $nasabah->note_sk_karyawan = $request->note_sk_karyawan;
+        }
+
+        // SLIK
+        $nasabah->status_form_slik = $request->status_form_slik;
+        if ($request->status_form_slik == "approve") {
+            $nasabah->note_form_slik = null;
+        } else {
+            $nasabah->note_form_slik = $request->note_form_slik;
+        }
+
+        // FORM CHECKLIST BTA
+        $nasabah->status_form_bta = $request->status_form_bta;
+        if ($request->status_form_bta == "approve") {
+            $nasabah->note_form_bta = null;
+        } else {
+            $nasabah->note_form_bta = $request->note_form_bta;
+        }
+
+        // MUTASI REKENING
+        $nasabah->status_mutasi_rekening = $request->status_mutasi_rekening;
+        if ($request->status_mutasi_rekening == "approve") {
+            $nasabah->note_mutasi_rekening = null;
+        } else {
+            $nasabah->note_mutasi_rekening = $request->note_mutasi_rekening;
+        }
+
+        // FORM CHECKLIST
+        $nasabah->status_form_checklist = $request->status_form_checklist;
+        if ($request->status_form_checklist == "approve") {
+            $nasabah->note_form_checklist = null;
+        } else {
+            $nasabah->note_form_checklist = $request->note_form_checklist;
+        }
+
+        // BUKU TABUNGAN
+        $nasabah->status_buku_tabungan = $request->status_buku_tabungan;
+        if ($request->status_buku_tabungan == "approve") {
+            $nasabah->note_buku_tabungan = null;
+        } else {
+            $nasabah->note_buku_tabungan = $request->note_buku_tabungan;
+        }
+
+        // FORM KREDIT
+        $nasabah->status_form_kredit = $request->status_form_kredit;
+        if ($request->status_form_kredit == "approve") {
+            $nasabah->note_form_kredit = null;
+        } else {
+            $nasabah->note_form_kredit = $request->note_form_kredit;
+        }
+
+        //  SELFIE
+        $nasabah->status_selfie = $request->status_selfie;
+        if ($request->status_selfie == "approve") {
+            $nasabah->note_selfie = null;
+        } else {
+            $nasabah->note_selfie = $request->note_selfie;
+        }
+
 
         $nasabah->save();
 

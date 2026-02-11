@@ -51,7 +51,7 @@ return new class extends Migration
 
             // Path file (disimpan sebagai string path relatif)
             $table->string('no_ktp');
-            $table->string('no_ktp_pasangan');
+            $table->string('no_ktp_pasangan')->nullable();
 
             $table->string('ktp')->nullable();
             $table->enum('status_ktp', ['pending', 'approve', 'reject'])->default('pending');
@@ -105,6 +105,11 @@ return new class extends Migration
             $table->string('form_checklist')->nullable();
             $table->enum('status_form_checklist', ['pending', 'approve', 'reject'])->default('pending');
             $table->string('note_form_checklist')->nullable();
+
+
+            $table->string('foto_akad_kredit')->nullable();
+            $table->string('pk_tanda_tangan')->nullable();
+
             // Kolom tambahan dari form KTA Multiguna
             $table->string('produk_kredit')->default('KTA Multiguna'); // Default value
             $table->decimal('plafond', 15, 2)->nullable();

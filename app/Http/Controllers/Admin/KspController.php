@@ -584,6 +584,19 @@ class KspController extends Controller
                 return $row->fee_tomi . ' %';
             })
 
+            ->addColumn('profesional_fee_1', function ($row) {
+                return $row->profesional_fee_1 . ' %';
+            })
+
+            ->addColumn('profesional_fee_2', function ($row) {
+                return $row->profesional_fee_2 . ' %';
+            })
+
+            ->addColumn('ksp', function ($row) {
+                return $row->ksp . ' %';
+            })
+
+
 
             ->addColumn('iuran_anggota', function ($row) use ($amount_pinjaman) {
                 return "Rp  " . number_format($row->tenor * $amount_pinjaman->iuran_anggota);
@@ -624,6 +637,10 @@ class KspController extends Controller
         $tenor->biaya_layanan = $req->biaya_layanan;
         $tenor->minimal_nominal = $req->minimal_nominal;
         $tenor->maximal_nominal = $req->maximal_nominal;
+
+        $tenor->profesional_fee_1 = $req->profesional_fee_1;
+        $tenor->profesional_fee_2 = $req->profesional_fee_2;
+        $tenor->ksp = $req->ksp;
         $tenor->save();
         return response()->json([
             'status' => 200,
@@ -661,6 +678,18 @@ class KspController extends Controller
         $tenor->biaya_layanan = $req->biaya_layanan;
         $tenor->minimal_nominal = $req->minimal_nominal;
         $tenor->maximal_nominal = $req->maximal_nominal;
+
+        $perusahaan = ListPerusahaan::where('id', $tenor->id_perusahaan)->first();
+        if ($perusahaan->active_profesional_fee != "active") {
+            $tenor->profesional_fee_1 = 0;
+            $tenor->profesional_fee_2 = 0;
+            $tenor->ksp = 0;
+        } else {
+            $tenor->profesional_fee_1 = $req->profesional_fee_1;
+            $tenor->profesional_fee_2 = $req->profesional_fee_2;
+            $tenor->ksp = $req->ksp;
+        }
+
         $tenor->save();
         return response()->json([
             'status' => 200,

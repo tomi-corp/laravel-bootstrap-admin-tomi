@@ -122,6 +122,26 @@
                             <!-- Credit Administrator -->
                             <div class="tab-pane fade" id="credit-admin">
                                 <p>Konten untuk tahap <strong>Credit Administrator</strong>.</p>
+
+                                <table id="tableCredam"
+                                    class="table dt-responsive table-hover mt-4 text-center justify-center"
+                                    style="width:100%">
+                                    <thead>
+                                        <tr>
+                                            <th data-priority="1">No. KTP</th>
+                                            <th data-priority="1">Nama Lengkap</th>
+                                            <th data-priority="2">Tanggal Lahir</th>
+                                            <th data-priority="3">Jenis Kelamin</th>
+                                            <th data-priority="1">No. Telepon</th>
+                                            <th data-priority="4">Status Perkawinan</th>
+                                            <th data-priority="2">Perusahaan</th>
+                                            <th data-priority="3">Status Pegawai</th>
+                                            <th data-priority="3">Status Credam</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+
+
                             </div>
 
                             <!-- Ditolak -->
@@ -152,7 +172,24 @@
 
                             <!-- Selesai -->
                             <div class="tab-pane fade" id="selesai">
-                                <p>Konten untuk status <strong>Selesai</strong>.</p>
+                                <table id="tableSelesai"
+                                    class="table dt-responsive table-hover mt-4 text-center justify-center"
+                                    style="width:100%">
+                                    <thead>
+                                        <tr>
+                                            <th data-priority="1">No. KTP</th>
+                                            <th data-priority="1">Nama Lengkap</th>
+                                            <th data-priority="2">Tanggal Lahir</th>
+                                            <th data-priority="3">Jenis Kelamin</th>
+                                            <th data-priority="1">No. Telepon</th>
+                                            <th data-priority="4">Status Perkawinan</th>
+                                            <th data-priority="2">Perusahaan</th>
+                                            <th data-priority="3">Status Pegawai</th>
+                                            <th data-priority="3">Status Analyst</th>
+                                            <th data-priority="3">Note Analyst</th>
+                                        </tr>
+                                    </thead>
+                                </table>
                             </div>
                         </div>
                     </div> <!-- end card-box -->
@@ -452,7 +489,7 @@
 
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label>NIP (No Induk Pegawai)</label>
+                                    <label>NIP (No Induk Pegawai) <span class="text-danger">*</span></label>
                                     <input class="form-control" id="nip" placeholder="Opsional" />
                                     <small class="text-danger" id="errNip"></small>
                                 </div>
@@ -1164,7 +1201,8 @@
                                         <i class="mdi mdi-alert"></i> Belum ada file
                                     </div>
                                     <div class="input-group mt-2">
-                                        <button type="button" class="btn btn-outline-warning btn-block btn-replace-file"
+                                        <button type="button"
+                                            class="btn btn-outline-warning btn-block btn-replace-file"
                                             data-field="slip">
                                             <i class="mdi mdi-refresh"></i> Ganti File
                                         </button>
@@ -1313,6 +1351,68 @@
         </div>
     </div>
 
+    {{-- modal upload untuk setuju dari analyst --}}
+
+    <div class="modal fade" id="modalUploadSetujuAnalyst" role="dialog" aria-labelledby="editModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="uploadSetujuModal">Upload Foto Pemohon & PK yang sudah tertanda tangani
+                    </h5>
+
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Foto Pemohon Saat Akad Kredit <small class="text-danger">*</small></label>
+                                <div class="input-group">
+                                    <button type="button" class="btn btn-outline-primary btn-block"
+                                        id="btnUploadFotoAkadKredit">
+                                        <i class="mdi mdi-upload"></i> Pilih Foto Saat Akad Kredit
+                                    </button>
+                                    <input type="file" class="d-none" id="uploadFotoAkadKredit"
+                                        accept=".jpg,.jpeg,.png,.pdf" />
+                                </div>
+                                <small class="text-muted mt-1 d-block">Maks. 5 MB | Format: JPG, PNG, PDF</small>
+                                <small class="text-danger" id="errUploadFotoAkadKredit"></small>
+                                <div class="mt-2 preview-container" id="previewUploadFotoAkadKredit"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>PK Yang Sudah Tertanda Tangani <small class="text-danger">*</small></label>
+                                <div class="input-group">
+                                    <button type="button" class="btn btn-outline-primary btn-block"
+                                        id="btnUploadPkTertandaTangan">
+                                        <i class="mdi mdi-upload"></i> Pilih PK Yang Sudah Tertanda Tangan
+                                    </button>
+                                    <input type="file" class="d-none" id="uploadPkTertandaTangan"
+                                        accept=".jpg,.jpeg,.png,.pdf" />
+                                </div>
+                                <small class="text-muted mt-1 d-block">Maks. 5 MB | Format: JPG, PNG, PDF</small>
+                                <small class="text-danger" id="errUploadPkTertandaTangan"></small>
+                                <div class="mt-2 preview-container" id="previewUploadPkTertandaTangan"></div>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-primary"
+                        id="buttonSubmitUploadAnalystSetuju">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
 @endsection
 @push('js')
@@ -1320,6 +1420,8 @@
         $(document).ready(function() {
             let currentFileStatus = {};
             let filesToReplace = {};
+            let uploadSetujuAnalyst = '';
+
             // Event delegation untuk button "Ganti File"
             $(document).on('click', '.btn-replace-file:not(:disabled)', function() {
                 const field = $(this).data('field');
@@ -1415,6 +1517,122 @@
                 "_token": "{{ csrf_token() }}",
             };
             let editID;
+
+            uploadSetujuiAnalyst = (id) => {
+                uploadSetujuAnalyst = id;
+                $('#modalUploadSetujuAnalyst').modal('show');
+            };
+
+
+            // upload foto akad kredit dan pk yang sudah tertanda tangan
+            $('#buttonSubmitUploadAnalystSetuju').on('click', function() {
+                // Disable button dan tampilkan loading
+                const $button = $(this);
+                $button.prop('disabled', true).html(
+                    '<i class="mdi mdi-loading mdi-spin"></i> Memproses...'
+                );
+
+                // Validasi input file
+                const uploadFotoAkadKredit = $('#uploadFotoAkadKredit')[0].files[0];
+                const uploadPkTertandaTangan = $('#uploadPkTertandaTangan')[0].files[0];
+
+                if (!uploadFotoAkadKredit || !uploadPkTertandaTangan) {
+                    toastr.warning('Harap lengkapi semua dokumen yang diperlukan');
+                    $button.prop('disabled', false).html('Submit');
+                    return;
+                }
+
+                // Validasi format file
+                const allowedFormats = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
+                const maxSize = 5120 * 1024; // 5MB dalam bytes
+
+                if (!allowedFormats.includes(uploadFotoAkadKredit.type) || !allowedFormats.includes(
+                        uploadPkTertandaTangan.type)) {
+                    toastr.error('Format file tidak valid. Gunakan JPG, JPEG, PNG, atau PDF');
+                    $button.prop('disabled', false).html('Submit');
+                    return;
+                }
+
+                if (uploadFotoAkadKredit.size > maxSize || uploadPkTertandaTangan.size > maxSize) {
+                    toastr.error('Ukuran file melebihi batas maksimal 5MB');
+                    $button.prop('disabled', false).html('Submit');
+                    return;
+                }
+
+                // Buat FormData baru
+                const formData = new FormData();
+                formData.append('_token', "{{ csrf_token() }}");
+                formData.append('uploadFotoAkadKredit', uploadFotoAkadKredit);
+                formData.append('uploadPkTertandaTangan', uploadPkTertandaTangan);
+                formData.append('uploadSetujuAnalyst',
+                    uploadSetujuAnalyst); // Pastikan variabel ini sudah didefinisikan
+
+                // AJAX request dengan proper error handling
+                $.ajax({
+                    url: '{!! route('bta.nasabah.upload.setuju') !!}',
+                    type: 'POST',
+                    data: formData,
+                    processData: false, // Penting untuk file upload
+                    contentType: false, // Penting untuk file upload
+                    dataType: 'json',
+                    timeout: 30000, // Timeout 30 detik
+                    success: function(response) {
+
+                        toastr.success(response.message || 'Dokumen berhasil diupload');
+                        $('#modalUploadSetujuAnalyst').modal('hide');
+                        $('#formUploadAnalyst')[0].reset();
+
+                        $button.prop('disabled', false).html('Submit');
+
+                        tableRevisi.ajax.reload();
+                        tableCredam.ajax.reload();
+                        tableDitolak.ajax.reload();
+                        tableAnalyst.ajax.reload();
+                        tableDisetujui.ajax.reload();
+
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Upload error:', {
+                            status: status,
+                            error: error,
+                            response: xhr.responseText
+                        });
+
+                        $button.prop('disabled', false).html('Submit');
+
+                        if (xhr.status === 413) {
+                            toastr.error('File terlalu besar. Maksimal 5MB per file');
+                        } else if (xhr.status === 422) {
+                            // Validasi error dari Laravel
+                            const errors = xhr.responseJSON?.errors;
+                            if (errors) {
+                                let errorMessage = 'Validasi gagal:\n';
+                                $.each(errors, function(key, value) {
+                                    errorMessage += `- ${value[0]}\n`;
+                                });
+                                toastr.error(errorMessage);
+                            } else {
+                                toastr.error('Validasi data gagal');
+                            }
+                        } else if (xhr.status === 500) {
+                            toastr.error('Terjadi kesalahan server. Silakan coba lagi');
+                        } else if (status === 'timeout') {
+                            toastr.error('Request timeout. Silakan coba lagi');
+                        } else {
+                            toastr.error(xhr.responseJSON?.message ||
+                                'Terjadi kesalahan saat upload dokumen');
+                        }
+
+                        $('#modalUploadSetujuAnalyst').modal('hide');
+                    },
+                    complete: function() {
+                        // Optional: cleanup atau logging
+                        console.log('Upload process completed');
+                    }
+                });
+            });
+
+
             // review edit nasabah
             edit = (id) => {
                 editID = id;
@@ -1603,6 +1821,10 @@
                         $('#modalEdit').modal('hide');
                     }
                 });
+            }
+
+            download = (id) => {
+                console.log("donwload");
             }
 
             // Helper: Load wilayah dengan chaining
@@ -2093,7 +2315,7 @@
                 return valid;
             }
 
-            var table = $('#tableRevisi').DataTable({
+            const tableRevisi = $('#tableRevisi').DataTable({
                 dom: 'B<"clear">lfrtip',
                 buttons: [{
                         extend: 'excel',
@@ -2162,7 +2384,73 @@
             });
 
 
-            var table = $('#tableDitolak').DataTable({
+
+            const tableCredam = $('#tableCredam').DataTable({
+                dom: 'B<"clear">lfrtip',
+                buttons: [{
+                        extend: 'excel',
+                        className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
+                        text: '<span class="mdi mdi-file-excel"><span class="pl-1">Excel</span></span>',
+                        exportOptions: {
+                            columns: [0, 1, 2, 3, 4, 5, 6,
+                                7
+                            ] // Hanya kolom data (tanpa Action)
+                        }
+                    },
+                    {
+                        extend: 'copy',
+                        className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
+                        text: '<span class="mdi mdi-content-copy"><span class="pl-1">Copy</span></span>',
+                        exportOptions: {
+                            columns: [0, 1, 2, 3, 4, 5, 6, 7]
+                        }
+                    },
+                    {
+                        extend: 'print',
+                        className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
+                        text: '<span class="mdi mdi-printer"><span class="pl-1">Print</span></span>',
+                        exportOptions: {
+                            columns: [0, 1, 2, 3, 4, 5, 6, 7]
+                        }
+                    }
+                ],
+                "lengthMenu": [10, 50, 100, 500, 1000],
+                processing: true,
+                responsive: true,
+                serverSide: true,
+                language: {
+                    processing: '<i class="dripicons-loading">autorenew</i>'
+                },
+                ajax: {
+                    "type": "POST",
+                    "url": '{!! route('bta.admin.nasabah.credam.table') !!}',
+                    "data": function(d) {
+                        return $.extend({}, d, dataTable);
+                    },
+                },
+                columns: [{
+                    data: 'no_ktp'
+                }, {
+                    data: 'nama_lengkap'
+                }, {
+                    data: 'tanggal_lahir'
+                }, {
+                    data: 'jenis_kelamin'
+                }, {
+                    data: 'no_telp'
+                }, {
+                    data: 'status_perkawinan'
+                }, {
+                    data: 'nama_perusahaan'
+                }, {
+                    data: 'status_pegawai'
+                }, {
+                    data: 'status'
+                }]
+            });
+
+
+            const tableDitolak = $('#tableDitolak').DataTable({
                 dom: 'B<"clear">lfrtip',
                 buttons: [{
                         extend: 'excel',
@@ -2228,7 +2516,74 @@
                 }, ]
             });
 
-            var table = $('#tableAnalyst').DataTable({
+
+            const tableSelesai = $('#tableSelesai').DataTable({
+                dom: 'B<"clear">lfrtip',
+                buttons: [{
+                        extend: 'excel',
+                        className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
+                        text: '<span class="mdi mdi-file-excel"><span class="pl-1">Excel</span></span>',
+                        exportOptions: {
+                            columns: [0, 1, 2, 3, 4, 5, 6,
+                                7
+                            ] // Hanya kolom data (tanpa Action)
+                        }
+                    },
+                    {
+                        extend: 'copy',
+                        className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
+                        text: '<span class="mdi mdi-content-copy"><span class="pl-1">Copy</span></span>',
+                        exportOptions: {
+                            columns: [0, 1, 2, 3, 4, 5, 6, 7]
+                        }
+                    },
+                    {
+                        extend: 'print',
+                        className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
+                        text: '<span class="mdi mdi-printer"><span class="pl-1">Print</span></span>',
+                        exportOptions: {
+                            columns: [0, 1, 2, 3, 4, 5, 6, 7]
+                        }
+                    }
+                ],
+                "lengthMenu": [10, 50, 100, 500, 1000],
+                processing: true,
+                responsive: true,
+                serverSide: true,
+                language: {
+                    processing: '<i class="dripicons-loading">autorenew</i>'
+                },
+                ajax: {
+                    "type": "POST",
+                    "url": '{!! route('bta.admin.nasabah.selesai.table') !!}',
+                    "data": function(d) {
+                        return $.extend({}, d, dataTable);
+                    },
+                },
+                columns: [{
+                    data: 'no_ktp'
+                }, {
+                    data: 'nama_lengkap'
+                }, {
+                    data: 'tanggal_lahir'
+                }, {
+                    data: 'jenis_kelamin'
+                }, {
+                    data: 'no_telp'
+                }, {
+                    data: 'status_perkawinan'
+                }, {
+                    data: 'nama_perusahaan'
+                }, {
+                    data: 'status_pegawai'
+                }, {
+                    data: 'status'
+                }, {
+                    data: 'catatan_analyst'
+                }, ]
+            });
+
+            const tableAnalyst = $('#tableAnalyst').DataTable({
                 dom: 'B<"clear">lfrtip',
                 buttons: [{
                         extend: 'excel',
@@ -2298,7 +2653,7 @@
                 ]
             });
 
-            var table = $('#tableAnalystSetuju').DataTable({
+            const tableDisetujui = $('#tableAnalystSetuju').DataTable({
                 dom: 'B<"clear">lfrtip',
                 buttons: [{
                         extend: 'excel',
@@ -2384,7 +2739,8 @@
                 'btnUploadKtp', 'btnUploadNpwp', 'btnUploadSelfie', 'btnUploadKk',
                 'btnUploadIdCard', 'btnUploadSk', 'btnUploadSlip',
                 'btnUploadBukuTabungan', 'btnUploadMutasi',
-                'btnUploadSlik', 'btnUploadKredit', 'btnUploadBta', 'btnUploadChecklist'
+                'btnUploadSlik', 'btnUploadKredit', 'btnUploadBta', 'btnUploadChecklist',
+                'btnUploadFotoAkadKredit', 'btnUploadPkTertandaTangan'
             ];
 
             uploadButtons.forEach(btnId => {
@@ -2785,7 +3141,8 @@
                 'uploadKtp', 'uploadNpwp', 'uploadSelfie', 'uploadKk',
                 'uploadIdCard', 'uploadSk', 'uploadSlip',
                 'uploadBukuTabungan', 'uploadMutasi',
-                'uploadSlik', 'uploadKredit', 'uploadBta', 'uploadChecklist'
+                'uploadSlik', 'uploadKredit', 'uploadBta', 'uploadChecklist',
+                'uploadFotoAkadKredit', 'uploadPkTertandaTangan'
             ];
 
             fileInputs.forEach(id => {
@@ -2810,6 +3167,7 @@
                 // Validasi No. KTP: hanya angka, 16 digit
                 const noKtp = $('#noKtp').val();
                 if (noKtp && (!/^\d{16}$/.test(noKtp))) {
+                    toastr.info('No. KTP harus 16 digit angka');
                     $('#errNoKtp').text('No. KTP harus 16 digit angka');
                     valid = false;
                 }
@@ -3035,8 +3393,12 @@
                         //     'Data nasabah berhasil disimpan.', 'success');
                         toastr.success(response.message)
                         $('#modalAdd').modal('hide');
-                        $('#tableListNasabah').DataTable().ajax
-                            .reload(); // reload tabel jika pakai DataTable
+                        tableRevisi.ajax.reload();
+                        tableCredam.ajax.reload();
+                        tableDitolak.ajax.reload();
+                        tableAnalyst.ajax.reload();
+                        tableDisetujui.ajax.reload();
+                        tableSelesai.ajax.reload();
                         resetForm();
                     },
                     error: function(xhr) {

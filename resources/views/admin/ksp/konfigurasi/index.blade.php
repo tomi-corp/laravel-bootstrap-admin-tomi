@@ -76,6 +76,9 @@
                                 <th>Provisi</th>
                                 <th>Biaya Admin</th>
                                 <th>Fee Tomi</th>
+                                <th>Profesional Fee 1</th>
+                                <th>Profesional Fee 2</th>
+                                <th>KSP</th>
                                 <th>Iuran Anggota</th>
                                 <th>Biaya Layanan</th>
                                 <th>Minimal Nominal</th>
@@ -141,10 +144,41 @@
                     </div>
 
 
+                    @if ($list_perusahaan->active_profesional_fee == 'active')
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Profesional Fee 1</label>
+                                    <input type="number" step="0.01" class="form-control hitung-admin"
+                                        id="profesional_fee_1" placeholder="0.00">
+                                </div>
+                                <small class="text-danger" id="errProfesional_fee_1"></small>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Profesional Fee 2</label>
+                                    <input type="number" step="0.01" class="form-control hitung-admin"
+                                        id="profesional_fee_2" placeholder="0.00">
+                                </div>
+                                <small class="text-danger" id="errProfesional_fee_2"></small>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>KSP</label>
+                                    <input type="number" step="0.01" class="form-control hitung-admin"
+                                        id="ksp" placeholder="0.00">
+                                </div>
+                                <small class="text-danger" id="errKsp"></small>
+                            </div>
+                        </div>
+                    @endif
+
                     <div class="form-group">
                         <label>Biaya Admin</label>
-                        <div class="input-group"> <input class="form-control" id="biayaadmin" placeholder="Biaya Admin"
-                                type="number">
+                        <div class="input-group">
+                            <input class="form-control" id="biayaadmin" placeholder="Biaya Admin" type="number"
+                                step="0.01"
+                                {{ $list_perusahaan->active_profesional_fee == 'active' ? 'readonly' : '' }}>
                             <span class="input-group-text">%</span>
                         </div>
                         <small class="text-danger" id="errBiayaAdmin"></small>
@@ -234,6 +268,49 @@
                         <small class="text-danger" id="errRateEdit"></small>
                     </div>
 
+
+                    @if ($list_perusahaan->active_profesional_fee == 'active')
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Profesional Fee 1</label>
+                                    <input type="number" step="0.01" class="form-control hitung-adminEdit"
+                                        id="profesional_fee_1Edit" placeholder="0.00">
+                                </div>
+                                <small class="text-danger" id="errEditProfesional_fee_1Edit"></small>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Profesional Fee 2</label>
+                                    <input type="number" step="0.01" class="form-control hitung-adminEdit"
+                                        id="profesional_fee_2Edit" placeholder="0.00">
+                                </div>
+                                <small class="text-danger" id="errEditProfesional_fee_2Edit"></small>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>KSP</label>
+                                    <input type="number" step="0.01" class="form-control hitung-adminEdit"
+                                        id="kspEdit" placeholder="0.00">
+                                </div>
+                                <small class="text-danger" id="errKspEdit"></small>
+                            </div>
+                        </div>
+                    @endif
+
+                    <div class="form-group">
+                        <label>Biaya Admin</label>
+                        <div class="input-group">
+                            <input class="form-control" id="biayaadminEdit" placeholder="Biaya Admin" type="number"
+                                step="0.01"
+                                {{ $list_perusahaan->active_profesional_fee == 'active' ? 'readonly' : '' }}>
+                            <span class="input-group-text">%</span>
+                        </div>
+                        <small class="text-danger" id="errBiayaAdminEdit"></small>
+                    </div>
+
+
+
                     <div class="form-group">
                         <label>Biaya Asuransi</label>
                         <div class="input-group"> <input class="form-control" id="asuransiEdit"
@@ -250,16 +327,6 @@
                             <span class="input-group-text">%</span>
                         </div>
                         <small class="text-danger" id="errProvisiEdit"></small>
-                    </div>
-
-
-                    <div class="form-group">
-                        <label>Biaya Admin</label>
-                        <div class="input-group"> <input class="form-control" id="biayaadminEdit"
-                                placeholder="Biaya Admin" type="number">
-                            <span class="input-group-text">%</span>
-                        </div>
-                        <small class="text-danger" id="errBiayaAdminEdit"></small>
                     </div>
 
                     <div class="form-group">
@@ -415,6 +482,12 @@
             }, {
                 data: 'fee_tomi'
             }, {
+                data: 'profesional_fee_1'
+            }, {
+                data: 'profesional_fee_2'
+            }, {
+                data: 'ksp'
+            }, {
                 data: 'iuran_anggota'
             }, {
                 data: 'biaya_layanan'
@@ -465,6 +538,10 @@
                     $('#provisiEdit').val(data.provisi);
                     $('#biayaadminEdit').val(data.biaya_admin);
                     $('#feeTomiEdit').val(data.fee_tomi);
+
+                    $('#profesional_fee_1Edit').val(data.profesional_fee_1);
+                    $('#profesional_fee_2Edit').val(data.profesional_fee_2);
+                    $('#kspEdit').val(data.ksp);
                     // $('#iurananggotaEdit').val(data.iuran_anggota); // Input ini tidak ada di HTML modal, jadi saya komentari.
 
                     // 2. Input Rupiah (Biaya Layanan, Minimal, Maximal Nominal)
@@ -523,6 +600,10 @@
             var provisi = $("#provisi").val();
             var biayaAdmin = $("#biayaadmin").val();
             var feeTomi = $("#feeTomi").val();
+            // fee
+            var profesional_fee_1 = $("#profesional_fee_1").val();
+            var profesional_fee_2 = $("#profesional_fee_2").val();
+            var ksp = $("#ksp").val();
 
             var biayaLayananRaw = $('#biayalayanan').attr('data-original-value');
             var minimalNominalRaw = $('#minimalNominalTenor').attr('data-original-value');
@@ -545,6 +626,10 @@
                     'provisi': provisi, // Nilai integer/angka
                     'biaya_admin': biayaAdmin, // Nilai integer/angka
                     'fee_tomi': feeTomi, // Nilai integer/angka
+                    // 
+                    'profesional_fee_1': profesional_fee_1,
+                    'profesional_fee_2': profesional_fee_2,
+                    'ksp': ksp,
 
                     // Kirim nilai Rupiah dalam format integer mentah (tanpa titik)
                     'biaya_layanan': biayaLayanan,
@@ -566,6 +651,10 @@
                     $('#errBiayaLayanan').text(''); // Perbaikan ID: errBiayaLayanan
                     $('#errMinimalNominalTenor').text('');
                     $('#errMaximalNominalTenor').text('');
+
+                    $('#errProfesional_fee_1').text('');
+                    $('#errProfesional_fee_2').text('');
+                    $('#errKsp').text('');
                 },
                 success: function(saveConfig) {
                     toastr.success(saveConfig.message)
@@ -617,6 +706,11 @@
             var biayaAdmin = $("#biayaadminEdit").val();
             var feeTomi = $("#feeTomiEdit").val();
 
+
+            var profesional_fee_1 = $("#profesional_fee_1Edit").val();
+            var profesional_fee_2 = $("#profesional_fee_2Edit").val();
+            var ksp = $("#kspEdit").val();
+
             // 3. Ambil nilai Rupiah RAW INTEGER dari data-original-value
             var biayaLayananRaw = $('#biayalayananEdit').attr('data-original-value');
             var minimalNominalRaw = $('#minimalNominalTenorEdit').attr('data-original-value');
@@ -643,6 +737,11 @@
                     'biaya_layanan': biayaLayanan,
                     'minimal_nominal': minimalNominal,
                     'maximal_nominal': maximalNominal,
+
+                    'profesional_fee_1': profesional_fee_1,
+                    'profesional_fee_2': profesional_fee_2,
+                    'ksp': ksp,
+
                 },
                 type: 'POST',
                 dataType: 'json',
@@ -659,6 +758,12 @@
                     $('#errBiayaLayananEdit').text('');
                     $('#errMinimalNominalTenorEdit').text('');
                     $('#errMaximalNominalTenorEdit').text('');
+
+                    $('#errEditProfesional_fee_1').text('');
+                    $('#errEditProfesional_fee_2').text('');
+                    $('#errKsp').text('');
+
+
                 },
                 success: function(saveConfig) {
                     toastr.success(saveConfig.message)
@@ -676,6 +781,12 @@
                     $('#errMinimalNominalTenorEdit').text('');
                     $('#errMaximalNominalTenorEdit').text('');
 
+
+                    $('#errEditProfesional_fee_1').text('');
+                    $('#errEditProfesional_fee_2').text('');
+                    $('#errKsp').text('');
+
+
                     $('#buttonSubmitEdit').attr("disabled", false);
                     $('#loadingTextEdit').removeClass("spinner-border");
                 },
@@ -690,6 +801,12 @@
                     $('#errBiayaLayananEdit').text(saveConfig.responseJSON.errors.biaya_layanan);
                     $('#errMinimalNominalTenorEdit').text(saveConfig.responseJSON.errors.minimal_nominal);
                     $('#errMaximalNominalTenorEdit').text(saveConfig.responseJSON.errors.maximal_nominal);
+
+                    $('#errEditProfesional_fee_1').text(saveConfig.responseJSON.errors.profesional_fee_1);
+                    $('#errEditProfesional_fee_2').text(saveConfig.responseJSON.errors
+                        .profesional_fee_2);
+                    $('#errKsp').text(saveConfig.responseJSON.errors.ksp);
+
                     $('#buttonSubmitEdit').attr("disabled", false);
                     $('#loadingTextEdit').removeClass("spinner-border");
                 }
@@ -782,6 +899,26 @@
             var input = $(this).val();
             var rawValue = input.replace(/[^0-9]/g, '');
             $(this).val(formatRupiah(rawValue));
+        });
+
+        $('.hitung-admin').on('input', function() {
+            let fee1 = parseFloat($('#profesional_fee_1').val()) || 0;
+            let fee2 = parseFloat($('#profesional_fee_2').val()) || 0;
+            let ksp = parseFloat($('#ksp').val()) || 0;
+
+            let total = fee1 + fee2 + ksp;
+
+            $('#biayaadmin').val(total.toFixed(2));
+        });
+
+
+        $('.hitung-adminEdit').on('input', function() {
+            let fee1 = parseFloat($('#profesional_fee_1Edit').val()) || 0;
+            let fee2 = parseFloat($('#errEditProfesional_fee_2').val()) || 0;
+            let ksp = parseFloat($('#kspEdit').val()) || 0;
+            let total = fee1 + fee2 + ksp;
+
+            $('#biayaadminEdit').val(total.toFixed(2));
         });
     </script>
 @endpush

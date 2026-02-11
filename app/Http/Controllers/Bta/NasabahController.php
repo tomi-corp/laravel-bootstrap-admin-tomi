@@ -10,9 +10,11 @@ use App\Models\kelurahan;
 use App\Models\kota;
 use App\Models\nasabah;
 use App\Models\provinsi;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Str;
+use PhpParser\Node\Expr\FuncCall;
 use Yajra\DataTables\Facades\DataTables;
 
 class NasabahController extends Controller
@@ -143,7 +145,12 @@ class NasabahController extends Controller
             //     ';
             // })
             ->addColumn('action', function ($row) {
-                return '<button class="btn btn-sm btn-primary mr-2" onclick="edit(' . $row->id . ')"><i class="mdi mdi-pencil"></i> </button>';
+                return '
+                <div class="d-flex justify-content-between align-items-center">
+                <button class="btn btn-sm btn-info mr-2" onclick="download(' . $row->id . ')"><i class="mdi mdi-download"></i> </button>
+                <button class="btn btn-sm btn-primary mr-2" onclick="uploadSetujuiAnalyst(' . $row->id . ')"><i class="mdi mdi-pencil"></i> </button>
+                </div>';
+                // return '<button class="btn btn-sm btn-primary mr-2" onclick="edit(' . $row->id . ')"><i class="mdi mdi-pencil"></i> </button>';
             })
 
             ->toJson();
@@ -168,6 +175,56 @@ class NasabahController extends Controller
         ])
             ->where('position', 'analyst')
             ->where('status', 'reject')
+            ->get();
+
+        return DataTables::of($nasabah)
+            ->addIndexColumn()
+            ->toJson();
+    }
+
+    public function selesaiTable()
+    {
+        $nasabah = nasabah::select([
+            'id',
+            'no_ktp',              // pastikan kolom ini ada di DB
+            'nama_lengkap',
+            'tanggal_lahir',
+            'jenis_kelamin',
+            'no_telp',
+            'status_perkawinan',
+            'nama_perusahaan',
+            'status_pegawai',
+            'status',
+            'catatan_analyst',
+            // tambahkan kolom lain jika perlu
+        ])
+            ->where('position', 'credam')
+            ->where('status', 'approve')
+            ->get();
+
+        return DataTables::of($nasabah)
+            ->addIndexColumn()
+            ->toJson();
+    }
+
+    public function credamTable()
+    {
+        $nasabah = nasabah::select([
+            'id',
+            'no_ktp',              // pastikan kolom ini ada di DB
+            'nama_lengkap',
+            'tanggal_lahir',
+            'jenis_kelamin',
+            'no_telp',
+            'status_perkawinan',
+            'nama_perusahaan',
+            'status_pegawai',
+            'status',
+            'catatan_analyst',
+            // tambahkan kolom lain jika perlu
+        ])
+            ->where('position', 'credam')
+            ->where('status', 'pending')
             ->get();
 
         return DataTables::of($nasabah)
@@ -404,6 +461,80 @@ class NasabahController extends Controller
 
         return response()->json([
             'message' => 'Data nasabah berhasil disimpan.'
+        ]);
+    }
+
+
+    public function downloadPdf(Request $request)
+    {
+        $data = [
+            'nomor' => $request->nomor ?? '001',
+            'bulan' => $request->bulan ?? date('m'),
+            'tahun' => $request->tahun ?? date('Y'),
+            'nomor_rekening' => $request->nomor_rekening ?? '1234567890',
+
+            'debitur_nama' => $request->debitur_nama ?? 'MUHAMMAD HIMAWAN ARDIANSYAH',
+            'debitur_alamat' => $request->debitur_alamat ?? 'KP. PIPITAN RT 008/002 PIPITAN WALANTAKA KOTA SERANG',
+            'debitur_ktp' => $request->debitur_ktp ?? '3604100405950714',
+
+            'jumlah_pinjaman' => $request->jumlah_pinjaman ?? 50000000,
+            'jumlah_pinjaman_terbilang' => $request->jumlah_pinjaman_terbilang ?? 'LIMA PULUH JUTA RUPIAH',
+            'bunga' => $request->bunga ?? '12',
+            'jangka_waktu' => $request->jangka_waktu ?? '24',
+            'angsuran' => $request->angsuran ?? 2500000,
+            'angsuran_terbilang' => $request->angsuran_terbilang ?? 'DUA JUTA LIMA RATUS RIBU RUPIAH',
+            'tujuan_penggunaan' => $request->tujuan_penggunaan ?? 'Konsumtif',
+
+            'jaminan_1' => $request->jaminan_1 ?? 'BPKB Kendaraan Bermotor',
+            'jaminan_2' => $request->jaminan_2 ?? 'Sertifikat Tanah',
+            'jaminan_3' => $request->jaminan_3 ?? '',
+            'jaminan_4' => $request->jaminan_4 ?? '',
+
+            'tempat_ttd' => $request->tempat_ttd ?? 'Bandung',
+            'tanggal_ttd' => $request->tanggal_ttd ?? now(),
+        ];
+
+
+        $pdf = Pdf::loadView('bta.pdf.perjanjian-kredit', $data)
+            ->setPaper('a4', 'portrait')
+            ->setOption('margin-top', 25.4)   // 2.54 cm
+            ->setOption('margin-bottom', 25.4) // 2.54 cm
+            ->setOption('margin-left', 25.4)   // 2.54 cm
+            ->setOption('margin-right', 25.4)  // 2.54 cm
+            ->setOption('dpi', 300)
+            ->setOption('isHtml5ParserEnabled', true)
+            ->setOption('isFontSubsettingEnabled', true)
+            ->setOption('isRemoteEnabled', true)
+            ->setOption('isJavascriptEnabled', false);
+
+        return $pdf->stream('PERJANJIAN_KREDIT_BTA_' . now()->format('YmdHis') . '.pdf');
+    }
+
+
+    public function nasabahUploadSetuju(Request $req)
+    {
+        $nasabah = nasabah::where('id', $req->uploadSetujuAnalyst)->first();
+        $tglInput = now()->format('Ymd');
+        $namaLengkapSanitized = Str::slug($req->nama_lengkap, '_');
+        $randomNumber = rand(1000, 9999);
+
+        $fileUploadKredit = $req->file('uploadFotoAkadKredit');
+        $extension = $fileUploadKredit->getClientOriginalExtension();
+        $fileNameAkadKredit = "{$tglInput}_{$namaLengkapSanitized}_{$randomNumber}_foto_akad_kredit.{$extension}";
+        $fileUploadKredit->storeAs('bta', $fileNameAkadKredit);
+        $nasabah->foto_akad_kredit = $fileNameAkadKredit;
+
+        $fileTandaTangan = $req->file('uploadPkTertandaTangan');
+        $extensionTandaTangan = $fileTandaTangan->getClientOriginalExtension();
+        $fileNameTandaTangan = "{$tglInput}_{$namaLengkapSanitized}_{$randomNumber}_tanda_tangan_pk.{$extensionTandaTangan}";
+        $fileTandaTangan->storeAs('bta', $fileNameTandaTangan);
+        $nasabah->pk_tanda_tangan = $fileNameTandaTangan;
+
+        $nasabah->position = 'credam';
+        $nasabah->status = 'pending';
+        $nasabah->save();
+        return response()->json([
+            'message' => 'Tanda tangan PK & Foto Akad Berhasil di Upload!'
         ]);
     }
 }

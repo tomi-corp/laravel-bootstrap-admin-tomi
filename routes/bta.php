@@ -12,15 +12,22 @@ Route::get('/login', [AuthController::class, 'login'])->name('bta.login');
 Route::post('/login', [AuthController::class, 'actionLogin'])->name('bta.login.action');
 Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('bta.dashboard.index');
 
+Route::post('/logout', [AuthController::class, 'logout'])->name('bta.logout');
+
 // nasabah
 Route::get('/nasabah', [NasabahController::class, 'nasabahIndex'])->name('bta.nasabah.index');
+Route::get('/nasabah/download/pdf', [NasabahController::class, 'downloadPdf']);
 Route::post('/nasabah/edit', [NasabahController::class, 'nasabahDetail'])->name('bta.nasabah.detail');
 Route::post('/nasabah/insert', [NasabahController::class, 'nasabahInsert'])->name('bta.nasabah.insert');
+Route::post('/nasabah/analyst/setuju/upload', [NasabahController::class, 'nasabahUploadSetuju'])->name('bta.nasabah.upload.setuju');
 Route::post('/nasabah/update', [NasabahController::class, 'nasabahUpdate'])->name('bta.nasabah.update');
 Route::post('/nasabah/admin/analyst/table', [NasabahController::class, 'analystTable'])->name('bta.admin.nasabah.analyst.table');
 Route::post('/nasabah/admin/revisi/table', [NasabahController::class, 'revisiTable'])->name('bta.admin.nasabah.revisi.table');
 Route::post('/nasabah/admin/disetujui/table', [NasabahController::class, 'disetujuiTable'])->name('bta.admin.nasabah.disetujui.table');
 Route::post('/nasabah/admin/ditolak/table', [NasabahController::class, 'ditolakTable'])->name('bta.admin.nasabah.ditolak.table');
+Route::post('/nasabah/admin/credam/table', [NasabahController::class, 'credamTable'])->name('bta.admin.nasabah.credam.table');
+Route::post('/nasabah/admin/selesai/table', [NasabahController::class, 'selesaiTable'])->name('bta.admin.nasabah.selesai.table');
+
 
 
 Route::get('/secure-file/{token}', [AnalystController::class, 'downloadFile'])
@@ -31,6 +38,11 @@ Route::post('/analyst/table', [AnalystController::class, 'analystTable'])->name(
 Route::get('/analyst/action/review/{noktp}', [AnalystController::class, 'analystReview'])->name('bta.analyst.review');
 Route::post('/analyst/action/submit/{noktp}', [AnalystController::class, 'analystUpdate'])->name('bta.analyst.update');
 Route::get('/credam', [CredamController::class, 'credamIndex'])->name('bta.credam.index');
+Route::post('/credam/table', [CredamController::class, 'credamTable'])->name('bta.credam.table');
+Route::get('/credam/review/{noktp}', [CredamController::class, 'credamReview'])->name('bta.credam.review');
+Route::post('/credam/approve', [CredamController::class, 'credamApprove'])->name('bta.credam.approve');
+
+
 
 // provinsi
 Route::post('/provinsi', [WilayahController::class, 'provinsi'])->name('bta.wilayah.provinsi');

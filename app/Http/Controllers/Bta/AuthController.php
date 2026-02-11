@@ -26,4 +26,10 @@ class AuthController extends Controller
             return redirect()->route('bta.login');
         }
     }
+
+    public function logout()
+    {
+        auth('bta')->logout();
+        return redirect()->route('bta.login');
+    }
 }

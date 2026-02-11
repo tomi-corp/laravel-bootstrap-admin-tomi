@@ -494,19 +494,19 @@
                                                 <!-- Dokumen Loop -->
                                                 <!-- Di dalam loop dokumen Anda -->
                                                 @foreach ([
-            ['field' => 'ktp', 'label' => 'Foto KTP Pemohon'], ///dsasads
-            ['field' => 'npwp', 'label' => 'Foto NPWP Pemohon'],
+            ['field' => 'ktp', 'label' => 'KTP Pemohon'], ///dsasads
+            ['field' => 'npwp', 'label' => 'NPWP Pemohon'],
             ['field' => 'id_card', 'label' => 'ID Card'],
-            ['field' => 'kk', 'label' => 'Foto Kartu Keluarga'],
+            ['field' => 'kk', 'label' => 'Kartu Keluarga'],
             ['field' => 'selfie', 'label' => 'Selfie'],
-            ['field' => 'slip_gaji', 'label' => 'Foto Slip Gaji'],
-            ['field' => 'sk_karyawan', 'label' => 'Foto SK Karyawan'],
-            ['field' => 'form_slik', 'label' => 'Foto Permohonan SLIK'],
-            ['field' => 'form_kredit', 'label' => 'Foto Formulir Kredit'],
-            ['field' => 'buku_tabungan', 'label' => 'Foto Buku Tabungan'],
-            ['field' => 'form_checklist', 'label' => 'Foto Dokumen Checklist'],
-            ['field' => 'form_bta', 'label' => 'Foto Pembukaan Rekening BTA'],
-            ['field' => 'mutasi_rekening', 'label' => 'Foto Mutasi Rekening'],
+            ['field' => 'slip_gaji', 'label' => 'Slip Gaji'],
+            ['field' => 'sk_karyawan', 'label' => 'SK Karyawan'],
+            ['field' => 'form_slik', 'label' => 'Permohonan SLIK'],
+            ['field' => 'form_kredit', 'label' => 'Formulir Kredit'],
+            ['field' => 'buku_tabungan', 'label' => 'Buku Tabungan'],
+            ['field' => 'form_checklist', 'label' => 'Dokumen Checklist'],
+            ['field' => 'form_bta', 'label' => 'Pembukaan Rekening BTA'],
+            ['field' => 'mutasi_rekening', 'label' => 'Mutasi Rekening'],
         ] as $doc)
                                                     @php
                                                         $filePath = $nasabah->{$doc['field']};
@@ -887,10 +887,10 @@
                         toastr.success(response.message);
                         console.log(response);
                         // Redirect setelah toastr
-                        setTimeout(function() {
-                            window.location.href =
-                                '/bta/analyst';
-                        }, 2000);
+                        // setTimeout(function() {
+                        //     window.location.href =
+                        //         '/bta/analyst';
+                        // }, 2000);
                     },
                     error: function(xhr, status, error) {
                         console.error("Error:", xhr.responseText);
