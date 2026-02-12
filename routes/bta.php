@@ -8,7 +8,7 @@ use App\Http\Controllers\Bta\NasabahController;
 use App\Http\Controllers\Bta\WilayahController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['BtaMiddleware'])->group(
+Route::middleware(['BtaGuestMiddleware'])->group(
     function () {
         Route::get('/login', [AuthController::class, 'login'])->name('bta.login');
         Route::post('/login', [AuthController::class, 'actionLogin'])->name('bta.login.action');

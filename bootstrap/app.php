@@ -57,6 +57,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'CenterFileMiddleware' => \App\Http\Middleware\CenterFileMiddleware::class,
             'TwoFactorMiddleware' =>  \App\Http\Middleware\TwoFactorMiddleware::class,
             'BtaMiddleware' =>  \App\Http\Middleware\BtaMiddleware::class,
+            'BtaGuestMiddleware' =>  \App\Http\Middleware\BtaGuestMiddleware::class,
             'Cors' => \App\Http\Middleware\CorsMiddleware::class,
         ]);
         $middleware->validateCsrfTokens(except: [
