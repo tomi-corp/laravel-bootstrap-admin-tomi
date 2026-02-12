@@ -16,7 +16,8 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('bta.logout');
 
 // nasabah
 Route::get('/nasabah', [NasabahController::class, 'nasabahIndex'])->name('bta.nasabah.index');
-Route::get('/nasabah/download/pdf', [NasabahController::class, 'downloadPdf']);
+// Route::get('/nasabah/download/pdf', [NasabahController::class, 'downloadPdf']);
+Route::post('/nasabah/download/pdf', [NasabahController::class, 'downloadPdf'])->name('bta.nasabah.pk.download');
 Route::post('/nasabah/edit', [NasabahController::class, 'nasabahDetail'])->name('bta.nasabah.detail');
 Route::post('/nasabah/insert', [NasabahController::class, 'nasabahInsert'])->name('bta.nasabah.insert');
 Route::post('/nasabah/analyst/setuju/upload', [NasabahController::class, 'nasabahUploadSetuju'])->name('bta.nasabah.upload.setuju');
@@ -36,7 +37,7 @@ Route::get('/secure-file/{token}', [AnalystController::class, 'downloadFile'])
 Route::get('/analyst', [AnalystController::class, 'analystIndex'])->name('bta.analyst.index');
 Route::post('/analyst/table', [AnalystController::class, 'analystTable'])->name('bta.analyst.table');
 Route::get('/analyst/action/review/{noktp}', [AnalystController::class, 'analystReview'])->name('bta.analyst.review');
-Route::post('/analyst/action/submit/{noktp}', [AnalystController::class, 'analystUpdate'])->name('bta.analyst.update');
+Route::post('/analyst/action/submit/{id}', [AnalystController::class, 'analystUpdate'])->name('bta.analyst.update');
 Route::get('/credam', [CredamController::class, 'credamIndex'])->name('bta.credam.index');
 Route::post('/credam/table', [CredamController::class, 'credamTable'])->name('bta.credam.table');
 Route::get('/credam/review/{noktp}', [CredamController::class, 'credamReview'])->name('bta.credam.review');

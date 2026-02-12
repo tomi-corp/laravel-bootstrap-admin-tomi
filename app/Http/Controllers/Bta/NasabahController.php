@@ -11,6 +11,7 @@ use App\Models\kota;
 use App\Models\nasabah;
 use App\Models\provinsi;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Str;
@@ -19,6 +20,32 @@ use Yajra\DataTables\Facades\DataTables;
 
 class NasabahController extends Controller
 {
+
+    private function terbilang($nilai)
+    {
+        $nilai = abs($nilai);
+        $huruf = array("", "Satu", "Dua", "Tiga", "Empat", "Lima", "Enam", "Tujuh", "Delapan", "Sembilan", "Sepuluh", "Sebelas");
+        $temp = "";
+        if ($nilai < 12) {
+            $temp = " " . $huruf[$nilai];
+        } else if ($nilai < 20) {
+            $temp = $this->terbilang($nilai - 10) . " Belas";
+        } else if ($nilai < 100) {
+            $temp = $this->terbilang($nilai / 10) . " Puluh" . $this->terbilang($nilai % 10);
+        } else if ($nilai < 200) {
+            $temp = " Seratus" . $this->terbilang($nilai - 100);
+        } else if ($nilai < 1000) {
+            $temp = $this->terbilang($nilai / 100) . " Ratus" . $this->terbilang($nilai % 100);
+        } else if ($nilai < 2000) {
+            $temp = " Seribu" . $this->terbilang($nilai - 1000);
+        } else if ($nilai < 1000000) {
+            $temp = $this->terbilang($nilai / 1000) . " Ribu" . $this->terbilang($nilai % 1000);
+        } else if ($nilai < 1000000000) {
+            $temp = $this->terbilang($nilai / 1000000) . " Juta" . $this->terbilang($nilai % 1000000);
+        }
+        return trim($temp);
+    }
+
     public function nasabahIndex()
     {
         return view('bta.nasabah.index');
@@ -465,49 +492,102 @@ class NasabahController extends Controller
     }
 
 
-    public function downloadPdf(Request $request)
+    // public function downloadPdf(Request $request)
+    // {
+    //     $data = [
+    //         'nomor' => $request->nomor ?? '001',
+    //         'bulan' => $request->bulan ?? date('m'),
+    //         'tahun' => $request->tahun ?? date('Y'),
+    //         'nomor_rekening' => $request->nomor_rekening ?? '1234567890',
+
+    //         'debitur_nama' => $request->debitur_nama ?? 'MUHAMMAD HIMAWAN ARDIANSYAH',
+    //         'debitur_alamat' => $request->debitur_alamat ?? 'KP. PIPITAN RT 008/002 PIPITAN WALANTAKA KOTA SERANG',
+    //         'debitur_ktp' => $request->debitur_ktp ?? '3604100405950714',
+
+    //         'jumlah_pinjaman' => $request->jumlah_pinjaman ?? 50000000,
+    //         'jumlah_pinjaman_terbilang' => $request->jumlah_pinjaman_terbilang ?? 'LIMA PULUH JUTA RUPIAH',
+    //         'bunga' => $request->bunga ?? '12',
+    //         'jangka_waktu' => $request->jangka_waktu ?? '24',
+    //         'angsuran' => $request->angsuran ?? 2500000,
+    //         'angsuran_terbilang' => $request->angsuran_terbilang ?? 'DUA JUTA LIMA RATUS RIBU RUPIAH',
+    //         'tujuan_penggunaan' => $request->tujuan_penggunaan ?? 'Konsumtif',
+
+    //         'jaminan_1' => $request->jaminan_1 ?? 'BPKB Kendaraan Bermotor',
+    //         'jaminan_2' => $request->jaminan_2 ?? 'Sertifikat Tanah',
+    //         'jaminan_3' => $request->jaminan_3 ?? '',
+    //         'jaminan_4' => $request->jaminan_4 ?? '',
+
+    //         'tempat_ttd' => $request->tempat_ttd ?? 'Bandung',
+    //         'tanggal_ttd' => $request->tanggal_ttd ?? now(),
+    //     ];
+
+
+    //     $pdf = Pdf::loadView('bta.pdf.perjanjian-kredit', $data)
+    //         ->setPaper('a4', 'portrait')
+    //         ->setOption('margin-top', 25.4)   // 2.54 cm
+    //         ->setOption('margin-bottom', 25.4) // 2.54 cm
+    //         ->setOption('margin-left', 25.4)   // 2.54 cm
+    //         ->setOption('margin-right', 25.4)  // 2.54 cm
+    //         ->setOption('dpi', 300)
+    //         ->setOption('isHtml5ParserEnabled', true)
+    //         ->setOption('isFontSubsettingEnabled', true)
+    //         ->setOption('isRemoteEnabled', true)
+    //         ->setOption('isJavascriptEnabled', false);
+
+    //     return $pdf->stream('PERJANJIAN_KREDIT_BTA_' . now()->format('YmdHis') . '.pdf');
+    // }
+
+    public function downloadPdf(Request $req)
     {
+
+        $nasabah = nasabah::where('id', $req->id)
+            ->with([
+                'provinsi',
+                'kabupaten',
+                'kecamatan',
+                'desa',
+                'bank',
+                'dati'
+            ])
+            ->where('position', 'analyst')
+            ->where('status', 'approve')
+            ->first();
+
+
+        $plafond = $nasabah->plafond;
+        $angsuran = $nasabah->nilai_angsuran;
+
         $data = [
-            'nomor' => $request->nomor ?? '001',
-            'bulan' => $request->bulan ?? date('m'),
-            'tahun' => $request->tahun ?? date('Y'),
-            'nomor_rekening' => $request->nomor_rekening ?? '1234567890',
+            'no_surat'      => '__',
+            'bulan'         => '__',
+            'tahun'         => date('Y'),
+            'no_rekening'   => $nasabah->no_rek,
 
-            'debitur_nama' => $request->debitur_nama ?? 'MUHAMMAD HIMAWAN ARDIANSYAH',
-            'debitur_alamat' => $request->debitur_alamat ?? 'KP. PIPITAN RT 008/002 PIPITAN WALANTAKA KOTA SERANG',
-            'debitur_ktp' => $request->debitur_ktp ?? '3604100405950714',
+            'nama_debitur'  => $nasabah->nama_lengkap,
+            'alamat'        => $nasabah->alamat_rumah . ',' . $nasabah->desa->desa . ' ,' . $nasabah->kecamatan->kecamatan . ' ,' . $nasabah->kabupaten->kabupaten . ' ,' . $nasabah->provinsi->provinsi,
+            'no_ktp'        => $nasabah->no_ktp,
 
-            'jumlah_pinjaman' => $request->jumlah_pinjaman ?? 50000000,
-            'jumlah_pinjaman_terbilang' => $request->jumlah_pinjaman_terbilang ?? 'LIMA PULUH JUTA RUPIAH',
-            'bunga' => $request->bunga ?? '12',
-            'jangka_waktu' => $request->jangka_waktu ?? '24',
-            'angsuran' => $request->angsuran ?? 2500000,
-            'angsuran_terbilang' => $request->angsuran_terbilang ?? 'DUA JUTA LIMA RATUS RIBU RUPIAH',
-            'tujuan_penggunaan' => $request->tujuan_penggunaan ?? 'Konsumtif',
+            'plafond'       => $plafond,
+            'terbilang_plafond' => $this->terbilang($plafond), // Generate otomatis
 
-            'jaminan_1' => $request->jaminan_1 ?? 'BPKB Kendaraan Bermotor',
-            'jaminan_2' => $request->jaminan_2 ?? 'Sertifikat Tanah',
-            'jaminan_3' => $request->jaminan_3 ?? '',
-            'jaminan_4' => $request->jaminan_4 ?? '',
+            'bunga'         => '12',
+            'jangka'        => '24',
 
-            'tempat_ttd' => $request->tempat_ttd ?? 'Bandung',
-            'tanggal_ttd' => $request->tanggal_ttd ?? now(),
+            'angsuran'      => $angsuran,
+            'terbilang_angsuran' => $this->terbilang($angsuran), // Generate otomatis
+
+            'tujuan'        => $nasabah->tujuan_penggunaan,
+            'agunan'        => '', // Kosongkan jika tidak ada, otomatis jadi garis
+
+            'tanggal_ttd'   => Carbon::now()->translatedFormat('d F Y'),
         ];
 
 
-        $pdf = Pdf::loadView('bta.pdf.perjanjian-kredit', $data)
-            ->setPaper('a4', 'portrait')
-            ->setOption('margin-top', 25.4)   // 2.54 cm
-            ->setOption('margin-bottom', 25.4) // 2.54 cm
-            ->setOption('margin-left', 25.4)   // 2.54 cm
-            ->setOption('margin-right', 25.4)  // 2.54 cm
-            ->setOption('dpi', 300)
-            ->setOption('isHtml5ParserEnabled', true)
-            ->setOption('isFontSubsettingEnabled', true)
-            ->setOption('isRemoteEnabled', true)
-            ->setOption('isJavascriptEnabled', false);
+        $pdf = Pdf::loadView('bta.pdf.perjanjian-kredit', ['data' => $data]);
 
-        return $pdf->stream('PERJANJIAN_KREDIT_BTA_' . now()->format('YmdHis') . '.pdf');
+        $pdf->setPaper('A4', 'portrait');
+
+        return $pdf->stream('PK_' . $data['nama_debitur'] . '.pdf');
     }
 
 

@@ -901,10 +901,10 @@
                         toastr.success(response.message);
                         console.log(response);
                         // Redirect setelah toastr
-                        // setTimeout(function() {
-                        //     window.location.href =
-                        //         '/bta/analyst';
-                        // }, 2000);
+                        setTimeout(function() {
+                            window.location.href =
+                                '/bta/analyst';
+                        }, 2000);
                     },
                     error: function(xhr, status, error) {
                         console.error("Error:", xhr.responseText);
