@@ -373,9 +373,9 @@
                                         </div>
                                     </div>
                                     <div class="form-group row">
-                                        <label class="col-sm-4 col-form-label">DBR (%)</label>
+                                        <label class="col-sm-4 col-form-label">DBR </label>
                                         <div class="col-sm-8">
-                                            <input class="form-control" value="{{ $nasabah->dbr }} %" readonly>
+                                            <input class="form-control" value="{{ $nasabah->dbr }}" readonly>
                                         </div>
                                     </div>
                                     <div class="form-group row">

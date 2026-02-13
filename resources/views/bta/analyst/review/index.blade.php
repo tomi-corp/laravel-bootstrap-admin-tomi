@@ -384,12 +384,21 @@
                                                             id="jangka_waktu"
                                                             value="{{ old('jangka_waktu', $nasabah->jangka_waktu) }}">
                                                     </div>
+
                                                     <div class="form-group">
-                                                        <label for="suku_bunga">Suku Bunga (%):</label>
-                                                        <input type="number" step="0.01" class="form-control"
-                                                            name="suku_bunga" id="suku_bunga"
-                                                            value="{{ old('suku_bunga', $nasabah->suku_bunga) }}">
+                                                        <label for="diskon" class="form-label">Suku Bunga:</label>
+
+                                                        <div class="input-group">
+
+                                                            <input type="number" step="0.01" class="form-control"
+                                                                id="diskon" placeholder="Masukkan angka"
+                                                                aria-label="Diskon" aria-describedby="persen-addon"
+                                                                name="suku_bunga" id="suku_bunga"
+                                                                value="{{ old('suku_bunga', $nasabah->suku_bunga) }}">
+                                                            <span class="input-group-text" id="persen-addon">%</span>
+                                                        </div>
                                                     </div>
+
                                                     <div class="form-group">
                                                         <label for="nilai_angsuran">Nilai Angsuran (PMT):</label>
                                                         <input type="text" readonly class="form-control"
@@ -434,16 +443,7 @@
                                                             </option>
 
                                                             @php
-                                                                $options = [
-                                                                    'Pendidikan',
-                                                                    'Kesehatan',
-                                                                    'Renovasi Rumah',
-                                                                    'Biaya Hidup',
-                                                                    'Liburan',
-                                                                    'Modal Usaha',
-                                                                    'Pembelian Barang Elektronik',
-                                                                    'Lainnya',
-                                                                ];
+                                                                $options = ['Konsumsi', 'Modal Kerja', 'investasi'];
                                                             @endphp
 
                                                             @foreach ($options as $option)

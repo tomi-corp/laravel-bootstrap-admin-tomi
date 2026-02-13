@@ -26,23 +26,26 @@ class NasabahController extends Controller
         $nilai = abs($nilai);
         $huruf = array("", "Satu", "Dua", "Tiga", "Empat", "Lima", "Enam", "Tujuh", "Delapan", "Sembilan", "Sepuluh", "Sebelas");
         $temp = "";
+
         if ($nilai < 12) {
             $temp = " " . $huruf[$nilai];
         } else if ($nilai < 20) {
             $temp = $this->terbilang($nilai - 10) . " Belas";
         } else if ($nilai < 100) {
-            $temp = $this->terbilang($nilai / 10) . " Puluh" . $this->terbilang($nilai % 10);
+            // Tambahkan (int) agar hasil bagi tidak desimal
+            $temp = $this->terbilang((int)($nilai / 10)) . " Puluh" . $this->terbilang($nilai % 10);
         } else if ($nilai < 200) {
             $temp = " Seratus" . $this->terbilang($nilai - 100);
         } else if ($nilai < 1000) {
-            $temp = $this->terbilang($nilai / 100) . " Ratus" . $this->terbilang($nilai % 100);
+            $temp = $this->terbilang((int)($nilai / 100)) . " Ratus" . $this->terbilang($nilai % 100);
         } else if ($nilai < 2000) {
             $temp = " Seribu" . $this->terbilang($nilai - 1000);
         } else if ($nilai < 1000000) {
-            $temp = $this->terbilang($nilai / 1000) . " Ribu" . $this->terbilang($nilai % 1000);
+            $temp = $this->terbilang((int)($nilai / 1000)) . " Ribu" . $this->terbilang($nilai % 1000);
         } else if ($nilai < 1000000000) {
-            $temp = $this->terbilang($nilai / 1000000) . " Juta" . $this->terbilang($nilai % 1000000);
+            $temp = $this->terbilang((int)($nilai / 1000000)) . " Juta" . $this->terbilang($nilai % 1000000);
         }
+
         return trim($temp);
     }
 
@@ -570,8 +573,8 @@ class NasabahController extends Controller
             'plafond'       => $plafond,
             'terbilang_plafond' => $this->terbilang($plafond), // Generate otomatis
 
-            'bunga'         => '12',
-            'jangka'        => '24',
+            'bunga'         => $nasabah->suku_bunga,
+            'jangka'        =>  $nasabah->jangka_waktu,
 
             'angsuran'      => $angsuran,
             'terbilang_angsuran' => $this->terbilang($angsuran), // Generate otomatis

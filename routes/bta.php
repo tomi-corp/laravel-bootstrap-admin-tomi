@@ -45,7 +45,7 @@ Route::middleware(['BtaMiddleware'])->group(
         Route::post('/analyst/action/submit/{id}', [AnalystController::class, 'analystUpdate'])->name('bta.analyst.update');
         Route::get('/credam', [CredamController::class, 'credamIndex'])->name('bta.credam.index');
         Route::post('/credam/table', [CredamController::class, 'credamTable'])->name('bta.credam.table');
-        Route::get('/credam/review/{noktp}', [CredamController::class, 'credamReview'])->name('bta.credam.review');
+        Route::get('/credam/review/{id}', [CredamController::class, 'credamReview'])->name('bta.credam.review');
         Route::post('/credam/approve', [CredamController::class, 'credamApprove'])->name('bta.credam.approve');
 
         // provinsi

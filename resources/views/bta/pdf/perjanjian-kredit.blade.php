@@ -319,6 +319,11 @@
             @if (isset($data['agunan']))
                 {{ $data['agunan'] }}
             @else
+                <li>.</li>
+                <li>.</li>
+                <li>.</li>
+                <li>.</li>
+                <li>.</li>
                 ---------------------------------------------------------------------------------------------------------
             @endif
         </p>
@@ -406,7 +411,7 @@
         <div class="ttd-wrapper">
             <table class="ttd-table">
                 <tr>
-                    <td style="width: 50%;">Bandung, {{ $data['tanggal_ttd'] }}</td>
+                    <td style="width: 50%;">Bandung, ______________</td>
                     <td style="width: 50%;"></td>
                 </tr>
                 <tr>

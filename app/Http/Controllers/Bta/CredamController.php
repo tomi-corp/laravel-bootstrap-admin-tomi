@@ -15,9 +15,9 @@ class CredamController extends Controller
         return view('bta.credam.index');
     }
 
-    public function credamReview($noktp)
+    public function credamReview($id)
     {
-        $nasabah = nasabah::where('no_ktp', $noktp)->first();
+        $nasabah = nasabah::where('id', $id)->first();
         if (!isset($nasabah)) {
             abort(404);
         }
@@ -87,7 +87,7 @@ class CredamController extends Controller
             ->addIndexColumn()
             ->addColumn('action', function ($row) {
                 return '
-                    <a href="' . route('bta.credam.review', $row->no_ktp) . '" class="btn btn-success btn-sm"><i class="mdi mdi-magnify"></i></a>
+                    <a href="' . route('bta.credam.review', $row->id) . '" class="btn btn-success btn-sm"><i class="mdi mdi-magnify"></i></a>
                 ';
             })
             ->rawColumns(['action'])

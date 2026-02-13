@@ -123,14 +123,9 @@ return new class extends Migration
 
             // Dropdown tujuan penggunaan — contoh pilihan umum
             $table->enum('tujuan_penggunaan', [
-                'Pendidikan',
-                'Kesehatan',
-                'Renovasi Rumah',
-                'Biaya Hidup',
-                'Liburan',
-                'Modal Usaha',
-                'Pembelian Barang Elektronik',
-                'Lainnya'
+                'Konsumsi',
+                'Modak Kerja',
+                'Investasi'
             ])->nullable();
 
             $table->decimal('gaji_bersih', 15, 2)->nullable(); // Inputan
