@@ -386,13 +386,11 @@
                                                     </div>
 
                                                     <div class="form-group">
-                                                        <label for="diskon" class="form-label">Suku Bunga:</label>
-
+                                                        <label for="suku_bunga" class="form-label">Suku Bunga:</label>
                                                         <div class="input-group">
-
                                                             <input type="number" step="0.01" class="form-control"
-                                                                id="diskon" placeholder="Masukkan angka"
-                                                                aria-label="Diskon" aria-describedby="persen-addon"
+                                                                id="suku_bunga" placeholder="Masukkan angka"
+                                                                aria-label="suku_bunga" aria-describedby="persen-addon"
                                                                 name="suku_bunga" id="suku_bunga"
                                                                 value="{{ old('suku_bunga', $nasabah->suku_bunga) }}">
                                                             <span class="input-group-text" id="persen-addon">%</span>
