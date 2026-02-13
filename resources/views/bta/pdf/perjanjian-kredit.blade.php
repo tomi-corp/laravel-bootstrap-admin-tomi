@@ -10,6 +10,13 @@
             /* Margin 0 agar watermark nempel pinggir */
         }
 
+        .list-transparan li {
+            opacity: 0.8;
+            /* Nilai dari 0.0 sampai 1.0 */
+            /* list-style: none; */
+            margin-bottom: 5px;
+        }
+
         body {
             font-family: Arial, Helvetica, sans-serif;
             font-size: 11pt;
@@ -319,12 +326,35 @@
             @if (isset($data['agunan']))
                 {{ $data['agunan'] }}
             @else
-                <li>.</li>
-                <li>.</li>
-                <li>.</li>
-                <li>.</li>
-                <li>.</li>
-                ---------------------------------------------------------------------------------------------------------
+                <ul class="list-transparan">
+                    <li>
+                        <p></p>
+                    </li>
+                    <li>
+                        <p></p>
+                    </li>
+                    <li>
+                        <p></p>
+                    </li>
+                    <li>
+                        <p></p>
+                    </li>
+                    <li>
+                        <p></p>
+                    </li>
+                    <li>
+                        <p></p>
+                    </li>
+                    <li>
+                        <p></p>
+                    </li>
+                    <li>
+                        <p></p>
+                    </li>
+                    <li>
+                        <p></p>
+                    </li>
+                </ul>
             @endif
         </p>
 

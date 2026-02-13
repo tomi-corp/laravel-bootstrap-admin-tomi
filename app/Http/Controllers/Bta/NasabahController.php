@@ -23,30 +23,82 @@ class NasabahController extends Controller
 
     private function terbilang($nilai)
     {
-        $nilai = abs($nilai);
-        $huruf = array("", "Satu", "Dua", "Tiga", "Empat", "Lima", "Enam", "Tujuh", "Delapan", "Sembilan", "Sepuluh", "Sebelas");
+        // Handle nilai negatif
+        $minus = '';
+        if ($nilai < 0) {
+            $minus = 'Minus ';
+            $nilai = abs($nilai);
+        }
+
+        // Handle nilai nol
+        if ($nilai == 0) {
+            return 'Nol';
+        }
+
+        $huruf = ["", "Satu", "Dua", "Tiga", "Empat", "Lima", "Enam", "Tujuh", "Delapan", "Sembilan", "Sepuluh", "Sebelas"];
         $temp = "";
 
         if ($nilai < 12) {
-            $temp = " " . $huruf[$nilai];
+            $temp = $huruf[$nilai];
         } else if ($nilai < 20) {
             $temp = $this->terbilang($nilai - 10) . " Belas";
         } else if ($nilai < 100) {
-            // Tambahkan (int) agar hasil bagi tidak desimal
-            $temp = $this->terbilang((int)($nilai / 10)) . " Puluh" . $this->terbilang($nilai % 10);
+            $puluh = floor($nilai / 10);
+            $satuan = $nilai % 10;
+            $temp = $this->terbilang($puluh) . " Puluh";
+            if ($satuan > 0) {
+                $temp .= " " . $this->terbilang($satuan);
+            }
         } else if ($nilai < 200) {
-            $temp = " Seratus" . $this->terbilang($nilai - 100);
+            $temp = "Seratus";
+            $sisa = $nilai % 100;
+            if ($sisa > 0) {
+                $temp .= " " . $this->terbilang($sisa);
+            }
         } else if ($nilai < 1000) {
-            $temp = $this->terbilang((int)($nilai / 100)) . " Ratus" . $this->terbilang($nilai % 100);
+            $ratus = floor($nilai / 100);
+            $sisa = $nilai % 100;
+            $temp = $this->terbilang($ratus) . " Ratus";
+            if ($sisa > 0) {
+                $temp .= " " . $this->terbilang($sisa);
+            }
         } else if ($nilai < 2000) {
-            $temp = " Seribu" . $this->terbilang($nilai - 1000);
+            $temp = "Seribu";
+            $sisa = $nilai % 1000;
+            if ($sisa > 0) {
+                $temp .= " " . $this->terbilang($sisa);
+            }
         } else if ($nilai < 1000000) {
-            $temp = $this->terbilang((int)($nilai / 1000)) . " Ribu" . $this->terbilang($nilai % 1000);
+            $ribu = floor($nilai / 1000);
+            $sisa = $nilai % 1000;
+            $temp = $this->terbilang($ribu) . " Ribu";
+            if ($sisa > 0) {
+                $temp .= " " . $this->terbilang($sisa);
+            }
         } else if ($nilai < 1000000000) {
-            $temp = $this->terbilang((int)($nilai / 1000000)) . " Juta" . $this->terbilang($nilai % 1000000);
+            $juta = floor($nilai / 1000000);
+            $sisa = $nilai % 1000000;
+            $temp = $this->terbilang($juta) . " Juta";
+            if ($sisa > 0) {
+                $temp .= " " . $this->terbilang($sisa);
+            }
+        } else if ($nilai < 1000000000000) {
+            $miliar = floor($nilai / 1000000000);
+            $sisa = $nilai % 1000000000;
+            $temp = $this->terbilang($miliar) . " Miliar";
+            if ($sisa > 0) {
+                $temp .= " " . $this->terbilang($sisa);
+            }
+        } else if ($nilai < 1000000000000000) {
+            $triliun = floor($nilai / 1000000000000);
+            $sisa = $nilai % 1000000000000;
+            $temp = $this->terbilang($triliun) . " Triliun";
+            if ($sisa > 0) {
+                $temp .= " " . $this->terbilang($sisa);
+            }
         }
 
-        return trim($temp);
+        return $minus . trim($temp);
     }
 
     public function nasabahIndex()
@@ -580,7 +632,7 @@ class NasabahController extends Controller
             'terbilang_angsuran' => $this->terbilang($angsuran), // Generate otomatis
 
             'tujuan'        => $nasabah->tujuan_penggunaan,
-            'agunan'        => '', // Kosongkan jika tidak ada, otomatis jadi garis
+            'agunan'        => null, // Kosongkan jika tidak ada, otomatis jadi garis
 
             'tanggal_ttd'   => Carbon::now()->translatedFormat('d F Y'),
         ];
