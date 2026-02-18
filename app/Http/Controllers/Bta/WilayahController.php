@@ -82,4 +82,41 @@ class WilayahController extends Controller
         $bank = bank::get();
         return $bank;
     }
+
+
+
+    // Kota baru
+    public function kotaNew(Request $req)
+    {
+        $provinsi = provinsi::where('id', $req->id)->first();
+        $kota = kota::where('provinsi', $provinsi->provinsi)->get();
+        return $kota;
+    }
+
+    public function kecamatanNew(Request $req)
+    {
+        $kota = kota::where('id', $req->id)->first();
+        $kecamatan = kecamatan::where('kabupaten', $kota->kabupaten)->get();
+        return $kecamatan;
+    }
+
+    public function datiNew(Request $req)
+    {
+        $kota = kota::where('id', $req->id)->first();
+        $dati = dati::where('kabupaten', $kota->kabupaten)->first();
+        return $dati;
+    }
+
+    public function kelurahanNew(Request $req)
+    {
+        $kecamatan = kecamatan::where('id', $req->id)->first();
+        $kelurahan = kelurahan::where('kecamatan', $kecamatan->kecamatan)->get();
+        return $kelurahan;
+    }
+
+    public function kodeposNew(Request $req)
+    {
+        $kelurahan = kelurahan::where('id', $req->id)->first();
+        return $kelurahan;
+    }
 }

@@ -22,12 +22,13 @@ Route::middleware(['BtaMiddleware'])->group(
         Route::post('/logout', [AuthController::class, 'logout'])->name('bta.logout');
         // nasabah
         Route::get('/nasabah', [NasabahController::class, 'nasabahIndex'])->name('bta.nasabah.index');
+        Route::get('/nasabah/tambah', [NasabahController::class, 'nasabahTambahIndex'])->name('bta.nasabah.tambah');
         // Route::get('/nasabah/download/pdf', [NasabahController::class, 'downloadPdf']);
         Route::post('/nasabah/download/pdf', [NasabahController::class, 'downloadPdf'])->name('bta.nasabah.pk.download');
+        Route::get('/nasabah/revisi/{noktp}', [NasabahController::class, 'nasabahRevisi'])->name('bta.nasabah.revisi');
         Route::post('/nasabah/edit', [NasabahController::class, 'nasabahDetail'])->name('bta.nasabah.detail');
-        Route::post('/nasabah/insert', [NasabahController::class, 'nasabahInsert'])->name('bta.nasabah.insert');
+        // Route::post('/nasabah/insert', [NasabahController::class, 'nasabahInsert'])->name('bta.nasabah.insert');
         Route::post('/nasabah/analyst/setuju/upload', [NasabahController::class, 'nasabahUploadSetuju'])->name('bta.nasabah.upload.setuju');
-        Route::post('/nasabah/update', [NasabahController::class, 'nasabahUpdate'])->name('bta.nasabah.update');
         Route::post('/nasabah/admin/analyst/table', [NasabahController::class, 'analystTable'])->name('bta.admin.nasabah.analyst.table');
         Route::post('/nasabah/admin/revisi/table', [NasabahController::class, 'revisiTable'])->name('bta.admin.nasabah.revisi.table');
         Route::post('/nasabah/admin/disetujui/table', [NasabahController::class, 'disetujuiTable'])->name('bta.admin.nasabah.disetujui.table');
@@ -42,7 +43,7 @@ Route::middleware(['BtaMiddleware'])->group(
         Route::get('/analyst', [AnalystController::class, 'analystIndex'])->name('bta.analyst.index');
         Route::post('/analyst/table', [AnalystController::class, 'analystTable'])->name('bta.analyst.table');
         Route::get('/analyst/action/review/{noktp}', [AnalystController::class, 'analystReview'])->name('bta.analyst.review');
-        Route::post('/analyst/action/submit/{id}', [AnalystController::class, 'analystUpdate'])->name('bta.analyst.update');
+        Route::post('/analyst/action/submit', [AnalystController::class, 'analystUpdate'])->name('bta.analyst.update');
         Route::get('/credam', [CredamController::class, 'credamIndex'])->name('bta.credam.index');
         Route::post('/credam/table', [CredamController::class, 'credamTable'])->name('bta.credam.table');
         Route::get('/credam/review/{id}', [CredamController::class, 'credamReview'])->name('bta.credam.review');
@@ -59,5 +60,18 @@ Route::middleware(['BtaMiddleware'])->group(
         Route::post('/kodepos', [WilayahController::class, 'kodepos'])->name('bta.wilayah.kodepos');
         Route::post('/dati', [WilayahController::class, 'dati'])->name('bta.wilayah.dati');
         Route::post('/bank', [WilayahController::class, 'bank'])->name('bta.wilayah.bank');
+
+
+
+        // wilayah baru
+        Route::post('/wilayah/kota', [WilayahController::class, 'kotaNew'])->name('bta.wilayah.kota.new');
+        Route::post('/wilayah/kecamatan', [WilayahController::class, 'kecamatanNew'])->name('bta.wilayah.kecamatan.new');
+        Route::post('/wilayah/dati', [WilayahController::class, 'datiNew'])->name('bta.wilayah.dati.new');
+        Route::post('/wilayah/kelurahan', [WilayahController::class, 'kelurahanNew'])->name('bta.wilayah.kelurahan.new');
+        Route::post('/wilayah/kodepos', [WilayahController::class, 'kodeposNew'])->name('bta.wilayah.kodepos.new');
+
+        // tambah nasabah
+        Route::post('/nasabah/insert', [NasabahController::class, 'nasabahInsert'])->name('bta.nasabah.insert');
+        Route::post('/nasabah/update', [NasabahController::class, 'nasabahUpdate'])->name('bta.nasabah.update');
     }
 );

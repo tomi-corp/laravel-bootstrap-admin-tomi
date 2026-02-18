@@ -97,6 +97,15 @@
             font-family: 'Calibri', sans-serif;
         }
 
+        .info-surat .rekening {
+            text-align: left;
+            font-weight: bold;
+            margin-bottom: 20px;
+            font-size: 16pt;
+            font-family: 'Calibri', sans-serif;
+            padding-left: 100px
+        }
+
         .pasal-title {
             text-align: center;
             font-weight: bold;
@@ -204,10 +213,11 @@
             <div>
                 Nomor: {{ $data['no_surat'] }}/BTA/KK/{{ $data['bulan'] }}/{{ $data['tahun'] }}
             </div>
-            <div style="font-weight: bold; font-size: 12pt; margin-top: 2px;">
-                Nomor Rekening: {{ $data['no_rekening'] }}
+            <div class="rekening" style="font-weight: bold; font-size: 12pt; margin-top: 2px;">
+                Nomor Rekening:
             </div>
         </div>
+
 
         <p style="margin-top: 40px;">Yang bertandatangan dibawah ini :</p>
 
@@ -336,27 +346,6 @@
                     <li>
                         <p></p>
                     </li>
-                    <li>
-                        <p></p>
-                    </li>
-                    <li>
-                        <p></p>
-                    </li>
-                    <li>
-                        <p></p>
-                    </li>
-                    <li>
-                        <p></p>
-                    </li>
-                    <li>
-                        <p></p>
-                    </li>
-                    <li>
-                        <p></p>
-                    </li>
-                    <li>
-                        <p></p>
-                    </li>
                 </ul>
             @endif
         </p>
@@ -406,15 +395,23 @@
 
         <div class="pasal-title">Pasal 7</div>
         <div class="pasal-sub">PENYELESAIAN PERSELISIHAN</div>
-        <p>1. Apabila di kemudian hari terjadi perbedaan pendapat atau penafsiran atas hal-hal yang tercantum di dalam
-            Perjanjian ini atau terjadi perselisihan atau sengketa dalam pelaksanaan Perjanjian ini, Para Pihak sepakat
-            untuk menyelesaikannya secara musyawarah untuk mencapai mufakat.</p>
+        <p>1. Apabila di kemudian hari terjadi perbedaan pendapat atau penafsiran atas hal-hal yang tercantum di
+            dalam Perjanjian ini atau terjadi perselisihan atau sengketa dalam pelaksanaan Perjanjian ini, Para Pihak
+            sepakat untuk menyelesaikannya secara musyawarah untuk mencapai mufakat.</p>
         <p>2. Apabila kedua belah pihak tidak berhasil menyelesaikan perselisihan secara musyawarah untuk mufakat maka
-            kedua belah pihak sepakat untuk menempuh penyelesaian melalui jalur hukum.</p>
-        <p>3. Untuk penyelesaian melalui saluran hukum, kedua belah pihak sepakat memilih tempat kedudukan hukum yang
-            tepat pada Pengadilan Negeri Bandung / tempat yang ditunjuk oleh pihak BANK.</p>
+            kedua belah pihak sepakat untuk menempuh penyelesaian melalui jalur hukum. Untuk penyelesaian melalui
+            saluran hukum, kedua belah pihak sepakat memilih tempat kedudukan hukum yang tepat pada Pengadilan Negeri
+            Bandung / tempat yang ditunjuk oleh pihak <b>BANK</b></p>
 
         <div class="pasal-title">Pasal 8</div>
+        <div class="pasal-sub">PENGALIHAN HAK DAN KEWAJIBAN</div>
+        <p>BANK berhak untuk mengalihkan sebagian atau seluruh hak dan kewajiban yang timbul sehubungan dengan
+            Perjanjian Kredit ini berikut setiap perubahan atau pembaharuan kepada pihak lain, tanpa persetujuan
+            terlebih dahulu dari DEBITUR.Untuk keperluan tersebut maka DEBITUR dengan ini memberikan Kuasa kepada BANK
+            dan apabila dalam pengalihan oleh BANK tersebut masih diperlukan Kuasa dari DEBITUR maka kata demi kata
+            Kuasa tersebut telah diberikan oleh DEBITUR dalam Perjanjian Kredit ini.</p>
+
+        <div class="pasal-title">Pasal 9</div>
         <div class="pasal-sub">KETENTUAN PENUTUP</div>
         <ol style="margin-left: -20px;">
             <li>BANK dan DEBITUR dengan ini, sepakat dan setuju untuk melakukan seluruh ketentuan-ketentuan yang diatur

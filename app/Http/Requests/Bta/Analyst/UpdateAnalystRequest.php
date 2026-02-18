@@ -48,7 +48,7 @@ class UpdateAnalystRequest extends FormRequest
     {
         return [
             // Identitas & Utama
-            'nasabah_id'        => 'required|exists:nasabahs,id',
+            'id'        => 'required|exists:nasabahs,id',
             'rekomendasi'       => 'required|in:disetujui,ditolak,dikembalikan',
             'tujuan_penggunaan' => 'required|string|max:255',
             'catatan_analyst'   => 'nullable|string',

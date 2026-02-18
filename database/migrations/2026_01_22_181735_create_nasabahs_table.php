@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('no_telp');
             $table->enum('agama', ['Islam', 'Katolik', 'Kristen', 'Buddha', 'Konghucu']);
             $table->enum('pendidikan_terakhir', ['SD', 'SMP', 'SMA', 'D1', 'D3', 'D4', 'S1', 'S2', 'S3']);
-            $table->enum('status_perkawinan', ['Kawin', 'Tidak Kawin']);
+            $table->enum('status_perkawinan', ['Kawin', 'Tidak Kawin', 'Cerai Mati', 'Cerai Hidup']);
 
             // Pasangan
             $table->string('nama_pasangan')->nullable();

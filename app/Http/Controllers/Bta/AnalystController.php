@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Bta;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Bta\Analyst\UpdateAnalystRequest;
 use App\Models\nasabah;
+use Google\Service\CloudSearch\SafeUrlProto;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Psy\Util\Str;
@@ -161,8 +162,7 @@ class AnalystController extends Controller
     public function analystUpdate(UpdateAnalystRequest $request)
     // public function analystUpdate(Request $request)
     {
-
-        $nasabah = Nasabah::findOrFail($request->nasabah_id);
+        $nasabah = Nasabah::findOrFail($request->id);
 
         // 1. Mapping Status Rekomendasi
         $statusMap = [

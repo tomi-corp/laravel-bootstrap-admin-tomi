@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Bta;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Bta\Nasabah\NasabahInsertRequest;
+use App\Models\bank;
 use App\Models\dati;
 use App\Models\kecamatan;
 use App\Models\kelurahan;
@@ -101,6 +102,106 @@ class NasabahController extends Controller
         return $minus . trim($temp);
     }
 
+    public function nasabahRevisi($no_ktp)
+    {
+        // Di dalam method edit/update view
+        $nasabah = Nasabah::where('no_ktp', $no_ktp)
+            ->with(['provinsi', 'kabupaten', 'kecamatan', 'desa', 'bank', 'dati'])
+            ->where('position', 'analyst')
+            ->where('status', 'revisi')
+            ->first();
+
+        if (!$nasabah) {
+            return abort(404);
+        }
+
+        // Mapping konfigurasi file: [field_path, field_status, field_note, label]
+        $fileConfigs = [
+            'ktp' => ['ktp', 'status_ktp', 'note_ktp', 'KTP'],
+            'npwp' => ['npwp', 'status_npwp', 'note_npwp', 'NPWP'],
+            'selfie' => ['selfie', 'status_selfie', 'note_selfie', 'Selfie dengan KTP'],
+            'kk' => ['kk', 'status_kk', 'note_kk', 'Kartu Keluarga'],
+            'id_card' => ['id_card', 'status_id_card', 'note_id_card', 'ID Card'],
+            'sk_karyawan' => ['sk_karyawan', 'status_sk_karyawan', 'note_sk_karyawan', 'SK Karyawan'],
+            'slip_gaji' => ['slip_gaji', 'status_slip_gaji', 'note_slip_gaji', 'Slip Gaji'],
+            'buku_tabungan' => ['buku_tabungan', 'status_buku_tabungan', 'note_buku_tabungan', 'Buku Tabungan'],
+            'mutasi_rekening' => ['mutasi_rekening', 'status_mutasi_rekening', 'note_mutasi_rekening', 'Mutasi Rekening'],
+            'form_slik' => ['form_slik', 'status_form_slik', 'note_form_slik', 'Form SLIK'],
+            'form_kredit' => ['form_kredit', 'status_form_kredit', 'note_form_kredit', 'Form Kredit'],
+            'form_bta' => ['form_bta', 'status_form_bta', 'note_form_bta', 'Form BTA'],
+            'form_checklist' => ['form_checklist', 'status_form_checklist', 'note_form_checklist', 'Checklist Verifikasi'],
+        ];
+
+        $documents = [];
+        $fileMeta = []; // Untuk dikirim ke view: status, note, canUpload
+
+        // foreach ($fileConfigs as $key => [$pathField, $statusField, $noteField, $label]) {
+        //     $documents[$key] = $nasabah->$pathField;
+
+        //     $status = $nasabah->$statusField ?? 'pending';
+        //     $note = $nasabah->$noteField;
+
+        //     // Hanya bisa upload ulang jika status reject ATAU belum ada file sama sekali
+        //     $canUpload = ($status === 'reject') || (empty($nasabah->$pathField) && $status !== 'approve');
+
+        //     $fileMeta[$key] = [
+        //         'label' => $label,
+        //         'status' => $status,
+        //         'note' => $note,
+        //         'can_upload' => $canUpload,
+        //         'path' => $nasabah->$pathField,
+        //     ];
+        // }
+
+        // Di NasabahController@edit
+        foreach ($fileConfigs as $key => [$pathField, $statusField, $noteField, $label]) {
+            $documents[$key] = $nasabah->$pathField;
+            $status = $nasabah->$statusField ?? 'pending';
+
+            // Pastikan return BOOLEAN, bukan string
+            $canUpload = ($status === 'reject') || (empty($nasabah->$pathField) && $status !== 'approve');
+            $note = $nasabah->$noteField;
+
+            $fileMeta[$key] = [
+                'label' => $label,
+                'status' => $status,
+                'note' => $note,
+                'can_upload' => (bool) $canUpload, // CAST ke boolean
+                'path' => $nasabah->$pathField,
+            ];
+        }
+
+
+
+        // Generate secure URLs seperti kode Anda sebelumnya
+        $safeUrls = [];
+        foreach ($documents as $key => $fileName) {
+            if ($fileName) {
+                $payload = [
+                    'file_path' => 'bta/' . $fileName,
+                    'expires_at' => now()->addHours(24)->timestamp,
+                ];
+                $encryptedToken = Crypt::encrypt(json_encode($payload));
+                $tokenForUrl = base64_encode($encryptedToken);
+                $safeUrls[$key] = route('bta.secure.file.download', ['token' => $tokenForUrl]);
+            } else {
+                $safeUrls[$key] = null;
+            }
+        }
+
+        $provinsis = Provinsi::get();
+        $banks = Bank::get();
+
+        return view('bta.nasabah.edit', compact(
+            'nasabah',
+            'safeUrls',
+            'provinsis',
+            'banks',
+            'fileMeta'
+        ));
+    }
+
+
     public function nasabahIndex()
     {
         return view('bta.nasabah.index');
@@ -187,13 +288,14 @@ class NasabahController extends Controller
 
         return DataTables::of($nasabah)
             ->addIndexColumn()
-            // ->addColumn('action', function ($row) {
-            //     return '
-            //         <a href="' . route('bta.analyst.review', $row->no_ktp) . '" target="_blank" class="btn btn-warning btn-sm">Review</a>
-            //     ';
-            // })
             ->addColumn('action', function ($row) {
-                return '<button class="btn btn-sm btn-primary mr-2" onclick="edit(' . $row->id . ')"><i class="mdi mdi-pencil"></i> </button>';
+                // return '<button class="btn btn-sm btn-primary mr-2" onclick="edit(' . $row->id . ')"><i class="mdi mdi-pencil"></i> </button>';
+                $revisiUrl = route('bta.nasabah.revisi', $row->no_ktp);
+                return '
+                    <a href="' . $revisiUrl . '" class="btn btn-sm btn-primary mr-2" title="Revisi">
+                        <i class="mdi mdi-pencil"></i> Revisi
+                    </a>
+                ';
             })
 
             ->toJson();
@@ -338,119 +440,132 @@ class NasabahController extends Controller
             ->toJson();
     }
 
-    public function nasabahInsert(NasabahInsertRequest $req)
+    public function nasabahInsert(NasabahInsertRequest $request)
     {
-        $nasabah = new nasabah();
+        try {
+            $nasabah = new nasabah();
 
-        // === Identitas ===
-        $nasabah->nama_lengkap = $req->nama_lengkap;
-        $nasabah->nama_singkat = $req->nama_singkat;
-        $nasabah->jenis_kelamin = $req->jenis_kelamin;
-        $nasabah->tempat_lahir = $req->tempat_lahir;
-        $nasabah->tanggal_lahir = $req->tanggal_lahir;
-        $nasabah->nama_ibu = $req->nama_ibu;
-        $nasabah->no_telp = $req->no_telp;
-        $nasabah->agama = $req->agama;
-        $nasabah->pendidikan_terakhir = $req->pendidikan_terakhir;
-        $nasabah->status_perkawinan = $req->status_perkawinan;
+            // Assign data identitas
+            $nasabah->nama_lengkap = $request->nama_lengkap;
+            $nasabah->nama_singkat = $request->nama_singkat;
+            $nasabah->jenis_kelamin = $request->jenis_kelamin;
+            $nasabah->tempat_lahir = $request->tempat_lahir;
+            $nasabah->tanggal_lahir = $request->tanggal_lahir;
+            $nasabah->nama_ibu = $request->nama_ibu;
+            $nasabah->no_telp = $request->no_telp;
+            $nasabah->agama = $request->agama;
+            $nasabah->pendidikan_terakhir = $request->pendidikan; // Catatan: Kolom di DB adalah pendidikan_terakhir
+            $nasabah->status_perkawinan = $request->status_perkawinan;
 
-        // === Pasangan ===
-        if ($req->status_perkawinan === 'Kawin') {
-            $nasabah->nama_pasangan = $req->nama_pasangan;
-            $nasabah->tgl_lahir_pasangan = $req->tgl_lahir_pasangan;
-        }
+            // Assign data pasangan
+            $nasabah->nama_pasangan = $request->nama_pasangan;
+            $nasabah->tgl_lahir_pasangan = $request->tgl_lahir_pasangan;
 
-        // === Alamat ===
-        $nasabah->alamat_rumah = $req->alamat_rumah;
-        $provinsi = provinsi::where('provinsi', $req->provinsi)->first();
-        $nasabah->provinsi_id = $provinsi->id;
-        $kota = kota::where('provinsi', $req->provinsi)
-            ->where('kabupaten', $req->kota)
-            ->first();
-        $nasabah->kota_id = $kota->id;
-        $kecamatan = kecamatan::where('kabupaten', $req->kota)
-            ->where('kecamatan', $req->kecamatan)
-            ->first();
-        $nasabah->kecamatan_id = $kecamatan->id;
-        $kelurahan = kelurahan::where('kecamatan', $req->kecamatan)
-            ->where('desa', $req->kelurahan)
-            ->first();
-        $nasabah->kelurahan_id = $kelurahan->id;
-        $nasabah->kode_pos = $kelurahan->kodepos;
-        $dati = dati::where('kabupaten', $req->kota)
-            ->first();
-        $nasabah->kode_dati_id = $dati->id;
+            // Assign data alamat
+            $nasabah->alamat_rumah = $request->alamat_rumah;
+            $nasabah->provinsi_id = $request->provinsi;
+            $nasabah->kota_id = $request->kota;
+            $nasabah->kecamatan_id = $request->kecamatan;
+            $nasabah->kelurahan_id = $request->kelurahan;
+            $nasabah->kode_pos = $request->kodePos;
+            $nasabah->kode_dati_id = $request->kode_dati;
 
-        // === Pekerjaan ===
-        $nasabah->nama_perusahaan = $req->nama_perusahaan;
-        $nasabah->bidang_usaha = $req->bidang_usaha;
-        $nasabah->alamat_kerja = $req->alamat_kerja;
-        $nasabah->nip = $req->nip;
-        $nasabah->status_pegawai = $req->status_pegawai;
-        $nasabah->no_ktp = $req->no_ktp;
-        $nasabah->no_npwp = $req->no_npwp;
+            // Assign data pekerjaan
+            $nasabah->nama_perusahaan = $request->nama_perusahaan;
+            $nasabah->bidang_usaha = $request->bidang_usaha;
+            $nasabah->alamat_kerja = $request->alamat_kerja;
+            $nasabah->nip = $request->nip;
+            $nasabah->status_pegawai = $request->status_pegawai;
+            $nasabah->tgl_akhir_kontrak = $request->tgl_akhir_kontrak;
 
-        if ($req->status_pegawai === 'Karyawan Tidak Tetap') {
-            $nasabah->tgl_akhir_kontrak = $req->tgl_akhir_kontrak;
-        }
+            // Assign data bank
+            $nasabah->bank_id = $request->bankSelect; // Catatan: Gunakan nama input yang sesuai
+            $nasabah->nama_pemilik_rek = $request->nama_pemilik_rek;
+            $nasabah->no_rek = $request->no_rek;
 
-        // === Bank ===
-        $nasabah->bank_id = $req->bank_id;
-        $nasabah->no_rek = $req->no_rek;
-        $nasabah->nama_pemilik_rek = $req->nama_pemilik_rek;
+            // Assign data KTA Multiguna
+            $nasabah->plafond = $request->plafond;
+            $nasabah->jangka_waktu = $request->jangka_waktu;
+            $nasabah->suku_bunga = $request->suku_bunga;
+            $nasabah->nilai_angsuran = $request->nilai_angsuran;
+            $nasabah->biaya_bank = $request->biaya_bank;
+            $nasabah->biaya_asuransi = $request->biaya_asuransi;
+            $nasabah->biaya_koperasi = $request->biaya_koperasi;
+            $nasabah->simpanan_koperasi = $request->simpanan_koperasi;
+            $nasabah->tujuan_penggunaan = $request->tujuan_penggunaan;
+            $nasabah->gaji_bersih = $request->gaji_bersih;
+            $nasabah->mulai_pinjaman = $request->mulai_pinjaman;
+            $nasabah->akhir_pinjaman = $request->akhir_pinjaman;
+            $nasabah->dbr = $request->dbr;
 
-        // === Simpan File dengan Nama Kustom ===
-        $tglInput = now()->format('Ymd'); // 20260122
-        $namaLengkapSanitized = Str::slug($req->nama_lengkap, '_'); // rizal_muhamad
-        $randomNumber = rand(1000, 9999);
+            // Assign nomor KTP dan NPWP (disimpan juga sebagai kolom terpisah)
+            $nasabah->no_ktp = $request->no_ktp;
+            $nasabah->no_npwp = $request->no_npwp;
 
-        $fileFields = [
-            'ktp',
-            'npwp',
-            'selfie',
-            'kk',
-            'id_card',
-            'sk_karyawan',
-            'slip_gaji',
-            'buku_tabungan',
-            'mutasi_rekening',
-            'form_slik',
-            'form_kredit',
-            'form_bta',
-            'form_checklist'
-        ];
+            // --- 3. Proses Upload File ---
+            // Definisikan mapping antara input form dan kolom di database
+            $fileMappings = [
+                'upload_ktp' => 'ktp',
+                'upload_selfie' => 'selfie',
+                'upload_npwp' => 'npwp',
+                'upload_kk' => 'kk',
+                'upload_sk' => 'sk_karyawan',
+                'upload_slip' => 'slip_gaji',
+                'upload_buku_tabungan' => 'buku_tabungan',
+                'upload_mutasi' => 'mutasi_rekening',
+                'upload_slik' => 'form_slik',
+                'upload_kredit' => 'form_kredit',
+                'upload_bta' => 'form_bta',
+                'upload_checklist' => 'form_checklist',
+            ];
 
-        foreach ($fileFields as $field) {
-            if ($req->hasFile($field)) {
-                $file = $req->file($field);
-                // $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-                $extension = $file->getClientOriginalExtension();
-
-                // Format: tgl_nama_random_originalname
-                $fileName = "{$tglInput}_{$namaLengkapSanitized}_{$randomNumber}_{$field}.{$extension}";
-
-                // Simpan ke folder: storage/app/public/nasabah/
-                $file->storeAs('bta', $fileName);
-
-                // Simpan path relatif ke database
-                $nasabah->{$field} = $fileName;
+            foreach ($fileMappings as $inputName => $columnName) {
+                if ($request->hasFile($inputName)) {
+                    $file = $request->file($inputName);
+                    // Generate nama file unik
+                    $filename = time() . '_' . uniqid() . '_' . $columnName . '.' . $file->getClientOriginalExtension();
+                    // Simpan ke storage (misalnya: public/nasabah_files/)
+                    // $path = $file->storeAs('nasabah_files', $filename, 'public');
+                    $file->storeAs('bta', $filename);
+                    // Simpan path ke kolom database
+                    $nasabah->{$columnName} = $filename;
+                }
             }
+
+            // Kolom lainnya
+            $nasabah->admin_id = auth('bta')->id(); // Misalnya ID admin yang sedang login
+            $nasabah->position = 'analyst'; // Atau sesuaikan
+            $nasabah->status = 'pending'; // Status awal
+
+            // Simpan ke database
+            $nasabah->save();
+
+            // --- 4. Return Response ---
+            return response()->json([
+                'message' => 'Data nasabah berhasil disimpan.',
+                'data' => $nasabah // Opsional: kembalikan data yang disimpan
+            ], 201); // Gunakan 201 Created untuk resource baru
+
+        } catch (\Exception $e) {
+            // Log error untuk debugging
+            // \Log::error('Error inserting nasabah: ' . $e->getMessage());
+            return response()->json([
+                'message' => 'Terjadi kesalahan saat menyimpan data ke database.'
+            ], 500);
         }
-
-        $nasabah->admin_id = auth('bta')->user()->id;
-        $nasabah->position = 'analyst';
-        $nasabah->status = 'pending';
-        $nasabah->save();
-
-        return response()->json([
-            'message' => 'Data nasabah berhasil disimpan.'
-        ]);
     }
 
     public function nasabahUpdate(Request $req)
     {
 
-        $nasabah =  nasabah::where('id', $req->id)->first();
+        $nasabah = nasabah::where('no_ktp', $req->no_ktp)
+            ->where('position', 'analyst')
+            ->where('status', 'revisi')
+            ->first();
+
+        if (!$nasabah) {
+            return response()->json(['message' => 'Data nasabah tidak ditemukan'], 404);
+        }
 
         // === Identitas ===
         $nasabah->nama_lengkap = $req->nama_lengkap;
@@ -475,11 +590,12 @@ class NasabahController extends Controller
         $nasabah->provinsi_id = $req->provinsi_id;
         $nasabah->kota_id = $req->kota_id;
         $nasabah->kecamatan_id = $req->kecamatan_id;
-        $kelurahan = kelurahan::where('id', $req->kelurahan_id)
-            ->first();
+
+        // Ambil data kelurahan dengan aman
+        $kelurahan = Kelurahan::where('id', $req->kelurahan_id)->first();
         $nasabah->kelurahan_id = $req->kelurahan_id;
-        $nasabah->kode_pos = $kelurahan->kodepos;
-        $nasabah->kode_dati_id = $req->kode_dati;
+        $nasabah->kode_pos = $kelurahan ? $kelurahan->kodepos : $nasabah->kode_pos; // Fallback ke nilai lama jika kelurahan tidak ditemukan
+        $nasabah->kode_dati_id = $req->kode_dati_id;
 
         // === Pekerjaan ===
         $nasabah->nama_perusahaan = $req->nama_perusahaan;
@@ -499,46 +615,76 @@ class NasabahController extends Controller
         $nasabah->no_rek = $req->no_rek;
         $nasabah->nama_pemilik_rek = $req->nama_pemilik_rek;
 
-        // === Simpan File dengan Nama Kustom ===
-        $tglInput = now()->format('Ymd'); // 20260122
-        $namaLengkapSanitized = Str::slug($req->nama_lengkap, '_'); // rizal_muhamad
+        // === LOGIKA UPLOAD FILE ===
+        $tglInput = now()->format('Ymd');
+        $namaLengkapSanitized = Str::slug($req->nama_lengkap, '_');
         $randomNumber = rand(1000, 9999);
 
         $fileFields = [
-            'ktp' => 'ktp',
-            'npwp' => 'npwp',
-            'selfie' => 'selfie',
-            'kk' => 'kk',
-            'idcard' => 'id_card',
-            'sk' => 'sk_karyawan',
-            'slip' => 'slip_gaji',
-            'bukutabungan' => 'buku_tabungan',
-            'mutasi' => 'mutasi_rekening',
-            'slik' => 'form_slik',
-            'kredit' => 'form_kredit',
-            'bta' => 'form_bta',
-            'checklist' => 'form_checklist'
+            'upload_ktp' => 'ktp',
+            'upload_npwp' => 'npwp',
+            'upload_selfie' => 'selfie',
+            'upload_kk' => 'kk',
+            'upload_idcard' => 'id_card',
+            'upload_sk' => 'sk_karyawan',
+            'upload_slip' => 'slip_gaji',
+            'upload_bukutabungan' => 'buku_tabungan',
+            'upload_mutasi' => 'mutasi_rekening',
+            'upload_slik' => 'form_slik',
+            'upload_kredit' => 'form_kredit',
+            'upload_bta' => 'form_bta',
+            'upload_checklist' => 'form_checklist'
         ];
 
         foreach ($fileFields as $requestField => $dbField) {
+            // Cek apakah ada file yang diupload untuk field ini
             if ($req->hasFile($requestField)) {
                 $file = $req->file($requestField);
-                $extension = $file->getClientOriginalExtension();
-                // Format: tgl_nama_random_originalname
+
+                // Validasi file
+                $allowedExtensions = ['jpg', 'jpeg', 'png', 'pdf'];
+                $extension = strtolower($file->getClientOriginalExtension());
+
+                if (!in_array($extension, $allowedExtensions)) {
+                    return response()->json([
+                        'message' => "Format file {$requestField} tidak valid. Hanya JPG, PNG, PDF yang diperbolehkan."
+                    ], 422);
+                }
+
+                if ($file->getSize() > 5120 * 1024) { // 5 MB
+                    return response()->json([
+                        'message' => "Ukuran file {$requestField} melebihi batas maksimal 5 MB."
+                    ], 422);
+                }
+
+                // Generate nama file unik
                 $fileName = "{$tglInput}_{$namaLengkapSanitized}_{$randomNumber}_{$requestField}.{$extension}";
-                // Simpan ke folder: storage/app/public/nasabah/
+
+                // Simpan file ke storage
                 $file->storeAs('bta', $fileName);
-                // Simpan path relatif ke database
+                // Update path file di database
                 $nasabah->{$dbField} = $fileName;
-                // Set status menjadi pending untuk field yang diupload
+
+                // === RESET STATUS & NOTE ===
                 $statusField = "status_{$dbField}";
+                $noteField = "note_{$dbField}";
+
+                // Set status ke pending (karena file baru perlu direview ulang)
                 $nasabah->{$statusField} = 'pending';
+
+                // Hapus note revisi sebelumnya (karena file sudah diganti)
+                $nasabah->{$noteField} = null;
             }
+            // Jika TIDAK ada file yang diupload:
+            // - Biarkan $nasabah->{$dbField} tetap (file lama)
+            // - Biarkan status dan note tetap seperti sebelumnya
         }
 
+        // === Metadata ===
         $nasabah->admin_id = auth('bta')->user()->id;
-        $nasabah->position = 'admin';
-        $nasabah->status = 'revisi';
+        $nasabah->position = 'analyst';
+        $nasabah->status = 'pending'; // Status nasabah tetap revisi sampai analyst approve
+
         $nasabah->save();
 
         return response()->json([
@@ -616,7 +762,6 @@ class NasabahController extends Controller
             'no_surat'      => '__',
             'bulan'         => '__',
             'tahun'         => date('Y'),
-            'no_rekening'   => $nasabah->no_rek,
 
             'nama_debitur'  => $nasabah->nama_lengkap,
             'alamat'        => $nasabah->alamat_rumah . ',' . $nasabah->desa->desa . ' ,' . $nasabah->kecamatan->kecamatan . ' ,' . $nasabah->kabupaten->kabupaten . ' ,' . $nasabah->provinsi->provinsi,
@@ -671,5 +816,14 @@ class NasabahController extends Controller
         return response()->json([
             'message' => 'Tanda tangan PK & Foto Akad Berhasil di Upload!'
         ]);
+    }
+
+
+    public function nasabahTambahIndex()
+    {
+        // 
+        $provinsis = provinsi::get();
+        $banks = bank::get();
+        return view('bta.nasabah.tambah', compact('provinsis', 'banks'));
     }
 }

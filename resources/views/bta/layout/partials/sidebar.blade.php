@@ -14,12 +14,12 @@
                     </a>
                 </li>
 
-                <li class="menu-title">Nasabah</li>
+                <li class="menu-title">Adminstrator</li>
 
                 <li>
                     <a href="{{ route('bta.nasabah.index') }}">
                         <i class=" dripicons-align-center"></i>
-                        <span> Nasabah </span>
+                        <span> Adminstrator </span>
                     </a>
                 </li>
 
