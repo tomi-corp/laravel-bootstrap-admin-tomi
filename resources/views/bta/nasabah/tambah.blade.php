@@ -87,7 +87,7 @@
                                         </div>
                                     </div>
 
-                                    <div class="col-md-12">
+                                    <div class="col-md-6">
                                         <div class="form-group">
                                             <label>No. KTP <span class="text-danger">*</span></label>
                                             <input class="form-control" id="noKtp" name="no_ktp"
@@ -116,7 +116,7 @@
                                     </div>
 
                                     <!-- UPLOAD Selfie -->
-                                    <div class="col-md-6">
+                                    {{-- <div class="col-md-6">
                                         <div class="form-group">
                                             <label>Upload Selfie dengan KTP <span class="text-danger">*</span></label>
                                             <div class="input-group">
@@ -132,7 +132,7 @@
                                             <small class="text-danger" id="errUploadSelfie"></small>
                                             <div class="mt-2 preview-container" id="previewUploadSelfie"></div>
                                         </div>
-                                    </div>
+                                    </div> --}}
 
                                     <div class="col-md-6">
                                         <div class="form-group">
@@ -416,7 +416,7 @@
 
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label>NIP (No Induk Pegawai)</label>
+                                            <label>NIP (No Induk Pegawai) / KARIP (Kartu Identitas Pensiun)</label>
                                             <input class="form-control" id="nip" name="nip"
                                                 placeholder="Opsional" />
                                             <small class="text-danger" id="errNip"></small>
@@ -430,6 +430,7 @@
                                                 <option value="">Pilih</option>
                                                 <option value="Karyawan Tetap">Karyawan Tetap</option>
                                                 <option value="Karyawan Tidak Tetap">Karyawan Tidak Tetap</option>
+                                                <option value="Pensiun">Pensiun</option>
                                             </select>
                                             <small class="text-danger" id="errStatusPegawai"></small>
                                         </div>
@@ -437,7 +438,7 @@
 
                                     <div class="col-md-6 kontrak-field d-none">
                                         <div class="form-group">
-                                            <label>Tgl Akhir Kontrak Kerja</label>
+                                            <label>Tgl Akhir Kontrak Kerja / Tanggal Pensiun</label>
                                             <input class="form-control" id="tglAkhirKontrak" name="tgl_akhir_kontrak"
                                                 type="date" />
                                             <small class="text-danger" id="errTglAkhirKontrak"></small>
@@ -447,7 +448,8 @@
                                     <!-- UPLOAD SK Karyawan -->
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label>Upload SK Karyawan <span class="text-danger">*</span></label>
+                                            <label>Upload SK Karyawan / SK Pensiun<span
+                                                    class="text-danger">*</span></label>
                                             <div class="input-group">
                                                 <button type="button" class="btn btn-outline-primary btn-block"
                                                     id="btnUploadSk">
@@ -485,7 +487,8 @@
                                     <!-- upload ID Card -->
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label>Upload ID Card <span class="text-danger">*</span></label>
+                                            <label>Upload ID Card / ID Pensiun (Karip)<span
+                                                    class="text-danger">*</span></label>
                                             <div class="input-group">
                                                 <button type="button" class="btn btn-outline-primary btn-block"
                                                     id="btnUploadIdCard">
@@ -1155,10 +1158,10 @@
                             markError('uploadNpwp', 'Upload Npwp wajib diisi');
                             isValid = false;
                         }
-                        if (!$('#uploadSelfie')[0].files.length) {
-                            markError('uploadSelfie', 'Upload Selfie dengan KTP wajib diisi');
-                            isValid = false;
-                        }
+                        // if (!$('#uploadSelfie')[0].files.length) {
+                        //     markError('uploadSelfie', 'Upload Selfie dengan KTP wajib diisi');
+                        //     isValid = false;
+                        // }
                         if (!$('#jenisKelamin').val()) {
                             markError('jenisKelamin', 'Jenis kelamin wajib dipilih');
                             isValid = false;
@@ -1409,10 +1412,10 @@
                             showError('uploadNpwp', 'Upload Npwp wajib diisi');
                             isValid = false;
                         }
-                        if (!$('#uploadSelfie')[0].files.length) {
-                            showError('uploadSelfie', 'Upload Selfie dengan KTP wajib diisi');
-                            isValid = false;
-                        }
+                        // if (!$('#uploadSelfie')[0].files.length) {
+                        //     showError('uploadSelfie', 'Upload Selfie dengan KTP wajib diisi');
+                        //     isValid = false;
+                        // }
                         if (!$('#jenisKelamin').val()) {
                             showError('jenisKelamin', 'Jenis kelamin wajib dipilih');
                             isValid = false;
@@ -1699,9 +1702,9 @@
             $('#btnUploadKtp').click(function() {
                 $('#uploadKtp').click();
             });
-            $('#btnUploadSelfie').click(function() {
-                $('#uploadSelfie').click();
-            });
+            // $('#btnUploadSelfie').click(function() {
+            //     $('#uploadSelfie').click();
+            // });
             $('#btnUploadNpwp').click(function() {
                 $('#uploadNpwp').click();
             });
@@ -1766,7 +1769,7 @@
 
             // Status Pegawai change
             $('#statusPegawai').change(function() {
-                if ($(this).val() === 'Karyawan Tidak Tetap') {
+                if ($(this).val() === 'Karyawan Tidak Tetap' || $(this).val() === 'Pensiun') {
                     $('.kontrak-field').removeClass('d-none');
                 } else {
                     $('.kontrak-field').addClass('d-none');

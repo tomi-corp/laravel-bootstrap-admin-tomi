@@ -506,7 +506,7 @@ class NasabahController extends Controller
             // Definisikan mapping antara input form dan kolom di database
             $fileMappings = [
                 'upload_ktp' => 'ktp',
-                'upload_selfie' => 'selfie',
+                // 'upload_selfie' => 'selfie',
                 'upload_npwp' => 'npwp',
                 'upload_kk' => 'kk',
                 'upload_sk' => 'sk_karyawan',

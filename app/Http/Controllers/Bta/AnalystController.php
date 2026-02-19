@@ -80,7 +80,7 @@ class AnalystController extends Controller
             'npwp' => $nasabah->npwp,
             'id_card' => $nasabah->id_card,
             'kk' => $nasabah->kk,
-            'selfie' => $nasabah->selfie,
+            // 'selfie' => $nasabah->selfie,
             'slip_gaji' => $nasabah->slip_gaji,
             'sk_karyawan' => $nasabah->sk_karyawan,
             'form_slik' => $nasabah->form_slik,

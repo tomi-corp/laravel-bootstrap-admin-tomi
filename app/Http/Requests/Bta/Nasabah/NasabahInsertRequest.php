@@ -141,7 +141,7 @@ class NasabahInsertRequest extends FormRequest
 
             // Upload File
             'upload_ktp' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
-            'upload_selfie' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            // 'upload_selfie' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
             'upload_npwp' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
             'upload_kk' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
             'upload_sk' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',

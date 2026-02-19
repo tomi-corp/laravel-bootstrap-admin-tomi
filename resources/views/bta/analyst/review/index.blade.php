@@ -112,7 +112,7 @@
                                 </div>
 
                                 <!-- PREVIEW Selfie -->
-                                <div class="col-md-6">
+                                {{-- <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Upload Selfie dengan KTP</label>
                                         @if ($nasabah->selfie)
@@ -134,7 +134,7 @@
                                             <input class="form-control" value="Belum Diupload" readonly />
                                         @endif
                                     </div>
-                                </div>
+                                </div> --}}
 
                                 <div class="col-md-6">
                                     <div class="form-group">
@@ -835,7 +835,7 @@
                                     $docItems = [
                                         ['key' => 'ktp', 'label' => 'KTP'],
                                         ['key' => 'npwp', 'label' => 'NPWP'],
-                                        ['key' => 'selfie', 'label' => 'Selfie'],
+                                        // ['key' => 'selfie', 'label' => 'Selfie'],
                                         ['key' => 'kk', 'label' => 'Kartu Keluarga'],
                                         ['key' => 'id_card', 'label' => 'ID Card'],
                                         ['key' => 'sk_karyawan', 'label' => 'SK Karyawan'],

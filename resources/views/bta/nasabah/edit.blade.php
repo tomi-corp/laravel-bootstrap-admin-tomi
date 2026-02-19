@@ -138,7 +138,7 @@
                                     </div>
 
                                     <!-- UPLOAD Selfie -->
-                                    <div class="col-md-6">
+                                    {{-- <div class="col-md-6">
                                         <div class="form-group">
                                             <label>Upload Selfie dengan KTP <span class="text-danger">*</span></label>
                                             @if (isset($fileMeta['selfie']['status']) && $fileMeta['selfie']['status'] !== 'pending')
@@ -181,7 +181,7 @@
                                             @endif
                                             <div class="mt-2 preview-container" id="previewUploadSelfie"></div>
                                         </div>
-                                    </div>
+                                    </div> --}}
 
                                     <div class="col-md-6">
                                         <div class="form-group">
@@ -1628,10 +1628,10 @@
                             markError('uploadKtp', 'Upload KTP wajib diisi');
                             isValid = false;
                         }
-                        if (isUploadRequired('uploadSelfie') && !$('#uploadSelfie')[0].files.length) {
-                            markError('uploadSelfie', 'Upload Selfie wajib diisi');
-                            isValid = false;
-                        }
+                        // if (isUploadRequired('uploadSelfie') && !$('#uploadSelfie')[0].files.length) {
+                        //     markError('uploadSelfie', 'Upload Selfie wajib diisi');
+                        //     isValid = false;
+                        // }
                         if (isUploadRequired('uploadNpwp') && !$('#uploadNpwp')[0].files.length) {
                             markError('uploadNpwp', 'Upload NPWP wajib diisi');
                             isValid = false;
@@ -1873,13 +1873,13 @@
             });
 
             // Selfie
-            $('#btnUploadSelfie').click(function() {
-                if ($(this).prop('disabled')) {
-                    toastr.info('File Selfie sudah disetujui dan tidak dapat diubah', 'Info');
-                    return false;
-                }
-                $('#uploadSelfie').click();
-            });
+            // $('#btnUploadSelfie').click(function() {
+            //     if ($(this).prop('disabled')) {
+            //         toastr.info('File Selfie sudah disetujui dan tidak dapat diubah', 'Info');
+            //         return false;
+            //     }
+            //     $('#uploadSelfie').click();
+            // });
 
             // NPWP
             $('#btnUploadNpwp').click(function() {
