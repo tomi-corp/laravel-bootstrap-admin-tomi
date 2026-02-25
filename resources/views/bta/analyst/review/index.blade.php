@@ -32,11 +32,7 @@
                                 <i class="mdi mdi-information-outline mr-1"></i>Data Pribadi
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" data-toggle="tab" href="#tab-alamat-review" role="tab">
-                                <i class="mdi mdi-map-marker mr-1"></i>Alamat
-                            </a>
-                        </li>
+
                         <li class="nav-item">
                             <a class="nav-link" data-toggle="tab" href="#tab-pekerjaan-review" role="tab">
                                 <i class="mdi mdi-briefcase mr-1"></i>Pekerjaan
@@ -277,14 +273,8 @@
                                         </div>
                                     </div>
                                 @endif
-                            </div>
-                        </div>
 
-                        <!-- TAB 3: ALAMAT REVIEW -->
-                        <div class="tab-pane" id="tab-alamat-review" role="tabpanel">
-                            <h5 class="mb-4"><i class="mdi mdi-map-marker text-primary"></i> Alamat Rumah</h5>
 
-                            <div class="row">
                                 <div class="col-md-12">
                                     <div class="form-group">
                                         <label>Alamat Rumah</label>
@@ -344,42 +334,18 @@
                                             readonly />
                                     </div>
                                 </div>
+
                             </div>
                         </div>
+
+
 
                         <!-- TAB 4: PEKERJAAN REVIEW -->
                         <div class="tab-pane" id="tab-pekerjaan-review" role="tabpanel">
                             <h5 class="mb-4"><i class="mdi mdi-briefcase text-primary"></i> Data Pekerjaan</h5>
 
                             <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Nama Perusahaan</label>
-                                        <input class="form-control" value="{{ $nasabah->nama_perusahaan }}" readonly />
-                                    </div>
-                                </div>
-
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Bidang Usaha</label>
-                                        <input class="form-control" value="{{ $nasabah->bidang_usaha }}" readonly />
-                                    </div>
-                                </div>
-
-                                <div class="col-md-12">
-                                    <div class="form-group">
-                                        <label>Alamat Tempat Kerja</label>
-                                        <textarea class="form-control" rows="3" readonly>{{ $nasabah->alamat_kerja }}</textarea>
-                                    </div>
-                                </div>
-
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>NIP (No Induk Pegawai)</label>
-                                        <input class="form-control" value="{{ $nasabah->nip ?? '-' }}" readonly />
-                                    </div>
-                                </div>
-
+                                {{-- 1. Field yang SELALU muncul untuk semua status --}}
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Status Pegawai</label>
@@ -387,7 +353,40 @@
                                     </div>
                                 </div>
 
-                                @if ($nasabah->status_pegawai === 'Karyawan Tidak Tetap')
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label> NIP (No Induk Pegawai) / KARIP (Kartu Identitas Pensiun) </label>
+                                        <input class="form-control" value="{{ $nasabah->nip ?? '-' }}" readonly />
+                                    </div>
+                                </div>
+
+                                {{-- 2. Field Khusus: Karyawan Tidak Tetap & Tetap (Perusahaan & Alamat) --}}
+                                @if (in_array($nasabah->status_pegawai, ['Karyawan Tidak Tetap', 'Tetap']))
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Nama Perusahaan</label>
+                                            <input class="form-control" value="{{ $nasabah->nama_perusahaan }}"
+                                                readonly />
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Bidang Usaha</label>
+                                            <input class="form-control" value="{{ $nasabah->bidang_usaha }}" readonly />
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label>Alamat Tempat Kerja</label>
+                                            <textarea class="form-control" rows="3" readonly>{{ $nasabah->alamat_kerja }}</textarea>
+                                        </div>
+                                    </div>
+                                @endif
+
+                                {{-- 3. Field Khusus: Karyawan Tidak Tetap & Pensiun (Tanggal Akhir Kontrak) --}}
+                                @if (in_array($nasabah->status_pegawai, ['Karyawan Tidak Tetap', 'Pensiun']))
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label>Tgl Akhir Kontrak Kerja</label>
@@ -397,6 +396,38 @@
                                         </div>
                                     </div>
                                 @endif
+
+                                {{-- 4. Logic Upload Slip Gaji (Conditional Requirement) --}}
+                                @if ($nasabah->status_pegawai === 'Karyawan Tidak Tetap')
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Upload Slip Gaji Terakhir *</label>
+                                            @if ($nasabah->slip_gaji)
+                                                <div class="input-group">
+                                                    <button type="button"
+                                                        class="btn btn-outline-info btn-block btn-preview-doc"
+                                                        data-doc-key="slip_gaji"
+                                                        onclick="previewFile('{{ $safeUrls['slip_gaji'] }}', 'Slip Gaji - {{ $nasabah->nama_lengkap }}', 'slip_gaji')">
+                                                        <i class="mdi mdi-eye"></i> Lihat Slip Gaji
+                                                    </button>
+                                                </div>
+                                                <small class="text-muted mt-1 d-block">Status: <span
+                                                        class="badge {{ $nasabah->status_slip_gaji == 'approve' ? 'badge-success' : ($nasabah->status_slip_gaji == 'reject' ? 'badge-danger' : 'badge-warning') }}">{{ ucfirst($nasabah->status_slip_gaji) }}</span></small>
+                                                @if ($nasabah->note_slip_gaji)
+                                                    <small class="text-info d-block">Catatan:
+                                                        {{ $nasabah->note_slip_gaji }}</small>
+                                                @endif
+                                            @else
+                                                <input class="form-control" value="Belum Diupload" readonly />
+                                            @endif
+                                        </div>
+                                    </div>
+                                @endif
+                                {{-- Jika 'Tetap', section Slip Gaji tidak dirender sama sekali --}}
+
+
+                                {{-- 5. Section Dokumen Pendukung Lainnya (SK & ID Card) --}}
+                                {{-- Disesuaikan agar tetap muncul sesuai kebutuhan review umum --}}
 
                                 <!-- PREVIEW SK Karyawan -->
                                 <div class="col-md-6">
@@ -423,42 +454,16 @@
                                     </div>
                                 </div>
 
-                                <!-- PREVIEW Slip Gaji -->
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Upload Slip Gaji Terakhir</label>
-                                        @if ($nasabah->slip_gaji)
-                                            <div class="input-group">
-                                                <button type="button"
-                                                    class="btn btn-outline-info btn-block btn-preview-doc"
-                                                    data-doc-key="slip_gaji"
-                                                    onclick="previewFile('{{ $safeUrls['slip_gaji'] }}', 'Slip Gaji - {{ $nasabah->nama_lengkap }}', 'slip_gaji')">
-                                                    <i class="mdi mdi-eye"></i> Lihat Slip Gaji
-                                                </button>
-                                            </div>
-                                            <small class="text-muted mt-1 d-block">Status: <span
-                                                    class="badge {{ $nasabah->status_slip_gaji == 'approve' ? 'badge-success' : ($nasabah->status_slip_gaji == 'reject' ? 'badge-danger' : 'badge-warning') }}">{{ ucfirst($nasabah->status_slip_gaji) }}</span></small>
-                                            @if ($nasabah->note_slip_gaji)
-                                                <small class="text-info d-block">Catatan:
-                                                    {{ $nasabah->note_slip_gaji }}</small>
-                                            @endif
-                                        @else
-                                            <input class="form-control" value="Belum Diupload" readonly />
-                                        @endif
-                                    </div>
-                                </div>
-
-
                                 <!-- PREVIEW ID Card -->
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label>Upload ID Card</label>
+                                        <label>Upload ID Card / ID Pensiun (Karip)</label>
                                         @if ($nasabah->id_card)
                                             <div class="input-group">
                                                 <button type="button"
                                                     class="btn btn-outline-info btn-block btn-preview-doc"
                                                     data-doc-key="id_card"
-                                                    onclick="previewFile('{{ $safeUrls['id_card'] }}', 'ID Card - {{ $nasabah->id_card }}', 'id_card')">
+                                                    onclick="previewFile('{{ $safeUrls['id_card'] }}', 'ID Card - {{ $nasabah->nama_lengkap }}', 'id_card')">
                                                     <i class="mdi mdi-eye"></i> Lihat ID Card
                                                 </button>
                                             </div>
@@ -563,13 +568,42 @@
 
                             <div class="row">
                                 <div class="col-md-6">
+
                                     <div class="form-group">
-                                        <label for="plafond">Plafond: <span class="text-danger">*</span></label>
+                                        <label for="plafond">Pengajuan Nasabah: <span
+                                                class="text-danger">*</span></label>
+                                        <input type="text" readonly class="form-control rupiah-format" id="pengajuan"
+                                            value="Rp {{ number_format($nasabah->plafond, 0, ',', '.') }}"
+                                            placeholder="Jumlah Pengajuan Nasabah">
+                                        <small class="text-danger" id="errPlafond"></small>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="plafond">Persetujuan Analyst: <span
+                                                class="text-danger">*</span></label>
                                         <input type="text" class="form-control rupiah-format" name="plafond"
-                                            id="plafond" value="Rp {{ number_format($nasabah->plafond, 0, ',', '.') }}"
+                                            id="plafond"
+                                            value="Rp {{ number_format($nasabah->persetujuan_analyst, 0, ',', '.') }}"
                                             placeholder="Jumlah Plafond">
                                         <small class="text-danger" id="errPlafond"></small>
                                     </div>
+
+                                    <div class="form-group">
+                                        <label for="tipe_bunga">Tipe Bunga: <span class="text-danger">*</span></label>
+                                        <div class="custom-control custom-radio">
+                                            <input type="radio" id="customRadio1" name="tipe_bunga"
+                                                class="custom-control-input" value="flat" checked>
+                                            <label class="custom-control-label" for="customRadio1">Flat</label>
+                                        </div>
+                                        <div class="custom-control custom-radio">
+                                            <input type="radio" id="customRadio2" name="tipe_bunga"
+                                                class="custom-control-input" value="efektif">
+                                            <label class="custom-control-label" for="customRadio2">Efektif
+                                                (Anuitas)</label>
+                                        </div>
+                                        <small class="text-danger" id="errTipeBunga"></small>
+                                    </div>
+
                                     <div class="form-group">
                                         <label for="jangka_waktu">Jangka Waktu (bulan): <span
                                                 class="text-danger">*</span></label>
@@ -789,6 +823,61 @@
                                 </div>
 
 
+
+                                @if ($nasabah->status_pegawai === 'Pensiun')
+
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Video Interview</label>
+                                            @if ($nasabah->video_interview)
+                                                <div class="input-group">
+                                                    <button type="button"
+                                                        class="btn btn-outline-info btn-block btn-preview-doc"
+                                                        data-doc-key="video_interview"
+                                                        onclick="previewFile('{{ $safeUrls['video_interview'] }}', 'Video Interview - {{ $nasabah->nama_lengkap }}', 'video_interview')">
+                                                        <i class="mdi mdi-video"></i> Lihat Video Interview
+                                                    </button>
+                                                </div>
+                                                <small class="text-muted mt-1 d-block">Status: <span
+                                                        class="badge {{ $nasabah->status_video_interview == 'approve' ? 'badge-success' : ($nasabah->status_video_interview == 'reject' ? 'badge-danger' : 'badge-warning') }}">{{ ucfirst($nasabah->status_video_interview) }}</span></small>
+                                                @if ($nasabah->note_video_interview)
+                                                    <small class="text-info d-block">Catatan:
+                                                        {{ $nasabah->note_video_interview }}</small>
+                                                @endif
+                                            @else
+                                                <input class="form-control" value="Belum Diupload" readonly />
+                                            @endif
+                                        </div>
+                                    </div>
+
+                                    <!-- DOKUMEN Video Asuransi -->
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Video Asuransi</label>
+                                            @if ($nasabah->video_asuransi)
+                                                <div class="input-group">
+                                                    <button type="button"
+                                                        class="btn btn-outline-info btn-block btn-preview-doc"
+                                                        data-doc-key="video_asuransi"
+                                                        onclick="previewFile('{{ $safeUrls['video_asuransi'] }}', 'Video Asuransi - {{ $nasabah->nama_lengkap }}', 'video_asuransi')">
+                                                        <i class="mdi mdi-video"></i> Lihat Video Asuransi
+                                                    </button>
+                                                </div>
+                                                <small class="text-muted mt-1 d-block">Status: <span
+                                                        class="badge {{ $nasabah->status_video_asuransi == 'approve' ? 'badge-success' : ($nasabah->status_video_asuransi == 'reject' ? 'badge-danger' : 'badge-warning') }}">{{ ucfirst($nasabah->status_video_asuransi) }}</span></small>
+                                                @if ($nasabah->note_video_asuransi)
+                                                    <small class="text-info d-block">Catatan:
+                                                        {{ $nasabah->note_video_asuransi }}</small>
+                                                @endif
+                                            @else
+                                                <input class="form-control" value="Belum Diupload" readonly />
+                                            @endif
+                                        </div>
+                                    </div>
+                                @endif
+
+
+
                             </div>
 
                             <!-- Action Buttons -->
@@ -830,6 +919,7 @@
                             <form id="formReviewDokumen" style="display: none;">
                                 @csrf
                                 <input type="hidden" name="no_ktp" value="{{ $nasabah->no_ktp }}">
+                                <input type="hidden" name="status_pegawai" value="{{ $nasabah->status_pegawai }}">
 
                                 @php
                                     $docItems = [
@@ -839,7 +929,7 @@
                                         ['key' => 'kk', 'label' => 'Kartu Keluarga'],
                                         ['key' => 'id_card', 'label' => 'ID Card'],
                                         ['key' => 'sk_karyawan', 'label' => 'SK Karyawan'],
-                                        ['key' => 'slip_gaji', 'label' => 'Slip Gaji'],
+                                        // slip_gaji akan di-handle terpisah karena conditional
                                         ['key' => 'buku_tabungan', 'label' => 'Buku Tabungan'],
                                         ['key' => 'mutasi_rekening', 'label' => 'Mutasi Rekening'],
                                         ['key' => 'form_slik', 'label' => 'Form SLIK'],
@@ -848,16 +938,20 @@
                                         ['key' => 'form_checklist', 'label' => 'Form Checklist'],
                                         ['key' => 'foto_akad_kredit', 'label' => 'Foto Akad Kredit'],
                                         ['key' => 'pk_tanda_tangan', 'label' => 'PK Tanda Tangan'],
+                                        ['key' => 'video_interview', 'label' => 'Video Interview'],
+                                        ['key' => 'video_asuransi', 'label' => 'Video Asuransi'],
                                     ];
                                 @endphp
 
+                                {{-- Loop untuk dokumen yang SELALU wajib divalidasi --}}
                                 @foreach ($docItems as $item)
                                     @php
-                                        $currentStatus = $nasabah->{'status_' . $item['key']};
-                                        $currentNote = $nasabah->{'note_' . $item['key']};
+                                        $currentStatus = $nasabah->{'status_' . $item['key']} ?? 'pending';
+                                        $currentNote = $nasabah->{'note_' . $item['key']} ?? '';
                                     @endphp
                                     <select name="verifikasi[{{ $item['key'] }}][status]"
-                                        class="form-control form-control-sm">
+                                        class="form-control form-control-sm doc-status-select"
+                                        data-doc-key="{{ $item['key'] }}">
                                         <option value="pending" {{ $currentStatus == 'pending' ? 'selected' : '' }}>
                                             Pending</option>
                                         <option value="approve" {{ $currentStatus == 'approve' ? 'selected' : '' }}>
@@ -867,9 +961,34 @@
                                         <option value="revisi" {{ $currentStatus == 'revisi' ? 'selected' : '' }}>
                                             Kembalikan</option>
                                     </select>
-                                    <textarea name="verifikasi[{{ $item['key'] }}][note]" class="form-control form-control-sm" rows="1"
-                                        placeholder="Catatan...">{{ old("verifikasi.{$item['key']}.note", $currentNote) }}</textarea>
+                                    <textarea name="verifikasi[{{ $item['key'] }}][note]" class="form-control form-control-sm doc-note-textarea"
+                                        rows="1" placeholder="Catatan..." data-doc-key="{{ $item['key'] }}">{{ old("verifikasi.{$item['key']}.note", $currentNote) }}</textarea>
                                 @endforeach
+
+                                {{-- ✅ CONDITIONAL: Slip Gaji hanya untuk NON-Pensiun --}}
+                                @if ($nasabah->status_pegawai !== 'Pensiun')
+                                    @php
+                                        $currentStatus = $nasabah->status_slip_gaji ?? 'pending';
+                                        $currentNote = $nasabah->note_slip_gaji ?? '';
+                                    @endphp
+                                    <select name="verifikasi[slip_gaji][status]"
+                                        class="form-control form-control-sm doc-status-select" data-doc-key="slip_gaji">
+                                        <option value="pending" {{ $currentStatus == 'pending' ? 'selected' : '' }}>
+                                            Pending</option>
+                                        <option value="approve" {{ $currentStatus == 'approve' ? 'selected' : '' }}>
+                                            Setuju</option>
+                                        <option value="reject" {{ $currentStatus == 'reject' ? 'selected' : '' }}>Tolak
+                                        </option>
+                                        <option value="revisi" {{ $currentStatus == 'revisi' ? 'selected' : '' }}>
+                                            Kembalikan</option>
+                                    </select>
+                                    <textarea name="verifikasi[slip_gaji][note]" class="form-control form-control-sm doc-note-textarea" rows="1"
+                                        placeholder="Catatan..." data-doc-key="slip_gaji">{{ old('verifikasi.slip_gaji.note', $currentNote) }}</textarea>
+                                @else
+                                    {{-- Untuk Pensiun: kirim nilai null/empty agar tidak divalidasi backend --}}
+                                    <input type="hidden" name="verifikasi[slip_gaji][status]" value="">
+                                    <input type="hidden" name="verifikasi[slip_gaji][note]" value="">
+                                @endif
                             </form>
                         </div>
                     </div> <!-- end tab-content -->
@@ -924,9 +1043,17 @@
         let currentDocKey = null;
         $('#plafond, #jangka_waktu, #suku_bunga').on('input', function() {
             calculateAngsuran();
-            // calculateDBR();
+            calculateAkhirPinjaman();
         });
 
+        // Tambahkan listener untuk perubahan Tipe Bunga (Radio Button)
+        $('input[name="tipe_bunga"]').on('change', function() {
+            calculateAngsuran();
+        });
+
+        $('#mulai_pinjaman, #jangka_waktu').on('change input', function() {
+            calculateAkhirPinjaman();
+        });
 
         $('#mulai_pinjaman, #jangka_waktu').on('change input', function() {
             calculateAkhirPinjaman();
@@ -937,16 +1064,31 @@
             const jangkaWaktu = parseInt($('#jangka_waktu').val()) || 0;
             const sukuBunga = parseFloat($('#suku_bunga').val()) || 0;
 
+            // Cek tipe bunga yang dipilih
+            const tipeBunga = $('input[name="tipe_bunga"]:checked').val();
+
             if (plafond > 0 && jangkaWaktu > 0 && sukuBunga > 0) {
-                const bungaPerBulan = (plafond * sukuBunga) / 100;
-                const angsuranPokok = plafond / jangkaWaktu;
-                const totalAngsuran = angsuranPokok + bungaPerBulan;
+                let totalAngsuran = 0;
+
+                if (tipeBunga === 'flat') {
+                    // RUMUS FLAT (Sesuai Excel Simulasi Flat)
+                    const bungaPerBulan = (plafond * (sukuBunga / 100)) / 12;
+                    const pokokPerBulan = plafond / jangkaWaktu;
+                    totalAngsuran = pokokPerBulan + bungaPerBulan;
+                } else {
+                    // RUMUS EFEKTIF / ANUITAS (Sesuai Excel Simulasi In Arrears)
+                    const r = (sukuBunga / 100) / 12;
+                    const n = jangkaWaktu;
+                    const powTerm = Math.pow(1 + r, n);
+                    totalAngsuran = plafond * (r * powTerm) / (powTerm - 1);
+                }
 
                 $('#nilai_angsuran').val(formatRupiah(Math.round(totalAngsuran).toString()));
             } else {
                 $('#nilai_angsuran').val('');
             }
         }
+
 
         function calculateAkhirPinjaman() {
             const mulaiPinjaman = $('#mulai_pinjaman').val();

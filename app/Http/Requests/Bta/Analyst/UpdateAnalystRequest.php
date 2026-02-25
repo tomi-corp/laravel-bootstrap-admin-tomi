@@ -2,7 +2,10 @@
 
 namespace App\Http\Requests\Bta\Analyst;
 
+use App\Models\nasabah;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+
 
 class UpdateAnalystRequest extends FormRequest
 {
@@ -46,49 +49,68 @@ class UpdateAnalystRequest extends FormRequest
 
     public function rules(): array
     {
-        return [
-            // Identitas & Utama
-            'id'        => 'required|exists:nasabahs,id',
-            'rekomendasi'       => 'required|in:disetujui,ditolak,dikembalikan',
-            'tujuan_penggunaan' => 'required|string|max:255',
-            'catatan_analyst'   => 'nullable|string',
+        $nasabah = nasabah::where('id', $this->id)->first();
 
-            // Data Pinjaman (Sekarang berupa angka murni karena prepareForValidation)
-            'plafond'           => 'required|numeric',
-            'jangka_waktu'      => 'required|integer|min:1',
-            'suku_bunga'        => 'required|numeric',
-            'nilai_angsuran'    => 'required|numeric',
-            'gaji_bersih'       => 'required|numeric',
-            'dbr'               => 'required|numeric',
+
+        $statusPegawai = $nasabah?->status_pegawai ?? '';
+
+        // Base rules yang selalu berlaku
+        $rules = [
+            // Identitas & Utama
+            'id'                     => 'required|exists:nasabahs,id',
+            'rekomendasi'            => 'required|in:disetujui,ditolak,dikembalikan',
+            'tujuan_penggunaan'      => 'required|string|max:255',
+            'catatan_analyst'        => 'nullable|string',
+
+            // Data Pinjaman
+            'plafond'                => 'required|numeric',
+            'jangka_waktu'           => 'required|integer|min:1',
+            'suku_bunga'             => 'required|numeric',
+            'nilai_angsuran'         => 'required|numeric',
+            'gaji_bersih'            => 'required|numeric',
+            'dbr'                    => 'required|numeric',
 
             // Biaya-biaya
-            'biaya_bank'        => 'required|numeric',
-            'biaya_asuransi'    => 'required|numeric',
-            'biaya_koperasi'    => 'required|numeric',
-            'simpanan_koperasi' => 'required|numeric',
+            'biaya_bank'             => 'required|numeric',
+            'biaya_asuransi'         => 'required|numeric',
+            'biaya_koperasi'         => 'required|numeric',
+            'simpanan_koperasi'      => 'required|numeric',
 
             // Tanggal
-            'mulai_pinjaman'    => 'required|date',
-            'akhir_pinjaman'    => 'required|date|after:mulai_pinjaman',
+            'mulai_pinjaman'         => 'required|date',
+            'akhir_pinjaman'         => 'required|date|after:mulai_pinjaman',
 
-            // Status Dokumen (Validasi status harus accept/reject/revisi sesuai kebutuhan Anda)
-            'status_npwp'              => 'required|in:approve,reject',
-            'note_npwp'                => 'nullable|string',
-            'status_ktp'              => 'required|in:approve,reject',
-            'note_ktp'                => 'nullable|string',
-            'status_id_card'          => 'required|in:approve,reject',
-            'note_id_card'            => 'nullable|string',
-            'status_kk'               => 'required|in:approve,reject',
-            'note_kk'                 => 'nullable|string',
-            'status_slip_gaji'        => 'required|in:approve,reject',
-            'note_slip_gaji'          => 'nullable|string',
-            'status_sk_karyawan'      => 'required|in:approve,reject',
-            'note_sk_karyawan'        => 'nullable|string',
-            'status_form_bta'         => 'required|in:approve,reject',
-            'note_form_bta'           => 'nullable|string',
-            'status_mutasi_rekening'  => 'required|in:approve,reject',
-            'note_mutasi_rekening'    => 'nullable|string',
+            // Status Dokumen - Wajib untuk SEMUA status
+            'status_npwp'            => 'required|in:approve,reject',
+            'note_npwp'              => 'nullable|string',
+            'status_ktp'             => 'required|in:approve,reject',
+            'note_ktp'               => 'nullable|string',
+            'status_id_card'         => 'required|in:approve,reject',
+            'note_id_card'           => 'nullable|string',
+            'status_kk'              => 'required|in:approve,reject',
+            'note_kk'                => 'nullable|string',
+
+            // Status Dokumen - Conditional (Slip Gaji & SK Karyawan)
+            'status_sk_karyawan'     => 'required|in:approve,reject',
+            'note_sk_karyawan'       => 'nullable|string',
+            'status_form_bta'        => 'required|in:approve,reject',
+            'note_form_bta'          => 'nullable|string',
+            'status_mutasi_rekening' => 'required|in:approve,reject',
+            'note_mutasi_rekening'   => 'nullable|string',
         ];
+
+        // ✅ CONDITIONAL VALIDATION: Slip Gaji
+        // Wajib hanya jika status_pegawai BUKAN 'Pensiun'
+        if ($statusPegawai !== 'Pensiun') {
+            $rules['status_slip_gaji'] = ['required', Rule::in(['approve', 'reject'])];
+            $rules['note_slip_gaji']   = 'nullable|string|max:255';
+        } else {
+            // Opsional untuk Pensiun
+            $rules['status_slip_gaji'] = ['nullable', Rule::in(['approve', 'reject', null])];
+            $rules['note_slip_gaji']   = 'nullable|string|max:255';
+        }
+
+        return $rules;
     }
 
     public function messages()
@@ -98,6 +120,8 @@ class UpdateAnalystRequest extends FormRequest
             'numeric'  => ':attribute harus berupa angka tanpa format titik/Rp.',
             'exists'   => 'Nasabah tidak terdaftar.',
             'in'       => 'Pilihan :attribute tidak valid.',
+            'date'     => ':attribute harus berupa tanggal yang valid.',
+            'after'    => 'Tanggal akhir pinjaman harus setelah tanggal mulai.',
         ];
     }
 }

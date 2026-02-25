@@ -37,9 +37,9 @@ return new class extends Migration
             $table->bigInteger('kode_dati_id')->unsigned();
 
             // Pekerjaan
-            $table->string('nama_perusahaan');
-            $table->string('bidang_usaha');
-            $table->text('alamat_kerja');
+            $table->string('nama_perusahaan')->nullable();
+            $table->string('bidang_usaha')->nullable();
+            $table->text('alamat_kerja')->nullable();
             $table->string('nip')->nullable();
             $table->enum('status_pegawai', ['Karyawan Tetap', 'Karyawan Tidak Tetap']);
             $table->date('tgl_akhir_kontrak')->nullable();
@@ -110,9 +110,19 @@ return new class extends Migration
             $table->string('foto_akad_kredit')->nullable();
             $table->string('pk_tanda_tangan')->nullable();
 
+            $table->string('video_interview')->nullable();
+            $table->enum('status_video_interview', ['pending', 'approve', 'reject'])->default('pending');
+            $table->string('note_video_interview')->nullable();
+
+            $table->string('video_asuransi')->nullable();
+            $table->enum('status_video_asuransi', ['pending', 'approve', 'reject'])->default('pending');
+            $table->string('note_video_asuransi')->nullable();
+
             // Kolom tambahan dari form KTA Multiguna
             $table->string('produk_kredit')->default('KTA Multiguna'); // Default value
+            $table->enum('tipe_bunga', ['flat', 'efektif'])->default('flat');
             $table->decimal('plafond', 15, 2)->nullable();
+            $table->decimal('persetujuan_analyst', 15, 2)->nullable();
             $table->integer('jangka_waktu')->nullable(); // dalam bulan
             $table->decimal('suku_bunga', 5, 2)->nullable(); // misal: 1.50%
             $table->decimal('nilai_angsuran', 15, 2)->nullable(); // OUTPUT BY SYSTEM

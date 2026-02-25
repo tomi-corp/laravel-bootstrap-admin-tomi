@@ -116,8 +116,16 @@ class NasabahInsertRequest extends FormRequest
             'bidang_usaha' => 'required|string|max:255',
             'alamat_kerja' => 'required|string',
             'nip' => 'nullable|string|max:50',
-            'status_pegawai' => 'required|in:Karyawan Tetap,Karyawan Tidak Tetap',
             'tgl_akhir_kontrak' => 'required_if:status_pegawai,Karyawan Tidak Tetap|nullable|date',
+
+            'status_pegawai' => 'required|in:Karyawan Tetap,Karyawan Tidak Tetap,Pensiun',
+            'nama_perusahaan' => 'required_unless:status_pegawai,Pensiun|nullable|string|max:255',
+            'bidang_usaha' => 'required_unless:status_pegawai,Pensiun|nullable|string|max:255',
+            'alamat_kerja' => 'required_unless:status_pegawai,Pensiun|nullable|string',
+            'nip' => 'required|nullable|string|max:50',
+            'tgl_akhir_kontrak' => 'required_if:status_pegawai,Karyawan Tidak Tetap|nullable|date',
+
+
 
             // Bank
             'bankSelect' => 'required|exists:banks,id',
@@ -145,13 +153,24 @@ class NasabahInsertRequest extends FormRequest
             'upload_npwp' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
             'upload_kk' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
             'upload_sk' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
-            'upload_slip' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'upload_slip' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
             'upload_buku_tabungan' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
             'upload_mutasi' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
             'upload_slik' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
             'upload_kredit' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
             'upload_bta' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
             'upload_checklist' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+
+            // 🎬 VIDEO: WAJIB HANYA JIKA STATUS_PEGAWAI = 'Pensiun'
+            'upload_video_interview' => $this->status_pegawai === 'Pensiun'
+                ? 'required|file|mimes:mp4,mov,avi,webm|max:51200'
+                : 'nullable|file|mimes:mp4,mov,avi,webm|max:51200',
+
+            'upload_video_asuransi' => $this->status_pegawai === 'Pensiun'
+                ? 'required|file|mimes:mp4,mov,avi,webm|max:51200'
+                : 'nullable|file|mimes:mp4,mov,avi,webm|max:51200',
+
+
         ];
     }
 
@@ -175,6 +194,13 @@ class NasabahInsertRequest extends FormRequest
             'unique' => ':attribute ini sudah terdaftar.',
             'after_or_equal' => 'Tanggal akhir pinjaman harus sama atau setelah tanggal mulai pinjaman.',
             'numeric' => ':attribute harus berupa angka.',
+
+            'upload_video_interview.required' => 'Video Interview wajib diupload untuk nasabah Pensiun',
+            'upload_video_asuransi.required'  => 'Video Asuransi wajib diupload untuk nasabah Pensiun',
+            'upload_video_interview.mimes'    => 'Format Video Interview harus MP4, MOV, AVI, atau WEBM',
+            'upload_video_asuransi.mimes'     => 'Format Video Asuransi harus MP4, MOV, AVI, atau WEBM',
+            'upload_video_interview.max'      => 'Ukuran Video Interview maksimal 50 MB',
+            'upload_video_asuransi.max'       => 'Ukuran Video Asuransi maksimal 50 MB',
         ];
     }
 }

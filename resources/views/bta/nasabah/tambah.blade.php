@@ -3,21 +3,6 @@
 @section('content')
     <div class="row">
         <div class="col-12">
-            <div class="page-title-box">
-                <div class="page-title-right">
-                    <ol class="breadcrumb m-0">
-                        <li class="breadcrumb-item"><a href="javascript: void(0);">Tomi</a></li>
-                        <li class="breadcrumb-item active">Form Tambah Nasabah</li>
-                    </ol>
-                </div>
-                <h4 class="page-title">Form Tambah Nasabah</h4>
-            </div>
-        </div>
-    </div>
-
-    <!-- Multi-Step Form dengan Tabs -->
-    <div class="row">
-        <div class="col-12">
             <div class="card">
                 <div class="card-body">
                     <!-- Tab Navigation -->
@@ -30,11 +15,6 @@
                         <li class="nav-item">
                             <a class="nav-link" data-toggle="tab" href="#tab-pribadi" role="tab">
                                 <i class="mdi mdi-information-outline mr-1"></i>Data Pribadi
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" data-toggle="tab" href="#tab-alamat" role="tab">
-                                <i class="mdi mdi-map-marker mr-1"></i>Alamat
                             </a>
                         </li>
                         <li class="nav-item">
@@ -114,25 +94,6 @@
                                             <div class="mt-2 preview-container" id="previewUploadKtp"></div>
                                         </div>
                                     </div>
-
-                                    <!-- UPLOAD Selfie -->
-                                    {{-- <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label>Upload Selfie dengan KTP <span class="text-danger">*</span></label>
-                                            <div class="input-group">
-                                                <button type="button" class="btn btn-outline-primary btn-block"
-                                                    id="btnUploadSelfie">
-                                                    <i class="mdi mdi-upload"></i> Pilih File Selfie
-                                                </button>
-                                                <input type="file" class="d-none" id="uploadSelfie"
-                                                    name="upload_selfie" accept=".jpg,.jpeg,.png,.pdf" />
-                                            </div>
-                                            <small class="text-muted mt-1 d-block">Maks. 5 MB | Format: JPG, PNG,
-                                                PDF</small>
-                                            <small class="text-danger" id="errUploadSelfie"></small>
-                                            <div class="mt-2 preview-container" id="previewUploadSelfie"></div>
-                                        </div>
-                                    </div> --}}
 
                                     <div class="col-md-6">
                                         <div class="form-group">
@@ -303,14 +264,8 @@
                                             <small class="text-danger" id="errTglLahirPasangan"></small>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
 
-                            <!-- TAB 3: ALAMAT -->
-                            <div class="tab-pane" id="tab-alamat" role="tabpanel">
-                                <h5 class="mb-4"><i class="mdi mdi-map-marker text-primary"></i> Alamat Rumah</h5>
 
-                                <div class="row">
                                     <div class="col-md-12">
                                         <div class="form-group">
                                             <label>Alamat Rumah <span class="text-danger">*</span></label>
@@ -325,9 +280,9 @@
                                             <select class="form-control select2" id="provinsiSelect" name="provinsi">
                                                 <option value="">Pilih</option>
                                                 @foreach ($provinsis as $provinsi)
-                                                    <option value="{{ $provinsi->id }}">{{ $provinsi->provinsi }}</option>
+                                                    <option value="{{ $provinsi->id }}">{{ $provinsi->provinsi }}
+                                                    </option>
                                                 @endforeach
-                                                <!-- Isi via AJAX atau static -->
                                             </select>
                                             <small class="text-danger" id="errProvinsi"></small>
                                         </div>
@@ -367,7 +322,7 @@
                                         <div class="form-group">
                                             <label>Kode Pos <span class="text-danger">*</span></label>
                                             <input type="text" class="form-control" readonly value=""
-                                                id="kodePos" placeholder="00000" name="kodePos"></input>
+                                                id="kodePos" placeholder="00000" name="kodePos">
                                             <small class="text-danger" id="errKodePos"></small>
                                         </div>
                                     </div>
@@ -376,19 +331,32 @@
                                         <div class="form-group">
                                             <label>Kode DATI <span class="text-danger">*</span></label>
                                             <input type="text" class="form-control" readonly value=""
-                                                id="kodeDati" name="kode_dati" placeholder="00000"></input>
+                                                id="kodeDati" name="kode_dati" placeholder="00000">
                                             <small class="text-danger" id="errKodeDati"></small>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- TAB 4: PEKERJAAN -->
+                            <!-- TAB 3: PEKERJAAN -->
                             <div class="tab-pane" id="tab-pekerjaan" role="tabpanel">
                                 <h5 class="mb-4"><i class="mdi mdi-briefcase text-primary"></i> Data Pekerjaan</h5>
 
                                 <div class="row">
                                     <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Status Pegawai <span class="text-danger">*</span></label>
+                                            <select class="form-control" id="statusPegawai" name="status_pegawai">
+                                                <option value="">Pilih</option>
+                                                <option value="Karyawan Tetap">Karyawan Tetap</option>
+                                                <option value="Karyawan Tidak Tetap">Karyawan Tidak Tetap</option>
+                                                <option value="Pensiun">Pensiun</option>
+                                            </select>
+                                            <small class="text-danger" id="errStatusPegawai"></small>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6 pensiun-field">
                                         <div class="form-group">
                                             <label>Nama Perusahaan <span class="text-danger">*</span></label>
                                             <input class="form-control" id="namaPerusahaan" name="nama_perusahaan"
@@ -397,7 +365,7 @@
                                         </div>
                                     </div>
 
-                                    <div class="col-md-6">
+                                    <div class="col-md-6 pensiun-field">
                                         <div class="form-group">
                                             <label>Bidang Usaha <span class="text-danger">*</span></label>
                                             <input class="form-control" id="bidangUsaha" name="bidang_usaha"
@@ -406,7 +374,7 @@
                                         </div>
                                     </div>
 
-                                    <div class="col-md-12">
+                                    <div class="col-md-12 pensiun-field">
                                         <div class="form-group">
                                             <label>Alamat Tempat Kerja <span class="text-danger">*</span></label>
                                             <textarea class="form-control" id="alamatKerja" name="alamat_kerja" rows="3" placeholder="Alamat kantor"></textarea>
@@ -423,19 +391,6 @@
                                         </div>
                                     </div>
 
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label>Status Pegawai <span class="text-danger">*</span></label>
-                                            <select class="form-control" id="statusPegawai" name="status_pegawai">
-                                                <option value="">Pilih</option>
-                                                <option value="Karyawan Tetap">Karyawan Tetap</option>
-                                                <option value="Karyawan Tidak Tetap">Karyawan Tidak Tetap</option>
-                                                <option value="Pensiun">Pensiun</option>
-                                            </select>
-                                            <small class="text-danger" id="errStatusPegawai"></small>
-                                        </div>
-                                    </div>
-
                                     <div class="col-md-6 kontrak-field d-none">
                                         <div class="form-group">
                                             <label>Tgl Akhir Kontrak Kerja / Tanggal Pensiun</label>
@@ -448,7 +403,7 @@
                                     <!-- UPLOAD SK Karyawan -->
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label>Upload SK Karyawan / SK Pensiun<span
+                                            <label>Upload SK Karyawan / SK Pensiun <span
                                                     class="text-danger">*</span></label>
                                             <div class="input-group">
                                                 <button type="button" class="btn btn-outline-primary btn-block"
@@ -466,7 +421,7 @@
                                     </div>
 
                                     <!-- UPLOAD Slip Gaji -->
-                                    <div class="col-md-6">
+                                    <div class="col-md-6 pensiun-field">
                                         <div class="form-group">
                                             <label>Upload Slip Gaji Terakhir <span class="text-danger">*</span></label>
                                             <div class="input-group">
@@ -487,7 +442,7 @@
                                     <!-- upload ID Card -->
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label>Upload ID Card / ID Pensiun (Karip)<span
+                                            <label>Upload ID Card / ID Pensiun (Karip) <span
                                                     class="text-danger">*</span></label>
                                             <div class="input-group">
                                                 <button type="button" class="btn btn-outline-primary btn-block"
@@ -506,13 +461,12 @@
                                 </div>
                             </div>
 
-                            <!-- TAB 5: BANK -->
+                            <!-- TAB 4: BANK -->
                             <div class="tab-pane" id="tab-bank" role="tabpanel">
                                 <h5 class="mb-4"><i class="mdi mdi-bank text-primary"></i> Data Bank</h5>
 
                                 <div class="row">
                                     <div class="col-md-6">
-                                        <!-- BANK -->
                                         <div class="form-group">
                                             <label>Nama Bank <span class="text-danger">*</span></label>
                                             <select class="form-control select2" id="bankSelect" name="bankSelect">
@@ -585,7 +539,7 @@
                                 </div>
                             </div>
 
-                            <!-- TAB 6: KTA MULTIGUNA -->
+                            <!-- TAB 5: KTA MULTIGUNA -->
                             <div class="tab-pane" id="tab-kta" role="tabpanel">
                                 <h5 class="mb-4"><i class="mdi mdi-credit-card text-primary"></i> Produk Kredit: KTA
                                     Multiguna</h5>
@@ -593,11 +547,29 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="plafond">Plafond: <span class="text-danger">*</span></label>
+                                            <label for="plafond">Jumlah Pengajuan: <span
+                                                    class="text-danger">*</span></label>
                                             <input type="text" class="form-control rupiah-format" name="plafond"
-                                                id="plafond" value="" placeholder="Jumlah Plafond">
+                                                id="plafond" value="" placeholder="Jumlah Pengajuan">
                                             <small class="text-danger" id="errPlafond"></small>
                                         </div>
+
+                                        <div class="form-group">
+                                            <label for="tipe_bunga">Tipe Bunga: <span class="text-danger">*</span></label>
+                                            <div class="custom-control custom-radio">
+                                                <input type="radio" id="customRadio1" name="tipe_bunga"
+                                                    class="custom-control-input" value="flat" checked>
+                                                <label class="custom-control-label" for="customRadio1">Flat</label>
+                                            </div>
+                                            <div class="custom-control custom-radio">
+                                                <input type="radio" id="customRadio2" name="tipe_bunga"
+                                                    class="custom-control-input" value="efektif">
+                                                <label class="custom-control-label" for="customRadio2">Efektif
+                                                    (Anuitas)</label>
+                                            </div>
+                                            <small class="text-danger" id="errTipeBunga"></small>
+                                        </div>
+
                                         <div class="form-group">
                                             <label for="jangka_waktu">Jangka Waktu (bulan): <span
                                                     class="text-danger">*</span></label>
@@ -632,7 +604,7 @@
                                                 placeholder="Masukan angka">
                                         </div>
                                         <div class="form-group">
-                                            <label for="biaya_asuransi">Biaya Asuransi:<span
+                                            <label for="biaya_asuransi">Biaya Asuransi: <span
                                                     class="text-danger">*</span></label>
                                             <input type="text" step="0.01" class="form-control rupiah-format"
                                                 name="biaya_asuransi" id="biaya_asuransi" value=""
@@ -701,7 +673,7 @@
                                 </div>
                             </div>
 
-                            <!-- TAB 7: UPLOAD DOKUMEN -->
+                            <!-- TAB 6: UPLOAD DOKUMEN -->
                             <div class="tab-pane" id="tab-dokumen" role="tabpanel">
                                 <h5 class="mb-4"><i class="mdi mdi-file-document text-primary"></i> Upload Dokumen</h5>
 
@@ -716,7 +688,7 @@
                                                     <i class="mdi mdi-upload"></i> Pilih Form SLIK
                                                 </button>
                                                 <input type="file" class="d-none" id="uploadSlik" name="upload_slik"
-                                                    accept=".jpg,.jpeg,.png,.pdf" />
+                                                    accept=".jpg,.jpeg,.png,.pdf">
                                             </div>
                                             <small class="text-muted mt-1 d-block">Maks. 5 MB | Format: JPG, PNG,
                                                 PDF</small>
@@ -735,7 +707,7 @@
                                                     <i class="mdi mdi-upload"></i> Pilih Form Kredit
                                                 </button>
                                                 <input type="file" class="d-none" id="uploadKredit"
-                                                    name="upload_kredit" accept=".jpg,.jpeg,.png,.pdf" />
+                                                    name="upload_kredit" accept=".jpg,.jpeg,.png,.pdf">
                                             </div>
                                             <small class="text-muted mt-1 d-block">Maks. 5 MB | Format: JPG, PNG,
                                                 PDF</small>
@@ -747,14 +719,14 @@
                                     <!-- UPLOAD Form BTA -->
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label>Upload Form BTA<span class="text-danger">*</span></label>
+                                            <label>Upload Form BTA <span class="text-danger">*</span></label>
                                             <div class="input-group">
                                                 <button type="button" class="btn btn-outline-primary btn-block"
                                                     id="btnUploadBta">
                                                     <i class="mdi mdi-upload"></i> Pilih Form BTA
                                                 </button>
                                                 <input type="file" class="d-none" id="uploadBta" name="upload_bta"
-                                                    accept=".jpg,.jpeg,.png,.pdf" />
+                                                    accept=".jpg,.jpeg,.png,.pdf">
                                             </div>
                                             <small class="text-muted mt-1 d-block">Maks. 5 MB | Format: JPG, PNG,
                                                 PDF</small>
@@ -773,7 +745,7 @@
                                                     <i class="mdi mdi-upload"></i> Pilih Checklist
                                                 </button>
                                                 <input type="file" class="d-none" id="uploadChecklist"
-                                                    name="upload_checklist" accept=".jpg,.jpeg,.png,.pdf" />
+                                                    name="upload_checklist" accept=".jpg,.jpeg,.png,.pdf">
                                             </div>
                                             <small class="text-muted mt-1 d-block">Maks. 5 MB | Format: JPG, PNG,
                                                 PDF</small>
@@ -781,6 +753,60 @@
                                             <div class="mt-2 preview-container" id="previewUploadChecklist"></div>
                                         </div>
                                     </div>
+
+                                    <!-- ================= VIDEO UPLOAD BARU ================= -->
+                                    <!-- UPLOAD Video Interview -->
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Upload Video Interview <span class="text-danger">*</span></label>
+                                            <div class="input-group">
+                                                <button type="button" class="btn btn-outline-primary btn-block"
+                                                    id="btnUploadVideoInterview">
+                                                    <i class="mdi mdi-video"></i> Pilih Video Interview
+                                                </button>
+                                                <input type="file" class="d-none" id="uploadVideoInterview"
+                                                    name="upload_video_interview" accept=".mp4,.mov,.avi,.webm">
+                                            </div>
+                                            <small class="text-muted mt-1 d-block">Maks. 50 MB | Format: MP4, MOV, AVI,
+                                                WEBM</small>
+                                            <small class="text-muted d-block">Akan dikompres otomatis sebelum
+                                                upload</small>
+                                            <small class="text-danger" id="errUploadVideoInterview"></small>
+                                            <div class="mt-2 preview-container" id="previewUploadVideoInterview"></div>
+                                            <!-- Progress Bar Kompresi -->
+                                            <div class="progress mt-2 d-none" id="progressVideoInterview">
+                                                <div class="progress-bar progress-bar-striped progress-bar-animated"
+                                                    role="progressbar" style="width: 0%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- UPLOAD Video Asuransi -->
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Upload Video Asuransi <span class="text-danger">*</span></label>
+                                            <div class="input-group">
+                                                <button type="button" class="btn btn-outline-primary btn-block"
+                                                    id="btnUploadVideoAsuransi">
+                                                    <i class="mdi mdi-video"></i> Pilih Video Asuransi
+                                                </button>
+                                                <input type="file" class="d-none" id="uploadVideoAsuransi"
+                                                    name="upload_video_asuransi" accept=".mp4,.mov,.avi,.webm">
+                                            </div>
+                                            <small class="text-muted mt-1 d-block">Maks. 50 MB | Format: MP4, MOV, AVI,
+                                                WEBM</small>
+                                            <small class="text-muted d-block">Akan dikompres otomatis sebelum
+                                                upload</small>
+                                            <small class="text-danger" id="errUploadVideoAsuransi"></small>
+                                            <div class="mt-2 preview-container" id="previewUploadVideoAsuransi"></div>
+                                            <!-- Progress Bar Kompresi -->
+                                            <div class="progress mt-2 d-none" id="progressVideoAsuransi">
+                                                <div class="progress-bar progress-bar-striped progress-bar-animated"
+                                                    role="progressbar" style="width: 0%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- ================= END VIDEO UPLOAD ================= -->
                                 </div>
                             </div>
                         </div>
@@ -812,6 +838,10 @@
 @endsection
 
 @push('js')
+    <!-- ⚠️ PENTING: FFmpeg.wasm CDN - VERSI 0.10.0 (TIDAK PERLU SharedArrayBuffer) -->
+    <script src="https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.10.0/dist/ffmpeg.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.10.0/dist/ffmpeg-core.js" crossorigin="anonymous"></script>
+
     <script>
         $(document).ready(function() {
             $('.select2').select2({
@@ -820,9 +850,217 @@
                 width: '100%'
             });
 
+            // ================= VIDEO COMPRESSION (Versi 0.10.0) =================
+            const {
+                createFFmpeg,
+                fetchFile
+            } = FFmpeg;
+            let ffmpegInterview = null;
+            let ffmpegAsuransi = null;
+            let compressedVideoInterview = null;
+            let compressedVideoAsuransi = null;
 
+            // Initialize FFmpeg
+            async function initFFmpeg(type) {
+                // Helper untuk update progress bar
+                const updateProgress = (progressId) => {
+                    return ({
+                        ratio
+                    }) => {
+                        const progressElement = document.getElementById(progressId);
+                        const progressBar = progressElement?.querySelector('.progress-bar');
+                        if (progressBar) {
+                            const percent = Math.round(ratio * 100);
+                            progressBar.style.width = percent + '%';
+                            progressBar.setAttribute('aria-valuenow', percent);
+                            progressBar.textContent = percent + '%';
+                        }
+                    };
+                };
 
-            // SELECT WILAYAH
+                if (type === 'interview' && !ffmpegInterview) {
+                    ffmpegInterview = createFFmpeg({
+                        log: true,
+                        progress: updateProgress('progressVideoInterview') // 👈 Progress callback
+                    });
+                    await ffmpegInterview.load();
+                }
+                if (type === 'asuransi' && !ffmpegAsuransi) {
+                    ffmpegAsuransi = createFFmpeg({
+                        log: true,
+                        progress: updateProgress('progressVideoAsuransi') // 👈 Progress callback
+                    });
+                    await ffmpegAsuransi.load();
+                }
+            }
+
+            // Compress Video Function
+            async function compressVideo(file, type, progressId) {
+                const progressElement = document.getElementById(progressId);
+                const progressBar = progressElement.querySelector('.progress-bar');
+
+                progressElement.classList.remove('d-none');
+                progressBar.style.width = '0%'; // 👈 Reset ke 0% di awal
+                progressBar.classList.add('progress-bar-animated');
+                progressBar.classList.remove('bg-success');
+
+                try {
+                    await initFFmpeg(type);
+                    const ffmpeg = type === 'interview' ? ffmpegInterview : ffmpegAsuransi;
+
+                    const fileName = `input_${type}.mp4`;
+                    const outputName = `output_${type}.mp4`;
+
+                    ffmpeg.FS('writeFile', fileName, await fetchFile(file));
+
+                    // Kompresi
+                    await ffmpeg.run(
+                        '-i', fileName,
+                        '-vf', 'scale=-1:720',
+                        '-c:v', 'libx264',
+                        '-preset', 'medium',
+                        '-crf', '28',
+                        '-c:a', 'aac',
+                        '-b:a', '128k',
+                        outputName
+                    );
+
+                    const data = ffmpeg.FS('readFile', outputName);
+                    const videoBlob = new Blob([data.buffer], {
+                        type: 'video/mp4'
+                    });
+
+                    // Hitung pengurangan ukuran
+                    const originalSize = (file.size / 1024 / 1024).toFixed(2);
+                    const compressedSize = (videoBlob.size / 1024 / 1024).toFixed(2);
+                    const reduction = (((file.size - videoBlob.size) / file.size) * 100).toFixed(1);
+
+                    // Set progress 100% saat selesai
+                    progressBar.style.width = '100%';
+                    progressBar.classList.remove('progress-bar-animated');
+                    progressBar.classList.add('bg-success');
+                    progressBar.textContent = '100%';
+
+                    setTimeout(() => {
+                        progressElement.classList.add('d-none');
+                        progressBar.style.width = '0%';
+                        progressBar.classList.remove('bg-success');
+                    }, 2000);
+
+                    // Cleanup memory
+                    ffmpeg.FS('unlink', fileName);
+                    ffmpeg.FS('unlink', outputName);
+
+                    console.log(
+                        `Video ${type}: ${originalSize}MB → ${compressedSize}MB (${reduction}% reduction)`);
+
+                    return {
+                        blob: videoBlob,
+                        originalSize: originalSize,
+                        compressedSize: compressedSize,
+                        reduction: reduction
+                    };
+
+                } catch (error) {
+                    console.error('Compression error:', error);
+                    progressElement.classList.add('d-none');
+                    throw error;
+                }
+            }
+            // Handle Video Upload dengan Kompresi
+            async function handleVideoUpload(inputId, previewId, progressId, errorId, type) {
+                const fileInput = document.getElementById(inputId);
+                const file = fileInput.files[0];
+
+                if (!file) return;
+
+                // Validasi format
+                const allowedTypes = ['video/mp4', 'video/quicktime', 'video/x-msvideo', 'video/webm'];
+                if (!allowedTypes.includes(file.type)) {
+                    $(`#${errorId}`).text('Format video harus MP4, MOV, AVI, atau WEBM');
+                    fileInput.value = '';
+                    return;
+                }
+
+                // Validasi ukuran (max 50MB sebelum kompresi)
+                const maxSize = 50 * 1024 * 1024;
+                if (file.size > maxSize) {
+                    $(`#${errorId}`).text('Ukuran video maksimal 50 MB');
+                    fileInput.value = '';
+                    return;
+                }
+
+                try {
+                    // Tampilkan status kompresi
+                    $(`#${previewId}`).html(`
+                <div class="alert alert-warning">
+                    <i class="mdi mdi-loading mdi-spin mr-2"></i> 
+                    Mengkompres video... (${(file.size / 1024 / 1024).toFixed(2)} MB)
+                </div>
+            `);
+
+                    // Kompres video
+                    const result = await compressVideo(file, type, progressId);
+
+                    // Simpan compressed video untuk upload nanti
+                    if (type === 'interview') {
+                        compressedVideoInterview = new File([result.blob], `interview_${Date.now()}.mp4`, {
+                            type: 'video/mp4'
+                        });
+                    } else {
+                        compressedVideoAsuransi = new File([result.blob], `asuransi_${Date.now()}.mp4`, {
+                            type: 'video/mp4'
+                        });
+                    }
+
+                    // Tampilkan hasil
+                    $(`#${previewId}`).html(`
+                <div class="alert alert-success">
+                    <i class="mdi mdi-check-circle mr-2"></i> 
+                    Video berhasil dikompres!<br>
+                    <small>${result.originalSize}MB → ${result.compressedSize}MB (${result.reduction}% lebih kecil)</small>
+                </div>
+                <video width="100%" controls class="mt-2">
+                    <source src="${URL.createObjectURL(result.blob)}" type="video/mp4">
+                    Browser Anda tidak mendukung video tag.
+                </video>
+            `);
+
+                    $(`#${errorId}`).text('');
+
+                } catch (error) {
+                    console.error('Video compression error:', error);
+                    $(`#${previewId}`).html(`
+                <div class="alert alert-danger">
+                    <i class="mdi mdi-alert-circle mr-2"></i> 
+                    Gagal mengkompres video. Silakan coba lagi atau upload video yang lebih kecil.
+                </div>
+            `);
+                    $(`#${errorId}`).text('Kompresi video gagal: ' + error.message);
+                    fileInput.value = '';
+                }
+            }
+
+            // Event Listeners untuk Video Upload
+            $('#btnUploadVideoInterview').click(function() {
+                $('#uploadVideoInterview').click();
+            });
+
+            $('#btnUploadVideoAsuransi').click(function() {
+                $('#uploadVideoAsuransi').click();
+            });
+
+            $('#uploadVideoInterview').on('change', function() {
+                handleVideoUpload('uploadVideoInterview', 'previewUploadVideoInterview',
+                    'progressVideoInterview', 'errUploadVideoInterview', 'interview');
+            });
+
+            $('#uploadVideoAsuransi').on('change', function() {
+                handleVideoUpload('uploadVideoAsuransi', 'previewUploadVideoAsuransi',
+                    'progressVideoAsuransi', 'errUploadVideoAsuransi', 'asuransi');
+            });
+
+            // ================= SELECT WILAYAH =================
             function resetDropdowns(selectors) {
                 selectors.forEach(selector => {
                     $(selector).empty().append('<option value="">Pilih...</option>').prop(
@@ -836,7 +1074,6 @@
                 const provId = $(this).val();
                 const $kota = $('#kotaSelect');
 
-                // Reset semua anak di bawahnya
                 resetDropdowns(['#kotaSelect', '#kecamatanSelect', '#kelurahanSelect']);
 
                 if (!provId) return;
@@ -852,8 +1089,7 @@
                         $kota.append(
                             '<option value="">Pilih Kota/Kabupaten</option>');
                         data.forEach(item => {
-                            $kota.append(new Option(item.kabupaten, item
-                                .id));
+                            $kota.append(new Option(item.kabupaten, item.id));
                         });
                         $kota.prop('disabled', false);
                     }
@@ -867,11 +1103,10 @@
                 const $dati = $('#kodeDati');
 
                 resetDropdowns(['#kecamatanSelect', '#kelurahanSelect']);
-                $dati.empty(); // Dati biasanya bukan select manual, tapi otomatis
+                $dati.empty();
 
                 if (!kotaId) return;
 
-                // Load Kecamatan
                 $.ajax({
                     url: "{{ route('bta.wilayah.kecamatan.new') }}",
                     method: "POST",
@@ -882,14 +1117,12 @@
                     success: function(data) {
                         $kec.append('<option value="">Pilih Kecamatan</option>');
                         data.forEach(item => {
-                            $kec.append(new Option(item.kecamatan, item
-                                .id));
+                            $kec.append(new Option(item.kecamatan, item.id));
                         });
                         $kec.prop('disabled', false);
                     }
                 });
 
-                // Load Kode Dati
                 $.ajax({
                     url: "{{ route('bta.wilayah.dati.new') }}",
                     method: "POST",
@@ -903,7 +1136,6 @@
                     }
                 });
             });
-
 
             // 3. KECAMATAN -> KELURAHAN
             $('#kecamatanSelect').on('change', function() {
@@ -924,8 +1156,8 @@
                     success: function(data) {
                         $kel.append('<option value="">Pilih Kelurahan</option>');
                         data.forEach(item => {
-                            $kel.append(new Option(item.desa + ' - ' +
-                                item.kodepos, item.id));
+                            $kel.append(new Option(item.desa + ' - ' + item.kodepos,
+                                item.id));
                         });
                         $kel.prop('disabled', false);
                     }
@@ -944,15 +1176,13 @@
                     success: function(data) {
                         $('#kodePos').val(data.kodepos);
                     }
-
                 })
-
             })
 
-            const totalTabs = 7; // Diperbaiki dari 6 menjadi 7
+            // ================= TAB NAVIGATION =================
+            const totalTabs = 6;
             let currentTabIndex = 0;
 
-            // Update active tab index when tab is clicked
             $('a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
                 const target = $(e.target).attr('href');
                 currentTabIndex = getTabIndexFromId(target);
@@ -960,8 +1190,8 @@
             });
 
             function getTabIndexFromId(tabId) {
-                const tabs = ['#tab-identitas', '#tab-pribadi', '#tab-alamat', '#tab-pekerjaan', '#tab-bank',
-                    '#tab-kta', '#tab-dokumen'
+                const tabs = ['#tab-identitas', '#tab-pribadi', '#tab-pekerjaan', '#tab-bank', '#tab-kta',
+                    '#tab-dokumen'
                 ];
                 return tabs.indexOf(tabId);
             }
@@ -975,23 +1205,16 @@
 
                 if (currentTabIndex === totalTabs - 1) {
                     $('#btnNextTab').hide();
-                    // Optional: Change button text on last tab
-                    // $('#btnNextTab').text('Selesai').off('click').on('click', function() { /* finish logic */ });
                 } else {
                     $('#btnNextTab').show();
-                    // $('#btnNextTab').text('Tab Selanjutnya'); // Reset text if needed
                 }
             }
 
-            // Next Tab Button - DIPERBAIKI
             $('#btnNextTab').click(function() {
                 if (validateCurrentTab()) {
                     if (currentTabIndex < totalTabs - 1) {
-                        const nextTab = $('.nav-tabs .nav-item')
-                            .eq(currentTabIndex + 1)
-                            .find('a[data-toggle="tab"]');
-
-                        // Scroll ke atas DULU, baru pindah tab
+                        const nextTab = $('.nav-tabs .nav-item').eq(currentTabIndex + 1).find(
+                            'a[data-toggle="tab"]');
                         $('html, body').animate({
                             scrollTop: 0
                         }, 300, function() {
@@ -1001,14 +1224,10 @@
                 }
             });
 
-            // Previous Tab Button - DIPERBAIKI
             $('#btnPrevTab').click(function() {
                 if (currentTabIndex > 0) {
-                    const prevTab = $('.nav-tabs .nav-item')
-                        .eq(currentTabIndex - 1)
-                        .find('a[data-toggle="tab"]');
-
-                    // Scroll ke atas DULU, baru pindah tab
+                    const prevTab = $('.nav-tabs .nav-item').eq(currentTabIndex - 1).find(
+                        'a[data-toggle="tab"]');
                     $('html, body').animate({
                         scrollTop: 0
                     }, 300, function() {
@@ -1017,41 +1236,54 @@
                 }
             });
 
-            // Form submission with validation
+            // ================= FORM SUBMISSION =================
             $('#formNasabahBertahap').submit(function(e) {
                 e.preventDefault();
 
-                // Validate all tabs before submit
                 if (!validateAllTabs()) {
                     return false;
                 }
-                console.log(this);
 
-                // Submit form using $.post
+                // Cek apakah video sedang dikompres
+                if ($('#progressVideoInterview').hasClass('d-none') === false ||
+                    $('#progressVideoAsuransi').hasClass('d-none') === false) {
+                    toastr.warning('Tunggu proses kompresi video selesai', 'Proses Belum Selesai');
+                    return false;
+                }
+
+                // Cek apakah video sudah dikompres
+                if (!compressedVideoInterview || !compressedVideoAsuransi) {
+                    toastr.error('Video Interview dan Video Asuransi wajib dikompres terlebih dahulu',
+                        'Video Belum Diproses');
+                    return false;
+                }
+
                 let formData = new FormData(this);
-                // Tambahkan token CSRF secara eksplisit ke FormData
                 formData.append('_token', '{{ csrf_token() }}');
 
+                // Tambahkan compressed video ke FormData (replace file asli)
+                formData.delete('upload_video_interview');
+                formData.delete('upload_video_asuransi');
+                formData.append('upload_video_interview', compressedVideoInterview);
+                formData.append('upload_video_asuransi', compressedVideoAsuransi);
+
                 $.post({
-                    url: "{{ route('bta.nasabah.insert') }}", // Diperbarui ke route insert
+                    url: "{{ route('bta.nasabah.insert') }}",
                     data: formData,
                     processData: false,
                     contentType: false,
                     beforeSend: function() {
-                        // $('#submitBtn').prop('disabled', true).html(
-                        //     '<i class="mdi mdi-loading mdi-spin mr-1"></i> Menyimpan...');
+                        $('#submitBtn').prop('disabled', true).html(
+                            '<i class="mdi mdi-loading mdi-spin mr-1"></i> Menyimpan...');
                     },
                     success: function(response) {
                         toastr.success(response.message || 'Data nasabah berhasil disimpan',
                             'Berhasil!');
                         setTimeout(function() {
-                                window.location.href = '{{ route('bta.nasabah.index') }}';
-                            },
-                            2000
-                        );
+                            window.location.href = '{{ route('bta.nasabah.index') }}';
+                        }, 2000);
                     },
                     error: function(xhr) {
-                        // Reset semua error sebelumnya
                         $('.text-danger').text('');
                         $('.form-control').removeClass('is-invalid');
 
@@ -1060,79 +1292,56 @@
                         let message = responseJson?.message ||
                             'Terjadi kesalahan saat menyimpan data';
 
-                        // Tampilkan error per field jika ada
                         if (Object.keys(errors).length > 0) {
                             displayErrors(errors);
                         }
 
-                        // Tampilkan pesan umum/error keseluruhan menggunakan toastr
-                        // Gabungkan pesan utama dan pesan dari field errors jika perlu
                         let errorMessageToShow = message;
-                        // Jika pesan utama kosong atau hanya generik, coba ambil satu pesan dari errors
                         if (!message || message.includes('more errors')) {
                             const firstErrorKey = Object.keys(errors)[0];
                             if (firstErrorKey && errors[firstErrorKey][0]) {
-                                errorMessageToShow = errors[firstErrorKey][
-                                    0
-                                ]; // Ambil pesan error pertama
+                                errorMessageToShow = errors[firstErrorKey][0];
                             }
                         }
 
                         toastr.error(errorMessageToShow, 'Gagal!');
-
                         $('#submitBtn').prop('disabled', false).html(
                             '<i class="mdi mdi-content-save mr-1"></i> Simpan Data');
                     }
                 });
             });
 
-            // Validate all tabs - DIPERBAIKI
+            // ================= VALIDATION =================
             function validateAllTabs() {
                 let allValid = true;
                 let firstErrorTab = null;
-                let firstErrorField = null; // Untuk tracking field spesifik jika perlu
 
-                // Loop semua tab untuk cek validasi SILENT (tanpa scroll)
                 for (let i = 0; i < totalTabs; i++) {
                     currentTabIndex = i;
-                    const tabValid = validateCurrentTabSilent(); // Validasi tanpa scroll
-
+                    const tabValid = validateCurrentTabSilent();
                     if (!tabValid && firstErrorTab === null) {
                         firstErrorTab = i;
                         allValid = false;
                     }
                 }
 
-                // Jika ada error, pindah ke tab error dan tampilkan error di situ
                 if (firstErrorTab !== null) {
-                    // Pindah ke tab error
-                    const errorTab = $('.nav-tabs .nav-item')
-                        .eq(firstErrorTab)
-                        .find('a[data-toggle="tab"]');
-
+                    const errorTab = $('.nav-tabs .nav-item').eq(firstErrorTab).find('a[data-toggle="tab"]');
                     errorTab.tab('show');
-
-                    // Tunggu tab aktif, lalu validasi ulang tab tersebut untuk showError
                     setTimeout(() => {
-                        // Validasi ulang tab tersebut dengan showError
                         currentTabIndex = firstErrorTab;
                         validateCurrentTab();
-                    }, 350); // Sedikit lebih lama dari animasi scroll
-
+                    }, 350);
                 }
 
-                // Kembalikan ke tab aktif saat ini untuk UI konsisten
                 currentTabIndex = getTabIndexFromId($('.tab-pane.active').attr('id'));
                 updateTabNavigation();
 
                 return allValid;
             }
 
-            // VALIDATE CURRENT TAB SILENT (tanpa scroll/focus) - DIPERKENALKAN
             function validateCurrentTabSilent() {
                 let isValid = true;
-
-                // Reset semua error
                 $('.text-danger').text('');
                 $('.form-control').removeClass('is-invalid');
 
@@ -1158,10 +1367,6 @@
                             markError('uploadNpwp', 'Upload Npwp wajib diisi');
                             isValid = false;
                         }
-                        // if (!$('#uploadSelfie')[0].files.length) {
-                        //     markError('uploadSelfie', 'Upload Selfie dengan KTP wajib diisi');
-                        //     isValid = false;
-                        // }
                         if (!$('#jenisKelamin').val()) {
                             markError('jenisKelamin', 'Jenis kelamin wajib dipilih');
                             isValid = false;
@@ -1201,9 +1406,6 @@
                             markError('statusPerkawinan', 'Status perkawinan wajib dipilih');
                             isValid = false;
                         }
-                        break;
-
-                    case 2: // Alamat
                         if (!$('#alamatRumah').val().trim()) {
                             markError('alamatRumah', 'Alamat rumah wajib diisi');
                             isValid = false;
@@ -1234,26 +1436,83 @@
                         }
                         break;
 
-                    case 3: // Pekerjaan
-                        if (!$('#namaPerusahaan').val().trim()) {
-                            markError('namaPerusahaan', 'Nama perusahaan wajib diisi');
-                            isValid = false;
-                        }
-                        if (!$('#bidangUsaha').val().trim()) {
-                            markError('bidangUsaha', 'Bidang usaha wajib diisi');
-                            isValid = false;
-                        }
-                        if (!$('#alamatKerja').val().trim()) {
-                            markError('alamatKerja', 'Alamat tempat kerja wajib diisi');
-                            isValid = false;
-                        }
+                    case 2: // Pekerjaan
+                        const statusPegawai = $('#statusPegawai').val();
+
+
                         if (!$('#statusPegawai').val()) {
-                            markError('statusPegawai', 'Status pegawai wajib dipilih');
+                            showError('statusPegawai', 'Status pegawai wajib dipilih');
                             isValid = false;
                         }
+
+                        // Validasi conditional berdasarkan status pegawai
+                        if (statusPegawai === 'Karyawan Tidak Tetap') {
+
+                            if (!$('#nip').val().trim()) {
+                                showError('nip', 'NIP / No. KARIP wajib diisi untuk pensiunan');
+                                isValid = false;
+                            }
+
+                            if (!$('#namaPerusahaan').val().trim()) {
+                                showError('namaPerusahaan', 'Nama perusahaan wajib diisi');
+                                isValid = false;
+                            }
+                            if (!$('#bidangUsaha').val().trim()) {
+                                showError('bidangUsaha', 'Bidang usaha wajib diisi');
+                                isValid = false;
+                            }
+                            if (!$('#alamatKerja').val().trim()) {
+                                showError('alamatKerja', 'Alamat tempat kerja wajib diisi');
+                                isValid = false;
+                            }
+
+                            // Kontrak: wajib tgl akhir kontrak
+                            if (!$('#tglAkhirKontrak').val()) {
+                                showError('tglAkhirKontrak', 'Tanggal akhir kontrak wajib diisi');
+                                isValid = false;
+                            }
+                            // Slip gaji wajib untuk karyawan tidak tetap
+                            if (!$('#uploadSlip')[0].files.length) {
+                                showError('uploadSlip', 'Upload Slip Gaji wajib diisi');
+                                isValid = false;
+                            }
+                        } else if (statusPegawai === 'Pensiun') {
+                            // Pensiun: wajib NIP/KARIP
+                            if (!$('#nip').val().trim()) {
+                                showError('nip', 'NIP / No. KARIP wajib diisi untuk pensiunan');
+                                isValid = false;
+                            }
+
+                            if (!$('#tglAkhirKontrak').val()) {
+                                showError('tglAkhirKontrak', 'Tanggal akhir kontrak wajib diisi');
+                                isValid = false;
+                            }
+
+                            // Slip gaji opsional untuk pensiun (tidak divalidasi)
+                        } else if (statusPegawai === "Tetap") {
+                            if (!$('#nip').val().trim()) {
+                                showError('nip', 'NIP / No. KARIP wajib diisi untuk pensiunan');
+                                isValid = false;
+                            }
+
+                            // Validasi field wajib untuk SEMUA status pegawai
+                            if (!$('#namaPerusahaan').val().trim()) {
+                                showError('namaPerusahaan', 'Nama perusahaan wajib diisi');
+                                isValid = false;
+                            }
+                            if (!$('#bidangUsaha').val().trim()) {
+                                showError('bidangUsaha', 'Bidang usaha wajib diisi');
+                                isValid = false;
+                            }
+                            if (!$('#alamatKerja').val().trim()) {
+                                showError('alamatKerja', 'Alamat tempat kerja wajib diisi');
+                                isValid = false;
+                            }
+                        }
+                        // Karyawan Tetap: tidak ada validasi tambahan khusus
                         break;
 
-                    case 4: // Bank
+                    case 3: // Bank
                         if (!$('#bankSelect').val()) {
                             markError('bank', 'Nama bank wajib dipilih');
                             isValid = false;
@@ -1268,7 +1527,7 @@
                         }
                         break;
 
-                    case 5: // KTA Multiguna
+                    case 4: // KTA Multiguna
                         if (!$('#plafond').val().trim()) {
                             markError('plafond', 'Plafond wajib diisi');
                             isValid = false;
@@ -1295,85 +1554,30 @@
                         }
                         break;
 
-                    case 6: // Dokumen - DIPERBAIKI (Required)
-                        // Validasi upload slik
+                    case 5: // Dokumen
                         if (!$('#uploadSlik')[0].files.length) {
                             markError('uploadSlik', 'Upload Form SLIK wajib diisi');
                             isValid = false;
                         }
-
-                        // Validasi upload kredit
                         if (!$('#uploadKredit')[0].files.length) {
                             markError('uploadKredit', 'Upload Form Kredit wajib diisi');
                             isValid = false;
                         }
-
-                        // Validasi upload bta
                         if (!$('#uploadBta')[0].files.length) {
                             markError('uploadBta', 'Upload Form BTA wajib diisi');
                             isValid = false;
                         }
-
-                        // Validasi upload checklist
                         if (!$('#uploadChecklist')[0].files.length) {
                             markError('uploadChecklist', 'Upload Checklist Verifikasi wajib diisi');
                             isValid = false;
                         }
-
-                        // Tambahan: validasi format file & ukuran (sesuai preferensi Anda)
-                        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
-                        const maxSize = 5120 * 1024; // 5120 KB
-
-                        // Validasi upload slik
-                        const slikFile = $('#uploadSlik')[0].files[0];
-                        if (slikFile) {
-                            if (!allowedTypes.includes(slikFile.type)) {
-                                markError('uploadSlik', 'Format file Form SLIK hanya JPG, JPEG, PNG, PDF');
-                                isValid = false;
-                            }
-                            if (slikFile.size > maxSize) {
-                                markError('uploadSlik', 'Ukuran file Form SLIK maksimal 5120 KB');
-                                isValid = false;
-                            }
+                        if (!compressedVideoInterview) {
+                            markError('uploadVideoInterview', 'Video Interview wajib diupload dan dikompres');
+                            isValid = false;
                         }
-
-                        // Validasi upload kredit
-                        const kreditFile = $('#uploadKredit')[0].files[0];
-                        if (kreditFile) {
-                            if (!allowedTypes.includes(kreditFile.type)) {
-                                markError('uploadKredit', 'Format file Form Kredit hanya JPG, JPEG, PNG, PDF');
-                                isValid = false;
-                            }
-                            if (kreditFile.size > maxSize) {
-                                markError('uploadKredit', 'Ukuran file Form Kredit maksimal 5120 KB');
-                                isValid = false;
-                            }
-                        }
-
-                        // Validasi upload bta
-                        const btaFile = $('#uploadBta')[0].files[0];
-                        if (btaFile) {
-                            if (!allowedTypes.includes(btaFile.type)) {
-                                markError('uploadBta', 'Format file Form BTA hanya JPG, JPEG, PNG, PDF');
-                                isValid = false;
-                            }
-                            if (btaFile.size > maxSize) {
-                                markError('uploadBta', 'Ukuran file Form BTA maksimal 5120 KB');
-                                isValid = false;
-                            }
-                        }
-
-                        // Validasi upload checklist
-                        const checklistFile = $('#uploadChecklist')[0].files[0];
-                        if (checklistFile) {
-                            if (!allowedTypes.includes(checklistFile.type)) {
-                                markError('uploadChecklist', 'Format file Checklist hanya JPG, JPEG, PNG, PDF');
-                                isValid = false;
-                            }
-                            if (checklistFile.size > maxSize) {
-                                markError('uploadChecklist', 'Ukuran file Checklist maksimal 5120 KB');
-                                isValid = false;
-                            }
+                        if (!compressedVideoAsuransi) {
+                            markError('uploadVideoAsuransi', 'Video Asuransi wajib diupload dan dikompres');
+                            isValid = false;
                         }
                         break;
                 }
@@ -1381,12 +1585,8 @@
                 return isValid;
             }
 
-
-            // VALIDATE CURRENT TAB (dengan showError untuk single tab) - DIPERBAIKI
             function validateCurrentTab() {
                 let isValid = true;
-
-                // Reset semua error
                 $('.text-danger').text('');
                 $('.form-control').removeClass('is-invalid');
 
@@ -1412,10 +1612,6 @@
                             showError('uploadNpwp', 'Upload Npwp wajib diisi');
                             isValid = false;
                         }
-                        // if (!$('#uploadSelfie')[0].files.length) {
-                        //     showError('uploadSelfie', 'Upload Selfie dengan KTP wajib diisi');
-                        //     isValid = false;
-                        // }
                         if (!$('#jenisKelamin').val()) {
                             showError('jenisKelamin', 'Jenis kelamin wajib dipilih');
                             isValid = false;
@@ -1451,13 +1647,18 @@
                             showError('pendidikan', 'Pendidikan terakhir wajib dipilih');
                             isValid = false;
                         }
-                        if (!$('#statusPerkawinan').val()) {
-                            showError('statusPerkawinan', 'Status perkawinan wajib dipilih');
-                            isValid = false;
-                        }
-                        break;
 
-                    case 2: // Alamat
+                        if ($('#statusPerkawinan').val() === 'Kawin') {
+                            if (!$('#namaPasangan').val().trim()) {
+                                showError('namaPasangan', 'Nama pasangan wajib diisi');
+                                isValid = false;
+                            }
+                            if (!$('#tglLahirPasangan').val()) {
+                                showError('tglLahirPasangan', 'Tanggal lahir pasangan wajib diisi');
+                                isValid = false;
+                            }
+                        }
+
                         if (!$('#alamatRumah').val().trim()) {
                             showError('alamatRumah', 'Alamat rumah wajib diisi');
                             isValid = false;
@@ -1488,26 +1689,68 @@
                         }
                         break;
 
-                    case 3: // Pekerjaan
-                        if (!$('#namaPerusahaan').val().trim()) {
-                            showError('namaPerusahaan', 'Nama perusahaan wajib diisi');
-                            isValid = false;
-                        }
-                        if (!$('#bidangUsaha').val().trim()) {
-                            showError('bidangUsaha', 'Bidang usaha wajib diisi');
-                            isValid = false;
-                        }
-                        if (!$('#alamatKerja').val().trim()) {
-                            showError('alamatKerja', 'Alamat tempat kerja wajib diisi');
-                            isValid = false;
-                        }
+                    case 2: // Pekerjaan
+                        const statusPegawai = $('#statusPegawai').val();
+
+                        // Validasi field wajib untuk SEMUA status pegawai
+
                         if (!$('#statusPegawai').val()) {
                             showError('statusPegawai', 'Status pegawai wajib dipilih');
                             isValid = false;
                         }
-                        break;
 
-                    case 4: // Bank
+                        // Validasi conditional berdasarkan status pegawai
+                        if (statusPegawai === 'Karyawan Tidak Tetap') {
+                            // Kontrak: wajib tgl akhir kontrak
+                            if (!$('#tglAkhirKontrak').val()) {
+                                showError('tglAkhirKontrak', 'Tanggal akhir kontrak wajib diisi');
+                                isValid = false;
+                            }
+                            // Slip gaji wajib untuk karyawan tidak tetap
+                            if (!$('#uploadSlip')[0].files.length) {
+                                showError('uploadSlip', 'Upload Slip Gaji wajib diisi');
+                                isValid = false;
+                            }
+
+                            if (!$('#namaPerusahaan').val().trim()) {
+                                showError('namaPerusahaan', 'Nama perusahaan wajib diisi');
+                                isValid = false;
+                            }
+
+                            if (!$('#bidangUsaha').val().trim()) {
+                                showError('bidangUsaha', 'Bidang usaha wajib diisi');
+                                isValid = false;
+                            }
+
+                            if (!$('#alamatKerja').val().trim()) {
+                                showError('alamatKerja', 'Alamat tempat kerja wajib diisi');
+                                isValid = false;
+                            }
+
+                        } else if (statusPegawai === 'Pensiun') {
+                            // Pensiun: wajib NIP/KARIP
+                            if (!$('#nip').val().trim()) {
+                                showError('nip', 'NIP / No. KARIP wajib diisi untuk pensiunan');
+                                isValid = false;
+                            }
+                        } else if (statusPegawai === "Tetap") {
+                            if (!$('#namaPerusahaan').val().trim()) {
+                                showError('namaPerusahaan', 'Nama perusahaan wajib diisi');
+                                isValid = false;
+                            }
+
+                            if (!$('#bidangUsaha').val().trim()) {
+                                showError('bidangUsaha', 'Bidang usaha wajib diisi');
+                                isValid = false;
+                            }
+
+                            if (!$('#alamatKerja').val().trim()) {
+                                showError('alamatKerja', 'Alamat tempat kerja wajib diisi');
+                                isValid = false;
+                            }
+                        }
+                        break;
+                    case 3: // Bank
                         if (!$('#bankSelect').val()) {
                             showError('bank', 'Nama bank wajib dipilih');
                             isValid = false;
@@ -1522,7 +1765,7 @@
                         }
                         break;
 
-                    case 5: // KTA Multiguna
+                    case 4: // KTA Multiguna
                         if (!$('#plafond').val().trim()) {
                             showError('plafond', 'Plafond wajib diisi');
                             isValid = false;
@@ -1549,85 +1792,30 @@
                         }
                         break;
 
-                    case 6: // Dokumen - DIPERBAIKI (Required)
-                        // Validasi upload slik
+                    case 5: // Dokumen
                         if (!$('#uploadSlik')[0].files.length) {
                             showError('uploadSlik', 'Upload Form SLIK wajib diisi');
                             isValid = false;
                         }
-
-                        // Validasi upload kredit
                         if (!$('#uploadKredit')[0].files.length) {
                             showError('uploadKredit', 'Upload Form Kredit wajib diisi');
                             isValid = false;
                         }
-
-                        // Validasi upload bta
                         if (!$('#uploadBta')[0].files.length) {
                             showError('uploadBta', 'Upload Form BTA wajib diisi');
                             isValid = false;
                         }
-
-                        // Validasi upload checklist
                         if (!$('#uploadChecklist')[0].files.length) {
                             showError('uploadChecklist', 'Upload Checklist Verifikasi wajib diisi');
                             isValid = false;
                         }
-
-                        // Tambahan: validasi format file & ukuran (sesuai preferensi Anda)
-                        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
-                        const maxSize = 5120 * 1024; // 5120 KB
-
-                        // Validasi upload slik
-                        const slikFile = $('#uploadSlik')[0].files[0];
-                        if (slikFile) {
-                            if (!allowedTypes.includes(slikFile.type)) {
-                                showError('uploadSlik', 'Format file Form SLIK hanya JPG, JPEG, PNG, PDF');
-                                isValid = false;
-                            }
-                            if (slikFile.size > maxSize) {
-                                showError('uploadSlik', 'Ukuran file Form SLIK maksimal 5120 KB');
-                                isValid = false;
-                            }
+                        if (!compressedVideoInterview) {
+                            showError('uploadVideoInterview', 'Video Interview wajib diupload dan dikompres');
+                            isValid = false;
                         }
-
-                        // Validasi upload kredit
-                        const kreditFile = $('#uploadKredit')[0].files[0];
-                        if (kreditFile) {
-                            if (!allowedTypes.includes(kreditFile.type)) {
-                                showError('uploadKredit', 'Format file Form Kredit hanya JPG, JPEG, PNG, PDF');
-                                isValid = false;
-                            }
-                            if (kreditFile.size > maxSize) {
-                                showError('uploadKredit', 'Ukuran file Form Kredit maksimal 5120 KB');
-                                isValid = false;
-                            }
-                        }
-
-                        // Validasi upload bta
-                        const btaFile = $('#uploadBta')[0].files[0];
-                        if (btaFile) {
-                            if (!allowedTypes.includes(btaFile.type)) {
-                                showError('uploadBta', 'Format file Form BTA hanya JPG, JPEG, PNG, PDF');
-                                isValid = false;
-                            }
-                            if (btaFile.size > maxSize) {
-                                showError('uploadBta', 'Ukuran file Form BTA maksimal 5120 KB');
-                                isValid = false;
-                            }
-                        }
-
-                        // Validasi upload checklist
-                        const checklistFile = $('#uploadChecklist')[0].files[0];
-                        if (checklistFile) {
-                            if (!allowedTypes.includes(checklistFile.type)) {
-                                showError('uploadChecklist', 'Format file Checklist hanya JPG, JPEG, PNG, PDF');
-                                isValid = false;
-                            }
-                            if (checklistFile.size > maxSize) {
-                                showError('uploadChecklist', 'Ukuran file Checklist maksimal 5120 KB');
-                                isValid = false;
-                            }
+                        if (!compressedVideoAsuransi) {
+                            showError('uploadVideoAsuransi', 'Video Asuransi wajib diupload dan dikompres');
+                            isValid = false;
                         }
                         break;
                 }
@@ -1635,43 +1823,33 @@
                 return isValid;
             }
 
-            // MARK ERROR (tanpa scroll/focus) - DIPERKENALKAN
             function markError(fieldId, message) {
                 $(`#${fieldId}`).addClass('is-invalid');
                 const fieldName = fieldId.charAt(0).toUpperCase() + fieldId.slice(1);
                 $(`#err${fieldName}`).text(message);
             }
 
-            // SHOW ERROR (dengan scroll dan focus) - DIPERBAIKI
             function showError(fieldId, message) {
                 try {
                     const $field = $(`#${fieldId}`);
-
                     if (!$field.length) {
                         console.warn(`Field dengan ID "${fieldId}" tidak ditemukan`);
                         return;
                     }
 
-                    // Remove special characters dari fieldId untuk error element
                     const cleanFieldId = fieldId.replace(/[^a-zA-Z0-9]/g, '');
                     const errorId = `err${cleanFieldId.charAt(0).toUpperCase() + cleanFieldId.slice(1)}`;
                     const $errorElement = $(`#${errorId}`);
 
-                    // Tambahkan class invalid
                     $field.addClass('is-invalid');
 
-                    // Tampilkan error message
                     if ($errorElement.length) {
                         $errorElement.text(message);
-                    } else {
-                        console.warn(`Error element dengan ID "${errorId}" tidak ditemukan`);
                     }
 
-                    // Scroll dengan offset agar tidak terlalu ke atas
                     $('html, body').animate({
                         scrollTop: $field.offset().top - 100
                     }, 500, function() {
-                        // Focus setelah animasi scroll selesai
                         $field.focus();
                     });
 
@@ -1690,7 +1868,7 @@
                 });
             }
 
-            // Real-time validation
+            // ================= EVENT HANDLERS =================
             $('.form-control').on('input', function() {
                 if ($(this).hasClass('is-invalid')) {
                     $(this).removeClass('is-invalid');
@@ -1698,13 +1876,9 @@
                 }
             });
 
-            // File upload button handlers
             $('#btnUploadKtp').click(function() {
                 $('#uploadKtp').click();
             });
-            // $('#btnUploadSelfie').click(function() {
-            //     $('#uploadSelfie').click();
-            // });
             $('#btnUploadNpwp').click(function() {
                 $('#uploadNpwp').click();
             });
@@ -1747,10 +1921,10 @@
                     const reader = new FileReader();
                     reader.onload = function(e) {
                         $(`#preview${id.charAt(0).toUpperCase() + id.slice(1)}`).html(`
-            <div class="alert alert-info">
-                <i class="mdi mdi-file mr-2"></i> ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)
-            </div>
-         `);
+                    <div class="alert alert-info">
+                        <i class="mdi mdi-file mr-2"></i> ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)
+                    </div>
+                `);
                     };
                     reader.readAsDataURL(file);
                 }
@@ -1769,15 +1943,20 @@
 
             // Status Pegawai change
             $('#statusPegawai').change(function() {
-                if ($(this).val() === 'Karyawan Tidak Tetap' || $(this).val() === 'Pensiun') {
+                if ($(this).val() === 'Karyawan Tidak Tetap') {
                     $('.kontrak-field').removeClass('d-none');
+                    $('.pensiun-field').removeClass('d-none');
+                } else if ($(this).val() === 'Pensiun') {
+                    $('.kontrak-field').removeClass('d-none');
+                    $('.pensiun-field').addClass('d-none');
                 } else {
                     $('.kontrak-field').addClass('d-none');
+                    $('.pensiun-field').removeClass('d-none');
                     $('#tglAkhirKontrak').val('');
                 }
             });
 
-            // Format Rupiah
+            // ================= FORMAT RUPIAH =================
             $('.rupiah-format').on('input', function() {
                 let value = $(this).val().replace(/[^0-9]/g, '');
                 if (value) {
@@ -1801,21 +1980,34 @@
                 return 'Rp ' + rupiah;
             }
 
-            // Parse Rupiah to Number
             function parseRupiah(rupiah) {
                 return parseInt(rupiah.replace(/[^0-9]/g, ''));
             }
 
-            // Calculate Angsuran (PMT) - Bunga Flat
+            // ================= CALCULATE ANGSURAN (FLAT & EFEKTIF) =================
             function calculateAngsuran() {
                 const plafond = parseRupiah($('#plafond').val() || '0');
                 const jangkaWaktu = parseInt($('#jangka_waktu').val()) || 0;
                 const sukuBunga = parseFloat($('#suku_bunga').val()) || 0;
 
+                // Cek tipe bunga yang dipilih
+                const tipeBunga = $('input[name="tipe_bunga"]:checked').val();
+
                 if (plafond > 0 && jangkaWaktu > 0 && sukuBunga > 0) {
-                    const bungaPerBulan = (plafond * sukuBunga) / 100;
-                    const angsuranPokok = plafond / jangkaWaktu;
-                    const totalAngsuran = angsuranPokok + bungaPerBulan;
+                    let totalAngsuran = 0;
+
+                    if (tipeBunga === 'flat') {
+                        // RUMUS FLAT (Sesuai Excel Simulasi Flat)
+                        const bungaPerBulan = (plafond * (sukuBunga / 100)) / 12;
+                        const pokokPerBulan = plafond / jangkaWaktu;
+                        totalAngsuran = pokokPerBulan + bungaPerBulan;
+                    } else {
+                        // RUMUS EFEKTIF / ANUITAS (Sesuai Excel Simulasi In Arrears)
+                        const r = (sukuBunga / 100) / 12;
+                        const n = jangkaWaktu;
+                        const powTerm = Math.pow(1 + r, n);
+                        totalAngsuran = plafond * (r * powTerm) / (powTerm - 1);
+                    }
 
                     $('#nilai_angsuran').val(formatRupiah(Math.round(totalAngsuran).toString()));
                 } else {
@@ -1845,11 +2037,12 @@
             // Event listeners untuk perhitungan otomatis
             $('#plafond, #jangka_waktu, #suku_bunga').on('input', function() {
                 calculateAngsuran();
-                // calculateDBR();
+                calculateAkhirPinjaman();
             });
 
-            $('#gaji_bersih').on('input', function() {
-                // calculateDBR();
+            // Tambahkan listener untuk perubahan Tipe Bunga (Radio Button)
+            $('input[name="tipe_bunga"]').on('change', function() {
+                calculateAngsuran();
             });
 
             $('#mulai_pinjaman, #jangka_waktu').on('change input', function() {

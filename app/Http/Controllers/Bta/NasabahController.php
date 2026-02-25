@@ -130,6 +130,8 @@ class NasabahController extends Controller
             'form_kredit' => ['form_kredit', 'status_form_kredit', 'note_form_kredit', 'Form Kredit'],
             'form_bta' => ['form_bta', 'status_form_bta', 'note_form_bta', 'Form BTA'],
             'form_checklist' => ['form_checklist', 'status_form_checklist', 'note_form_checklist', 'Checklist Verifikasi'],
+            'video_interview' => ['video_interview', 'status_video_interview', 'note_video_interview', 'Video Interview'],
+            'video_asuransi' => ['video_asuransi', 'status_video_asuransi', 'note_video_asuransi', 'Video Asuransi'],
         ];
 
         $documents = [];
@@ -506,6 +508,7 @@ class NasabahController extends Controller
             // Definisikan mapping antara input form dan kolom di database
             $fileMappings = [
                 'upload_ktp' => 'ktp',
+                'upload_id_card' => 'id_card',
                 // 'upload_selfie' => 'selfie',
                 'upload_npwp' => 'npwp',
                 'upload_kk' => 'kk',
@@ -517,6 +520,8 @@ class NasabahController extends Controller
                 'upload_kredit' => 'form_kredit',
                 'upload_bta' => 'form_bta',
                 'upload_checklist' => 'form_checklist',
+                'upload_video_interview' => 'video_interview',
+                'upload_video_asuransi'  => 'video_asuransi',
             ];
 
             foreach ($fileMappings as $inputName => $columnName) {
@@ -529,6 +534,9 @@ class NasabahController extends Controller
                     $file->storeAs('bta', $filename);
                     // Simpan path ke kolom database
                     $nasabah->{$columnName} = $filename;
+                    if ($columnName === "video_interview" || $columnName === "video_asuransi") {
+                        $nasabah->{"status_" . $columnName} = "pending";
+                    }
                 }
             }
 
@@ -547,10 +555,12 @@ class NasabahController extends Controller
             ], 201); // Gunakan 201 Created untuk resource baru
 
         } catch (\Exception $e) {
+
             // Log error untuk debugging
             // \Log::error('Error inserting nasabah: ' . $e->getMessage());
             return response()->json([
-                'message' => 'Terjadi kesalahan saat menyimpan data ke database.'
+                'message' => 'Terjadi kesalahan saat menyimpan data ke database.',
+                'data' => $e
             ], 500);
         }
     }
@@ -633,51 +643,63 @@ class NasabahController extends Controller
             'upload_slik' => 'form_slik',
             'upload_kredit' => 'form_kredit',
             'upload_bta' => 'form_bta',
-            'upload_checklist' => 'form_checklist'
+            'upload_checklist' => 'form_checklist',
+            'upload_video_interview' => 'video_interview',
+            'upload_video_asuransi'  => 'video_asuransi',
         ];
 
         foreach ($fileFields as $requestField => $dbField) {
-            // Cek apakah ada file yang diupload untuk field ini
             if ($req->hasFile($requestField)) {
                 $file = $req->file($requestField);
-
-                // Validasi file
-                $allowedExtensions = ['jpg', 'jpeg', 'png', 'pdf'];
                 $extension = strtolower($file->getClientOriginalExtension());
 
+                // --- 1. Tentukan Aturan Berdasarkan Jenis File ---
+                $isVideo = in_array($dbField, ["video_interview", "video_asuransi"]);
+
+                if ($isVideo) {
+                    $allowedExtensions = ['mp4', 'mov', 'avi', 'mkv'];
+                    $maxSize = 50 * 1024 * 1024; // 50 MB
+                    $sizeLabel = "50 MB";
+                } else {
+                    $allowedExtensions = ['jpg', 'jpeg', 'png', 'pdf'];
+                    $maxSize = 5 * 1024 * 1024; // 5 MB
+                    $sizeLabel = "5 MB";
+                }
+
+                // --- 2. Validasi Ekstensi ---
                 if (!in_array($extension, $allowedExtensions)) {
                     return response()->json([
-                        'message' => "Format file {$requestField} tidak valid. Hanya JPG, PNG, PDF yang diperbolehkan."
+                        'message' => "Format file {$requestField} tidak valid. Diperbolehkan: " . implode(', ', $allowedExtensions)
                     ], 422);
                 }
 
-                if ($file->getSize() > 5120 * 1024) { // 5 MB
+                // --- 3. Validasi Ukuran File ---
+                if ($file->getSize() > $maxSize) {
                     return response()->json([
-                        'message' => "Ukuran file {$requestField} melebihi batas maksimal 5 MB."
+                        'message' => "Ukuran file {$requestField} terlalu besar. Maksimal batas adalah {$sizeLabel}."
                     ], 422);
                 }
 
-                // Generate nama file unik
+                // --- 4. Proses Simpan File ---
+                // Menggunakan format nama file unik Anda
                 $fileName = "{$tglInput}_{$namaLengkapSanitized}_{$randomNumber}_{$requestField}.{$extension}";
 
-                // Simpan file ke storage
+                // Simpan ke folder 'bta'
                 $file->storeAs('bta', $fileName);
-                // Update path file di database
+
+                // --- 5. Update Database ---
                 $nasabah->{$dbField} = $fileName;
 
-                // === RESET STATUS & NOTE ===
+                // Reset Status & Note
                 $statusField = "status_{$dbField}";
                 $noteField = "note_{$dbField}";
 
-                // Set status ke pending (karena file baru perlu direview ulang)
+                // Set status ke pending & hapus note revisi lama
                 $nasabah->{$statusField} = 'pending';
 
-                // Hapus note revisi sebelumnya (karena file sudah diganti)
+                // Pastikan kolom note ada di database sebelum set null untuk menghindari error
                 $nasabah->{$noteField} = null;
             }
-            // Jika TIDAK ada file yang diupload:
-            // - Biarkan $nasabah->{$dbField} tetap (file lama)
-            // - Biarkan status dan note tetap seperti sebelumnya
         }
 
         // === Metadata ===
@@ -755,7 +777,7 @@ class NasabahController extends Controller
             ->first();
 
 
-        $plafond = $nasabah->plafond;
+        $plafond = $nasabah->persetujuan_analyst;
         $angsuran = $nasabah->nilai_angsuran;
 
         $data = [
@@ -782,8 +804,12 @@ class NasabahController extends Controller
             'tanggal_ttd'   => Carbon::now()->translatedFormat('d F Y'),
         ];
 
+        if ($nasabah->status_pegawai !== "Pensiun") {
+            $pdf = Pdf::loadView('bta.pdf.perjanjian-kredit', ['data' => $data]);
+        } else {
+            $pdf = Pdf::loadView('bta.pdf.perjanjian-kredit-pensiun', ['data' => $data]);
+        }
 
-        $pdf = Pdf::loadView('bta.pdf.perjanjian-kredit', ['data' => $data]);
 
         $pdf->setPaper('A4', 'portrait');
 

@@ -17,7 +17,22 @@ class CredamController extends Controller
 
     public function credamReview($id)
     {
-        $nasabah = nasabah::where('id', $id)->first();
+        // $nasabah = nasabah::where('id', $id)->first();
+
+        $nasabah = nasabah::where('id', $id)
+            ->with([
+                'provinsi',
+                'kabupaten',
+                'kecamatan',
+                'desa',
+                'bank',
+                'dati'
+            ])
+            ->where('position', 'credam')
+            ->where('status', 'pending')
+            ->first();
+
+
         if (!isset($nasabah)) {
             abort(404);
         }
@@ -39,6 +54,8 @@ class CredamController extends Controller
             'form_checklist'    => $nasabah->form_checklist,
             'foto_akad_kredit'  => $nasabah->foto_akad_kredit,
             'pk_tanda_tangan'   => $nasabah->pk_tanda_tangan,
+            'video_interview' => $nasabah->video_interview,
+            'video_asuransi' => $nasabah->video_asuransi,
         ];
 
         $safeUrls = [];

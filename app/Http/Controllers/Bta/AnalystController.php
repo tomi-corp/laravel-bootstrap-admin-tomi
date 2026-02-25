@@ -89,6 +89,8 @@ class AnalystController extends Controller
             'form_checklist' => $nasabah->form_checklist,
             'mutasi_rekening' => $nasabah->mutasi_rekening,
             'form_bta' => $nasabah->form_bta,
+            'video_interview' => $nasabah->video_interview,
+            'video_asuransi' => $nasabah->video_asuransi,
         ];
 
         $safeUrls = [];
@@ -189,7 +191,7 @@ class AnalystController extends Controller
         //     'catatan_analyst'
         // ]));
 
-        $nasabah->plafond           = $request->plafond;
+        $nasabah->persetujuan_analyst           = $request->plafond;
         $nasabah->nilai_angsuran    = $request->nilai_angsuran;
         $nasabah->biaya_bank        = $request->biaya_bank;
         $nasabah->biaya_asuransi    = $request->biaya_asuransi;
