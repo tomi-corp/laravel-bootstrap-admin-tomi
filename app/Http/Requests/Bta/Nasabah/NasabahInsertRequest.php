@@ -141,7 +141,7 @@ class NasabahInsertRequest extends FormRequest
             'biaya_asuransi' => 'required|numeric|min:0',
             'biaya_koperasi' => 'required|numeric|min:0',
             'simpanan_koperasi' => 'required|numeric|min:0',
-            'tujuan_penggunaan' => 'required|in:Konsumsi,Modak Kerja,Investasi',
+            'tujuan_penggunaan' => 'required|in:Konsumsi,Modal Kerja,Investasi',
             'gaji_bersih' => 'required|numeric|min:0',
             'mulai_pinjaman' => 'required|date',
             'akhir_pinjaman' => 'required|date|after_or_equal:mulai_pinjaman',

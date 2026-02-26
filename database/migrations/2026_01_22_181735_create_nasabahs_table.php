@@ -134,7 +134,7 @@ return new class extends Migration
             // Dropdown tujuan penggunaan — contoh pilihan umum
             $table->enum('tujuan_penggunaan', [
                 'Konsumsi',
-                'Modak Kerja',
+                'Modal Kerja',
                 'Investasi'
             ])->nullable();
 
