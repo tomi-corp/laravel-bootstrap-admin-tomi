@@ -109,7 +109,7 @@ class NasabahInsertRequest extends FormRequest
             'kecamatan' => 'required|exists:wilayah_kecamatan_net,id',
             'kelurahan' => 'required|exists:wilayah_desa_net,id',
             'kodePos' => 'required|string|size:5',
-            'kode_dati' => 'required|exists:wilayah_dati,id',
+            'kode_dati' => 'required',
 
             // Pekerjaan
             'nama_perusahaan' => 'required|string|max:255',
