@@ -1642,6 +1642,64 @@
 
     <script>
         $(document).ready(function() {
+
+            $('input[type="file"]').on('change', function() {
+                validateFile($(this));
+            });
+
+            function validateFile($input) {
+                const file = $input[0].files[0];
+                if (!file) return;
+
+                const acceptAttr = $input.attr('accept') || '';
+                const fileType = file.type;
+
+                let maxSizeMB = 0;
+                let category = '';
+
+                // Cek apakah Video
+                const isVideo = fileType.startsWith('video/') ||
+                    acceptAttr.includes('.mp4') ||
+                    acceptAttr.includes('.mov') ||
+                    acceptAttr.includes('.avi') ||
+                    acceptAttr.includes('.webm');
+
+                // Cek apakah Image atau PDF
+                const isImageOrPdf = fileType.startsWith('image/') ||
+                    fileType === 'application/pdf' ||
+                    acceptAttr.includes('.jpg') ||
+                    acceptAttr.includes('.jpeg') ||
+                    acceptAttr.includes('.png') ||
+                    acceptAttr.includes('.pdf');
+
+                // Tentukan batas ukuran berdasarkan kategori
+                if (isVideo) {
+                    maxSizeMB = 50;
+                    category = 'Video';
+                } else if (isImageOrPdf) {
+                    maxSizeMB = 5;
+                    category = 'Image/PDF';
+                } else {
+                    maxSizeMB = 5; // Default
+                    category = 'File';
+                }
+
+                // Validasi ukuran
+                const maxSizeBytes = maxSizeMB * 1024 * 1024;
+
+                if (file.size > maxSizeBytes) {
+                    const currentSizeMB = (file.size / 1024 / 1024).toFixed(2);
+                    toastr.warning(
+                        `⚠️ Ukuran file melebihi batas!\n\nBatas Maksimal ${category}: ${maxSizeMB} MB`,
+                        'Ukuran File terlalu besar');
+
+                    // Reset input
+                    $input.val('');
+                } else {
+                    console.log(`✅ ${category} valid: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`);
+                }
+            }
+
             // Init Select2
             $('.select2').select2({
                 placeholder: "Pilih...",

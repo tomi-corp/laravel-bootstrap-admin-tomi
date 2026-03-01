@@ -317,6 +317,22 @@ class AnalystController extends Controller
         }
 
 
+        //  video asuransi
+        $nasabah->status_video_asuransi = $request->status_video_asuransi;
+        if ($request->status_video_asuransi == "approve") {
+            $nasabah->note_video_asuransi = null;
+        } else {
+            $nasabah->note_video_asuransi = $request->note_video_asuransi;
+        }
+
+        //  video interview
+        $nasabah->status_video_interview = $request->status_video_interview;
+        if ($request->status_video_interview == "approve") {
+            $nasabah->note_video_interview = null;
+        } else {
+            $nasabah->note_video_interview = $request->note_video_interview;
+        }
+
         $nasabah->save();
 
         return response()->json([

@@ -1048,7 +1048,44 @@
 @endsection
 @push('js')
     <script>
+        function previewFile(url, title, docKey) {
+            const previewContent = document.getElementById('previewContent');
+            const labelModal = document.getElementById('labelModal');
+            const btnDownload = document.getElementById('btnDownload');
+
+            labelModal.innerText = 'Preview: ' + title;
+            btnDownload.href = url;
+            previewContent.innerHTML =
+                `<div class="p-3"><i class="mdi mdi-spin mdi-loading"></i> Loading Dokumen...</div>`;
+            currentDocKey = docKey; // Simpan key dokumen
+
+            // Ambil status dan catatan saat ini dari form utama dan set ke modal
+            if (currentDocKey) {
+                // Ambil nilai dari form utama (dalam kasus ini, formReviewDokumen - yang tersembunyi)
+                const $statusSelectInForm = $(
+                    `#formReviewDokumen select[name="verifikasi[${currentDocKey}][status]"]`);
+                const $noteTextareaInForm = $(
+                    `#formReviewDokumen textarea[name="verifikasi[${currentDocKey}][note]"]`);
+
+                // Set ke elemen di modal
+                $('#modalStatusSelect').val($statusSelectInForm.val() || 'approve');
+                $('#modalNoteTextarea').val($noteTextareaInForm.val() || '');
+            }
+
+            // Gunakan Iframe untuk preview
+            previewContent.innerHTML = `
+                    <iframe src="${url}"
+                            style="width: 100%; height: 500px; border: none;"
+                            onload="this.style.background='none'">
+                    </iframe>`;
+
+            $('#modalPreview').modal('show');
+        };
+    </script>
+    <script>
         $(document).ready(function() {
+
+
 
             $('#lanjutkanKredit').on('click', function(e) {
                 e.preventDefault(); // Mencegah reload halaman
@@ -1154,6 +1191,9 @@
                 $('#modalPreview iframe').attr('src', '');
                 $('#modalPreview .modal-body img').remove();
             });
+
+
+
         });
     </script>
 @endpush
@@ -1293,10 +1333,10 @@
 
             // Gunakan Iframe untuk preview
             previewContent.innerHTML = `
-        <iframe src="${url}"
-                style="width: 100%; height: 500px; border: none;"
-                onload="this.style.background='none'">
-        </iframe>`;
+            <iframe src="${url}"
+                    style="width: 100%; height: 500px; border: none;"
+                    onload="this.style.background='none'">
+            </iframe>`;
 
             $('#modalPreview').modal('show');
         }

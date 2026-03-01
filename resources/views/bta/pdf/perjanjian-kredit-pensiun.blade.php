@@ -344,8 +344,7 @@
             <tr>
                 <td class="col-lbl">Adm. Angsuran Perbulan</td>
                 <td class="col-sep">:</td>
-                <td class="col-val">Rp. {{ number_format($data['admin_angsuran'] ?? 0, 0, ',', '.') }},-
-                    ({{ $data['terbilang_admin'] ?? 'Nol' }} Rupiah)</td>
+                <td class="col-val"></td>
             </tr>
             <tr>
                 <td class="col-lbl">Angsuran Per bulan</td>

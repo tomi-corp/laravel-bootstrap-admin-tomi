@@ -1134,10 +1134,10 @@
 
             // Gunakan Iframe untuk preview
             previewContent.innerHTML = `
-        <iframe src="${url}"
-                style="width: 100%; height: 500px; border: none;"
-                onload="this.style.background='none'">
-        </iframe>`;
+                <iframe src="${url}"
+                        style="width: 100%; height: 500px; border: none;"
+                        onload="this.style.background='none'">
+                </iframe>`;
 
             $('#modalPreview').modal('show');
         }
