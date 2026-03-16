@@ -327,7 +327,7 @@ class KspController extends Controller
                 'status_sp' => $karyawan->status_sp,
                 'bank' => $karyawan->id_nama_bank,
                 'nomor_bank' => $karyawan->nomor_bank,
-                'penghasilan' => $karyawan->penghasilan,
+                'max_plafon' => $karyawan->max_plafon,
             ]
         ], 200);
     }
@@ -353,7 +353,7 @@ class KspController extends Controller
         $karyawan->status_sp = $req->statusSp;
         $karyawan->id_nama_bank = $req->bank;
         $karyawan->nomor_bank = $req->nomor_bank;
-        $karyawan->penghasilan = $req->penghasilan;
+        $karyawan->max_plafon = $req->max_plafon;
         $karyawan->save();
         return response()->json([
             'status' => 200,

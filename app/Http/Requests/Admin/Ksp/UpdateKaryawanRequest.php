@@ -22,12 +22,12 @@ class UpdateKaryawanRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'id' => 'required|exists:list_data_ksps,id',
+            'id' => 'required|exists:list_karyawans,id',
             'nama_karyawan' => 'required',
             'tanggal_bergabung' => 'required|date',
-            'nik' => 'required|numeric|unique:list_data_ksps,nik,' . $this->id,
+            'nik' => 'required|numeric|unique:list_karyawans,nik,' . $this->id,
             'nip' => 'required|numeric',
-            'whatsapp' => 'required|regex:/(62)[8]/|unique:list_data_ksps,whatsapp,' . $this->id,
+            'whatsapp' => 'required|regex:/(62)[8]/|unique:list_karyawans,whatsapp,' . $this->id,
             'alamat_lengkap' => 'required',
             'divisi' => 'required',
             'departement' => 'required',

@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\CostController;
 use App\Http\Controllers\Admin\DailyCheckinController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\GenerateInvoiceController;
 use App\Http\Controllers\Admin\KspController;
 use App\Http\Controllers\Admin\LenderController;
 use App\Http\Controllers\Admin\MenuMobileController;
@@ -151,7 +152,15 @@ Route::middleware(['AdminMiddleware'])->group(
                 Route::post('/cost/ksp/save/rekening', [CostController::class, 'saveRekening'])->name('admin.cost.save.rekening');
                 Route::post('/cost/ksp/save/rekening/pandu', [CostController::class, 'saveRekeningPandu'])->name('admin.cost.save.rekeningPandu');
 
-
+                // ksp => create invoice manual
+                Route::get('/generate/invoice', [GenerateInvoiceController::class, 'index'])->name('admin.generate.invoice.index');
+                Route::get('/generate/invoice/stats', [GenerateInvoiceController::class, 'stats'])->name('admin.generate.invoice.stats');
+                Route::get('/generate/invoice/download/template', [GenerateInvoiceController::class, 'downloadTemplateInvoice'])->name('admin.generate.invoice.download');
+                Route::post('/generate/invoice/download/generate', [GenerateInvoiceController::class, 'generateInvoice'])->name('admin.generate.invoice.generate');
+                Route::post('/generate/invoice/download/table', [GenerateInvoiceController::class, 'generateTable'])->name('admin.generate.invoice.table');
+                Route::get('/generate/invoice/download/excel/{id}', [GenerateInvoiceController::class, 'downloadExcel'])->name('admin.generate.invoice.download.excel');
+                Route::get('/generate/invoice/fee/tomi/{id}', [GenerateInvoiceController::class, 'generateFee'])->name('admin.generate.invoice.fee');
+                Route::get('/generate/invoice/perusahaan/{id}', [GenerateInvoiceController::class, 'generateInvoiceDownload'])->name('admin.generate.invoice.perusahaan');
 
                 // ota => mobile
                 Route::get('/ota', [OtaController::class, 'otaIndex'])->name('admin.ota.index');

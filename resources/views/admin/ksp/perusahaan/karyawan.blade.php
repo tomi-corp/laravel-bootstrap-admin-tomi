@@ -592,6 +592,7 @@
                     type: 'POST',
                     dataType: 'json',
                     success: function(detail) {
+                        console.log(detail.data.max_plafon);
                         $('#nama_karyawan').val(detail.data.nama);
                         $('#tanggal_bergabung').val(detail.data.tanggal_bergabung);
                         $('#nik').val(detail.data.nik);
