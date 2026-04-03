@@ -754,7 +754,7 @@
                                 <!-- UPLOAD Video Interview -->
                                 <div class="col-md-6" id="sectionVideoInterview">
                                     <div class="form-group">
-                                        <label>Upload Video Interview <span class="text-danger">*</span></label>
+                                        <label>Upload Video Interview</label>
                                         <div class="input-group">
                                             <button type="button" class="btn btn-outline-primary btn-block"
                                                 id="btnUploadVideoInterview">
@@ -780,7 +780,7 @@
                                 <!-- UPLOAD Video Asuransi -->
                                 <div class="col-md-6" id="sectionVideoAsuransi">
                                     <div class="form-group">
-                                        <label>Upload Video Asuransi <span class="text-danger">*</span></label>
+                                        <label>Upload Video Asuransi</label>
                                         <div class="input-group">
                                             <button type="button" class="btn btn-outline-primary btn-block"
                                                 id="btnUploadVideoAsuransi">
@@ -1626,14 +1626,14 @@
                         markError('uploadChecklist', 'Upload Checklist Verifikasi wajib diisi');
                         isValid = false;
                     }
-                    if (!compressedVideoInterview) {
-                        markError('uploadVideoInterview', 'Video Interview wajib diupload dan dikompres');
-                        isValid = false;
-                    }
-                    if (!compressedVideoAsuransi) {
-                        markError('uploadVideoAsuransi', 'Video Asuransi wajib diupload dan dikompres');
-                        isValid = false;
-                    }
+                    // if (!compressedVideoInterview) {
+                    //     markError('uploadVideoInterview', 'Video Interview wajib diupload dan dikompres');
+                    //     isValid = false;
+                    // }
+                    // if (!compressedVideoAsuransi) {
+                    //     markError('uploadVideoAsuransi', 'Video Asuransi wajib diupload dan dikompres');
+                    //     isValid = false;
+                    // }
                     break;
             }
 
@@ -1864,14 +1864,14 @@
                         showError('uploadChecklist', 'Upload Checklist Verifikasi wajib diisi');
                         isValid = false;
                     }
-                    if (!compressedVideoInterview) {
-                        showError('uploadVideoInterview', 'Video Interview wajib diupload dan dikompres');
-                        isValid = false;
-                    }
-                    if (!compressedVideoAsuransi) {
-                        showError('uploadVideoAsuransi', 'Video Asuransi wajib diupload dan dikompres');
-                        isValid = false;
-                    }
+                    // if (!compressedVideoInterview) {
+                    //     showError('uploadVideoInterview', 'Video Interview wajib diupload dan dikompres');
+                    //     isValid = false;
+                    // }
+                    // if (!compressedVideoAsuransi) {
+                    //     showError('uploadVideoAsuransi', 'Video Asuransi wajib diupload dan dikompres');
+                    //     isValid = false;
+                    // }
                     break;
             }
 
