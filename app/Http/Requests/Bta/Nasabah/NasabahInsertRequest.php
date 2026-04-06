@@ -161,14 +161,18 @@ class NasabahInsertRequest extends FormRequest
             'upload_bta' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
             'upload_checklist' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
 
-            // 🎬 VIDEO: WAJIB HANYA JIKA STATUS_PEGAWAI = 'Pensiun'
-            'upload_video_interview' => $this->status_pegawai === 'Pensiun'
-                ? 'required|file|mimes:mp4,mov,avi,webm|max:51200'
-                : 'nullable|file|mimes:mp4,mov,avi,webm|max:51200',
+            'upload_video_interview' => 'nullable',
+            'upload_video_asuransi'  => 'nullable',
 
-            'upload_video_asuransi' => $this->status_pegawai === 'Pensiun'
-                ? 'required|file|mimes:mp4,mov,avi,webm|max:51200'
-                : 'nullable|file|mimes:mp4,mov,avi,webm|max:51200',
+
+            // 🎬 VIDEO: WAJIB HANYA JIKA STATUS_PEGAWAI = 'Pensiun'
+            // 'upload_video_interview' => $this->status_pegawai === 'Pensiun'
+            //     ? 'required|file|mimes:mp4,mov,avi,webm|max:51200'
+            //     : 'nullable|file|mimes:mp4,mov,avi,webm|max:51200',
+
+            // 'upload_video_asuransi' => $this->status_pegawai === 'Pensiun'
+            //     ? 'required|file|mimes:mp4,mov,avi,webm|max:51200'
+            //     : 'nullable|file|mimes:mp4,mov,avi,webm|max:51200',
 
 
         ];

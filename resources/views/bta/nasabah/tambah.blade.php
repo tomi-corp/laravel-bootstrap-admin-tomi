@@ -752,9 +752,9 @@
 
                                 <!-- ================= VIDEO UPLOAD BARU ================= -->
                                 <!-- UPLOAD Video Interview -->
-                                <div class="col-md-6" id="sectionVideoInterview">
+                                <div class="col-md-6">
                                     <div class="form-group">
-                                        <label>Upload Video Interview</label>
+                                        <label>Upload Video Interview <span class="text-danger">*</span></label>
                                         <div class="input-group">
                                             <button type="button" class="btn btn-outline-primary btn-block"
                                                 id="btnUploadVideoInterview">
@@ -778,9 +778,9 @@
                                 </div>
 
                                 <!-- UPLOAD Video Asuransi -->
-                                <div class="col-md-6" id="sectionVideoAsuransi">
+                                <div class="col-md-6">
                                     <div class="form-group">
-                                        <label>Upload Video Asuransi</label>
+                                        <label>Upload Video Asuransi <span class="text-danger">*</span></label>
                                         <div class="input-group">
                                             <button type="button" class="btn btn-outline-primary btn-block"
                                                 id="btnUploadVideoAsuransi">
@@ -1626,14 +1626,14 @@
                         markError('uploadChecklist', 'Upload Checklist Verifikasi wajib diisi');
                         isValid = false;
                     }
-                    // if (!compressedVideoInterview) {
-                    //     markError('uploadVideoInterview', 'Video Interview wajib diupload dan dikompres');
-                    //     isValid = false;
-                    // }
-                    // if (!compressedVideoAsuransi) {
-                    //     markError('uploadVideoAsuransi', 'Video Asuransi wajib diupload dan dikompres');
-                    //     isValid = false;
-                    // }
+                    if (!compressedVideoInterview) {
+                        markError('uploadVideoInterview', 'Video Interview wajib diupload dan dikompres');
+                        isValid = false;
+                    }
+                    if (!compressedVideoAsuransi) {
+                        markError('uploadVideoAsuransi', 'Video Asuransi wajib diupload dan dikompres');
+                        isValid = false;
+                    }
                     break;
             }
 
@@ -1864,14 +1864,14 @@
                         showError('uploadChecklist', 'Upload Checklist Verifikasi wajib diisi');
                         isValid = false;
                     }
-                    // if (!compressedVideoInterview) {
-                    //     showError('uploadVideoInterview', 'Video Interview wajib diupload dan dikompres');
-                    //     isValid = false;
-                    // }
-                    // if (!compressedVideoAsuransi) {
-                    //     showError('uploadVideoAsuransi', 'Video Asuransi wajib diupload dan dikompres');
-                    //     isValid = false;
-                    // }
+                    if (!compressedVideoInterview) {
+                        showError('uploadVideoInterview', 'Video Interview wajib diupload dan dikompres');
+                        isValid = false;
+                    }
+                    if (!compressedVideoAsuransi) {
+                        showError('uploadVideoAsuransi', 'Video Asuransi wajib diupload dan dikompres');
+                        isValid = false;
+                    }
                     break;
             }
 
@@ -2106,31 +2106,6 @@
 
         // Initialize
         updateTabNavigation();
-
-        function toggleVideoSection() {
-            let status = $('#statusPegawai').val();
-
-            if (status === 'Pensiun') {
-                $('#sectionVideoInterview').show();
-                $('#sectionVideoAsuransi').show();
-            } else {
-                $('#sectionVideoInterview').hide();
-                $('#sectionVideoAsuransi').hide();
-            }
-        }
-
-        // langsung sembunyikan saat load
-        $('#sectionVideoInterview').hide();
-        $('#sectionVideoAsuransi').hide();
-
-        // jalankan pengecekan (kalau ada value default)
-        toggleVideoSection();
-
-        // event change
-        $('#statusPegawai').on('change', function () {
-            toggleVideoSection();
-        });
-
     });
 </script>
 @endpush
