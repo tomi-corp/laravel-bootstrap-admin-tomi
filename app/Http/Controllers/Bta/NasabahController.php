@@ -447,24 +447,24 @@ class NasabahController extends Controller
         try {
             $nasabah = new nasabah();
 
-            // Assign data identitas
-            $nasabah->nama_lengkap = $request->nama_lengkap;
-            $nasabah->nama_singkat = $request->nama_singkat;
-            $nasabah->jenis_kelamin = $request->jenis_kelamin;
-            $nasabah->tempat_lahir = $request->tempat_lahir;
-            $nasabah->tanggal_lahir = $request->tanggal_lahir;
-            $nasabah->nama_ibu = $request->nama_ibu;
+            // --- 1. Assign data identitas (Caps Lock) ---
+            $nasabah->nama_lengkap = strtoupper($request->nama_lengkap);
+            $nasabah->nama_singkat = strtoupper($request->nama_singkat);
+            $nasabah->jenis_kelamin = strtoupper($request->jenis_kelamin);
+            $nasabah->tempat_lahir = strtoupper($request->tempat_lahir);
+            $nasabah->tanggal_lahir = $request->tanggal_lahir; // tanggal tidak diubah
+            $nasabah->nama_ibu = strtoupper($request->nama_ibu);
             $nasabah->no_telp = $request->no_telp;
-            $nasabah->agama = $request->agama;
-            $nasabah->pendidikan_terakhir = $request->pendidikan; // Catatan: Kolom di DB adalah pendidikan_terakhir
-            $nasabah->status_perkawinan = $request->status_perkawinan;
+            $nasabah->agama = strtoupper($request->agama);
+            $nasabah->pendidikan_terakhir = strtoupper($request->pendidikan);
+            $nasabah->status_perkawinan = strtoupper($request->status_perkawinan);
 
-            // Assign data pasangan
-            $nasabah->nama_pasangan = $request->nama_pasangan;
+            // --- 2. Assign data pasangan (Caps Lock) ---
+            $nasabah->nama_pasangan = strtoupper($request->nama_pasangan);
             $nasabah->tgl_lahir_pasangan = $request->tgl_lahir_pasangan;
 
-            // Assign data alamat
-            $nasabah->alamat_rumah = $request->alamat_rumah;
+            // --- 3. Assign data alamat (Caps Lock untuk teks) ---
+            $nasabah->alamat_rumah = strtoupper($request->alamat_rumah);
             $nasabah->provinsi_id = $request->provinsi;
             $nasabah->kota_id = $request->kota;
             $nasabah->kecamatan_id = $request->kecamatan;
@@ -472,20 +472,20 @@ class NasabahController extends Controller
             $nasabah->kode_pos = $request->kodePos;
             $nasabah->kode_dati_id = $request->kode_dati;
 
-            // Assign data pekerjaan
-            $nasabah->nama_perusahaan = $request->nama_perusahaan;
-            $nasabah->bidang_usaha = $request->bidang_usaha;
-            $nasabah->alamat_kerja = $request->alamat_kerja;
+            // --- 4. Assign data pekerjaan (Caps Lock untuk teks) ---
+            $nasabah->nama_perusahaan = strtoupper($request->nama_perusahaan);
+            $nasabah->bidang_usaha = strtoupper($request->bidang_usaha);
+            $nasabah->alamat_kerja = strtoupper($request->alamat_kerja);
             $nasabah->nip = $request->nip;
-            $nasabah->status_pegawai = $request->status_pegawai;
+            $nasabah->status_pegawai = strtoupper($request->status_pegawai);
             $nasabah->tgl_akhir_kontrak = $request->tgl_akhir_kontrak;
 
-            // Assign data bank
-            $nasabah->bank_id = $request->bankSelect; // Catatan: Gunakan nama input yang sesuai
-            $nasabah->nama_pemilik_rek = $request->nama_pemilik_rek;
+            // --- 5. Assign data bank (Caps Lock untuk teks) ---
+            $nasabah->bank_id = $request->bankSelect;
+            $nasabah->nama_pemilik_rek = strtoupper($request->nama_pemilik_rek);
             $nasabah->no_rek = $request->no_rek;
 
-            // Assign data KTA Multiguna
+            // --- 6. Assign data KTA Multiguna (Caps Lock untuk teks) ---
             $nasabah->plafond = $request->plafond;
             $nasabah->jangka_waktu = $request->jangka_waktu;
             $nasabah->suku_bunga = $request->suku_bunga;
@@ -494,22 +494,20 @@ class NasabahController extends Controller
             $nasabah->biaya_asuransi = $request->biaya_asuransi;
             $nasabah->biaya_koperasi = $request->biaya_koperasi;
             $nasabah->simpanan_koperasi = $request->simpanan_koperasi;
-            $nasabah->tujuan_penggunaan = $request->tujuan_penggunaan;
+            $nasabah->tujuan_penggunaan = strtoupper($request->tujuan_penggunaan);
             $nasabah->gaji_bersih = $request->gaji_bersih;
             $nasabah->mulai_pinjaman = $request->mulai_pinjaman;
             $nasabah->akhir_pinjaman = $request->akhir_pinjaman;
             $nasabah->dbr = $request->dbr;
 
-            // Assign nomor KTP dan NPWP (disimpan juga sebagai kolom terpisah)
+            // --- 7. Nomor KTP dan NPWP ---
             $nasabah->no_ktp = $request->no_ktp;
             $nasabah->no_npwp = $request->no_npwp;
 
-            // --- 3. Proses Upload File ---
-            // Definisikan mapping antara input form dan kolom di database
+            // --- 8. Proses Upload File ---
             $fileMappings = [
                 'upload_ktp' => 'ktp',
                 'upload_id_card' => 'id_card',
-                // 'upload_selfie' => 'selfie',
                 'upload_npwp' => 'npwp',
                 'upload_kk' => 'kk',
                 'upload_sk' => 'sk_karyawan',
@@ -527,12 +525,8 @@ class NasabahController extends Controller
             foreach ($fileMappings as $inputName => $columnName) {
                 if ($request->hasFile($inputName)) {
                     $file = $request->file($inputName);
-                    // Generate nama file unik
                     $filename = time() . '_' . uniqid() . '_' . $columnName . '.' . $file->getClientOriginalExtension();
-                    // Simpan ke storage (misalnya: public/nasabah_files/)
-                    // $path = $file->storeAs('nasabah_files', $filename, 'public');
                     $file->storeAs('bta', $filename);
-                    // Simpan path ke kolom database
                     $nasabah->{$columnName} = $filename;
                     if ($columnName === "video_interview" || $columnName === "video_asuransi") {
                         $nasabah->{"status_" . $columnName} = "pending";
@@ -540,34 +534,27 @@ class NasabahController extends Controller
                 }
             }
 
-            // Kolom lainnya
-            $nasabah->admin_id = auth('bta')->id(); // Misalnya ID admin yang sedang login
-            $nasabah->position = 'analyst'; // Atau sesuaikan
-            $nasabah->status = 'pending'; // Status awal
+            // --- 9. Kolom tambahan ---
+            $nasabah->admin_id = auth('bta')->id();
+            $nasabah->position = 'analyst';
+            $nasabah->status = 'pending';
 
-            // Simpan ke database
+            // --- 10. Simpan ke database ---
             $nasabah->save();
 
-            // --- 4. Return Response ---
             return response()->json([
                 'message' => 'Data nasabah berhasil disimpan.',
-                'data' => $nasabah // Opsional: kembalikan data yang disimpan
-            ], 201); // Gunakan 201 Created untuk resource baru
-
+                'data' => $nasabah
+            ], 201);
         } catch (\Exception $e) {
-
-            // Log error untuk debugging
-            // \Log::error('Error inserting nasabah: ' . $e->getMessage());
             return response()->json([
                 'message' => 'Terjadi kesalahan saat menyimpan data ke database.',
                 'data' => $e
             ], 500);
         }
     }
-
     public function nasabahUpdate(Request $req)
     {
-
         $nasabah = nasabah::where('no_ktp', $req->no_ktp)
             ->where('position', 'analyst')
             ->where('status', 'revisi')
@@ -578,12 +565,12 @@ class NasabahController extends Controller
         }
 
         // === Identitas ===
-        $nasabah->nama_lengkap = $req->nama_lengkap;
-        $nasabah->nama_singkat = $req->nama_singkat;
+        $nasabah->nama_lengkap = strtoupper($req->nama_lengkap);
+        $nasabah->nama_singkat = strtoupper($req->nama_singkat);
         $nasabah->jenis_kelamin = $req->jenis_kelamin;
-        $nasabah->tempat_lahir = $req->tempat_lahir;
+        $nasabah->tempat_lahir = strtoupper($req->tempat_lahir);
         $nasabah->tanggal_lahir = $req->tanggal_lahir;
-        $nasabah->nama_ibu = $req->nama_ibu;
+        $nasabah->nama_ibu = strtoupper($req->nama_ibu);
         $nasabah->no_telp = $req->no_telp;
         $nasabah->agama = $req->agama;
         $nasabah->pendidikan_terakhir = $req->pendidikan_terakhir;
@@ -591,26 +578,25 @@ class NasabahController extends Controller
 
         // === Pasangan ===
         if ($req->status_perkawinan === 'Kawin') {
-            $nasabah->nama_pasangan = $req->nama_pasangan;
+            $nasabah->nama_pasangan = strtoupper($req->nama_pasangan);
             $nasabah->tgl_lahir_pasangan = $req->tgl_lahir_pasangan;
         }
 
         // === Alamat ===
-        $nasabah->alamat_rumah = $req->alamat_rumah;
+        $nasabah->alamat_rumah = strtoupper($req->alamat_rumah);
         $nasabah->provinsi_id = $req->provinsi_id;
         $nasabah->kota_id = $req->kota_id;
         $nasabah->kecamatan_id = $req->kecamatan_id;
 
-        // Ambil data kelurahan dengan aman
         $kelurahan = Kelurahan::where('id', $req->kelurahan_id)->first();
         $nasabah->kelurahan_id = $req->kelurahan_id;
-        $nasabah->kode_pos = $kelurahan ? $kelurahan->kodepos : $nasabah->kode_pos; // Fallback ke nilai lama jika kelurahan tidak ditemukan
+        $nasabah->kode_pos = $kelurahan ? $kelurahan->kodepos : $nasabah->kode_pos;
         $nasabah->kode_dati_id = $req->kode_dati_id;
 
         // === Pekerjaan ===
-        $nasabah->nama_perusahaan = $req->nama_perusahaan;
-        $nasabah->bidang_usaha = $req->bidang_usaha;
-        $nasabah->alamat_kerja = $req->alamat_kerja;
+        $nasabah->nama_perusahaan = strtoupper($req->nama_perusahaan);
+        $nasabah->bidang_usaha = strtoupper($req->bidang_usaha);
+        $nasabah->alamat_kerja = strtoupper($req->alamat_kerja);
         $nasabah->nip = $req->nip;
         $nasabah->status_pegawai = $req->status_pegawai;
         $nasabah->no_ktp = $req->no_ktp;
@@ -623,7 +609,7 @@ class NasabahController extends Controller
         // === Bank ===
         $nasabah->bank_id = $req->bank_id;
         $nasabah->no_rek = $req->no_rek;
-        $nasabah->nama_pemilik_rek = $req->nama_pemilik_rek;
+        $nasabah->nama_pemilik_rek = strtoupper($req->nama_pemilik_rek);
 
         // === LOGIKA UPLOAD FILE ===
         $tglInput = now()->format('Ymd');
@@ -653,7 +639,6 @@ class NasabahController extends Controller
                 $file = $req->file($requestField);
                 $extension = strtolower($file->getClientOriginalExtension());
 
-                // --- 1. Tentukan Aturan Berdasarkan Jenis File ---
                 $isVideo = in_array($dbField, ["video_interview", "video_asuransi"]);
 
                 if ($isVideo) {
@@ -666,38 +651,26 @@ class NasabahController extends Controller
                     $sizeLabel = "5 MB";
                 }
 
-                // --- 2. Validasi Ekstensi ---
                 if (!in_array($extension, $allowedExtensions)) {
                     return response()->json([
                         'message' => "Format file {$requestField} tidak valid. Diperbolehkan: " . implode(', ', $allowedExtensions)
                     ], 422);
                 }
 
-                // --- 3. Validasi Ukuran File ---
                 if ($file->getSize() > $maxSize) {
                     return response()->json([
                         'message' => "Ukuran file {$requestField} terlalu besar. Maksimal batas adalah {$sizeLabel}."
                     ], 422);
                 }
 
-                // --- 4. Proses Simpan File ---
-                // Menggunakan format nama file unik Anda
                 $fileName = "{$tglInput}_{$namaLengkapSanitized}_{$randomNumber}_{$requestField}.{$extension}";
-
-                // Simpan ke folder 'bta'
                 $file->storeAs('bta', $fileName);
-
-                // --- 5. Update Database ---
                 $nasabah->{$dbField} = $fileName;
 
-                // Reset Status & Note
                 $statusField = "status_{$dbField}";
                 $noteField = "note_{$dbField}";
 
-                // Set status ke pending & hapus note revisi lama
                 $nasabah->{$statusField} = 'pending';
-
-                // Pastikan kolom note ada di database sebelum set null untuk menghindari error
                 $nasabah->{$noteField} = null;
             }
         }
@@ -705,7 +678,7 @@ class NasabahController extends Controller
         // === Metadata ===
         $nasabah->admin_id = auth('bta')->user()->id;
         $nasabah->position = 'analyst';
-        $nasabah->status = 'pending'; // Status nasabah tetap revisi sampai analyst approve
+        $nasabah->status = 'pending';
 
         $nasabah->save();
 
