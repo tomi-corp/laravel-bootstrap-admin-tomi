@@ -19,3 +19,4 @@ yarn-error.log
 docker-compose.yml
 composer.lock
 C
+public/.htaccess
