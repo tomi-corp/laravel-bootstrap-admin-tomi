@@ -167,7 +167,8 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>Jenis Kelamin</label>
-                                    <input class="form-control" value="{{ $nasabah->jenis_kelamin }}" readonly />
+                                    <input class="form-control" value="{{ strtoupper($nasabah->jenis_kelamin) }}"
+                                        readonly />
                                 </div>
                             </div>
 
@@ -235,7 +236,7 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>Agama</label>
-                                    <input class="form-control" value="{{ $nasabah->agama }}" readonly />
+                                    <input class="form-control" value="{{ strtoupper($nasabah->agama) }}" readonly />
                                 </div>
                             </div>
 
@@ -249,7 +250,8 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>Status Perkawinan</label>
-                                    <input class="form-control" value="{{ $nasabah->status_perkawinan }}" readonly />
+                                    <input class="form-control" value="{{ strtoupper($nasabah->status_perkawinan) }}"
+                                        readonly />
                                 </div>
                             </div>
 
@@ -285,7 +287,7 @@
                                 <div class="form-group">
                                     <label>Provinsi</label>
                                     <input class="form-control"
-                                        value="{{ optional($nasabah->provinsi)->provinsi ?? 'Data Tidak Lengkap' }}"
+                                        value="{{ strtoupper(optional($nasabah->provinsi)->provinsi) ?? 'Data Tidak Lengkap' }}"
                                         readonly />
                                 </div>
                             </div>
@@ -294,7 +296,7 @@
                                 <div class="form-group">
                                     <label>Kota/Kabupaten</label>
                                     <input class="form-control"
-                                        value="{{ optional($nasabah->kabupaten)->kabupaten ?? 'Data Tidak Lengkap' }}"
+                                        value="{{ strtoupper(optional($nasabah->kabupaten)->kabupaten) ?? 'Data Tidak Lengkap' }}"
                                         readonly />
                                 </div>
                             </div>
@@ -303,7 +305,7 @@
                                 <div class="form-group">
                                     <label>Kecamatan</label>
                                     <input class="form-control"
-                                        value="{{ optional($nasabah->kecamatan)->kecamatan ?? 'Data Tidak Lengkap' }}"
+                                        value="{{ strtoupper(optional($nasabah->kecamatan)->kecamatan) ?? 'Data Tidak Lengkap' }}"
                                         readonly />
                                 </div>
                             </div>
@@ -312,7 +314,8 @@
                                 <div class="form-group">
                                     <label>Kelurahan</label>
                                     <input class="form-control"
-                                        value="{{ optional($nasabah->desa)->desa ?? 'Data Tidak Lengkap' }}" readonly />
+                                        value="{{ strtoupper(optional($nasabah->desa)->desa) ?? 'Data Tidak Lengkap' }}"
+                                        readonly />
                                 </div>
                             </div>
 
@@ -346,7 +349,8 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>Status Pegawai</label>
-                                    <input class="form-control" value="{{ $nasabah->status_pegawai }}" readonly />
+                                    <input class="form-control" value="{{ strtoupper($nasabah->status_pegawai) }}"
+                                        readonly />
                                 </div>
                             </div>
 
@@ -664,14 +668,14 @@
                                     <label for="tujuan_penggunaan">Tujuan Penggunaan: <span
                                             class="text-danger">*</span></label>
                                     <select class="form-control" name="tujuan_penggunaan" id="tujuan_penggunaan">
-                                        <option value="" disabled>-- Pilih Tujuan --</option>
+                                        <option value="" disabled>-- PILIH TUJUAN --</option>
                                         @php
                                         $options = ['Konsumsi', 'Modal Kerja', 'Investasi'];
                                         @endphp
                                         @foreach ($options as $option)
                                         <option value="{{ $option }}" {{ $nasabah->tujuan_penggunaan == $option ?
                                             'selected' : '' }}>
-                                            {{ $option }}
+                                            {{ strtoupper($option) }}
                                         </option>
                                         @endforeach
                                     </select>
@@ -881,10 +885,10 @@
                                         <!-- Atur lebar minimum jika perlu -->
                                         <label for="overallActionSelect">Tindakan:</label>
                                         <select class="form-control" id="overallActionSelect" name="overall_action">
-                                            <option value="">Pilih Tindakan...</option>
-                                            <option value="disetujui">Approve</option>
-                                            <option value="ditolak">Reject</option>
-                                            <option value="dikembalikan">Revisi</option>
+                                            <option value="">{{ strtoupper('Pilih Tindakan...') }}</option>
+                                            <option value="disetujui">{{ strtoupper('Approve') }}</option>
+                                            <option value="ditolak">{{ strtoupper('Reject') }}</option>
+                                            <option value="dikembalikan">{{ strtoupper('Revisi') }}</option>
                                         </select>
                                     </div>
 
@@ -945,13 +949,17 @@
                                 class="form-control form-control-sm doc-status-select"
                                 data-doc-key="{{ $item['key'] }}">
                                 <option value="pending" {{ $currentStatus=='pending' ? 'selected' : '' }}>
-                                    Pending</option>
+                                    {{ strtoupper('Pending') }}
+                                </option>
                                 <option value="approve" {{ $currentStatus=='approve' ? 'selected' : '' }}>
-                                    Setuju</option>
-                                <option value="reject" {{ $currentStatus=='reject' ? 'selected' : '' }}>Tolak
+                                    {{ strtoupper('Setuju') }}
+                                </option>
+                                <option value="reject" {{ $currentStatus=='reject' ? 'selected' : '' }}>
+                                    {{ strtoupper('Tolak') }}
                                 </option>
                                 <option value="revisi" {{ $currentStatus=='revisi' ? 'selected' : '' }}>
-                                    Kembalikan</option>
+                                    {{ strtoupper('Kembalikan') }}
+                                </option>
                             </select>
                             <textarea name="verifikasi[{{ $item['key'] }}][note]"
                                 class="form-control form-control-sm doc-note-textarea" rows="1" placeholder="Catatan..."
@@ -967,13 +975,17 @@
                             <select name="verifikasi[slip_gaji][status]"
                                 class="form-control form-control-sm doc-status-select" data-doc-key="slip_gaji">
                                 <option value="pending" {{ $currentStatus=='pending' ? 'selected' : '' }}>
-                                    Pending</option>
+                                    {{ strtoupper('Pending') }}
+                                </option>
                                 <option value="approve" {{ $currentStatus=='approve' ? 'selected' : '' }}>
-                                    Setuju</option>
-                                <option value="reject" {{ $currentStatus=='reject' ? 'selected' : '' }}>Tolak
+                                    {{ strtoupper('Setuju') }}
+                                </option>
+                                <option value="reject" {{ $currentStatus=='reject' ? 'selected' : '' }}>
+                                    {{ strtoupper('Tolak') }}
                                 </option>
                                 <option value="revisi" {{ $currentStatus=='revisi' ? 'selected' : '' }}>
-                                    Kembalikan</option>
+                                    {{ strtoupper('Kembalikan') }}
+                                </option>
                             </select>
                             <textarea name="verifikasi[slip_gaji][note]"
                                 class="form-control form-control-sm doc-note-textarea" rows="1" placeholder="Catatan..."
@@ -1011,8 +1023,8 @@
                     <div class="form-group">
                         <label for="modalStatusSelect">Status Dokumen:</label>
                         <select class="form-control" id="modalStatusSelect">
-                            <option value="approve">Setuju</option>
-                            <option value="reject">Tolak</option>
+                            <option value="approve">{{ strtoupper('Setuju') }}</option>
+                            <option value="reject">{{ strtoupper('Tolak') }}</option>
                         </select>
                     </div>
                     <div class="form-group">
