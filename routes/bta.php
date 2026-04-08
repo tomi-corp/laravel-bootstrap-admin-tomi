@@ -6,6 +6,7 @@ use App\Http\Controllers\Bta\CredamController;
 use App\Http\Controllers\Bta\DashboardController;
 use App\Http\Controllers\Bta\NasabahController;
 use App\Http\Controllers\Bta\WilayahController;
+use App\Http\Controllers\Bta\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['BtaGuestMiddleware'])->group(
@@ -73,5 +74,29 @@ Route::middleware(['BtaMiddleware'])->group(
         // tambah nasabah
         Route::post('/nasabah/insert', [NasabahController::class, 'nasabahInsert'])->name('bta.nasabah.insert');
         Route::post('/nasabah/update', [NasabahController::class, 'nasabahUpdate'])->name('bta.nasabah.update');
+
+        // Daftar semua user
+        Route::get('/users', [UserController::class, 'index'])->name('bta.users.index');
+
+        // Form tambah user
+        Route::get('/users/create', [UserController::class, 'create'])->name('bta.users.create');
+
+        // Proses simpan user
+        Route::post('/users/store', [UserController::class, 'store'])->name('bta.users.store');
+
+        // Form edit user
+        Route::get('/users/{id}/edit', [UserController::class, 'edit'])->name('bta.users.edit');
+
+        // Form show user
+        Route::get('/users/{id}/show', [UserController::class, 'show'])->name('bta.users.show');
+
+        // Proses update user
+        Route::put('/users/{id}', [UserController::class, 'update'])->name('bta.users.update');
+
+        // Hapus user
+        Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('bta.users.destroy');
+
+        // Bulk delete user (POST)
+        Route::post('/users/bulk-delete', [UserController::class, 'bulkDelete'])->name('bta.users.bulkDelete');
     }
 );
