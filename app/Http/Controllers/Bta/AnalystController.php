@@ -26,7 +26,7 @@ class AnalystController extends Controller
             ->where('status', 'pending')
             ->select([
                 'id',
-                'no_ktp',              // pastikan kolom ini ada di DB
+                'no_ktp',
                 'nama_lengkap',
                 'tanggal_lahir',
                 'jenis_kelamin',
@@ -34,19 +34,36 @@ class AnalystController extends Controller
                 'status_perkawinan',
                 'nama_perusahaan',
                 'status_pegawai',
-                // tambahkan kolom lain jika perlu
+                'analyst_id', // <-- tambahkan kolom ini
             ])
-
-            // opsional: filter hanya nasabah dengan status tertentu
-            // ->where('status', 'pending')
             ->get();
 
         return DataTables::of($nasabah)
             ->addIndexColumn()
             ->addColumn('action', function ($row) {
-                return '
-                    <a href="' . route('bta.analyst.review', $row->no_ktp) . '" class="btn btn-success btn-sm"><i class="mdi mdi-magnify"></i></a>
-                ';
+                // ambil login id
+                $loginId = intval(auth('bta')->id());
+                // ambil analyst id, cast ke int kalau tidak null
+                $analystId = !is_null($row->analyst_id) ? intval($row->analyst_id) : null;
+
+                // hanya bisa klik jika analyst_id null atau sama dengan login
+                $canAccess = is_null($analystId) || $analystId === $loginId;
+
+                if ($canAccess) {
+                    return '
+                <a href="' . route('bta.analyst.review', $row->no_ktp) . '" 
+                   class="btn btn-success btn-sm">
+                   <i class="mdi mdi-magnify"></i>
+                </a>
+            ';
+                } else {
+                    return '
+                <button class="btn btn-secondary btn-sm" disabled
+                        title="Hanya analyst yang sudah memeriksa data yang boleh mengakses.">
+                    <i class="mdi mdi-magnify"></i>
+                </button>
+            ';
+                }
             })
             ->rawColumns(['action'])
             ->toJson();
