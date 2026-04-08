@@ -1,5 +1,6 @@
 *
 !public/
 !template/
+!template/tempate_invoice_generate.xlsx
 !README.md
 !.gitignore
