@@ -15,7 +15,7 @@
                 </li>
 
                 {{-- MASTER --}}
-                @if(optional(auth('bta')->user())->type == 'master')
+                @if(in_array(optional(auth('bta')->user())->type, ['master', 'super user']))
                 <li class="menu-title">Master</li>
                 <li>
                     <a href="{{ route('bta.nasabah.index') }}">
@@ -68,6 +68,17 @@
                     <a href="{{ route('bta.credam.index') }}">
                         <i class="dripicons-align-center"></i>
                         <span> Credit Administrator </span>
+                    </a>
+                </li>
+                @endif
+
+                {{-- SUPER USER --}}
+                @if(optional(auth('bta')->user())->type == 'super user')
+                <li class="menu-title">User Management</li>
+                <li>
+                    <a href="{{ route('bta.users.index') }}">
+                        <i class="dripicons-user"></i>
+                        <span> Users </span>
                     </a>
                 </li>
                 @endif
