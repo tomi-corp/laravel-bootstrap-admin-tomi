@@ -59,6 +59,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'BtaMiddleware' =>  \App\Http\Middleware\BtaMiddleware::class,
             'BtaGuestMiddleware' =>  \App\Http\Middleware\BtaGuestMiddleware::class,
             'Cors' => \App\Http\Middleware\CorsMiddleware::class,
+            'bta.type' => \App\Http\Middleware\BtaRoleMiddleware::class,
+
         ]);
         $middleware->validateCsrfTokens(except: [
             '/callback/peminjaman/payroll/disbursement',
