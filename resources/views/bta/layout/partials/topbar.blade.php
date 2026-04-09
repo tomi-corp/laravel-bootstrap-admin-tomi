@@ -3,8 +3,8 @@
     <ul class="list-unstyled topnav-menu float-right mb-0">
 
         {{-- <li class="dropdown notification-list">
-            <a class="nav-link dropdown-toggle waves-effect waves-light" data-toggle="dropdown" href="#"
-                role="button" aria-haspopup="false" aria-expanded="false">
+            <a class="nav-link dropdown-toggle waves-effect waves-light" data-toggle="dropdown" href="#" role="button"
+                aria-haspopup="false" aria-expanded="false">
                 <i class="dripicons-bell noti-icon"></i>
                 <span class="badge badge-info noti-icon-badge">21</span>
             </a>
@@ -89,8 +89,8 @@
         </li> --}}
 
         <li class="dropdown notification-list">
-            <a class="nav-link dropdown-toggle nav-user mr-0 waves-effect waves-light" data-toggle="dropdown"
-                href="#" role="button" aria-haspopup="false" aria-expanded="false">
+            <a class="nav-link dropdown-toggle nav-user mr-0 waves-effect waves-light" data-toggle="dropdown" href="#"
+                role="button" aria-haspopup="false" aria-expanded="false">
                 <img src="{{ asset('assets/images/users/avatar-4.jpg') }}" alt="user-image" class="rounded-circle">
                 <span class="pro-user-name ml-1">
                     {{ auth('bta')->user()->username ?? 'Guest' }} <i class="mdi mdi-chevron-down"></i>
@@ -140,7 +140,7 @@
 
                 <div class="dropdown-divider"></div>
 
-                <a href="{{ route('admin.profile.index') }}" class="dropdown-item notify-item">
+                <a href="{{ route('bta.profile') }}" class="dropdown-item notify-item">
                     <i class="dripicons-lock"></i>
                     <span>Profile</span>
                 </a>

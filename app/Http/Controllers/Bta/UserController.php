@@ -93,4 +93,14 @@ class UserController extends Controller
 
         return redirect()->route('bta.users.index')->with('error', 'Tidak ada data dipilih!');
     }
+
+
+    public function profile()
+    {
+        $userId = auth('bta')->id();
+
+        $user = bta_user::findOrFail($userId);
+
+        return view('bta.users.profile', compact('user'));
+    }
 }

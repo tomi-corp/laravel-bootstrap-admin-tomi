@@ -221,4 +221,8 @@ Route::middleware(['BtaMiddleware'])->group(function () {
     Route::post('/wilayah/kodepos', [WilayahController::class, 'kodeposNew'])
         ->middleware('bta.type:admin,master,analyst,credam,super user')
         ->name('bta.wilayah.kodepos.new');
+
+    Route::get('/users/profile', [UserController::class, 'profile'])
+        ->middleware('bta.type:admin,master,analyst,credam,super user')
+        ->name('bta.profile');
 });
