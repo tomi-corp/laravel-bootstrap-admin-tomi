@@ -31,9 +31,7 @@ class BtaRoleMiddleware
         }, $types);
 
         if (!in_array($userType, $allowedTypes)) {
-            abort(403, 'Anda tidak memiliki akses ke halaman ini.');
-            // atau:
-            // return redirect()->route('bta.dashboard.index')->with('error', 'Anda tidak memiliki akses.');
+            return redirect()->back()->with('error', 'Anda tidak memiliki akses ke halaman ini.');
         }
 
         return $next($request);
