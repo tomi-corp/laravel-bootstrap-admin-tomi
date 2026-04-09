@@ -94,7 +94,6 @@ class UserController extends Controller
         return redirect()->route('bta.users.index')->with('error', 'Tidak ada data dipilih!');
     }
 
-
     public function profile()
     {
         $userId = auth('bta')->id();
@@ -102,5 +101,37 @@ class UserController extends Controller
         $user = bta_user::findOrFail($userId);
 
         return view('bta.users.profile', compact('user'));
+    }
+
+    public function updatePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => ['required'],
+            'new_password' => ['required', 'string', 'min:8', 'confirmed'],
+        ], [
+            'current_password.required' => 'Password lama wajib diisi.',
+            'new_password.required' => 'Password baru wajib diisi.',
+            'new_password.min' => 'Password baru minimal 8 karakter.',
+            'new_password.confirmed' => 'Konfirmasi password baru tidak cocok.',
+        ]);
+
+        $userId = auth('bta')->id();
+        $user = bta_user::findOrFail($userId);
+
+        // cek password lama
+        if (!Hash::check($request->current_password, $user->password)) {
+            return back()->with('error', 'Password lama tidak sesuai.');
+        }
+
+        // optional: cegah password baru sama dengan password lama
+        if (Hash::check($request->new_password, $user->password)) {
+            return back()->with('error', 'Password baru tidak boleh sama dengan password lama.');
+        }
+
+        // update password baru
+        $user->password = Hash::make($request->new_password);
+        $user->save();
+
+        return back()->with('success', 'Password berhasil diperbarui.');
     }
 }

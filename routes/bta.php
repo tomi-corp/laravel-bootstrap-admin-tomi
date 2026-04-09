@@ -225,4 +225,7 @@ Route::middleware(['BtaMiddleware'])->group(function () {
     Route::get('/users/profile', [UserController::class, 'profile'])
         ->middleware('bta.type:admin,master,analyst,credam,super user')
         ->name('bta.profile');
+
+    Route::get('/profile', [UserController::class, 'index'])->name('profile.index');
+    Route::post('/profile/update-password', [UserController::class, 'updatePassword'])->name('profile.updatePassword');
 });
