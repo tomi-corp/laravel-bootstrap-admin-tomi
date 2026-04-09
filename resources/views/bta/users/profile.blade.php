@@ -2,17 +2,12 @@
 @section('title', 'Profile Saya')
 
 @section('content')
-
-<div class="row">
-    <div class="col-12">
-        <div class="page-title-box">
-            <div class="container-fluid">
-                <h4 class="page-title">Profile Saya</h4>
-            </div>
-        </div>
-    </div>
-</div>
 <div class="container-fluid">
+
+    <div class="d-flex justify-content-between align-items-center my-3">
+        <h4 class="page-title">Profile Saya</h4>
+        <a href="{{ url()->previous() }}" class="btn btn-secondary">Kembali</a>
+    </div>
 
     <div class="card">
         <div class="card-body">
@@ -30,8 +25,6 @@
                 <label class="form-label">Password</label>
                 <input type="password" class="form-control" value="********" readonly>
             </div>
-
-            <a href="{{ url()->previous() }}" class="btn btn-secondary">Kembali</a>
         </div>
     </div>
 </div>
