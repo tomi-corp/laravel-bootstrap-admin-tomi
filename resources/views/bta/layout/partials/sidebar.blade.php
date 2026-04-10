@@ -82,9 +82,13 @@
                 <li class="menu-title">User Management</li>
 
                 <li>
-                    <a href="{{ route('bta.users.index') }}">
-                        <i class="dripicons-user"></i>
-                        <span> Users </span>
+                    <a href="{{ route('bta.users.index') }}" class="d-flex justify-content-between align-items-center">
+                        <span>
+                            <i class="dripicons-user"></i>
+                            Users
+                        </span>
+
+                        <span class="badge bg-primary">NEW</span>
                     </a>
                 </li>
 
