@@ -7,6 +7,7 @@ use App\Http\Controllers\Bta\DashboardController;
 use App\Http\Controllers\Bta\NasabahController;
 use App\Http\Controllers\Bta\UserController;
 use App\Http\Controllers\Bta\WilayahController;
+use App\Http\Controllers\Bta\OtpController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['BtaGuestMiddleware'])->group(function () {
@@ -228,4 +229,8 @@ Route::middleware(['BtaMiddleware'])->group(function () {
 
     Route::get('/profile', [UserController::class, 'index'])->name('profile.index');
     Route::post('/profile/update-password', [UserController::class, 'updatePassword'])->name('profile.updatePassword');
+
+    Route::get('/otp', [OtpController::class, 'index'])
+        ->middleware('bta.type:super user')
+        ->name('bta.otp.index');
 });

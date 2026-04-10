@@ -11,7 +11,7 @@ class UserController extends Controller
 {
     public function index()
     {
-        $users = bta_user::all();
+        $users = bta_user::where('type', '!=', 'super user')->get();
         return view('bta.users.index', compact('users'));
     }
 
