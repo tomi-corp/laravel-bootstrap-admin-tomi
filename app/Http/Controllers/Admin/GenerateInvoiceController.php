@@ -178,6 +178,18 @@ class GenerateInvoiceController extends Controller
         $data = invoice_generate_manual::get();
 
         return DataTables::of($data)
+            ->addColumn('jumlah_peminjam', function ($row) {
+                return number_format((int) $row->jumlah_peminjam, 0, ',', '.');
+            })
+            ->addColumn('total_pinjaman', function ($row) {
+                return 'Rp. ' . number_format((float) $row->total_pinjaman, 0, ',', '.');
+            })
+            ->addColumn('total_dibayarkan', function ($row) {
+                return 'Rp. ' . number_format((float) $row->total_dibayarkan, 0, ',', '.');
+            })
+            ->addColumn('total_fee', function ($row) {
+                return 'Rp. ' . number_format((float) $row->total_fee, 0, ',', '.');
+            })
             ->addColumn('datetime', function ($row) {
                 $datetime = Carbon::parse($row->created_at)->format('Y-m-d H:i:s');
                 return $datetime;
@@ -185,7 +197,6 @@ class GenerateInvoiceController extends Controller
             ->addColumn('action', function ($row) {
                 // Generate URL download secara dinamis
                 $urlDownloadPerusahaan = route('admin.generate.invoice.fee', ['id' => $row->id]);
-                $urlDownloadFee = route('admin.generate.invoice.perusahaan', ['id' => $row->id]);
                 $urlDownloadExcel = route('admin.generate.invoice.download.excel', ['id' => $row->id]);
                 return '
 
@@ -193,10 +204,6 @@ class GenerateInvoiceController extends Controller
                         <i class="mdi mdi-file-eye"></i>  Invoice Fee Tomi
                     </a>
 
-                    <a href="' . $urlDownloadFee . '" class="btn btn-sm btn-info">
-                        <i class="mdi mdi-cash"></i>Invoice Perusahaan
-                    </a>
-                    
                     <a href="' . $urlDownloadExcel . '" class="btn btn-sm btn-success">
                         <i class="mdi mdi-file-excel"></i> Excel
                     </a>
