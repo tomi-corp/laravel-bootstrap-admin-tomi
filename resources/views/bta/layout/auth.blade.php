@@ -16,6 +16,8 @@
     <link href="{{ asset('assets/css/icons.min.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('assets/css/app.min.css') }}" rel="stylesheet" type="text/css" />
 
+    <script src="{{ asset('assets/js/jquery.js') }}"></script>
+
 </head>
 
 <body class="authentication-bg authentication-bg-pattern-bta d-flex align-items-center">
@@ -28,6 +30,8 @@
 
     <script src="{{ asset('assets/js/vendor.min.js') }}"></script>
     <script src="{{ asset('assets/js/app.min.js') }}"></script>
+
+    @stack('js')
 
 </body>
 
