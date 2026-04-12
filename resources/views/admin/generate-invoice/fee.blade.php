@@ -139,7 +139,8 @@
             <tr>
                 <th width="30">No.</th>
                 <th>Tanggal Pinjaman</th>
-                <th>Nama<br> NIP/ NIK</th>
+                <!-- <th>Nama<br> NIP/ NIK</th> -->
+                <th>Nama <br> NIK</th>
                 <th align="right">Jumlah Pinjaman</th>
                 <th align="right">Fee TOMI</th>
                 <th align="right">Biaya Layanan</th>
@@ -147,27 +148,28 @@
         </thead>
         <tbody>
             @php
-                $totalNominal = 0;
-                $totalFeeTomi = 0;
-                $totalLayanan = 0;
-                $grandTotal = 0;
+            $totalNominal = 0;
+            $totalFeeTomi = 0;
+            $totalLayanan = 0;
+            $grandTotal = 0;
             @endphp
 
             @foreach ($items as $item)
-                <tr>
-                    <td align="center">{{ $item['no'] }}</td>
-                    <td>
-                        <b>{{ $item['tanggal_pengajuan'] }}</b>
-                    </td>
-                    <td>
-                        <b>{{ $item['nama'] }}</b><br>
-                        <small>{{ $item['no_ktp'] }}/
-                            {{ $item['nip'] }}</small>
-                    </td>
-                    <td align="right">Rp {{ number_format($item['jumlah_pinjaman'], 0, ',', '.') }}</td>
-                    <td align="right">Rp {{ number_format($item['fee_tomi'], 0, ',', '.') }}</td>
-                    <td align="right">Rp 0</td>
-                </tr>
+            <tr>
+                <td align="center">{{ $item['no'] }}</td>
+                <td>
+                    <b>{{ $item['tanggal_pengajuan'] }}</b>
+                </td>
+                <td>
+                    <b>{{ $item['nama'] }}</b><br>
+                    <!-- <small>{{ $item['no_ktp'] }}/
+                            {{ $item['nip'] }}</small> -->
+                    <small>{{ $item['no_ktp'] }}</small>
+                </td>
+                <td align="right">Rp {{ number_format($item['jumlah_pinjaman'], 0, ',', '.') }}</td>
+                <td align="right">Rp {{ number_format($item['fee_tomi'], 0, ',', '.') }}</td>
+                <td align="right">Rp 0</td>
+            </tr>
             @endforeach
         </tbody>
     </table>
