@@ -195,13 +195,13 @@ class GenerateInvoiceController extends Controller
                 return $datetime;
             })
             ->addColumn('action', function ($row) {
-                // Generate URL download secara dinamis
-                $urlDownloadPerusahaan = route('admin.generate.invoice.fee', ['id' => $row->id]);
+                $urlDetail = route('admin.invoice.fee.page.show', ['id' => $row->id]);
+                $urlPdf = route('admin.invoice.fee.pdf', ['id' => $row->id]);
                 $urlDownloadExcel = route('admin.generate.invoice.download.excel', ['id' => $row->id]);
-                return '
 
-                    <a href="' . $urlDownloadPerusahaan . '" class="btn btn-sm btn-primary">
-                        <i class="mdi mdi-file-eye"></i>  Invoice Fee Tomi
+                return '
+                    <a href="' . $urlPdf . '" target="_blank" class="btn btn-sm btn-primary">
+                        <i class="mdi mdi-file-pdf-box"></i> Invoice Fee TOMI
                     </a>
 
                     <a href="' . $urlDownloadExcel . '" class="btn btn-sm btn-success">

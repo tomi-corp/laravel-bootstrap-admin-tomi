@@ -12,8 +12,19 @@ use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\OtaController;
 use App\Http\Controllers\Admin\PpobController;
 use App\Http\Controllers\Admin\ProfileController;
+use App\Http\Controllers\Admin\InvoiceFeePageController;
+use App\Http\Controllers\Admin\InvoiceFeePdfController;
 use Illuminate\Support\Facades\Route;
 
+
+Route::get('/invoice-fee', [InvoiceFeePageController::class, 'index'])
+    ->name('admin.invoice.fee.page');
+
+Route::get('/invoice-fee/{id}', [InvoiceFeePdfController::class, 'show'])
+    ->name('admin.invoice.fee.page.show');
+
+Route::get('/invoice-fee/{id}/pdf', [InvoiceFeePdfController::class, 'downloadPdf'])
+    ->name('admin.invoice.fee.pdf');
 
 
 Route::middleware(['LoginAdminMiddleware'])->group(
