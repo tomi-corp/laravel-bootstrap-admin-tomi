@@ -571,10 +571,12 @@
                                     </div>
 
                                     <div class="form-group">
-                                        <label for="jangka_waktu">Jangka Waktu (bulan): <span
-                                                class="text-danger">*</span></label>
+                                        <label for="jangka_waktu">
+                                            Jangka Waktu (bulan): <span class="text-danger">*</span>
+                                        </label>
                                         <input type="number" class="form-control" name="jangka_waktu" id="jangka_waktu"
-                                            value="" min="1" max="60" placeholder="Jangka Waktu">
+                                            value="" min="1" max="180" placeholder="Jangka Waktu"
+                                            oninput="if(this.value > 180) this.value = 180; if(this.value < 1) this.value = 1;">
                                         <small class="text-danger" id="errJangkaWaktu"></small>
                                     </div>
 
