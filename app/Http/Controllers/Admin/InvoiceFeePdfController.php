@@ -24,10 +24,13 @@ class InvoiceFeePdfController extends Controller
 
     public function downloadPdf($id)
     {
-        $response = Http::get("http://localhost:8000/api/invoice-excel/{$id}");
+        $response = Http::withBasicAuth(
+            config('koperasi.identity'),
+            config('koperasi.password')
+        )->get(config('koperasi.api_url') . "/api/invoice-excel/{$id}");
 
         if (!$response->successful()) {
-            abort(404, 'Data invoice tidak ditemukan.');
+            abort($response->status(), 'Data invoice tidak ditemukan atau akses ditolak.');
         }
 
         $result = $response->json();
@@ -52,7 +55,6 @@ class InvoiceFeePdfController extends Controller
             }),
         ];
 
-        // Dummy rekening, nanti bisa diganti dari database
         $rekening = (object) [
             'atas_nama' => 'PT. TOMI DIGITAL INDONESIA',
             'nomor_rekening' => '1234567890',
