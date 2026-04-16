@@ -22,33 +22,53 @@
 
                 <div class="form-group">
                     <label>Iuran Anggota</label>
-                    <input type="number" class="form-control" id="iuran_anggota" required placeholder="Iuran Anggota"
-                        value={{ $list_perusahaan->amount_pinjaman ? $list_perusahaan->amount_pinjaman->iuran_anggota :
-                    0 }} />
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">Rp.</span>
+                        </div>
+                        <input type="number" class="form-control" id="iuran_anggota" required
+                            placeholder="Iuran Anggota"
+                            value="{{ $list_perusahaan->amount_pinjaman ? $list_perusahaan->amount_pinjaman->iuran_anggota : 0 }}">
+                    </div>
                     <small class="text-danger" id="errIuran_anggota"></small>
                 </div>
 
                 <div class="form-group">
-                    <label>Minimal Pinjaman</label>
-                    <input type="number" class="form-control" id="minimal_pinjaman" required
-                        placeholder="Minimal Pinjaman" value={{ $list_perusahaan->amount_pinjaman ?
-                    $list_perusahaan->amount_pinjaman->minimal : 0 }} />
+                    <label>Min Plafon</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">Rp.</span>
+                        </div>
+                        <input type="number" class="form-control" id="minimal_pinjaman" required
+                            placeholder="Min Plafon"
+                            value="{{ $list_perusahaan->amount_pinjaman ? $list_perusahaan->amount_pinjaman->minimal : 0 }}">
+                    </div>
                     <small class="text-danger" id="errMinimal_pinjaman"></small>
                 </div>
 
-                <div class="form-group">
-                    <label>Maximal Pinjaman</label>
-                    <input type="number" class="form-control" id="maximal_pinjaman" required
-                        placeholder="Maximal Pinjaman" value={{ $list_perusahaan->amount_pinjaman ?
-                    $list_perusahaan->amount_pinjaman->maximal : 0 }} />
+                <!-- <div class="form-group">
+                    <label>Max Plafon</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">Rp.</span>
+                        </div>
+                        <input type="number" class="form-control" id="maximal_pinjaman" required
+                            placeholder="Max Plafon"
+                            value="{{ $list_perusahaan->amount_pinjaman ? $list_perusahaan->amount_pinjaman->maximal : 0 }}">
+                    </div>
                     <small class="text-danger" id="errMaximal_pinjaman"></small>
-                </div>
+                </div> -->
 
                 <div class="form-group">
                     <label>Maximal Persentase</label>
-                    <input type="number" class="form-control" id="maximal_persentase" required
-                        placeholder="Maximal Persentase" value={{ $list_perusahaan->amount_pinjaman ?
-                    $list_perusahaan->amount_pinjaman->maximal_persentase : 0 }} />
+                    <div class="input-group">
+                        <input type="number" class="form-control" id="maximal_persentase" required
+                            placeholder="Maximal Persentase"
+                            value="{{ $list_perusahaan->amount_pinjaman ? $list_perusahaan->amount_pinjaman->maximal_persentase : 0 }}">
+                        <div class="input-group-append">
+                            <span class="input-group-text">%</span>
+                        </div>
+                    </div>
                     <small class="text-danger" id="errMaximal_persentase"></small>
                 </div>
 
