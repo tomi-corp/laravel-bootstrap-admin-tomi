@@ -303,6 +303,8 @@ class KspController extends Controller
             ->rawColumns(['action'])
             ->toJson();
     }
+
+
     public function detailKaryawan(Request $req)
     {
         $karyawan = list_karyawan::where('id', $req->id)
