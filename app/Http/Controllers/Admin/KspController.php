@@ -542,13 +542,30 @@ class KspController extends Controller
         ], 200);
     }
 
+    // public function konfigurasi($id)
+    // {
+    //     $dec = decryptSecure($id);
+    //     $list_perusahaan = ListPerusahaan::where('id', $dec)
+    //         ->with('amount_pinjaman')
+    //         ->first();
+
+    //     if (isset($list_perusahaan)) {
+    //         return view('admin.ksp.konfigurasi.index', compact('list_perusahaan'));
+    //     } else {
+    //         return abort(404);
+    //     }
+    // }
+
     public function konfigurasi($id)
     {
         $dec = decryptSecure($id);
+
         $list_perusahaan = ListPerusahaan::where('id', $dec)
             ->with('amount_pinjaman')
+            ->withMax('karyawan', 'max_plafon') // pakai relasi kamu
             ->first();
-        if (isset($list_perusahaan)) {
+
+        if ($list_perusahaan) {
             return view('admin.ksp.konfigurasi.index', compact('list_perusahaan'));
         } else {
             return abort(404);

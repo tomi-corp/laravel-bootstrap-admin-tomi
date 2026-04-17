@@ -46,18 +46,24 @@
                     <small class="text-danger" id="errMinimal_pinjaman"></small>
                 </div>
 
-                <!-- <div class="form-group">
+                <div class="form-group">
                     <label>Max Plafon</label>
                     <div class="input-group">
                         <div class="input-group-prepend">
                             <span class="input-group-text">Rp.</span>
                         </div>
-                        <input type="number" class="form-control" id="maximal_pinjaman" required
+                        <!-- <input type="number" class="form-control" id="maximal_pinjaman" required
                             placeholder="Max Plafon"
-                            value="{{ $list_perusahaan->amount_pinjaman ? $list_perusahaan->amount_pinjaman->maximal : 0 }}">
+                            value="{{ $list_perusahaan->amount_pinjaman ? $list_perusahaan->amount_pinjaman->maximal : 0 }}"
+                            disabled> -->
+                        <input type="text" class="form-control" id="maximal_pinjaman_view" placeholder="Max Plafon"
+                            value="{{ number_format($list_perusahaan->karyawan_max_max_plafon ?? 0, 0, ',', '.') }}"
+                            disabled>
+
+                        <input type="hidden" name="maximal_pinjaman" id="maximal_pinjaman">
                     </div>
                     <small class="text-danger" id="errMaximal_pinjaman"></small>
-                </div> -->
+                </div>
 
                 <div class="form-group">
                     <label>Maximal Persentase</label>
@@ -936,5 +942,22 @@
 
         $('#biayaadminEdit').val(total.toFixed(2));
     });
+
+    const inputView = document.getElementById('maximal_pinjaman_view');
+    const inputReal = document.getElementById('maximal_pinjaman');
+
+    function formatRupiah(angka) {
+        return angka.replace(/\D/g, '')
+            .replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    }
+
+    inputView.addEventListener('input', function (e) {
+        let angka = e.target.value.replace(/\D/g, '');
+        inputReal.value = angka; // nilai asli (tanpa titik)
+        e.target.value = formatRupiah(angka); // tampilan pakai titik
+    });
+
+    // set awal
+    inputReal.value = inputView.value.replace(/\D/g, '');
 </script>
 @endpush

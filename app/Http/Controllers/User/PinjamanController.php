@@ -71,32 +71,82 @@ class PinjamanController extends Controller
         return $returnData;
     }
 
+    // public function maximalMinimal(CekMinimalMaximalRequest $req)
+    // {
+    //     $nip = explode("-", $req->nip);
+    //     $perusahaan = ListPerusahaan::where('unique_code', $nip[0])
+    //         ->with(['karyawanSingle' => function ($q) use ($nip) {
+    //             $q->where('nip', '=', $nip[1]);
+    //             $q->first();
+    //         }, 'amount_pinjaman'])->first();
+
+
+    //     if (isset($perusahaan)) {
+    //         // $pendapatan = 70 / 100 * $perusahaan->karyawanSingle->penghasilan;
+    //         if ($perusahaan->karyawanSingle->max_plafon > $perusahaan->amount_pinjaman->maximal) {
+    //             $maksimal = $perusahaan->amount_pinjaman->maximal;
+    //         } elseif ($perusahaan->karyawanSingle->max_plafon < $perusahaan->amount_pinjaman->maximal) {
+    //             $maksimal = $perusahaan->karyawanSingle->max_plafon;
+    //         } elseif ($perusahaan->karyawanSingle->max_plafon == $perusahaan->amount_pinjaman->maximal) {
+    //             $maksimal = $perusahaan->amount_pinjaman->maximal;
+    //         }
+
+    //         return response()->json([
+    //             'status' => 200,
+    //             'maximal' => "Rp  " . number_format($maksimal),
+    //             'minimal' => "Rp  " . number_format($perusahaan->amount_pinjaman->minimal),
+    //         ], 200);
+    //     } else {
+    //         return response()->json([
+    //             'status' => 400,
+    //             'message' => 'Data NIP tidak ditemukan',
+    //         ], 400);
+    //     }
+    // }
+
     public function maximalMinimal(CekMinimalMaximalRequest $req)
     {
+        // Memecah NIP berdasarkan tanda "-" 
+        // Contoh: "ABC-12345" → ["ABC", "12345"]
         $nip = explode("-", $req->nip);
+
+        // Ambil data perusahaan berdasarkan unique_code (bagian pertama NIP)
+        // Sekaligus eager load relasi:
+        // - karyawanSingle (difilter berdasarkan NIP bagian kedua)
+        // - amount_pinjaman
         $perusahaan = ListPerusahaan::where('unique_code', $nip[0])
             ->with(['karyawanSingle' => function ($q) use ($nip) {
+                // Filter karyawan berdasarkan NIP
                 $q->where('nip', '=', $nip[1]);
+
+                // first() di sini sebenarnya tidak diperlukan karena with() sudah handle relasi
                 $q->first();
             }, 'amount_pinjaman'])->first();
 
-
+        // Cek apakah data perusahaan ditemukan
         if (isset($perusahaan)) {
-            // $pendapatan = 70 / 100 * $perusahaan->karyawanSingle->penghasilan;
+
+            // Membandingkan maksimal plafon karyawan dengan maksimal pinjaman perusahaan
             if ($perusahaan->karyawanSingle->max_plafon > $perusahaan->amount_pinjaman->maximal) {
+                // Jika plafon karyawan lebih besar → pakai maksimal perusahaan
                 $maksimal = $perusahaan->amount_pinjaman->maximal;
             } elseif ($perusahaan->karyawanSingle->max_plafon < $perusahaan->amount_pinjaman->maximal) {
+                // Jika plafon karyawan lebih kecil → pakai plafon karyawan
                 $maksimal = $perusahaan->karyawanSingle->max_plafon;
             } elseif ($perusahaan->karyawanSingle->max_plafon == $perusahaan->amount_pinjaman->maximal) {
+                // Jika sama → pakai salah satu (di sini pakai maksimal perusahaan)
                 $maksimal = $perusahaan->amount_pinjaman->maximal;
             }
 
+            // Mengembalikan response JSON sukses
             return response()->json([
                 'status' => 200,
+                // Format angka ke format Rupiah
                 'maximal' => "Rp  " . number_format($maksimal),
                 'minimal' => "Rp  " . number_format($perusahaan->amount_pinjaman->minimal),
             ], 200);
         } else {
+            // Jika data perusahaan tidak ditemukan
             return response()->json([
                 'status' => 400,
                 'message' => 'Data NIP tidak ditemukan',
