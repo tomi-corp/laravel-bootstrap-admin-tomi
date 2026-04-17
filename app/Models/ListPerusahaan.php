@@ -25,6 +25,11 @@ class ListPerusahaan extends Model
             ->where('approve_dua', 'approve');
     }
 
+    public function karyawanAll()
+    {
+        return $this->hasMany(list_karyawan::class, 'id_list_perusahaan', 'id');
+    }
+
     public function pinjaman()
     {
         return $this->hasMany(pinjaman::class, 'id_perusahaan', 'id')

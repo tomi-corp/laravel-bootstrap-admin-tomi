@@ -47,7 +47,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Max Plafon</label>
+                    <label>Max Plafon (Perusahaan)</label>
                     <div class="input-group">
                         <div class="input-group-prepend">
                             <span class="input-group-text">Rp.</span>
@@ -57,8 +57,7 @@
                             value="{{ $list_perusahaan->amount_pinjaman ? $list_perusahaan->amount_pinjaman->maximal : 0 }}"
                             disabled> -->
                         <input type="text" class="form-control" id="maximal_pinjaman_view" placeholder="Max Plafon"
-                            value="{{ number_format($list_perusahaan->karyawan_max_max_plafon ?? 0, 0, ',', '.') }}"
-                            disabled>
+                            value="{{ number_format($max_plafon ?? 0, 0, ',', '.') }}" disabled>
 
                         <input type="hidden" name="maximal_pinjaman" id="maximal_pinjaman">
                     </div>
@@ -66,7 +65,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Maximal Persentase</label>
+                    <label>DSR Maksimal in %</label>
                     <div class="input-group">
                         <input type="number" class="form-control" id="maximal_persentase" required
                             placeholder="Maximal Persentase"
