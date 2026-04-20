@@ -335,21 +335,6 @@
 
     {{-- Statistik utama --}}
     <div class="row g-4 mb-4">
-        <div class="col-md-6 col-xl">
-            <div class="card stat-card">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start gap-3">
-                        <div>
-                            <div class="stat-label">Total Pengajuan</div>
-                            <div class="stat-number">{{ $totalPengajuan }}</div>
-                        </div>
-                        <div class="stat-icon soft-primary">
-                            <i class="fas fa-file-alt"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
 
         <div class="col-md-6 col-xl">
             <div class="card stat-card">
