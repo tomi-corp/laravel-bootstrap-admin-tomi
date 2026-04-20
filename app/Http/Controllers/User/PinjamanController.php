@@ -552,21 +552,24 @@ class PinjamanController extends Controller
 
     public function actionPinjamanOTP(OTPpinjamanRequest $req)
     {
-        $verif = verif_otp_pengajuan::where('user_id',  auth('api')->user()->id)
+        $verif = verif_otp_pengajuan::where('user_id', auth('api')->user()->id)
             ->where('otp', $req->otp)
             ->with(['pinjaman' => function ($q) {
-                $q->with(['data_karyawan' => function ($w) {
-                    $w->with('bank');
-                    $w->with(['perusahaan' => function ($p) {
-                        $p->with(['lender' => function ($o) {
-                            $o->with('bank');
+                $q->with([
+                    'data_karyawan' => function ($w) {
+                        $w->with('bank');
+                        $w->with(['perusahaan' => function ($p) {
+                            $p->with(['lender' => function ($o) {
+                                $o->with('bank');
+                            }]);
                         }]);
-                    }]);
-                }, 'jatuh_tempo']);
+                    },
+                    'jatuh_tempo' => function ($jt) {
+                        $jt->orderBy('jatuh_tempo', 'asc');
+                    }
+                ]);
             }, 'user'])
             ->first();
-
-
 
         if (!isset($verif)) {
             $verifFailed = verif_otp_pengajuan::where('user_id', auth('api')->user()->id)->first();

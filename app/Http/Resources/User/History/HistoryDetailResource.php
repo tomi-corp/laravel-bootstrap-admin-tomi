@@ -22,7 +22,7 @@ class HistoryDetailResource extends JsonResource
             'biaya_admin' => $this->biaya_admin . "%",
             'asuransi' => $this->asuransi . "%",
             'jumlah_asuransi' => "Rp  " . number_format($this->jumlah_asuransi),
-            'provisi' => $this->provisi_1 + $this->provisi_2  . "%",
+            'provisi' => ($this->provisi_1 + $this->provisi_2) . "%",
             'jumlah_provisi' => "Rp  " . number_format($this->jumlah_provisi_1 + $this->jumlah_provisi_2),
             'biaya_layanan' => "Rp  " . number_format($this->biaya_layanan),
             'total_biaya_admin' => "Rp  " . number_format($this->total_biaya_admin),
@@ -35,7 +35,9 @@ class HistoryDetailResource extends JsonResource
             'status' => $this->status,
             'ttd' => $this->ttd,
             'otp' => $this->status_otp,
-            'jatuh_tempo' =>  JatuhTempoResource::collection($this->jatuh_tempo),
+            'jatuh_tempo' => JatuhTempoResource::collection(
+                $this->jatuh_tempo->sortBy('jatuh_tempo')->values()
+            ),
             'datetime' => Carbon::parse($this->created_at)->format('Y-m-d H:i:s'),
         ];
     }
