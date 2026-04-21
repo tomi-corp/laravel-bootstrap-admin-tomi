@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Bta;
 
 use App\Http\Controllers\Controller;
-use App\Models\Nasabah;
+use App\Models\nasabah;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -11,11 +11,11 @@ class DashboardController extends Controller
 {
     public function dashboard()
     {
-        $totalPengajuan = Nasabah::count();
-        $totalPending = Nasabah::where('status', 'pending')->count();
-        $totalRevisi = Nasabah::where('status', 'revisi')->count();
-        $totalApprove = Nasabah::where('status', 'approve')->count();
-        $totalReject = Nasabah::where('status', 'reject')->count();
+        $totalPengajuan = nasabah::count();
+        $totalPending = nasabah::where('status', 'pending')->count();
+        $totalRevisi = nasabah::where('status', 'revisi')->count();
+        $totalApprove = nasabah::where('status', 'approve')->count();
+        $totalReject = nasabah::where('status', 'reject')->count();
 
         // Label dashboard
         $totalSudahAnalisa = $totalPending;
