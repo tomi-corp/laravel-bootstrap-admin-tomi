@@ -26,6 +26,8 @@ Route::get('/invoice-fee/{id}', [InvoiceFeePdfController::class, 'show'])
 Route::get('/invoice-fee/{id}/pdf', [InvoiceFeePdfController::class, 'downloadPdf'])
     ->name('admin.invoice.fee.pdf');
 
+Route::get('/transfer-request/{id}/pdf', [InvoiceFeePdfController::class, 'downloadTransferRequestPdf'])
+    ->name('admin.transfer.request.pdf');
 
 Route::middleware(['LoginAdminMiddleware'])->group(
     function () {
