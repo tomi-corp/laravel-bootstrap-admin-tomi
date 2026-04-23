@@ -197,16 +197,23 @@ class GenerateInvoiceController extends Controller
             ->addColumn('action', function ($row) {
                 $urlDetail = route('admin.invoice.fee.page.show', ['id' => $row->id]);
                 $urlPdf = route('admin.invoice.fee.pdf', ['id' => $row->id]);
+                $urlPermintaanTransfer = route('admin.transfer.request.pdf', ['id' => $row->id]);
                 $urlDownloadExcel = route('admin.generate.invoice.download.excel', ['id' => $row->id]);
 
                 return '
-                    <a href="' . $urlPdf . '" target="_blank" class="btn btn-sm btn-primary">
-                        <i class="mdi mdi-file-pdf-box"></i> Invoice Fee TOMI
-                    </a>
+                    <div class="d-flex flex-wrap gap-1">
+                        <a href="' . $urlPdf . '" target="_blank" class="btn btn-sm btn-primary">
+                            <i class="mdi mdi-file-pdf-box"></i> Invoice Fee TOMI
+                        </a>
 
-                    <a href="' . $urlDownloadExcel . '" class="btn btn-sm btn-success">
-                        <i class="mdi mdi-file-excel"></i> Excel
-                    </a>
+                        <a href="' . $urlDownloadExcel . '" class="btn btn-sm btn-success">
+                            <i class="mdi mdi-file-excel"></i> Excel
+                        </a>
+
+                        <a href="' . $urlPermintaanTransfer . '" target="_blank" class="btn btn-sm btn-warning">
+                            <i class="mdi mdi-cash-multiple"></i> Permintaan Transfer
+                        </a>
+                    </div>
                 ';
             })
             ->rawColumns(['file', 'action'])
