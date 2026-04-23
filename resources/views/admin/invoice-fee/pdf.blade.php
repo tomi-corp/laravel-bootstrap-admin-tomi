@@ -126,12 +126,22 @@
 
     <div class="info-section clearfix">
         <div class="float-left">
-            <p><b>Hallo, {{ $invoice->nama_perusahaan ?? '-' }}</b></p>
+            <p><b>Hallo, Koperasi Simpan Pinjam Dumi Digital Teknologi </b></p>
             <p>
-                Berikut rincian tagihan aplikasi layanan pelanggan digital Pinjaman Payroll TOMI
-                pada perusahaan <b>{{ $invoice->nama_perusahaan ?? '-' }}</b>
-                untuk periode
-                <b>{{ !empty($invoice->created_at) ? date('F Y', strtotime($invoice->created_at)) : date('F Y') }}</b>
+                Berikut rincian tagihan fee atas layanan pelanggan Fasilitas Pinjaman e-Kasbon pada perusahaan yang
+                telah bekerjasama dengan <b>Koperasi Simpan Pinjam Dumi Digital Teknologi</b> untuk periode
+                <b>
+                    6 {{ isset($invoice->created_at)
+                    ? \Carbon\Carbon::parse($invoice->created_at)->translatedFormat('F Y')
+                    : '-'
+                    }}
+                    -
+                    23 {{ isset($invoice->created_at)
+                    ? \Carbon\Carbon::parse($invoice->created_at)->translatedFormat('F Y')
+                    : '-'
+                    }},
+                </b>
+                sebagai berikut :
             </p>
         </div>
     </div>
@@ -143,8 +153,8 @@
                 <th>Tanggal Pinjaman</th>
                 <th>Nama <br> NIK</th>
                 <th align="right">Jumlah Pinjaman</th>
-                <th align="right">Fee TOMI</th>
-                <th align="right">Biaya Layanan</th>
+                <th align="right">Jumlah Tagihan</th>
+                <th align="right">Fee Tomi</th>
             </tr>
         </thead>
         <tbody>
@@ -172,13 +182,24 @@
 
     <div class="clearfix">
 
+        <div class="float-right total-section" style="width: 350px;">
+            <table width="100%">
+                <tr>
+                    <td class="total-title">TOTAL JUMLAH TAGIHAN</td>
+                    <td align="right" class="total-amount">
+                        Rp {{ number_format($totalJumlahTagihan, 0, ',', '.') }}
+                    </td>
+                </tr>
+            </table>
+        </div>
+
         <div class="float-left note-section" style="width: 400px;">
             <b>Catatan Pembayaran:</b>
-            <p>Harap segera melakukan pembayaran paling lambat tanggal 5 setiap bulannya ke rekening berikut:</p>
+            <p>Harap segera melakukan pembayaran paling lambat tanggal 27 setiap bulannya ke rekening berikut:</p>
             <div class="bank-info">
                 <b>BANK {{ 'BRI' }}</b><br>
                 Atas Nama : <b>{{ 'PT. TOKO MIKRO INDONESIA' }}</b><br>
-                No. Rekening : <b>{{ '042501000000305' }}</b>
+                No. Rekening : <b>{{ '2011113338' }}</b>
             </div>
             <p><i>*Mohon lampirkan bukti transfer saat konfirmasi.</i></p>
         </div>
