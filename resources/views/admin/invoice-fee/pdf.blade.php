@@ -52,10 +52,6 @@
             margin-bottom: 20px;
         }
 
-        .info-table td {
-            padding: 2px 0;
-        }
-
         table.main-table {
             width: 100%;
             border-collapse: collapse;
@@ -107,6 +103,15 @@
             border: 1px dashed #ccc;
             display: inline-block;
         }
+
+        .summary-table {
+            width: 350px;
+            border-collapse: collapse;
+        }
+
+        .summary-table td {
+            padding: 6px 0;
+        }
     </style>
 </head>
 
@@ -126,32 +131,33 @@
 
     <div class="info-section clearfix">
         <div class="float-left">
-            <p><b>Hallo, Koperasi Simpan Pinjam Dumi Digital Teknologi </b></p>
+            <p><b>Hallo, Koperasi Simpan Pinjam Dumi Digital Teknologi</b></p>
             <p>
                 Berikut rincian tagihan fee atas layanan pelanggan Fasilitas Pinjaman e-Kasbon pada perusahaan yang
                 telah bekerjasama dengan <b>Koperasi Simpan Pinjam Dumi Digital Teknologi</b> untuk periode
                 <b>
-                    6 {{ isset($invoice->created_at)
-                    ? \Carbon\Carbon::parse($invoice->created_at)->translatedFormat('F Y')
-                    : '-'
-                    }}
+                    {{ !empty($invoice->created_at) ? '6 ' .
+                    \Carbon\Carbon::parse($invoice->created_at)->translatedFormat('F Y') : '-' }}
                     -
-                    23 {{ isset($invoice->created_at)
-                    ? \Carbon\Carbon::parse($invoice->created_at)->translatedFormat('F Y')
-                    : '-'
-                    }},
+                    {{ !empty($invoice->created_at) ? '23 ' .
+                    \Carbon\Carbon::parse($invoice->created_at)->translatedFormat('F Y') : '-' }},
                 </b>
                 sebagai berikut :
             </p>
         </div>
     </div>
 
+    <p>
+        <b>{{ $invoice->nama_perusahaan ?? '-' }}</b>
+    </p>
+
     <table class="main-table">
         <thead>
             <tr>
                 <th width="30">No.</th>
-                <th>Tanggal Pinjaman</th>
+                <th>Tanggal Pengajuan</th>
                 <th>Nama <br> NIK</th>
+                <th align="right">Penempatan Kerja</th>
                 <th align="right">Jumlah Pinjaman</th>
                 <th align="right">Jumlah Tagihan</th>
                 <th align="right">Fee Tomi</th>
@@ -160,17 +166,20 @@
         <tbody>
             @forelse ($items as $item)
             <tr>
-                <td align="center">{{ $item['no'] }}</td>
+                <td align="center">{{ $item['no'] ?? '-' }}</td>
                 <td>
-                    <b>{{ $item['tanggal_pengajuan'] }}</b>
+                    <b>{{ $item['tanggal_pengajuan'] ?? '-' }}</b>
                 </td>
                 <td>
-                    <b>{{ $item['nama'] }}</b><br>
-                    <small>{{ $item['no_ktp'] }}</small>
+                    <b>{{ $item['nama'] ?? '-' }}</b><br>
+                    <small>{{ $item['no_ktp'] ?? '-' }}</small>
                 </td>
-                <td align="right">Rp {{ number_format($item['jumlah_pinjaman'], 0, ',', '.') }}</td>
-                <td align="right">Rp {{ number_format($item['fee_tomi'], 0, ',', '.') }}</td>
-                <td align="right">Rp 0</td>
+                <td align="right">
+                    {{ $item['penempatan_kerja'] }}
+                </td>
+                <td align="right">Rp {{ number_format($item['jumlah_pinjaman'] ?? 0, 0, ',', '.') }}</td>
+                <td align="right">Rp {{ number_format($item['jumlah_tagihan'] ?? 0, 0, ',', '.') }}</td>
+                <td align="right">Rp {{ number_format($item['fee_tomi'] ?? 0, 0, ',', '.') }}</td>
             </tr>
             @empty
             <tr>
@@ -181,13 +190,12 @@
     </table>
 
     <div class="clearfix">
-
         <div class="float-right total-section" style="width: 350px;">
-            <table width="100%">
+            <table class="summary-table">
                 <tr>
-                    <td class="total-title">TOTAL JUMLAH TAGIHAN</td>
+                    <td class="total-title">TOTAL JUMLAH FEE</td>
                     <td align="right" class="total-amount">
-                        Rp {{ number_format($totalJumlahTagihan, 0, ',', '.') }}
+                        Rp {{ number_format($totalJumlahFee ?? 0, 0, ',', '.') }}
                     </td>
                 </tr>
             </table>
@@ -197,9 +205,9 @@
             <b>Catatan Pembayaran:</b>
             <p>Harap segera melakukan pembayaran paling lambat tanggal 27 setiap bulannya ke rekening berikut:</p>
             <div class="bank-info">
-                <b>BANK {{ 'BRI' }}</b><br>
-                Atas Nama : <b>{{ 'PT. TOKO MIKRO INDONESIA' }}</b><br>
-                No. Rekening : <b>{{ '2011113338' }}</b>
+                <b>BANK BRI</b><br>
+                Atas Nama : <b>PT. TOKO MIKRO INDONESIA</b><br>
+                No. Rekening : <b>2011113338</b>
             </div>
             <p><i>*Mohon lampirkan bukti transfer saat konfirmasi.</i></p>
         </div>
