@@ -134,6 +134,7 @@ class NasabahInsertRequest extends FormRequest
 
             // KTA Multiguna - Sekarang input sudah berupa angka karena prepareForValidation
             'plafond' => 'required|numeric|min:0',
+            'tipe_bunga' => 'required|in:flat,efektif',
             'jangka_waktu' => 'required|integer|min:1',
             'suku_bunga' => 'required|numeric|min:0',
             'nilai_angsuran' => 'required|numeric|min:0',

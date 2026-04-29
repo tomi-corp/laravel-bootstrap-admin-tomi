@@ -1,3 +1,35 @@
+@php
+function cleanRupiahValue($value) {
+if (is_null($value) || $value === '') {
+return 0;
+}
+
+// Kalau nilainya sudah angka, langsung return
+if (is_numeric($value)) {
+return (float) $value;
+}
+
+// Bersihkan format seperti: Rp 1.000.000
+$value = str_replace(['Rp', 'rp', ' ', '.'], '', $value);
+
+// Kalau ada koma desimal, ubah ke titik
+$value = str_replace(',', '.', $value);
+
+return is_numeric($value) ? (float) $value : 0;
+}
+
+$totalJumlahPinjaman = collect($items)->sum(function ($item) {
+return cleanRupiahValue($item['jumlah_pinjaman'] ?? 0);
+});
+
+$totalJumlahTagihan = collect($items)->sum(function ($item) {
+return cleanRupiahValue($item['jumlah_tagihan'] ?? 0);
+});
+
+$totalFeeTomi = collect($items)->sum(function ($item) {
+return cleanRupiahValue($item['fee_tomi'] ?? $item['fee'] ?? $item['biaya_tomi'] ?? 0);
+});
+@endphp
 <!DOCTYPE html>
 <html lang="en">
 
@@ -121,20 +153,31 @@
         <div class="float-left">
             <img src="{{ public_path('assets/images/logo.jpg') }}" class="logo" alt="Logo">
         </div>
+
         <div class="float-right">
             <h1 class="title">INVOICE TAGIHAN</h1>
+
             <div style="text-align: right; margin-top: 5px;">
-                <b>No. Invoice:</b> {{ 'INV/' . date('Ym') . '/' . ($invoice->id ?? '-') }}
+                <div>
+                    <b>No. Invoice:</b> {{ 'INV/' . date('Ym', strtotime($invoice->created_at ?? now())) . '/' .
+                    ($invoice->id ?? '-') }}
+                </div>
+                <div style="margin-top: 3px;">
+                    <b>Tanggal Invoice:</b>
+                    {{ !empty($invoice->created_at)
+                    ? \Carbon\Carbon::parse($invoice->created_at)->translatedFormat('d F Y')
+                    : '-' }}
+                </div>
             </div>
         </div>
     </div>
 
     <div class="info-section clearfix">
         <div class="float-left">
-            <p><b>Hallo, Koperasi Simpan Pinjam Dumi Digital Teknologi</b></p>
+            <p><b>Halo, Koperasi Simpan Pinjam Dumi Digital Teknologi</b></p>
             <p>
                 Berikut rincian tagihan fee atas layanan pelanggan Fasilitas Pinjaman e-Kasbon pada perusahaan yang
-                telah bekerjasama dengan <b>Koperasi Simpan Pinjam Dumi Digital Teknologi</b> untuk periode
+                telah bekerjasama dengan <b>Koperasi Simpan Pinjam Dumi Digital Teknologi</b> untuk periode<br>
                 <b>
                     {{ !empty($invoice->created_at) ? '6 ' .
                     \Carbon\Carbon::parse($invoice->created_at)->translatedFormat('F Y') : '-' }}
@@ -154,46 +197,79 @@
     <table class="main-table">
         <thead>
             <tr>
-                <th width="30">No.</th>
-                <th>Tanggal Pengajuan</th>
-                <th>Nama <br> NIK</th>
-                <th align="right">Penempatan Kerja</th>
-                <th align="right">Jumlah Pinjaman</th>
-                <th align="right">Jumlah Tagihan</th>
-                <th align="right">Fee Tomi</th>
+                <th style="text-align:center;" width="30">No.</th>
+                <th style="text-align:center;">Tanggal Pengajuan</th>
+                <th style="text-align:center;">Nama <br> NIK</th>
+                <th style="text-align:center;">Penempatan Kerja</th>
+                <th style="text-align:center; width:125px;">Jumlah Pinjaman</th>
+                <th style="text-align:center; width:125px;">Jumlah Tagihan</th>
+                <th style="text-align:center; width:125px;">Jumlah Fee</th>
             </tr>
         </thead>
         <tbody>
             @forelse ($items as $item)
             <tr>
                 <td align="center">{{ $item['no'] ?? '-' }}</td>
+
                 <td>
                     <b>{{ $item['tanggal_pengajuan'] ?? '-' }}</b>
                 </td>
+
                 <td>
-                    <b>{{ $item['nama'] ?? '-' }}</b><br>
-                    <small>{{ $item['no_ktp'] ?? '-' }}</small>
+                    <b>{{ strtoupper($item['nama']) ?? '-' }}</b><br>
+                    <small>
+                        {{ $item['no_ktp'] ?? '-' }}
+                    </small>
                 </td>
+
+                <td align="left">
+                    {{ $item['penempatan_kerja'] ?? '-' }}
+                </td>
+
                 <td align="right">
-                    {{ $item['penempatan_kerja'] }}
+                    Rp {{ number_format($item['jumlah_pinjaman'] ?? 0, 0, ',', '.') }}
                 </td>
-                <td align="right">Rp {{ number_format($item['jumlah_pinjaman'] ?? 0, 0, ',', '.') }}</td>
-                <td align="right">Rp {{ number_format($item['jumlah_tagihan'] ?? 0, 0, ',', '.') }}</td>
-                <td align="right">Rp {{ number_format($item['fee_tomi'] ?? 0, 0, ',', '.') }}</td>
+
+                <td align="right">
+                    Rp {{ number_format($item['jumlah_tagihan'] ?? 0, 0, ',', '.') }}
+                </td>
+
+                <td align="right">
+                    Rp {{ number_format($item['fee_tomi'] ?? 0, 0, ',', '.') }}
+                </td>
             </tr>
             @empty
             <tr>
-                <td colspan="6" align="center">Tidak ada data</td>
+                <td colspan="7" align="center">Tidak ada data</td>
             </tr>
             @endforelse
         </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="4" align="center">
+                    <b>TOTAL</b>
+                </td>
+
+                <td align="right">
+                    <b>Rp {{ number_format($totalJumlahPinjaman ?? 0, 0, ',', '.') }}</b>
+                </td>
+
+                <td align="right">
+                    <b>Rp {{ number_format($totalJumlahTagihan ?? 0, 0, ',', '.') }}</b>
+                </td>
+
+                <td align="right">
+                    <b>Rp {{ number_format($totalFeeTomi ?? 0, 0, ',', '.') }}</b>
+                </td>
+            </tr>
+        </tfoot>
     </table>
 
     <div class="clearfix">
         <div class="float-right total-section" style="width: 350px;">
             <table class="summary-table">
                 <tr>
-                    <td class="total-title">TOTAL JUMLAH FEE</td>
+                    <td class="total-title">TOTAL FEE</td>
                     <td align="right" class="total-amount">
                         Rp {{ number_format($totalJumlahFee ?? 0, 0, ',', '.') }}
                     </td>
@@ -203,11 +279,21 @@
 
         <div class="float-left note-section" style="width: 400px;">
             <b>Catatan Pembayaran:</b>
-            <p>Harap segera melakukan pembayaran paling lambat tanggal 27 setiap bulannya ke rekening berikut:</p>
+            @php
+            $tanggalJatuhTempo = !empty($invoice->created_at)
+            ? \Carbon\Carbon::parse($invoice->created_at)->addDays(3)->translatedFormat('d F Y')
+            : '-';
+            @endphp
+
+            <p>
+                Harap segera melakukan pembayaran paling lambat tanggal
+                <b>{{ $tanggalJatuhTempo }}</b>
+                ke rekening berikut:
+            </p>
             <div class="bank-info">
                 <b>BANK BRI</b><br>
                 Atas Nama : <b>PT. TOKO MIKRO INDONESIA</b><br>
-                No. Rekening : <b>2011113338</b>
+                No. Rekening : <b>042501000000305</b>
             </div>
             <p><i>*Mohon lampirkan bukti transfer saat konfirmasi.</i></p>
         </div>

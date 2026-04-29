@@ -143,6 +143,8 @@
                                         <th data-priority="4">Status Perkawinan</th>
                                         <th data-priority="2">Perusahaan</th>
                                         <th data-priority="3">Status Pegawai</th>
+                                        <th data-priority="3">Foto Akad</th>
+                                        <th data-priority="3">PK TTD</th>
                                         <th data-priority="3">Status Credam</th>
                                     </tr>
                                 </thead>
@@ -300,8 +302,51 @@
             $('#uploadPkTertandaTangan').click();
         });
 
+        function resetUploadSetujuModal() {
+            $('#uploadFotoAkadKredit, #uploadPkTertandaTangan').val('');
+            $('#errUploadFotoAkadKredit, #errUploadPkTertandaTangan').text('');
+            $('#previewUploadFotoAkadKredit, #previewUploadPkTertandaTangan').empty();
+        }
+
+        function escapeHtml(value) {
+            return $('<div>').text(value).html();
+        }
+
+        function showSelectedFileStatus(inputSelector, previewSelector) {
+            const file = $(inputSelector)[0].files[0];
+
+            if (!file) {
+                $(previewSelector).empty();
+                return;
+            }
+
+            $(previewSelector).html(
+                `<div class="alert alert-success mb-0">
+                    <i class="mdi mdi-check-circle mr-2"></i>
+                    Berhasil upload: ${escapeHtml(file.name)} (${(file.size / 1024 / 1024).toFixed(2)} MB)
+                </div>`
+            );
+        }
+
+        $('#uploadFotoAkadKredit').on('change', function () {
+            $('#errUploadFotoAkadKredit').text('');
+            showSelectedFileStatus(
+                '#uploadFotoAkadKredit',
+                '#previewUploadFotoAkadKredit'
+            );
+        });
+
+        $('#uploadPkTertandaTangan').on('change', function () {
+            $('#errUploadPkTertandaTangan').text('');
+            showSelectedFileStatus(
+                '#uploadPkTertandaTangan',
+                '#previewUploadPkTertandaTangan'
+            );
+        });
+
         uploadSetujuiAnalyst = (id) => {
             uploadSetujuAnalyst = id;
+            resetUploadSetujuModal();
             $('#modalUploadSetujuAnalyst').modal('show');
         };
 
@@ -362,7 +407,7 @@
 
                     toastr.success(response.message || 'Dokumen berhasil diupload');
                     $('#modalUploadSetujuAnalyst').modal('hide');
-                    // $('#formUploadAnalyst')[0].reset();
+                    resetUploadSetujuModal();
 
                     $button.prop('disabled', false).html('Submit');
 
@@ -468,9 +513,7 @@
                 className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
                 text: '<span class="mdi mdi-file-excel"><span class="pl-1">Excel</span></span>',
                 exportOptions: {
-                    columns: [0, 1, 2, 3, 4, 5, 6,
-                        7
-                    ] // Hanya kolom data (tanpa Action)
+                    columns: [0, 1, 2, 3, 4, 5, 6, 7]
                 }
             },
             {
@@ -538,9 +581,7 @@
                 className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
                 text: '<span class="mdi mdi-file-excel"><span class="pl-1">Excel</span></span>',
                 exportOptions: {
-                    columns: [0, 1, 2, 3, 4, 5, 6,
-                        7
-                    ] // Hanya kolom data (tanpa Action)
+                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
                 }
             },
             {
@@ -548,7 +589,7 @@
                 className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
                 text: '<span class="mdi mdi-content-copy"><span class="pl-1">Copy</span></span>',
                 exportOptions: {
-                    columns: [0, 1, 2, 3, 4, 5, 6, 7]
+                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
                 }
             },
             {
@@ -556,7 +597,7 @@
                 className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
                 text: '<span class="mdi mdi-printer"><span class="pl-1">Print</span></span>',
                 exportOptions: {
-                    columns: [0, 1, 2, 3, 4, 5, 6, 7]
+                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
                 }
             }
             ],
@@ -590,6 +631,10 @@
                 data: 'nama_perusahaan'
             }, {
                 data: 'status_pegawai'
+            }, {
+                data: 'foto_akad_status'
+            }, {
+                data: 'pk_tanda_tangan_status'
             }, {
                 data: 'status'
             }]

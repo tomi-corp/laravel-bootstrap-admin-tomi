@@ -64,6 +64,7 @@ class UpdateAnalystRequest extends FormRequest
 
             // Data Pinjaman
             'plafond'                => 'required|numeric',
+            'tipe_bunga'             => 'required|in:flat,efektif',
             'jangka_waktu'           => 'required|integer|min:1',
             'suku_bunga'             => 'required|numeric',
             'nilai_angsuran'         => 'required|numeric',

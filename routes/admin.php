@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\PpobController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\InvoiceFeePageController;
 use App\Http\Controllers\Admin\InvoiceFeePdfController;
+use App\Http\Controllers\Admin\SalaryFinancingController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -193,6 +194,9 @@ Route::middleware(['AdminMiddleware'])->group(
                 Route::post('/manage/admin/add', [AuthController::class, 'manageAdminAdd'])->name('admin.manage.admin.add');
                 Route::post('/manage/admin/delete', [AuthController::class, 'manageAdminDelete'])->name('admin.manage.admin.delete');
                 Route::post('/manage/admin/audit/table', [AuthController::class, 'manageAuditTable'])->name('admin.manage.admin.audit.table');
+
+                // salary financing
+                Route::get('/salary-financing', [SalaryFinancingController::class, 'index'])->name('admin.salary-financing.index');
             }
         );
     }

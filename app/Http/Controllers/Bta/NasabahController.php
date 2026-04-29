@@ -407,6 +407,8 @@ class NasabahController extends Controller
             'status_pegawai',
             'status',
             'catatan_analyst',
+            'foto_akad_kredit',
+            'pk_tanda_tangan',
             // tambahkan kolom lain jika perlu
         ])
             ->where('position', 'credam')
@@ -415,6 +417,17 @@ class NasabahController extends Controller
 
         return DataTables::of($nasabah)
             ->addIndexColumn()
+            ->addColumn('foto_akad_status', function ($row) {
+                return $row->foto_akad_kredit
+                    ? '<span class="badge badge-success"><i class="mdi mdi-check-circle"></i> Terupload</span>'
+                    : '<span class="badge badge-warning"><i class="mdi mdi-alert-circle"></i> Belum</span>';
+            })
+            ->addColumn('pk_tanda_tangan_status', function ($row) {
+                return $row->pk_tanda_tangan
+                    ? '<span class="badge badge-success"><i class="mdi mdi-check-circle"></i> Terupload</span>'
+                    : '<span class="badge badge-warning"><i class="mdi mdi-alert-circle"></i> Belum</span>';
+            })
+            ->rawColumns(['foto_akad_status', 'pk_tanda_tangan_status'])
             ->toJson();
     }
 
@@ -487,6 +500,7 @@ class NasabahController extends Controller
 
             // --- 6. Assign data KTA Multiguna (Caps Lock untuk teks) ---
             $nasabah->plafond = $request->plafond;
+            $nasabah->tipe_bunga = $request->tipe_bunga;
             $nasabah->jangka_waktu = $request->jangka_waktu;
             $nasabah->suku_bunga = $request->suku_bunga;
             $nasabah->nilai_angsuran = $request->nilai_angsuran;

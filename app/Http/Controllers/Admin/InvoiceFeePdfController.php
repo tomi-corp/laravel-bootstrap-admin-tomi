@@ -38,7 +38,7 @@ class InvoiceFeePdfController extends Controller
         $invoiceData = $result['invoice'] ?? [];
 
         if (!isset($invoiceData['created_at']) || empty($invoiceData['created_at'])) {
-            $invoiceData['created_at'] = now();
+            $invoiceData['created_at'] = null;
         }
 
         $invoice = (object) $invoiceData;

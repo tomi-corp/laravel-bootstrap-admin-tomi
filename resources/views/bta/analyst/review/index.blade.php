@@ -588,14 +588,19 @@
 
                                 <div class="form-group">
                                     <label for="tipe_bunga">Tipe Bunga: <span class="text-danger">*</span></label>
+                                    @php
+                                    $tipeBunga = old('tipe_bunga', $nasabah->tipe_bunga ?? 'flat');
+                                    @endphp
                                     <div class="custom-control custom-radio">
                                         <input type="radio" id="customRadio1" name="tipe_bunga"
-                                            class="custom-control-input" value="flat" checked>
+                                            class="custom-control-input" value="flat" {{ $tipeBunga=='flat' ? 'checked'
+                                            : '' }}>
                                         <label class="custom-control-label" for="customRadio1">Flat</label>
                                     </div>
                                     <div class="custom-control custom-radio">
                                         <input type="radio" id="customRadio2" name="tipe_bunga"
-                                            class="custom-control-input" value="efektif">
+                                            class="custom-control-input" value="efektif" {{ $tipeBunga=='efektif'
+                                            ? 'checked' : '' }}>
                                         <label class="custom-control-label" for="customRadio2">Efektif
                                             (Anuitas)</label>
                                     </div>
