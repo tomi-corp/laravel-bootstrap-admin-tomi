@@ -197,6 +197,8 @@ Route::middleware(['AdminMiddleware'])->group(
 
                 // salary financing
                 Route::get('/salary-financing', [SalaryFinancingController::class, 'index'])->name('admin.salary-financing.index');
+                Route::get('/salary-financing/invoice/{id}/download', [SalaryFinancingController::class, 'downloadInvoice'])->name('admin.salary-financing.invoice.download');
+                Route::get('/salary-financing/{id}', [SalaryFinancingController::class, 'show'])->name('admin.salary-financing.show');
             }
         );
     }

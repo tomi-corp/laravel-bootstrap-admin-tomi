@@ -86,6 +86,9 @@
                         <li>
                             <a href="{{ route('admin.generate.invoice.index') }}">Generate Invoice</a>
                         </li>
+                        <li>
+                            <a href="{{ route('admin.salary-financing.index') }}">Salary Financing</a>
+                        </li>
                     </ul>
                 </li>
 
