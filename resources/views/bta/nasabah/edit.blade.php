@@ -1110,7 +1110,7 @@
                                             <input type="number" class="form-control" name="jangka_waktu"
                                                 id="jangka_waktu"
                                                 value="{{ old('jangka_waktu', $nasabah->jangka_waktu) }}" min="1"
-                                                max="60" placeholder="Jangka Waktu">
+                                                max="180" placeholder="Jangka Waktu">
                                             <small class="text-danger" id="errJangkaWaktu"></small>
                                         </div>
 
