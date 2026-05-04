@@ -632,13 +632,13 @@ class NasabahController extends Controller
 
         $fileFields = [
             'upload_ktp' => 'ktp',
+            'upload_id_card' => 'id_card',
             'upload_npwp' => 'npwp',
             'upload_selfie' => 'selfie',
             'upload_kk' => 'kk',
-            'upload_idcard' => 'id_card',
             'upload_sk' => 'sk_karyawan',
             'upload_slip' => 'slip_gaji',
-            'upload_bukutabungan' => 'buku_tabungan',
+            'upload_buku_tabungan' => 'buku_tabungan',
             'upload_mutasi' => 'mutasi_rekening',
             'upload_slik' => 'form_slik',
             'upload_kredit' => 'form_kredit',
