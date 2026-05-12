@@ -62,12 +62,7 @@ $plafonTerpakai = $perusahaan['plafon_terpakai'] ?? 0;
 
 $sisaPlafon = $perusahaan['sisa_plafon'] ?? ($maxPlafon - $plafonTerpakai);
 
-if ($sisaPlafon < 0) {
-    $sisaPlafon = 0;
-}
-@endphp
-
-<div class="container-fluid">
+if ($sisaPlafon < 0) { $sisaPlafon=0; } @endphp <div class="container-fluid">
 
     {{-- Title --}}
     <div class="row">
@@ -212,7 +207,7 @@ if ($sisaPlafon < 0) {
                                 $status = $item['status'] ?? 'pending';
 
                                 $statusLabel = [
-                                'pending' => 'Pending',
+                                'pending' => 'Menunggu Bukti Transfer',
                                 'uploaded_transfer' => 'Bukti Transfer Uploaded',
                                 'uploaded_bayar' => 'Bukti Bayar Uploaded',
                                 'paid' => 'Paid',
@@ -280,13 +275,18 @@ if ($sisaPlafon < 0) {
                                     </td>
 
                                     <td class="text-center">
-                                        @if(!empty($item['id']))
+                                        @php
+                                        $isInvoiceDisabled = empty($item['id']) || $status === 'pending';
+                                        @endphp
+
+                                        @if(!$isInvoiceDisabled)
                                         <a href="{{ route('admin.salary-financing.invoice.download', $item['id']) }}"
                                             target="_blank" class="btn btn-sm btn-danger" title="Download Invoice">
                                             <i class="mdi mdi-file-pdf-box"></i> Invoice
                                         </a>
                                         @else
-                                        <button type="button" class="btn btn-sm btn-secondary" disabled>
+                                        <button type="button" class="btn btn-sm btn-secondary" disabled
+                                            title="{{ $status === 'pending' ? 'Invoice belum bisa didownload karena status masih pending' : 'Data invoice belum tersedia' }}">
                                             <i class="mdi mdi-file-pdf-box"></i> Invoice
                                         </button>
                                         @endif

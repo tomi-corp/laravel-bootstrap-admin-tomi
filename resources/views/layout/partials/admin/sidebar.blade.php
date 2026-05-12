@@ -84,14 +84,24 @@
                             <a href="{{ route('admin.cost.index') }}">Cost</a>
                         </li>
                         <li>
-                            <a href="{{ route('admin.generate.invoice.index') }}">Generate Invoice</a>
-                        </li>
-                        <li>
-                            <a href="{{ route('admin.salary-financing.index') }}">Salary Financing</a>
+                            <a href="{{ route('admin.generate.invoice.index') }}">
+                                <span> Generate Invoice </span>
+                            </a>
                         </li>
                     </ul>
                 </li>
-
+                <li>
+                    <a href="{{ route('admin.salary-financing.index') }}">
+                        <i class="dripicons-wallet"></i>
+                        <span> Salary Financing </span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        <i class="dripicons-briefcase"></i>
+                        <span> Pinjaman Regular </span>
+                    </a>
+                </li>
                 {{-- <li>
                     <a href="javascript: void(0);">
                         <i class=" "></i>

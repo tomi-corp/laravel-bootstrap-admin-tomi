@@ -17,7 +17,7 @@ class SalaryFinancingController extends Controller
         $perusahaans = DB::table('salary_financing_companies')
             ->orderByDesc('id')
             ->get()
-            ->map(fn ($company) => $this->mapCompany($company));
+            ->map(fn($company) => $this->mapCompany($company));
 
         $perusahaanAktif = collect($perusahaans)
             ->where('status', 'active')
@@ -166,7 +166,7 @@ class SalaryFinancingController extends Controller
             'company_id',
             'perusahaan_id',
             'id_perusahaan',
-        ])->first(fn ($column) => Schema::hasColumn('salary_financings', $column));
+        ])->first(fn($column) => Schema::hasColumn('salary_financings', $column));
 
         if ($companyIdColumn) {
             $query->where($companyIdColumn, $companyId);
@@ -175,7 +175,7 @@ class SalaryFinancingController extends Controller
                 'nama_perusahaan',
                 'company_name',
                 'nama',
-            ])->first(fn ($column) => Schema::hasColumn('salary_financings', $column));
+            ])->first(fn($column) => Schema::hasColumn('salary_financings', $column));
 
             if (!$companyNameColumn) {
                 return collect();
@@ -192,7 +192,7 @@ class SalaryFinancingController extends Controller
 
         return $query
             ->get()
-            ->map(fn ($detail) => $this->mapSalaryFinancingDetail($detail, $companyName));
+            ->map(fn($detail) => $this->mapSalaryFinancingDetail($detail, $companyName));
     }
 
     private function mapSalaryFinancingDetail(object $detail, string $companyName): array
@@ -230,9 +230,9 @@ class SalaryFinancingController extends Controller
         $salaryFinancing = $result['salary_financing'] ?? [];
         $items = collect($result['data'] ?? []);
 
-        $totalPendapatan = (float) $items->sum(fn ($item) => (float) ($item['jumlah_pendapatan'] ?? 0));
-        $biayaAdmin = (float) $items->sum(fn ($item) => (float) ($item['biaya_admin'] ?? 0));
-        $totalTagihan = (float) $items->sum(fn ($item) => (float) ($item['total_tagihan'] ?? 0));
+        $totalPendapatan = (float) $items->sum(fn($item) => (float) ($item['jumlah_pendapatan'] ?? 0));
+        $biayaAdmin = (float) $items->sum(fn($item) => (float) ($item['biaya_admin'] ?? 0));
+        $totalTagihan = (float) $items->sum(fn($item) => (float) ($item['total_tagihan'] ?? 0));
 
         return [
             'id' => $salaryFinancing['id'] ?? $id,
@@ -244,8 +244,13 @@ class SalaryFinancingController extends Controller
             'total_pinjaman' => $totalPendapatan,
             'biaya_admin' => $biayaAdmin,
             'total_tagihan' => $totalTagihan,
-            'created_at' => $salaryFinancing['created_at'] ?? null,
             'status' => strtolower((string) ($salaryFinancing['status'] ?? 'pending')),
+            'tanggal_bukti_bayar' => $salaryFinancing['tanggal_bukti_bayar'] ?? null,
+            'upload_bukti_bayar' => $salaryFinancing['upload_bukti_bayar'] ?? null,
+            'tanggal_bukti_transfer' => $salaryFinancing['tanggal_bukti_transfer'] ?? null,
+            'upload_bukti_transfer' => $salaryFinancing['upload_bukti_transfer'] ?? null,
+            'created_at' => $salaryFinancing['created_at'] ?? null,
+            'updated_at' => $salaryFinancing['updated_at'] ?? null,
         ];
     }
 

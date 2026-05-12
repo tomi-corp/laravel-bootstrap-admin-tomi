@@ -733,52 +733,143 @@ class LenderController extends Controller
     {
         $id = decryptSecure($id);
 
+        /*
+    |--------------------------------------------------------------------------
+    | Selected Columns
+    |--------------------------------------------------------------------------
+    | Ambil kolom dari modal download.
+    | Kalau kosong, pakai default agar layout tidak terlalu melebar.
+    */
+        $allowedColumns = [
+            'tanggal_pinjaman',
+            'nip',
+            'nominal_pinjaman',
+            'rate',
+            'fee_tomi',
+            'biaya_layanan',
+            'biaya_admin',
+            'total',
+        ];
+
         $selectedColumns = $request->get('columns', []);
 
+        if (!is_array($selectedColumns)) {
+            $selectedColumns = [];
+        }
+
+        $selectedColumns = array_values(array_intersect($selectedColumns, $allowedColumns));
+
+        if (empty($selectedColumns)) {
+            $selectedColumns = [
+                'tanggal_pinjaman',
+                'nip',
+                'nominal_pinjaman',
+                'rate',
+                'fee_tomi',
+                'biaya_layanan',
+                'biaya_admin',
+                'total',
+            ];
+        }
+
+        /*
+    |--------------------------------------------------------------------------
+    | Data Invoice
+    |--------------------------------------------------------------------------
+    */
         $historyInvoicingLenderPending = history_invoicing_lender::where('id', $id)
             ->with([
                 'lender.pinjaman.disbursement',
                 'lender.pinjaman.data_karyawan',
                 'lender.pinjaman.perusahaan',
-                'pendingApproval'
-            ])->first();
+                'pendingApproval',
+            ])
+            ->first();
 
         if (!$historyInvoicingLenderPending) {
             abort(404, 'Data invoice tidak ditemukan.');
         }
 
+        /*
+    |--------------------------------------------------------------------------
+    | Filter Pinjaman Berdasarkan Periode Invoice
+    |--------------------------------------------------------------------------
+    */
         if ($historyInvoicingLenderPending->lender) {
-            $filteredPinjaman = $historyInvoicingLenderPending->lender->pinjaman->filter(function ($pinjaman) use ($historyInvoicingLenderPending) {
-                return $pinjaman->disbursement &&
-                    Carbon::parse($pinjaman->disbursement->created_at)->format('Y-m') === Carbon::parse($historyInvoicingLenderPending->period)->format('Y-m');
-            })->values();
+            $filteredPinjaman = $historyInvoicingLenderPending->lender->pinjaman
+                ->filter(function ($pinjaman) use ($historyInvoicingLenderPending) {
+                    return $pinjaman->disbursement &&
+                        Carbon::parse($pinjaman->disbursement->created_at)->format('Y-m') ===
+                        Carbon::parse($historyInvoicingLenderPending->period)->format('Y-m');
+                })
+                ->values();
 
-            $historyInvoicingLenderPending->lender->total_pinjaman = $filteredPinjaman->count();
+            /*
+        |--------------------------------------------------------------------------
+        | Perhitungan Total
+        |--------------------------------------------------------------------------
+        | Rate = 1,5% dari nominal pinjaman
+        | Biaya Layanan = Rp 10.000 per pinjaman
+        | Biaya Admin = 1% dari nominal pinjaman
+        */
+            $ratePersen = 1.5;
+            $biayaLayananPerPinjaman = 10000;
 
-            $historyInvoicingLenderPending->lender->total_fee_tomi = 0;
-
-            $historyInvoicingLenderPending->lender->total_biaya_layanan = $filteredPinjaman->count() * 10000;
-
-            $historyInvoicingLenderPending->lender->total_biaya_admin = $filteredPinjaman->sum(function ($pinjaman) {
-                return $pinjaman->nominal * 0.01;
+            $totalRate = $filteredPinjaman->sum(function ($pinjaman) use ($ratePersen) {
+                return ($pinjaman->nominal ?? 0) * ($ratePersen / 100);
             });
 
-            $historyInvoicingLenderPending->lender->total_keseluruhan =
-                $historyInvoicingLenderPending->lender->total_fee_tomi +
-                $historyInvoicingLenderPending->lender->total_biaya_layanan +
-                $historyInvoicingLenderPending->lender->total_biaya_admin;
+            $totalBiayaLayanan = $filteredPinjaman->count() * $biayaLayananPerPinjaman;
+
+            $totalBiayaAdmin = $filteredPinjaman->sum(function ($pinjaman) {
+                return ($pinjaman->nominal ?? 0) * 0.01;
+            });
+
+            /*
+        |--------------------------------------------------------------------------
+        | Karena Fee TOMI mengikuti Rate 1,5%
+        |--------------------------------------------------------------------------
+        */
+            $totalFeeTomi = $totalRate;
+
+            $totalKeseluruhan = $totalFeeTomi + $totalBiayaLayanan + $totalBiayaAdmin;
+
+            $historyInvoicingLenderPending->lender->total_pinjaman = $filteredPinjaman->count();
+            $historyInvoicingLenderPending->lender->total_rate = $totalRate;
+            $historyInvoicingLenderPending->lender->total_fee_tomi = $totalFeeTomi;
+            $historyInvoicingLenderPending->lender->total_biaya_layanan = $totalBiayaLayanan;
+            $historyInvoicingLenderPending->lender->total_biaya_admin = $totalBiayaAdmin;
+            $historyInvoicingLenderPending->lender->total_keseluruhan = $totalKeseluruhan;
 
             $historyInvoicingLenderPending->lender->setRelation('pinjaman', $filteredPinjaman);
         }
 
         $rekening = rekening_pandu::with('bank')->first();
 
+        /*
+    |--------------------------------------------------------------------------
+    | Generate PDF
+    |--------------------------------------------------------------------------
+    | Gunakan legal landscape supaya kolom tidak keluar layout.
+    */
         $pdf = Pdf::loadView(
             'admin.ksp.lender.invoicing.invoicing',
-            compact('historyInvoicingLenderPending', 'rekening', 'selectedColumns')
-        )->setPaper('a4', 'landscape');
+            compact(
+                'historyInvoicingLenderPending',
+                'rekening',
+                'selectedColumns'
+            )
+        )
+            ->setPaper('legal', 'landscape')
+            ->setOptions([
+                'isHtml5ParserEnabled' => true,
+                'isRemoteEnabled' => true,
+                'defaultFont' => 'DejaVu Sans',
+            ]);
 
-        return $pdf->stream('invoice-lender-' . $historyInvoicingLenderPending->no_invoice . '.pdf');
+        return $pdf->stream(
+            'invoice-lender-' . $historyInvoicingLenderPending->no_invoice . '.pdf'
+        );
     }
 
     // public function downloadInvoice($id)

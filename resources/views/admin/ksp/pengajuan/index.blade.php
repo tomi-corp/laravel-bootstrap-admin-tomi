@@ -6,7 +6,7 @@
             <div class="page-title-box">
                 <div class="page-title-right">
                     <ol class="breadcrumb m-0">
-                        <li class="breadcrumb-item"><a href="javascript: void(0);">Tomi</a></li>
+                        <li class="breadcrumb-item"><a href="javascript: void(0);">DDT</a></li>
                         <li class="breadcrumb-item "><a href="{{ route('admin.ksp.index') }}">KSP
                                 Perusahaan</a></li>
                         <li class="breadcrumb-item active">KSP Pengajuan</li>
@@ -81,6 +81,13 @@
                         <span>{{ $perusahaan->nomor_pks }}</span>
                     </div>
 
+
+                    <div class="d-flex justify-content-between">
+                        <span>Payment Date :</span>
+                        <span>{{ $perusahaan->payment_date }}</span>
+                    </div>
+
+
                     <div class="d-flex justify-content-between">
                         <span>Last Updated :</span>
                         <span>{{ $perusahaan->updated_at }}</span>
@@ -91,11 +98,9 @@
 
 
 
+
             <div class="card">
                 <div class="card-body">
-
-
-
                     <h4 class="header-title mb-3">Pengajuan Statistic</h4>
                     <div class="row text-center">
                         <div class="col-3 mb-3">
@@ -103,17 +108,18 @@
                             <p class="text-muted text-overflow">Belum Validasi WA</p>
                         </div>
                         <div class="col-3 mb-3">
-                            <h3 class="font-weight-light" id="pendingCount"></h3>
+                            <h3 class="font-weight-light" id="onprosesCount"></h3>
                             <p class="text-muted text-overflow">On Proses</p>
                         </div>
                         <div class="col-3 mb-3">
-                            <h3 class="font-weight-light" id="exportedCount"></h3>
+                            <h3 class="font-weight-light" id="pendingCount"></h3>
                             <p class="text-muted text-overflow">Pending</p>
                         </div>
                         <div class="col-3 mb-3">
                             <h3 class="font-weight-light" id="approveCount"></h3>
                             <p class="text-muted text-overflow">Approve</p>
                         </div>
+
 
                         <div class="col-3 mb-3">
                             <h3 class="font-weight-light" id="doneCount"></h3>
@@ -163,13 +169,13 @@
                                 Approve
                             </a>
                         </li>
+
                         <li class="nav-item">
                             <a href="#done" data-toggle="tab" aria-expanded="false" class="nav-link">
                                 Done
                             </a>
                         </li>
                     </ul>
-
 
                     <div class="tab-content">
                         <div class="tab-pane active" id="pending">
@@ -192,17 +198,17 @@
                                         <th>Nominal </th>
                                         <th>Angsuran Perbulan</th>
                                         <th>Tenor</th>
-
                                         <th>Rate</th>
                                         <th>Biaya ADM KSP DDT</th>
                                         <th>DPP KSP</th>
                                         <th>PPN KSP</th>
-                                        <th>Biaya ADM PANDU</th>
 
-                                        <th>DPP PANDU</th>
-                                        <th>PPN PANDU</th>
-                                        {{-- <th>Biaya KYC</th>
-                                        <th>Pendapatan Pandu</th> --}}
+                                        <th>Pendapatan Bunga</th>
+                                        <th>DPP Bunga</th>
+                                        <th>PPN Bunga</th>
+
+                                        <th>Iuran Anggota</th>
+                                        <th>Total Biaya Admin</th>
                                         <th>Jumlah Yang Diterima</th>
                                     </tr>
                                 </thead>
@@ -210,8 +216,6 @@
 
                         </div>
                         <div class="tab-pane show" id="exported">
-
-
                             <div class="form-group float-right">
                                 <div class="d-flex">
                                     Tanggal:
@@ -219,7 +223,6 @@
                                         class="form-control form-control-sm" value="" readonly />
                                 </div>
                             </div>
-
                             <table id="tablePending" class="table dt-responsive table-hover text-center justify-center"
                                 style="width:100%">
                                 <thead>
@@ -228,18 +231,20 @@
                                         <th>Nama</th>
                                         <th>Nominal </th>
                                         <th>Angsuran Perbulan</th>
-                                        <th>Tenor</th>
 
+                                        <th>Tenor</th>
                                         <th>Rate</th>
-                                        <th class="none">Biaya ADM KSP DDT</th>
+                                        <th class="none">Biaya ADM KSP DTT</th>
                                         <th class="none">DPP KSP</th>
                                         <th class="none">PPN KSP</th>
-                                        <th class="none">Biaya ADM PANDU</th>
 
-                                        <th class="none">DPP PANDU</th>
-                                        <th class="none">PPN PANDU</th>
-                                        {{-- <th>Biaya KYC</th>
-                                        <th>Pendapatan Pandu</th> --}}
+
+                                        <th class="none">Pendapatan Bunga</th>
+                                        <th class="none">DPP Bunga</th>
+                                        <th class="none">PPN Bunga</th>
+
+                                        <th class="none">Iuran Anggota</th>
+                                        <th class="none">Total Biaya Admin</th>
                                         <th>Jumlah Yang Diterima</th>
                                     </tr>
                                 </thead>
@@ -263,28 +268,30 @@
                                         <th>Nama</th>
                                         <th>Nominal </th>
                                         <th>Angsuran Perbulan</th>
-                                        <th>Tenor</th>
 
+                                        <th>Tenor</th>
                                         <th>Rate</th>
-                                        <th class="none">Biaya ADM KSP DDT</th>
+                                        <th class="none">Biaya ADM KSP DTT</th>
                                         <th class="none">DPP KSP</th>
                                         <th class="none">PPN KSP</th>
-                                        <th class="none">Biaya ADM PANDU</th>
 
-                                        <th class="none">DPP PANDU</th>
-                                        <th class="none">PPN PANDU</th>
-                                        <th class="none">Biaya E-KYC</th>
-                                        <th class="none">Pendapatan Pandu</th>
+
+                                        <th class="none">Pendapatan Bunga</th>
+                                        <th class="none">DPP Bunga</th>
+                                        <th class="none">PPN Bunga</th>
+
+                                        <th class="none">Iuran Anggota</th>
+                                        <th class="none">Total Biaya Admin</th>
                                         <th>Jumlah Yang Diterima</th>
-
+                                        <th class="none">Biaya</th>
                                         <th>Detail Angsuran</th>
-
                                     </tr>
                                 </thead>
                             </table>
                         </div>
 
                         <div class="tab-pane" id="done">
+
 
                             <div class="form-group float-right">
                                 <div class="d-flex">
@@ -302,21 +309,22 @@
                                         <th>Nama</th>
                                         <th>Nominal </th>
                                         <th>Angsuran Perbulan</th>
-                                        <th>Tenor</th>
 
+                                        <th>Tenor</th>
                                         <th>Rate</th>
-                                        <th class="none">Biaya ADM KSP DDT</th>
+                                        <th class="none">Biaya ADM KSP DTT</th>
                                         <th class="none">DPP KSP</th>
                                         <th class="none">PPN KSP</th>
-                                        <th class="none">Biaya ADM PANDU</th>
 
-                                        <th class="none">DPP PANDU</th>
-                                        <th class="none">PPN PANDU</th>
-                                        <th class="none">Biaya E-KYC</th>
-                                        <th class="none">Pendapatan Pandu</th>
+                                        <th class="none">Pendapatan Bunga</th>
+                                        <th class="none">DPP Bunga</th>
+                                        <th class="none">PPN Bunga</th>
+
+                                        <th class="none">Iuran Anggota</th>
+                                        <th class="none"> Total Biaya Admin</th>
                                         <th>Jumlah Yang Diterima</th>
-
-                                        <th>Detail Angsuran</th>
+                                        <th class="none">Biaya</th>
+                                        <th>Detail Angsura</th>
                                     </tr>
                                 </thead>
                             </table>
@@ -324,29 +332,58 @@
                     </div>
                 </div>
             </div>
-            {{-- <div class="card">
+
+
+            <div class="card">
                 <div class="card-body">
-                    <div class="card">
-                        <div class="card-body">
-                            <h4 class="header-title mb-3">Tagihan</h4>
-                            <table id="tableInvoice" class="table dt-responsive table-hover text-center justify-center"
-                                style="width:100%">
-                                <thead>
-                                    <tr>
-                                        <th>Bulan / Tahun Transaksi</th>
-                                        <th>Total Tagihan</th>
-                                        <th>Download Invoice</th>
-                                        <th>Status Invoice</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                            </table>
-                            <small>Note:<br> Tagihan kepada KSP dapat didownload tiap tanggal 1</small>
+                    <h4 class="header-title mb-3">Tagihan</h4>
+                    <table id="tableInvoice" class="table dt-responsive table-hover text-center justify-center"
+                        style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>Bulan / Tahun Transaksi</th>
+                                <th>Total Tagihan</th>
+                                <th>Download Invoice</th>
+                                <th>Status Invoice</th>
+                            </tr>
+                        </thead>
+                    </table>
+                    <small>Note:<br> Tagihan kepada pihak perusahaan dapat didownload H+1 Payment Date</small>
+                </div>
+            </div>
+
+
+        </div>
+
+
+        {{-- modal Edit --}}
+        <div class="modal fade bs-example-modal-center" tabindex="-1" role="dialog"
+            aria-labelledby="myCenterModalLabel" aria-hidden="true" style="display: none;" id="modalEdit">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="myCenterModalLabel">Update Status Invoice </h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label>Status </label>
+                            <select class="form-control" id="statusEdit" required>
+                                <option value="lunas">Lunas</option>
+                            </select>
                         </div>
                     </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" data-dismiss="modal">cancel</button>
+                        <button class="btn btn-primary" type="submit" id="buttonSubmitEdit"
+                            onclick="buttonSubmitEdit()">save <div id="loadingTextEdit">
+                            </div></button>
+                    </div>
                 </div>
-            </div> --}}
+            </div>
         </div>
+
+
 
         {{-- modal detail Angsuran --}}
         <div class="modal fade bs-example-modal-center" tabindex="-1" role="dialog"
@@ -375,38 +412,6 @@
             </div>
         </div>
 
-        {{-- modal update invoicing --}}
-        <div class="modal fade bs-example-modal-center" tabindex="-1" role="dialog"
-            aria-labelledby="myCenterModalLabel" aria-hidden="true" style="display: none;" id="modalUpdateInvoicing">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4 class="modal-title" id="myCenterModalLabel">Konfirmasi Pembayaran</h4>
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                    </div>
-                    <div class="modal-body text-center align-middle">
-                        <span>Apakah anda yakin untuk melunasi invoicing ini terhadap Lender ?</span>
-                    </div>
-                    </hr>
-                    <div class="container">
-                        <div class="checkbox mb-2 checkbox-info">
-                            <input id="checkbox04" type="checkbox" onchange="changeButton()">
-                            <label for="checkbox04">
-                                Saya menyatakan bahwa invoicing ini telah dibayarkan
-                            </label>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button class="btn btn-secondary" data-dismiss="modal">cancel</button>
-                        <button class="btn btn-primary" type="submit" id="buttonSubmitInvoicing" disabled="true"
-                            onClick="saveInvoicing()">save <div id="loadingTextInvoicing">
-                            </div></button>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-
 
     @endsection
 
@@ -415,9 +420,6 @@
 
         <script>
             let idEdit = '';
-            let tahunInvoicing = '';
-            let bulanInvoicing = '';
-
             let rangeOnproses = '';
             let rangePending = '';
             let rangeApprove = '';
@@ -495,7 +497,6 @@
 
             // end Date range picker
 
-
             getStatistic = () => {
                 $.ajax({
                     url: '{!! route('admin.ksp.pengajuan.statistic') !!}',
@@ -506,15 +507,15 @@
                     type: 'POST',
                     dataType: 'json',
                     success: function(dataStatistic) {
-                        $('#pendingCount').text(dataStatistic.on_proses);
+                        $('#onprosesCount').text(dataStatistic.onproses);
                         $('#belumValidasiWaCount').text(dataStatistic.belum_validasi_wa);
-                        $('#exportedCount').text(dataStatistic.pending);
+                        $('#pendingCount').text(dataStatistic.pending);
                         $('#approveCount').text(dataStatistic.approve);
                         $('#doneCount').text(dataStatistic.done);
                         data = {
                             datasets: [{
                                     data: [dataStatistic.belum_validasi_wa,
-                                        dataStatistic.on_proses,
+                                        dataStatistic.onproses,
                                         dataStatistic.pending,
                                         dataStatistic.approve,
                                         dataStatistic.done
@@ -523,7 +524,7 @@
                                         "#6c757d",
                                         "#02a8b5",
                                         "#6b5eae",
-                                        "#31ce77",
+                                        "#31ce77"
                                     ],
                                     borderColor: "transparent",
                                     borderWidth: "3",
@@ -563,6 +564,23 @@
                 $("#modalEdit").modal('show');
             }
 
+            buttonSubmitEdit = () => {
+                $.ajax({
+                    url: '{!! route('admin.ksp.invoicing.update') !!}',
+                    data: {
+                        '_token': "{{ csrf_token() }}",
+                        'id': idEdit,
+                    },
+                    type: 'POST',
+                    dataType: 'json',
+                    success: function(prosesToExport) {
+                        toastr.success(prosesToExport.message)
+                        $("#modalEdit").modal('hide');
+                        tableInvoice.ajax.reload();
+                    }
+                });
+            }
+
             getStatistic();
 
             function getTableData(rangeValue) {
@@ -573,7 +591,10 @@
                 };
             }
 
-
+            var dataTable = {
+                "_token": "{{ csrf_token() }}",
+                'id': {{ $perusahaan->id }}
+            };
             var tableOnproses = $('#tableOnproses').DataTable({
                 dom: 'B<"clear">lfrtip',
                 buttons: [{
@@ -581,9 +602,10 @@
                         className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
                         text: '<span class="mdi mdi-file-excel"><span class="pl-1">Excel</span></span>',
                         header: true,
-                        title: 'List On Process',
+                        title: 'List On Proses',
                         exportOptions: {
-                            columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+                            columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+
                         },
                     },
                     {
@@ -591,9 +613,9 @@
                         className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
                         text: '<span class="mdi mdi-content-copy"><span class="pl-1">Copy</span></span>',
                         header: true,
-                        title: 'List On Process',
+                        title: 'List On Proses',
                         exportOptions: {
-                            columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+                            columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
                         },
                     },
                     {
@@ -601,9 +623,9 @@
                         className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
                         text: '<span class="mdi mdi-printer"><span class="pl-1">Print</span></span>',
                         header: true,
-                        title: 'List On Process',
+                        title: 'List On Proses',
                         exportOptions: {
-                            columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+                            columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
                         },
                     }
                 ],
@@ -627,9 +649,9 @@
                     data: 'nama',
                     nama: 'data_karyawan.nama_karyawan',
                 }, {
-                    data: 'nominal'
-                }, {
                     data: 'angsuran_perbulan'
+                }, {
+                    data: 'nominal'
                 }, {
                     data: 'tenor'
                 }, {
@@ -641,11 +663,15 @@
                 }, {
                     data: 'ppn_adm_ksp'
                 }, {
-                    data: 'biaya_admin_pandu'
+                    data: 'pendapatan_bunga'
                 }, {
-                    data: 'dpp_adm_pandu'
+                    data: 'dpp_bunga'
                 }, {
-                    data: 'ppn_adm_pandu'
+                    data: 'ppn_bunga'
+                }, {
+                    data: 'iuran_anggota'
+                }, {
+                    data: 'total_biaya_admin'
                 }, {
                     data: 'jumlah_yang_diterima'
                 }]
@@ -657,30 +683,27 @@
                         extend: 'excel',
                         className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
                         text: '<span class="mdi mdi-file-excel"><span class="pl-1">Excel</span></span>',
-                        header: true,
-                        title: 'List Pending',
+                        header: false,
                         exportOptions: {
-                            columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+                            columns: [0, 1, 2]
                         },
                     },
                     {
                         extend: 'copy',
                         className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
                         text: '<span class="mdi mdi-content-copy"><span class="pl-1">Copy</span></span>',
-                        header: true,
-                        title: 'List Pending',
+                        header: false,
                         exportOptions: {
-                            columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+                            columns: [0, 1, 2]
                         },
                     },
                     {
                         extend: 'print',
                         className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
                         text: '<span class="mdi mdi-printer"><span class="pl-1">Print</span></span>',
-                        header: true,
-                        title: 'List Pending',
+                        header: false,
                         exportOptions: {
-                            columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+                            columns: [0, 1, 2]
                         },
                     }
                 ],
@@ -696,7 +719,6 @@
                     "url": '{!! route('admin.ksp.pengajuan.pending.table') !!}',
                     "data": function(xx) {
                         return $.extend(xx, getTableData(rangePending));
-
                     },
                 },
                 columns: [{
@@ -719,11 +741,15 @@
                 }, {
                     data: 'ppn_adm_ksp'
                 }, {
-                    data: 'biaya_admin_pandu'
+                    data: 'pendapatan_bunga'
                 }, {
-                    data: 'dpp_adm_pandu'
+                    data: 'dpp_bunga'
                 }, {
-                    data: 'ppn_adm_pandu'
+                    data: 'ppn_bunga'
+                }, {
+                    data: 'iuran_anggota'
+                }, {
+                    data: 'total_biaya_admin'
                 }, {
                     data: 'jumlah_yang_diterima'
                 }]
@@ -735,30 +761,27 @@
                         extend: 'excel',
                         className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
                         text: '<span class="mdi mdi-file-excel"><span class="pl-1">Excel</span></span>',
-                        header: true,
-                        title: 'List Approve',
+                        header: false,
                         exportOptions: {
-                            columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+                            columns: [0, 1, 2]
                         },
                     },
                     {
                         extend: 'copy',
                         className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
                         text: '<span class="mdi mdi-content-copy"><span class="pl-1">Copy</span></span>',
-                        header: true,
-                        title: 'List Approve',
+                        header: false,
                         exportOptions: {
-                            columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+                            columns: [0, 1, 2]
                         },
                     },
                     {
                         extend: 'print',
                         className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
                         text: '<span class="mdi mdi-printer"><span class="pl-1">Print</span></span>',
-                        header: true,
-                        title: 'List Approve',
+                        header: false,
                         exportOptions: {
-                            columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+                            columns: [0, 1, 2]
                         },
                     }
                 ],
@@ -773,9 +796,7 @@
                     "type": "POST",
                     "url": '{!! route('admin.ksp.pengajuan.approve.table') !!}',
                     "data": function(xx) {
-                        // return $.extend(xx, dataTableApprove);
                         return $.extend(xx, getTableData(rangeApprove));
-
                     },
                 },
                 columns: [{
@@ -798,23 +819,23 @@
                 }, {
                     data: 'ppn_adm_ksp'
                 }, {
-                    data: 'biaya_admin_pandu'
+                    data: 'pendapatan_bunga'
                 }, {
-                    data: 'dpp_adm_pandu'
+                    data: 'dpp_bunga'
                 }, {
-                    data: 'ppn_adm_pandu'
+                    data: 'ppn_bunga'
                 }, {
-                    data: 'cost_tomi'
+                    data: 'iuran_anggota'
                 }, {
-                    data: 'pendapatan_pandu'
+                    data: 'total_biaya_admin'
                 }, {
                     data: 'jumlah_yang_diterima'
+                }, {
+                    data: 'biaya'
                 }, {
                     data: 'detail_angsuran'
                 }]
             });
-
-
 
             var tableDone = $('#tableDone').DataTable({
 
@@ -826,7 +847,7 @@
                         header: true,
                         title: 'List Done',
                         exportOptions: {
-                            columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+                            columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
                         },
                     },
                     {
@@ -836,7 +857,7 @@
                         header: true,
                         title: 'List Done',
                         exportOptions: {
-                            columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+                            columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
                         },
                     },
                     {
@@ -846,7 +867,7 @@
                         header: true,
                         title: 'List Done',
                         exportOptions: {
-                            columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+                            columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
                         },
                     }
                 ],
@@ -884,17 +905,19 @@
                 }, {
                     data: 'ppn_adm_ksp'
                 }, {
-                    data: 'biaya_admin_pandu'
+                    data: 'pendapatan_bunga'
                 }, {
-                    data: 'dpp_adm_pandu'
+                    data: 'dpp_bunga'
                 }, {
-                    data: 'ppn_adm_pandu'
+                    data: 'ppn_bunga'
                 }, {
-                    data: 'cost_tomi'
+                    data: 'iuran_anggota'
                 }, {
-                    data: 'pendapatan_pandu'
+                    data: 'total_biaya_admin'
                 }, {
                     data: 'jumlah_yang_diterima'
+                }, {
+                    data: 'biaya'
                 }, {
                     data: 'detail_angsuran'
                 }]
@@ -903,105 +926,46 @@
 
 
 
-            let defaultetail = true;
+            $('#fileUploadDataKaryawan').ajaxForm({
+                beforeSend: function() {
+                    $('#errUploadData').text('');
+                    $('#buttonUploadDataExport').attr("disabled", true);
+                    $('#loadingTextEdit').addClass("spinner-border");
+                    $('#progressBar').attr('hidden', false);
 
-            showDetailPerusahaan = () => {
-                if (defaultetail) {
-                    $('#showDetailPerusahaan').removeClass('btn-warning');
-                    $('#showDetailPerusahaan').addClass('btn-primary');
-                    $('#textDetailPerusahaan').text('Show');
-                    $('#iconDetailPerusahaan').addClass('mdi-arrow-right-bold-outline');
-                    $('#iconDetailPerusahaan').removeClass('mdi-arrow-left-bold-outline');
-                    $('#hideDetailPerusahaan').removeClass('col-md-4');
-                    $('#hideDetailPerusahaan').hide();
-
-
-                    $('#hideDetailPerusahaanDua').removeClass('col-md-8');
-                    $('#hideDetailPerusahaanDua').addClass('col-md-12');
-                    defaultetail = false;
-                    $($.fn.dataTable.tables(true)).DataTable().columns.adjust().responsive.recalc();
-                } else {
-                    $('#showDetailPerusahaan').addClass('btn-warning');
-                    $('#showDetailPerusahaan').removeClass('btn-primary');
-                    $('#textDetailPerusahaan').text('Hide');
-                    $('#iconDetailPerusahaan').addClass('mdi-arrow-left-bold-outline');
-                    $('#iconDetailPerusahaan').removeClass('mdi-arrow-right-bold-outline');
-                    $('#hideDetailPerusahaan').addClass('col-md-4');
-                    $('#hideDetailPerusahaan').show();
-                    $('#hideDetailPerusahaanDua').removeClass('col-md-12');
-                    $('#hideDetailPerusahaanDua').addClass('col-md-8');
-                    $($.fn.dataTable.tables(true)).DataTable().columns.adjust().responsive.recalc();
-                    defaultetail = true;
+                    var percentage = '0';
+                },
+                uploadProgress: function(event, position, total, percentComplete) {
+                    var percentage = percentComplete;
+                    $('#pgBar').css("width", percentage + '%', function() {
+                        return $(this).attr("aria-valuenow", percentage) + "%";
+                    })
+                },
+                error: function(xhr, status, error) {
+                    $('#errUploadData').text('');
+                    $('#fileDataProcess').val('');
+                    $('#progressBar').attr('hidden', true);
+                    $('#buttonUploadDataExport').attr("disabled", false);
+                    $('#loadingTextEdit').removeClass(
+                        "spinner-border");
+                    $('#errUploadData').text(xhr.responseJSON.message);
+                },
+                success: function(xhr) {
+                    tableOnproses.ajax.reload();
+                    tablePending.ajax.reload();
+                    tableApprove.ajax.reload();
+                    tableDone.ajax.reload();
+                    getStatistic();
+                    $('#errUploadData').text('');
+                    $('#fileDataProcess').val('');
+                    $('#progressBar').attr('hidden', true);
+                    $('#buttonUploadDataExport').attr("disabled", false);
+                    $('#loadingTextEdit').removeClass("spinner-border");
+                    toastr.success(xhr.message)
                 }
-            }
-
-            $('a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
-                $($.fn.dataTable.tables(true)).DataTable().columns.adjust().responsive.recalc();
             });
 
-            detailAngsuran = (id) => {
-                $.ajax({
-                    url: '{!! route('admin.ksp.check.angsuran') !!}',
-                    data: {
-                        '_token': "{{ csrf_token() }}",
-                        'id': id,
-                    },
-                    type: 'POST',
-                    dataType: 'json',
-                    success: function(checkAngsuran) {
-                        $("#checkAngsuranTable").empty();
-                        $.each(checkAngsuran.message, function(i, item) {
-                            $('<tr>').html("<td>" + item.angsuran_ke + "</td><td>" + item.jatuh_tempo +
-                                "</td><td>" + item.status + "</td>").appendTo(
-                                '#checkAngsuranTable');
-                        });
-                        $('#modalDetailAngsuran').modal('show');
-                    }
-                })
-            }
 
-            editInvoicing = (tahun, bulan) => {
-                tahunInvoicing = tahun;
-                bulanInvoicing = bulan;
-                $('#modalUpdateInvoicing').modal('show');
-            }
-            const changeButton = () => {
-                if ($('#checkbox04').is(':checked')) {
-                    $('#buttonSubmitEdit').removeAttr('disabled');
-                } else {
-                    $('#buttonSubmitEdit').attr('disabled', true);
-                }
-            };
-
-            const saveInvoicing = () => {
-                $('#checkbox04').prop('checked', false);
-                $.ajax({
-                    url: '{!! route('admin.ksp.invoicing.update') !!}',
-                    data: {
-                        '_token': "{{ csrf_token() }}",
-                        'tahun': tahunInvoicing,
-                        'bulan': bulanInvoicing,
-                        'id_list_perusahaan': {{ $perusahaan->id }}
-                    },
-                    type: 'POST',
-                    dataType: 'json',
-                    beforeSend: function() {
-                        $('#buttonSubmitInvoicing').attr("disabled", true);
-                        $('#loadingTextInvoicing').addClass("spinner-border");
-                    },
-                    success: function(submitRes) {
-                        toastr.success(submitRes.message)
-                        table.ajax.reload();
-                        $("#modalUpdateInvoicing").modal('hide');
-                        $('#buttonSubmitInvoicing').attr("disabled", false);
-                        $('#loadingTextInvoicing').removeClass("spinner-border");
-                    },
-                    error: function(submitRes) {
-                        $('#buttonSubmitInvoicing').attr("disabled", false);
-                        $('#loadingTextInvoicing').removeClass("spinner-border");
-                    }
-                });
-            };
 
             var tableInvoice = $('#tableInvoice').DataTable({
                 dom: 'B<"clear">lfrtip',
@@ -1042,7 +1006,7 @@
                 },
                 ajax: {
                     "type": "POST",
-                    "url": '{!! route('admin.ksp.invoicing.lender.table') !!}',
+                    "url": '{!! route('admin.ksp.invoicing.table') !!}',
                     "data": function(xx) {
                         return $.extend(xx, dataTable);
                     },
@@ -1055,9 +1019,65 @@
                     data: 'download_invoice',
                 }, {
                     data: 'status_invoicing',
-                }, {
-                    data: 'action',
                 }]
             });
+
+            let defaultetail = true;
+
+            showDetailPerusahaan = () => {
+                if (defaultetail) {
+                    $('#showDetailPerusahaan').removeClass('btn-warning');
+                    $('#showDetailPerusahaan').addClass('btn-primary');
+                    $('#textDetailPerusahaan').text('Show');
+                    $('#iconDetailPerusahaan').addClass('mdi-arrow-right-bold-outline');
+                    $('#iconDetailPerusahaan').removeClass('mdi-arrow-left-bold-outline');
+                    $('#hideDetailPerusahaan').removeClass('col-md-4');
+                    $('#hideDetailPerusahaan').hide();
+
+
+                    $('#hideDetailPerusahaanDua').removeClass('col-md-8');
+                    $('#hideDetailPerusahaanDua').addClass('col-md-12');
+                    defaultetail = false;
+                    $($.fn.dataTable.tables(true)).DataTable().columns.adjust().responsive.recalc();
+                } else {
+                    $('#showDetailPerusahaan').addClass('btn-warning');
+                    $('#showDetailPerusahaan').removeClass('btn-primary');
+                    $('#textDetailPerusahaan').text('Hide');
+                    $('#iconDetailPerusahaan').addClass('mdi-arrow-left-bold-outline');
+                    $('#iconDetailPerusahaan').removeClass('mdi-arrow-right-bold-outline');
+                    $('#hideDetailPerusahaan').addClass('col-md-4');
+                    $('#hideDetailPerusahaan').show();
+                    $('#hideDetailPerusahaanDua').removeClass('col-md-12');
+                    $('#hideDetailPerusahaanDua').addClass('col-md-8');
+                    $($.fn.dataTable.tables(true)).DataTable().columns.adjust().responsive.recalc();
+                    defaultetail = true;
+                }
+            }
+
+            $('a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
+                $($.fn.dataTable.tables(true)).DataTable().columns.adjust().responsive.recalc();
+            });
+
+
+            detailAngsuran = (id) => {
+                $.ajax({
+                    url: '{!! route('admin.ksp.check.angsuran') !!}',
+                    data: {
+                        '_token': "{{ csrf_token() }}",
+                        'id': id,
+                    },
+                    type: 'POST',
+                    dataType: 'json',
+                    success: function(checkAngsuran) {
+                        $("#checkAngsuranTable").empty();
+                        $.each(checkAngsuran.message, function(i, item) {
+                            $('<tr>').html("<td>" + item.angsuran_ke + "</td><td>" + item.jatuh_tempo +
+                                "</td><td>" + item.status + "</td>").appendTo(
+                                '#checkAngsuranTable');
+                        });
+                        $('#modalDetailAngsuran').modal('show');
+                    }
+                })
+            }
         </script>
     @endpush

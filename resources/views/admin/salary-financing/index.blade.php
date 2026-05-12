@@ -66,12 +66,6 @@ $totalPerusahaan = count($perusahaans ?? []);
                                     class="btn btn-sm btn-outline-info" title="Show">
                                     <i class="fas fa-eye"></i>
                                 </a>
-                                <a href="javascript:void(0);" class="btn btn-sm btn-outline-warning" title="Edit">
-                                    <i class="fas fa-pen"></i>
-                                </a>
-                                <a href="javascript:void(0);" class="btn btn-sm btn-outline-primary" title="Config">
-                                    <i class="fas fa-cog"></i>
-                                </a>
                             </td>
                         </tr>
                         @empty

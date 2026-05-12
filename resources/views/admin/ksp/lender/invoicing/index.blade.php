@@ -260,6 +260,11 @@
                     </div>
 
                     <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" name="columns[]" value="rate" id="rate" checked>
+                        <label class="form-check-label" for="rate">Rate</label>
+                    </div>
+
+                    <div class="form-check mb-2">
                         <input class="form-check-input" type="checkbox" name="columns[]" value="fee_tomi"
                             id="colFeeTomi" checked>
                         <label class="form-check-label" for="colFeeTomi">Fee TOMI</label>
