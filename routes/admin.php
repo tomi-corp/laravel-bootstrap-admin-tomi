@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\InvoiceFeePageController;
 use App\Http\Controllers\Admin\InvoiceFeePdfController;
 use App\Http\Controllers\Admin\SalaryFinancingController;
+use App\Http\Controllers\Admin\NewDashboardController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -203,3 +204,6 @@ Route::middleware(['AdminMiddleware'])->group(
         );
     }
 );
+
+Route::get('new-dashboard', [NewDashboardController::class, 'index'])
+    ->name('admin.new-dashboard');

@@ -23,6 +23,9 @@ return Application::configure(basePath: dirname(__DIR__))
             Route::middleware('web')
                 ->prefix('bta')
                 ->group(base_path('routes/bta.php'));
+            Route::middleware('web')
+                ->prefix('seller')
+                ->group(base_path('routes/seller.php'));
         }
     )
     // ->withRouting(

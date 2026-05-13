@@ -34,7 +34,7 @@
     <link href="{{ asset('assets/css/custom.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('assets/libs/bootstrap-daterangepicker/daterangepicker.css') }}" rel="stylesheet" />
 
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
     @stack('css')
     {{--
     <link href="{{ asset('assets/css/font-awesome6.5.1.all.min.css') }}" rel="stylesheet" type="text/css" /> --}}
