@@ -604,96 +604,185 @@
             }
         });
     });
-
     var table = $('#tableListPerusahaan').DataTable({
         dom: 'B<"clear">lfrtip',
-        buttons: [{
-            extend: 'excel',
-            className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
-            text: '<span class="mdi mdi-file-excel"><span class="pl-1">Excel</span></span>',
-            header: true,
-            title: 'List Perusahaan',
-            exportOptions: {
-                columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+        buttons: [
+            {
+                extend: 'excel',
+                className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
+                text: '<span class="mdi mdi-file-excel"><span class="pl-1">Excel</span></span>',
+                header: true,
+                title: 'List Perusahaan',
+                exportOptions: {
+                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+                },
             },
-        },
-        {
-            extend: 'copy',
-            className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
-            text: '<span class="mdi mdi-content-copy"><span class="pl-1">Copy</span></span>',
-            header: true,
-            title: 'List Perusahaan',
-            exportOptions: {
-                columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
-
+            {
+                extend: 'copy',
+                className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
+                text: '<span class="mdi mdi-content-copy"><span class="pl-1">Copy</span></span>',
+                header: true,
+                title: 'List Perusahaan',
+                exportOptions: {
+                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+                },
             },
-        },
-        {
-            extend: 'print',
-            className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
-            text: '<span class="mdi mdi-printer"><span class="pl-1">Print</span></span>',
-            header: true,
-            title: 'List Perusahaan',
-            exportOptions: {
-                columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
-            },
-        }
+            {
+                extend: 'print',
+                className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
+                text: '<span class="mdi mdi-printer"><span class="pl-1">Print</span></span>',
+                header: true,
+                title: 'List Perusahaan',
+                exportOptions: {
+                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+                },
+            }
         ],
-        "lengthMenu": [10, 50, 100, 500, 1000, 2000, 5000, 10000, 50000, 100000],
+
+        lengthMenu: [10, 50, 100, 500, 1000, 2000, 5000, 10000, 50000, 100000],
         processing: true,
         responsive: true,
         serverSide: true,
+
         language: {
             processing: '<i class="dripicons-loading">autorenew</i>'
         },
+
         ajax: {
-            "type": "POST",
-            "url": '{!! route('admin.ksp.perusahaan.table') !!}',
-            "data": function (xx) {
-                return $.extend(xx, dataTable);
+            type: "POST",
+            url: '{!! route('admin.ksp.perusahaan.table') !!}',
+            data: function (d) {
+                d._token = "{{ csrf_token() }}";
+                return d;
             },
+            error: function (xhr) {
+                console.log('STATUS:', xhr.status);
+                console.log('RESPONSE:', xhr.responseText);
+
+                toastr.error('Gagal mengambil data perusahaan. Cek console atau laravel.log');
+            }
         },
-        columns: [{
-            data: 'nama'
-        }, {
-            data: 'pic_internal'
-        }, {
-            data: 'pic_perusahaan'
-        }, {
-            data: 'email_perusahaan'
-        }, {
-            data: 'telp'
-        }, {
-            data: 'payment_date'
-        }, {
-            data: 'h_min_jatuh_tempo'
-        }, {
-            data: 'status'
-        }, {
-            data: 'lender'
-        }, {
-            data: 'unique_code'
-        }, {
-            data: 'id_code_perusahaan'
-        }, {
-            data: 'provinsi'
-        }, {
-            data: 'kabupaten'
-        }, {
-            data: 'kecamatan'
-        }, {
-            data: 'desa'
-        }, {
-            data: 'alamat_lengkap'
-        }, {
-            data: 'konfigurasi_pinjaman'
-        }, {
-            data: 'proses_pengajuan'
-        }, {
-            data: 'list_karyawan'
-        }, {
-            data: 'nomor_pks'
-        },]
+
+        columns: [
+            {
+                data: 'nama',
+                name: 'nama',
+                defaultContent: '-'
+            },
+            {
+                data: 'pic_perusahaan',
+                name: 'pic_perusahaan',
+                defaultContent: '-'
+            },
+            {
+                data: 'pic_internal',
+                name: 'pic_internal',
+                defaultContent: '-'
+            },
+            {
+                data: 'email_perusahaan',
+                name: 'email_perusahaan',
+                defaultContent: '-'
+            },
+            {
+                data: 'telp',
+                name: 'telp',
+                defaultContent: '-'
+            },
+            {
+                data: 'payment_date',
+                name: 'payment_date',
+                defaultContent: '-'
+            },
+            {
+                data: 'h_min_jatuh_tempo',
+                name: 'h_min_jatuh_tempo',
+                defaultContent: '-'
+            },
+            {
+                data: 'status',
+                name: 'status',
+                orderable: false,
+                searchable: false,
+                defaultContent: '-'
+            },
+            {
+                data: 'lender',
+                name: 'lender',
+                orderable: false,
+                searchable: false,
+                defaultContent: '-'
+            },
+            {
+                data: 'unique_code',
+                name: 'unique_code',
+                defaultContent: '-'
+            },
+            {
+                data: 'id_code_perusahaan',
+                name: 'id_code_perusahaan',
+                defaultContent: '-'
+            },
+            {
+                data: 'provinsi',
+                name: 'provinsi',
+                orderable: false,
+                searchable: false,
+                defaultContent: '-'
+            },
+            {
+                data: 'kabupaten',
+                name: 'kabupaten',
+                orderable: false,
+                searchable: false,
+                defaultContent: '-'
+            },
+            {
+                data: 'kecamatan',
+                name: 'kecamatan',
+                orderable: false,
+                searchable: false,
+                defaultContent: '-'
+            },
+            {
+                data: 'desa',
+                name: 'desa',
+                orderable: false,
+                searchable: false,
+                defaultContent: '-'
+            },
+            {
+                data: 'alamat_lengkap',
+                name: 'alamat_lengkap',
+                defaultContent: '-'
+            },
+            {
+                data: 'konfigurasi_pinjaman',
+                name: 'konfigurasi_pinjaman',
+                orderable: false,
+                searchable: false,
+                defaultContent: '-'
+            },
+            {
+                data: 'proses_pengajuan',
+                name: 'proses_pengajuan',
+                orderable: false,
+                searchable: false,
+                defaultContent: '-'
+            },
+            {
+                data: 'list_karyawan',
+                name: 'list_karyawan',
+                orderable: false,
+                searchable: false,
+                defaultContent: '-'
+            },
+            {
+                data: 'nomor_pks',
+                name: 'nomor_pks',
+                defaultContent: '-'
+            }
+        ]
     });
 
     detail = (id) => {

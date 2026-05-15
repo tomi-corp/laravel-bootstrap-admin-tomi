@@ -43,14 +43,23 @@ class ListPerusahaan extends Model
 
     public function karyawanPending()
     {
-        $admin = auth('admin')->user()->type;
-        if ($admin == "admin") {
+        $adminType = auth('admin')->user()?->type;
+
+        if ($adminType === "admin") {
             return $this->hasMany(list_karyawan::class, 'id_list_perusahaan', 'id')
                 ->where('approve_satu', 'pending');
-        } elseif ($admin == "master") {
+        }
+
+        if ($adminType === "master") {
             return $this->hasMany(list_karyawan::class, 'id_list_perusahaan', 'id')
                 ->where('approve_dua', 'pending');
         }
+
+        return $this->hasMany(list_karyawan::class, 'id_list_perusahaan', 'id')
+            ->where(function ($query) {
+                $query->where('approve_satu', 'pending')
+                    ->orWhere('approve_dua', 'pending');
+            });
     }
 
 

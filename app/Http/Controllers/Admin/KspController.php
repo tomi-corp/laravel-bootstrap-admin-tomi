@@ -46,7 +46,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use Psy\Readline\Hoa\Console;
 use Spatie\Browsershot\Browsershot;
 use Illuminate\Support\Facades\Http;
-
+use Illuminate\Support\Facades\Log;
 
 
 class KspController extends Controller
@@ -177,92 +177,259 @@ class KspController extends Controller
         ], 200);
     }
 
+    // public function listPerusahaanTable()
+    // {
+    //     $perusahaan = ListPerusahaan::with([
+    //         'lender',
+    //         'karyawan',
+    //         'karyawanPending',
+    //         'pinjaman',
+    //         'provinsi',
+    //         'kabupaten',
+    //         'kecamatan',
+    //         'desa',
+    //     ])->get();
+
+    //     return DataTables::of($perusahaan)
+    //         ->addIndexColumn()
+
+    //         ->addColumn('lender', function ($row) {
+    //             return $row->lender->nama;
+    //         })
+    //         ->addColumn('list_karyawan', function ($row) {
+    //             return '<a href="' . route('admin.list.karyawan', encryptSecure($row->id)) . '" target="_blank">
+    //             <span class="badge badge-primary">
+    //                         <span class="badge badge-info" title="Total karyawan yang telah di approve 2 layer">' . $row->karyawan->count() . '</span> 
+    //                         <span class="badge badge-pink" title="Total karyawan yang menunggu di approve">' . $row->karyawanPending->count() . '</span>
+    //             </span>
+    //              </a>';
+    //         })
+
+    //         ->addColumn('proses_pengajuan', function ($row) {
+    //             return '<a href="' . route('admin.ksp.pengajuan',  encryptSecure($row->id)) . '" target="_blank">
+    //             <span class="badge badge-primary">
+
+    //                 <span class="badge badge-warning" title="Proses pengajuan dengan status on proses">' . $row->pinjaman->where('status', 'on_proses')->count() . '</span>
+    //                 <span class="badge badge-purple" title="Proses pengajuan dengan status exported">' . $row->pinjaman->where('status', 'exported')->count() . '</span>
+    //                 <span class="badge badge-info" title="Proses pengajuan dengan status approve">' . $row->pinjaman->where('status', 'approve')->count() . '</span>
+    //                 <span class="badge badge-pink" title="Proses pengajuan dengan status reject">' . $row->pinjaman->where('status', 'reject')->count() . '</span>
+    //             </span>
+
+    //                 </a>';
+    //         })
+
+    //         ->addColumn('provinsi', function ($row) {
+    //             return $row->provinsi->provinsi;
+    //         })
+
+    //         ->addColumn('unique_code', function ($row) {
+    //             return $row->unique_code;
+    //         })
+
+    //         ->addColumn('kabupaten', function ($row) {
+    //             return $row->kabupaten->kabupaten;
+    //         })
+
+    //         ->addColumn('kecamatan', function ($row) {
+    //             return $row->kecamatan->kecamatan;
+    //         })
+
+    //         ->addColumn('desa', function ($row) {
+    //             return $row->desa->desa . ' - ' . $row->desa->kodepos;
+    //         })
+
+    //         ->addColumn('alamat_lengkap', function ($row) {
+    //             return $row->alamat_lengkap;
+    //         })
+
+
+    //         ->addColumn('konfigurasi_pinjaman', function ($row) {
+    //             return '<a href="' . route('admin.ksp.konfigurasi',  encryptSecure($row->id)) . '" target="_blank"><i class=" mdi mdi-settings"></i></a>';
+    //         })
+
+    //         ->addColumn('status', function ($row) {
+    //             if ($row->status == "active") {
+    //                 $status = '<span class="badge badge-success">ACTIVE</span>';
+    //             } elseif ($row->status == "nonactive") {
+    //                 $status = '<span class="badge badge-warning">INACTIVE</span>';
+    //             }
+    //             return $status;
+    //         })
+    //         ->addColumn('action', function ($row) {
+    //             return '<button class="btn btn-sm btn-primary mr-2" onclick="edit(' . $row->id . ')"><i class="mdi mdi-pencil"></i> </button>
+    //             <button class="btn btn-sm btn-danger mr-2" onclick="deletePerusahaan(' . $row->id . ')"><i class=" mdi mdi-trash-can"></i> </button>
+    //             ';
+    //         })
+
+    //         ->rawColumns(['action', 'status', 'proses_pengajuan', 'list_karyawan', 'konfigurasi_pinjaman'])
+    //         ->toJson();
+    // }
+
     public function listPerusahaanTable()
     {
-        $perusahaan = ListPerusahaan::with([
-            'lender',
-            'karyawan',
-            'karyawanPending',
-            'pinjaman',
-            'provinsi',
-            'kabupaten',
-            'kecamatan',
-            'desa',
-        ])->get();
+        try {
+            $admin = auth()->guard('admin')->user();
 
-        return DataTables::of($perusahaan)
-            ->addIndexColumn()
+            Log::info('DEBUG LIST PERUSAHAAN ADMIN', [
+                'admin_id' => $admin?->id,
+                'type' => $admin?->type,
+                'company_id' => $admin?->company_id,
+            ]);
 
-            ->addColumn('lender', function ($row) {
-                return $row->lender->nama;
-            })
-            ->addColumn('list_karyawan', function ($row) {
-                return '<a href="' . route('admin.list.karyawan', encryptSecure($row->id)) . '" target="_blank">
-                <span class="badge badge-primary">
-                            <span class="badge badge-info" title="Total karyawan yang telah di approve 2 layer">' . $row->karyawan->count() . '</span> 
-                            <span class="badge badge-pink" title="Total karyawan yang menunggu di approve">' . $row->karyawanPending->count() . '</span>
-                </span>
-                 </a>';
-            })
+            $query = ListPerusahaan::query()
+                ->select('list_perusahaans.*')
+                ->with([
+                    'lender',
+                    'karyawan',
+                    'karyawanPending',
+                    'pinjaman',
+                    'provinsi',
+                    'kabupaten',
+                    'kecamatan',
+                    'desa',
+                ]);
 
-            ->addColumn('proses_pengajuan', function ($row) {
-                return '<a href="' . route('admin.ksp.pengajuan',  encryptSecure($row->id)) . '" target="_blank">
-                <span class="badge badge-primary">
-
-                    <span class="badge badge-warning" title="Proses pengajuan dengan status on proses">' . $row->pinjaman->where('status', 'on_proses')->count() . '</span>
-                    <span class="badge badge-purple" title="Proses pengajuan dengan status exported">' . $row->pinjaman->where('status', 'exported')->count() . '</span>
-                    <span class="badge badge-info" title="Proses pengajuan dengan status approve">' . $row->pinjaman->where('status', 'approve')->count() . '</span>
-                    <span class="badge badge-pink" title="Proses pengajuan dengan status reject">' . $row->pinjaman->where('status', 'reject')->count() . '</span>
-                </span>
-                
-                    </a>';
-            })
-
-            ->addColumn('provinsi', function ($row) {
-                return $row->provinsi->provinsi;
-            })
-
-            ->addColumn('unique_code', function ($row) {
-                return $row->unique_code;
-            })
-
-            ->addColumn('kabupaten', function ($row) {
-                return $row->kabupaten->kabupaten;
-            })
-
-            ->addColumn('kecamatan', function ($row) {
-                return $row->kecamatan->kecamatan;
-            })
-
-            ->addColumn('desa', function ($row) {
-                return $row->desa->desa . ' - ' . $row->desa->kodepos;
-            })
-
-            ->addColumn('alamat_lengkap', function ($row) {
-                return $row->alamat_lengkap;
-            })
-
-
-            ->addColumn('konfigurasi_pinjaman', function ($row) {
-                return '<a href="' . route('admin.ksp.konfigurasi',  encryptSecure($row->id)) . '" target="_blank"><i class=" mdi mdi-settings"></i></a>';
-            })
-
-            ->addColumn('status', function ($row) {
-                if ($row->status == "active") {
-                    $status = '<span class="badge badge-success">ACTIVE</span>';
-                } elseif ($row->status == "nonactive") {
-                    $status = '<span class="badge badge-warning">INACTIVE</span>';
+            /*
+        |--------------------------------------------------------------------------
+        | Filter khusus PIC
+        |--------------------------------------------------------------------------
+        | Staff tampil normal.
+        | PIC hanya melihat perusahaan sesuai company_id di tabel admin.
+        */
+            if ($admin && $admin->type === 'pic') {
+                if (!empty($admin->company_id)) {
+                    $query->where('list_perusahaans.id', $admin->company_id);
+                } else {
+                    $query->whereRaw('1 = 0');
                 }
-                return $status;
-            })
-            ->addColumn('action', function ($row) {
-                return '<button class="btn btn-sm btn-primary mr-2" onclick="edit(' . $row->id . ')"><i class="mdi mdi-pencil"></i> </button>
-                <button class="btn btn-sm btn-danger mr-2" onclick="deletePerusahaan(' . $row->id . ')"><i class=" mdi mdi-trash-can"></i> </button>
-                ';
-            })
+            }
 
-            ->rawColumns(['action', 'status', 'proses_pengajuan', 'list_karyawan', 'konfigurasi_pinjaman'])
-            ->toJson();
+            return DataTables::eloquent($query)
+                ->addIndexColumn()
+
+                ->addColumn('lender', function ($row) {
+                    return optional($row->lender)->nama ?? '-';
+                })
+
+                ->addColumn('list_karyawan', function ($row) {
+                    return '<a href="' . route('admin.list.karyawan', encryptSecure($row->id)) . '" target="_blank">
+                    <span class="badge badge-primary">
+                        <span class="badge badge-info" title="Total karyawan yang telah di approve 2 layer">' . $row->karyawan->count() . '</span>
+                        <span class="badge badge-pink" title="Total karyawan yang menunggu di approve">' . $row->karyawanPending->count() . '</span>
+                    </span>
+                </a>';
+                })
+
+                ->addColumn('proses_pengajuan', function ($row) {
+                    return '<a href="' . route('admin.ksp.pengajuan', encryptSecure($row->id)) . '" target="_blank">
+                    <span class="badge badge-primary">
+                        <span class="badge badge-warning" title="Proses pengajuan dengan status on proses">' . $row->pinjaman->where('status', 'on_proses')->count() . '</span>
+                        <span class="badge badge-purple" title="Proses pengajuan dengan status exported">' . $row->pinjaman->where('status', 'exported')->count() . '</span>
+                        <span class="badge badge-info" title="Proses pengajuan dengan status approve">' . $row->pinjaman->where('status', 'approve')->count() . '</span>
+                        <span class="badge badge-pink" title="Proses pengajuan dengan status reject">' . $row->pinjaman->where('status', 'reject')->count() . '</span>
+                    </span>
+                </a>';
+                })
+
+                ->addColumn('provinsi', function ($row) {
+                    return optional($row->provinsi)->provinsi ?? '-';
+                })
+
+                ->addColumn('unique_code', function ($row) {
+                    return $row->unique_code ?? '-';
+                })
+
+                ->addColumn('kabupaten', function ($row) {
+                    return optional($row->kabupaten)->kabupaten ?? '-';
+                })
+
+                ->addColumn('kecamatan', function ($row) {
+                    return optional($row->kecamatan)->kecamatan ?? '-';
+                })
+
+                ->addColumn('desa', function ($row) {
+                    if (!$row->desa) {
+                        return '-';
+                    }
+
+                    return ($row->desa->desa ?? '-') . ' - ' . ($row->desa->kodepos ?? '-');
+                })
+
+                ->addColumn('alamat_lengkap', function ($row) {
+                    return $row->alamat_lengkap ?? '-';
+                })
+
+                ->addColumn('konfigurasi_pinjaman', function ($row) {
+                    return '<a href="' . route('admin.ksp.konfigurasi', encryptSecure($row->id)) . '" target="_blank">
+                    <i class="mdi mdi-settings"></i>
+                </a>';
+                })
+
+                ->addColumn('status', function ($row) {
+                    if ($row->status === 'active') {
+                        return '<span class="badge badge-success">ACTIVE</span>';
+                    }
+
+                    if ($row->status === 'nonactive') {
+                        return '<span class="badge badge-warning">INACTIVE</span>';
+                    }
+
+                    return '<span class="badge badge-secondary">UNKNOWN</span>';
+                })
+
+                ->filterColumn('lender', function ($query, $keyword) {
+                    $query->whereHas('lender', function ($q) use ($keyword) {
+                        $q->where('nama', 'like', "%{$keyword}%");
+                    });
+                })
+
+                ->filterColumn('provinsi', function ($query, $keyword) {
+                    $query->whereHas('provinsi', function ($q) use ($keyword) {
+                        $q->where('provinsi', 'like', "%{$keyword}%");
+                    });
+                })
+
+                ->filterColumn('kabupaten', function ($query, $keyword) {
+                    $query->whereHas('kabupaten', function ($q) use ($keyword) {
+                        $q->where('kabupaten', 'like', "%{$keyword}%");
+                    });
+                })
+
+                ->filterColumn('kecamatan', function ($query, $keyword) {
+                    $query->whereHas('kecamatan', function ($q) use ($keyword) {
+                        $q->where('kecamatan', 'like', "%{$keyword}%");
+                    });
+                })
+
+                ->filterColumn('desa', function ($query, $keyword) {
+                    $query->whereHas('desa', function ($q) use ($keyword) {
+                        $q->where('desa', 'like', "%{$keyword}%")
+                            ->orWhere('kodepos', 'like', "%{$keyword}%");
+                    });
+                })
+
+                ->rawColumns([
+                    'status',
+                    'proses_pengajuan',
+                    'list_karyawan',
+                    'konfigurasi_pinjaman',
+                ])
+
+                ->make(true);
+        } catch (\Throwable $e) {
+            Log::error('ERROR LIST PERUSAHAAN TABLE', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
+
+            return response()->json([
+                'error' => true,
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ], 500);
+        }
     }
 
     public function deletePerusahaan(Request $req)
