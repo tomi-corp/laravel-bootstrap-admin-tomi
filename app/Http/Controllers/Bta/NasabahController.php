@@ -567,9 +567,10 @@ class NasabahController extends Controller
             ], 500);
         }
     }
+
     public function nasabahUpdate(Request $req)
     {
-        $nasabah = nasabah::where('no_ktp', $req->no_ktp)
+        $nasabah = Nasabah::where('id', $req->id)
             ->where('position', 'analyst')
             ->where('status', 'revisi')
             ->first();
@@ -590,10 +591,12 @@ class NasabahController extends Controller
         $nasabah->pendidikan_terakhir = $req->pendidikan_terakhir;
         $nasabah->status_perkawinan = $req->status_perkawinan;
 
-        // === Pasangan ===
         if ($req->status_perkawinan === 'Kawin') {
             $nasabah->nama_pasangan = strtoupper($req->nama_pasangan);
             $nasabah->tgl_lahir_pasangan = $req->tgl_lahir_pasangan;
+        } else {
+            $nasabah->nama_pasangan = null;
+            $nasabah->tgl_lahir_pasangan = null;
         }
 
         // === Alamat ===
@@ -602,9 +605,9 @@ class NasabahController extends Controller
         $nasabah->kota_id = $req->kota_id;
         $nasabah->kecamatan_id = $req->kecamatan_id;
 
-        $kelurahan = Kelurahan::where('id', $req->kelurahan_id)->first();
+        $kelurahan = Kelurahan::find($req->kelurahan_id);
         $nasabah->kelurahan_id = $req->kelurahan_id;
-        $nasabah->kode_pos = $kelurahan ? $kelurahan->kodepos : $nasabah->kode_pos;
+        $nasabah->kode_pos = $kelurahan ? $kelurahan->kodepos : $req->kode_pos;
         $nasabah->kode_dati_id = $req->kode_dati_id;
 
         // === Pekerjaan ===
@@ -616,8 +619,10 @@ class NasabahController extends Controller
         $nasabah->no_ktp = $req->no_ktp;
         $nasabah->no_npwp = $req->no_npwp;
 
-        if ($req->status_pegawai === 'Karyawan Tidak Tetap') {
+        if ($req->status_pegawai === 'Karyawan Tidak Tetap' || $req->status_pegawai === 'Pensiun') {
             $nasabah->tgl_akhir_kontrak = $req->tgl_akhir_kontrak;
+        } else {
+            $nasabah->tgl_akhir_kontrak = null;
         }
 
         // === Bank ===
@@ -625,69 +630,22 @@ class NasabahController extends Controller
         $nasabah->no_rek = $req->no_rek;
         $nasabah->nama_pemilik_rek = strtoupper($req->nama_pemilik_rek);
 
-        // === LOGIKA UPLOAD FILE ===
-        $tglInput = now()->format('Ymd');
-        $namaLengkapSanitized = Str::slug($req->nama_lengkap, '_');
-        $randomNumber = rand(1000, 9999);
-
-        $fileFields = [
-            'upload_ktp' => 'ktp',
-            'upload_id_card' => 'id_card',
-            'upload_npwp' => 'npwp',
-            'upload_selfie' => 'selfie',
-            'upload_kk' => 'kk',
-            'upload_sk' => 'sk_karyawan',
-            'upload_slip' => 'slip_gaji',
-            'upload_buku_tabungan' => 'buku_tabungan',
-            'upload_mutasi' => 'mutasi_rekening',
-            'upload_slik' => 'form_slik',
-            'upload_kredit' => 'form_kredit',
-            'upload_bta' => 'form_bta',
-            'upload_checklist' => 'form_checklist',
-            'upload_video_interview' => 'video_interview',
-            'upload_video_asuransi'  => 'video_asuransi',
-        ];
-
-        foreach ($fileFields as $requestField => $dbField) {
-            if ($req->hasFile($requestField)) {
-                $file = $req->file($requestField);
-                $extension = strtolower($file->getClientOriginalExtension());
-
-                $isVideo = in_array($dbField, ["video_interview", "video_asuransi"]);
-
-                if ($isVideo) {
-                    $allowedExtensions = ['mp4', 'mov', 'avi', 'mkv'];
-                    $maxSize = 50 * 1024 * 1024; // 50 MB
-                    $sizeLabel = "50 MB";
-                } else {
-                    $allowedExtensions = ['jpg', 'jpeg', 'png', 'pdf'];
-                    $maxSize = 5 * 1024 * 1024; // 5 MB
-                    $sizeLabel = "5 MB";
-                }
-
-                if (!in_array($extension, $allowedExtensions)) {
-                    return response()->json([
-                        'message' => "Format file {$requestField} tidak valid. Diperbolehkan: " . implode(', ', $allowedExtensions)
-                    ], 422);
-                }
-
-                if ($file->getSize() > $maxSize) {
-                    return response()->json([
-                        'message' => "Ukuran file {$requestField} terlalu besar. Maksimal batas adalah {$sizeLabel}."
-                    ], 422);
-                }
-
-                $fileName = "{$tglInput}_{$namaLengkapSanitized}_{$randomNumber}_{$requestField}.{$extension}";
-                $file->storeAs('bta', $fileName);
-                $nasabah->{$dbField} = $fileName;
-
-                $statusField = "status_{$dbField}";
-                $noteField = "note_{$dbField}";
-
-                $nasabah->{$statusField} = 'pending';
-                $nasabah->{$noteField} = null;
-            }
-        }
+        // === KTA Multiguna ===
+        $nasabah->plafond = $this->rupiahToNumber($req->plafond);
+        $nasabah->persetujuan_analyst = $this->rupiahToNumber($req->persetujuan_analyst);
+        $nasabah->tipe_bunga = $req->tipe_bunga;
+        $nasabah->jangka_waktu = $req->jangka_waktu;
+        $nasabah->suku_bunga = $req->suku_bunga;
+        $nasabah->nilai_angsuran = $this->rupiahToNumber($req->nilai_angsuran);
+        $nasabah->biaya_bank = $this->rupiahToNumber($req->biaya_bank);
+        $nasabah->biaya_asuransi = $this->rupiahToNumber($req->biaya_asuransi);
+        $nasabah->biaya_koperasi = $this->rupiahToNumber($req->biaya_koperasi);
+        $nasabah->simpanan_koperasi = $this->rupiahToNumber($req->simpanan_koperasi);
+        $nasabah->tujuan_penggunaan = $req->tujuan_penggunaan;
+        $nasabah->gaji_bersih = $this->rupiahToNumber($req->gaji_bersih);
+        $nasabah->mulai_pinjaman = $req->mulai_pinjaman;
+        $nasabah->akhir_pinjaman = $req->akhir_pinjaman;
+        $nasabah->dbr = $req->dbr;
 
         // === Metadata ===
         $nasabah->admin_id = auth('bta')->user()->id;
@@ -699,6 +657,15 @@ class NasabahController extends Controller
         return response()->json([
             'message' => 'Data nasabah berhasil disimpan.'
         ]);
+    }
+
+    private function rupiahToNumber($value): int
+    {
+        if (!$value) {
+            return 0;
+        }
+
+        return (int) preg_replace('/[^0-9]/', '', $value);
     }
 
 
