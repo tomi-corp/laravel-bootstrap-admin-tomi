@@ -117,6 +117,12 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                         <span> Pinjaman Regular </span>
                     </a>
                 </li>
+                <li>
+                    <a href="{{ route('admin.cicilan-elektronik.index') }}">
+                        <i class="dripicons-briefcase"></i>
+                        <span> Cicilan Gedget </span>
+                    </a>
+                </li>
 
                 <li class="menu-title">Daily</li>
 

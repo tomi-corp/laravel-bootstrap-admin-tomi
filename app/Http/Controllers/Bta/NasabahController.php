@@ -18,6 +18,9 @@ use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Str;
 use PhpParser\Node\Expr\FuncCall;
 use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Database\QueryException;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Storage;
 
 class NasabahController extends Controller
 {
@@ -454,29 +457,28 @@ class NasabahController extends Controller
             ->addIndexColumn()
             ->toJson();
     }
-
     public function nasabahInsert(NasabahInsertRequest $request)
     {
         try {
             $nasabah = new nasabah();
 
-            // --- 1. Assign data identitas (Caps Lock) ---
+            // --- isi data seperti biasa ---
             $nasabah->nama_lengkap = strtoupper($request->nama_lengkap);
             $nasabah->nama_singkat = strtoupper($request->nama_singkat);
             $nasabah->jenis_kelamin = strtoupper($request->jenis_kelamin);
             $nasabah->tempat_lahir = strtoupper($request->tempat_lahir);
-            $nasabah->tanggal_lahir = $request->tanggal_lahir; // tanggal tidak diubah
+            $nasabah->tanggal_lahir = $request->tanggal_lahir;
             $nasabah->nama_ibu = strtoupper($request->nama_ibu);
             $nasabah->no_telp = $request->no_telp;
             $nasabah->agama = strtoupper($request->agama);
             $nasabah->pendidikan_terakhir = strtoupper($request->pendidikan);
             $nasabah->status_perkawinan = strtoupper($request->status_perkawinan);
 
-            // --- 2. Assign data pasangan (Caps Lock) ---
+            // pasangan
             $nasabah->nama_pasangan = strtoupper($request->nama_pasangan);
             $nasabah->tgl_lahir_pasangan = $request->tgl_lahir_pasangan;
 
-            // --- 3. Assign data alamat (Caps Lock untuk teks) ---
+            // alamat
             $nasabah->alamat_rumah = strtoupper($request->alamat_rumah);
             $nasabah->provinsi_id = $request->provinsi;
             $nasabah->kota_id = $request->kota;
@@ -485,7 +487,7 @@ class NasabahController extends Controller
             $nasabah->kode_pos = $request->kodePos;
             $nasabah->kode_dati_id = $request->kode_dati;
 
-            // --- 4. Assign data pekerjaan (Caps Lock untuk teks) ---
+            // pekerjaan
             $nasabah->nama_perusahaan = strtoupper($request->nama_perusahaan);
             $nasabah->bidang_usaha = strtoupper($request->bidang_usaha);
             $nasabah->alamat_kerja = strtoupper($request->alamat_kerja);
@@ -493,12 +495,12 @@ class NasabahController extends Controller
             $nasabah->status_pegawai = strtoupper($request->status_pegawai);
             $nasabah->tgl_akhir_kontrak = $request->tgl_akhir_kontrak;
 
-            // --- 5. Assign data bank (Caps Lock untuk teks) ---
+            // bank
             $nasabah->bank_id = $request->bankSelect;
             $nasabah->nama_pemilik_rek = strtoupper($request->nama_pemilik_rek);
             $nasabah->no_rek = $request->no_rek;
 
-            // --- 6. Assign data KTA Multiguna (Caps Lock untuk teks) ---
+            // kredit
             $nasabah->plafond = $request->plafond;
             $nasabah->tipe_bunga = $request->tipe_bunga;
             $nasabah->jangka_waktu = $request->jangka_waktu;
@@ -514,11 +516,11 @@ class NasabahController extends Controller
             $nasabah->akhir_pinjaman = $request->akhir_pinjaman;
             $nasabah->dbr = $request->dbr;
 
-            // --- 7. Nomor KTP dan NPWP ---
+            // identitas
             $nasabah->no_ktp = $request->no_ktp;
             $nasabah->no_npwp = $request->no_npwp;
 
-            // --- 8. Proses Upload File ---
+            // file upload
             $fileMappings = [
                 'upload_ktp' => 'ktp',
                 'upload_id_card' => 'id_card',
@@ -542,28 +544,39 @@ class NasabahController extends Controller
                     $filename = time() . '_' . uniqid() . '_' . $columnName . '.' . $file->getClientOriginalExtension();
                     $file->storeAs('bta', $filename);
                     $nasabah->{$columnName} = $filename;
+
                     if ($columnName === "video_interview" || $columnName === "video_asuransi") {
                         $nasabah->{"status_" . $columnName} = "pending";
                     }
                 }
             }
 
-            // --- 9. Kolom tambahan ---
             $nasabah->admin_id = auth('bta')->id();
             $nasabah->position = 'analyst';
             $nasabah->status = 'pending';
 
-            // --- 10. Simpan ke database ---
             $nasabah->save();
 
             return response()->json([
                 'message' => 'Data nasabah berhasil disimpan.',
                 'data' => $nasabah
             ], 201);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => 'Validasi gagal',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (QueryException $e) {
+            return response()->json([
+                'message' => 'Error database',
+                'sql_state' => $e->errorInfo[0],
+                'error_code' => $e->errorInfo[1],
+                'error_message' => $e->errorInfo[2],
+            ], 422);
         } catch (\Exception $e) {
             return response()->json([
-                'message' => 'Terjadi kesalahan saat menyimpan data ke database.',
-                'data' => $e
+                'message' => 'Terjadi kesalahan tidak terduga',
+                'error' => $e->getMessage()
             ], 500);
         }
     }
@@ -646,6 +659,42 @@ class NasabahController extends Controller
         $nasabah->mulai_pinjaman = $req->mulai_pinjaman;
         $nasabah->akhir_pinjaman = $req->akhir_pinjaman;
         $nasabah->dbr = $req->dbr;
+
+        $fileMappings = [
+            'upload_ktp' => 'ktp',
+            'upload_id_card' => 'id_card',
+            'upload_npwp' => 'npwp',
+            'upload_kk' => 'kk',
+            'upload_sk' => 'sk_karyawan',
+            'upload_slip' => 'slip_gaji',
+            'upload_buku_tabungan' => 'buku_tabungan',
+            'upload_mutasi' => 'mutasi_rekening',
+            'upload_slik' => 'form_slik',
+            'upload_kredit' => 'form_kredit',
+            'upload_bta' => 'form_bta',
+            'upload_checklist' => 'form_checklist',
+            'upload_video_interview' => 'video_interview',
+            'upload_video_asuransi' => 'video_asuransi',
+        ];
+
+        foreach ($fileMappings as $inputName => $columnName) {
+            if ($req->hasFile($inputName)) {
+                $file = $req->file($inputName);
+
+                $filename = time() . '_' . uniqid() . '_' . $columnName . '.' . $file->getClientOriginalExtension();
+
+                // simpan file baru
+                $file->storeAs('bta', $filename);
+
+                // OPTIONAL: hapus file lama
+                if (!empty($nasabah->{$columnName})) {
+                    Storage::delete('bta/' . $nasabah->{$columnName});
+                }
+
+                // update kolom
+                $nasabah->{$columnName} = $filename;
+            }
+        }
 
         // === Metadata ===
         $nasabah->admin_id = auth('bta')->user()->id;

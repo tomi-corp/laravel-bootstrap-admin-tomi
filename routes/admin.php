@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\InvoiceFeePageController;
 use App\Http\Controllers\Admin\InvoiceFeePdfController;
 use App\Http\Controllers\Admin\SalaryFinancingController;
 use App\Http\Controllers\Admin\NewDashboardController;
+use App\Http\Controllers\Admin\ElectronicInstallmentController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -56,8 +57,6 @@ Route::middleware(['AdminMiddleware'])->group(
                 Route::get('/profile', [ProfileController::class, 'index'])->name('admin.profile.index');
                 Route::post('/profile/update', [ProfileController::class, 'updateProfile'])->name('admin.profile.update');
                 Route::post('/profile/enableTwoFactor', [ProfileController::class, 'enableTwoFactor'])->name('admin.profile.enableTwoFactor');
-
-
 
                 Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('admin.dashboard.index');
                 // ppob
@@ -200,6 +199,8 @@ Route::middleware(['AdminMiddleware'])->group(
                 Route::get('/salary-financing', [SalaryFinancingController::class, 'index'])->name('admin.salary-financing.index');
                 Route::get('/salary-financing/invoice/{id}/download', [SalaryFinancingController::class, 'downloadInvoice'])->name('admin.salary-financing.invoice.download');
                 Route::get('/salary-financing/{id}', [SalaryFinancingController::class, 'show'])->name('admin.salary-financing.show');
+
+                Route::get('/cicilan-elektronik', [ElectronicInstallmentController::class, 'index'])->name('admin.cicilan-elektronik.index');
             }
         );
     }

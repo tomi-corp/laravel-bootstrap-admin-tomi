@@ -51,7 +51,6 @@ class UpdateAnalystRequest extends FormRequest
     {
         $nasabah = nasabah::where('id', $this->id)->first();
 
-
         $statusPegawai = $nasabah?->status_pegawai ?? '';
 
         // Base rules yang selalu berlaku
@@ -86,8 +85,8 @@ class UpdateAnalystRequest extends FormRequest
             'note_npwp'              => 'nullable|string',
             'status_ktp'             => 'required|in:approve,reject',
             'note_ktp'               => 'nullable|string',
-            'status_id_card'         => 'required|in:approve,reject',
-            'note_id_card'           => 'nullable|string',
+            // 'status_id_card'         => 'required|in:approve,reject',
+            // 'note_id_card'           => 'nullable|string',
             'status_kk'              => 'required|in:approve,reject',
             'note_kk'                => 'nullable|string',
 
@@ -109,6 +108,22 @@ class UpdateAnalystRequest extends FormRequest
             // Opsional untuk Pensiun
             $rules['status_slip_gaji'] = ['nullable', Rule::in(['approve', 'reject', null])];
             $rules['note_slip_gaji']   = 'nullable|string|max:255';
+        }
+
+        if (!blank($nasabah?->id_card)) {
+
+            $rules['status_id_card'] = [
+                'required',
+                Rule::in(['approve', 'reject'])
+            ];
+
+            $rules['note_id_card'] = 'nullable|string|max:255';
+        } else {
+
+            // 👉 INI KUNCI FIX KAMU
+            $rules['status_id_card'] = 'nullable';
+
+            $rules['note_id_card'] = 'nullable|string|max:255';
         }
 
         return $rules;
