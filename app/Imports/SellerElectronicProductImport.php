@@ -15,7 +15,7 @@ class SellerElectronicProductImport implements ToCollection, WithHeadingRow, Ski
     {
         $this->products = $rows
             ->map(fn($row) => $this->mapRow($row))
-            ->filter(fn($product) => !empty($product['product_name']))
+            ->filter(fn($product) => !empty($product['product_name']) && !empty($product['sku']))
             ->values()
             ->toArray();
     }
@@ -29,21 +29,12 @@ class SellerElectronicProductImport implements ToCollection, WithHeadingRow, Ski
     {
         return [
             'product_name' => $this->value($row, ['product_name', 'nama_produk', 'name']),
-            'category' => $this->category($this->value($row, ['category', 'kategori'])),
             'product_model' => $this->value($row, ['product_model', 'model']),
             'sku' => $this->value($row, ['sku', 'kode_produk']),
             'brand' => $this->value($row, ['brand', 'merek']),
-            'condition' => $this->condition($this->value($row, ['condition', 'kondisi'])),
-            'warranty' => $this->value($row, ['warranty', 'garansi']),
             'color' => $this->value($row, ['color', 'warna']),
-            'ram' => $this->value($row, ['ram']),
-            'storage' => $this->value($row, ['storage', 'memori', 'penyimpanan']),
-            'screen_size' => $this->value($row, ['screen_size', 'ukuran_layar']),
-            'battery' => $this->value($row, ['battery', 'baterai']),
-            'camera' => $this->value($row, ['camera', 'kamera']),
-            'operating_system' => $this->value($row, ['operating_system', 'os', 'sistem_operasi']),
-            'network' => $this->value($row, ['network', 'jaringan']),
-            'included_items' => $this->value($row, ['included_items', 'kelengkapan']),
+            'ram_gb' => $this->nullableInteger($this->value($row, ['ram_gb', 'ram'])),
+            'storage_gb' => $this->nullableInteger($this->value($row, ['storage_gb', 'storage', 'memori', 'penyimpanan'])),
             'price' => $this->number($this->value($row, ['price', 'harga'])),
             'stock' => (int) $this->number($this->value($row, ['stock', 'stok'])),
             'description' => $this->value($row, ['description', 'deskripsi']),
@@ -72,17 +63,12 @@ class SellerElectronicProductImport implements ToCollection, WithHeadingRow, Ski
         return (float) preg_replace('/[^0-9.-]/', '', (string) $value);
     }
 
-    private function category(mixed $value): string
+    private function nullableInteger(mixed $value): ?int
     {
-        $value = strtolower((string) $value);
+        if ($value === null || $value === '') {
+            return null;
+        }
 
-        return str_contains($value, 'gadget') ? 'gadget' : 'electronic';
-    }
-
-    private function condition(mixed $value): string
-    {
-        $value = strtolower((string) $value);
-
-        return in_array($value, ['used', 'refurbished'], true) ? $value : 'new';
+        return (int) $this->number($value);
     }
 }

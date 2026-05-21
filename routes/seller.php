@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Seller\AuthController;
 use App\Http\Controllers\Seller\ElectronicInstallmentController;
+use App\Http\Controllers\Seller\DashboardController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/login', [AuthController::class, 'login'])
@@ -9,6 +10,12 @@ Route::get('/login', [AuthController::class, 'login'])
 
 Route::post('/login', [AuthController::class, 'loginAction'])
     ->name('seller.login.action');
+
+Route::get('/logout', [AuthController::class, 'logout'])
+    ->name('seller.logout');
+
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->name('seller.dashboard');
 
 Route::get('/electronic-installment', [ElectronicInstallmentController::class, 'index'])
     ->name('seller.electronic-installment.index');

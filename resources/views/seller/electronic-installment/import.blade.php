@@ -48,15 +48,13 @@
                             </div>
 
                             <div class="alert alert-light border">
-                                <strong>Import rule:</strong> products with the same SKU will be updated. If SKU is empty,
-                                product name, brand, and model will be used to prevent duplicate data.
+                                <strong>Import rule:</strong> SKU wajib diisi karena menjadi kode unik varian produk.
                             </div>
 
                             <h2 class="h6">Supported headings</h2>
                             <p class="text-muted small">
-                                product_name, category, brand, product_model, sku, condition, warranty, color, ram,
-                                storage, screen_size, battery, camera, operating_system, network, included_items, price,
-                                stock, description.
+                                product_name, brand, product_model, sku, ram_gb, storage_gb, color, price, stock,
+                                description.
                             </p>
 
                             <div class="d-flex justify-content-between">

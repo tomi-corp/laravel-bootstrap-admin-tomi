@@ -5,14 +5,28 @@ namespace App\Http\Controllers\Seller;
 use App\Http\Controllers\Controller;
 use App\Exports\SellerElectronicProductTemplateExport;
 use App\Imports\SellerElectronicProductImport;
+use App\Models\Product;
+use App\Models\ProductImage;
+use App\Models\ProductVariant;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ElectronicInstallmentController extends Controller
 {
     public function index()
     {
-        $products = session('seller_electronic_installment_products', []);
+        $sellerId = auth('seller')->id();
+
+        $products = Product::with(['images', 'variants'])
+            ->where('seller_id', $sellerId)
+            ->latest()
+            ->get();
 
         return view('seller.electronic-installment.index', compact('products'));
     }
@@ -22,12 +36,154 @@ class ElectronicInstallmentController extends Controller
         return view('seller.electronic-installment.create');
     }
 
-    public function downloadTemplate()
+    public function storeProduct(Request $request)
     {
-        return Excel::download(
-            new SellerElectronicProductTemplateExport(),
-            'seller-electronic-product-template.xlsx'
-        );
+        $validated = $this->validateProduct($request);
+
+        DB::transaction(function () use ($request, $validated) {
+
+            $sellerId = auth('seller')->id();
+
+            // 1. CREATE PRODUCT
+            $product = Product::create([
+                'seller_id' => $sellerId,
+                'name' => $validated['name'],
+                'slug' => Str::slug($validated['name']) . '-' . time(),
+                'brand' => $validated['brand'] ?? null,
+                'model' => $validated['model'] ?? null,
+                'description' => $validated['description'] ?? null,
+            ]);
+
+            $this->storeProductImages($request, $product);
+
+            // 2. CREATE VARIANTS
+            foreach ($request->variants as $index => $variant) {
+                ProductVariant::create([
+                    'product_id' => $product->id,
+                    'sku' => $variant['sku'],
+                    'ram_gb' => $variant['ram_gb'] ?? null,
+                    'storage_gb' => $variant['storage_gb'] ?? null,
+                    'color' => $variant['color'] ?? null,
+                    'price' => $variant['price'],
+                    'stock' => $variant['stock'] ?? 0,
+                    'image_url' => $this->storeVariantImage($request, $index),
+                ]);
+            }
+        });
+
+        return redirect()
+            ->route('seller.electronic-installment.index')
+            ->with('success', 'Produk berhasil ditambahkan.');
+    }
+
+    public function editProduct($id)
+    {
+        $product = Product::with(['images', 'variants'])
+            ->where('seller_id', auth('seller')->id())
+            ->findOrFail($id);
+
+        return view('seller.electronic-installment.edit', compact('product'));
+    }
+
+    public function updateProduct(Request $request, $id)
+    {
+        $product = Product::with(['images', 'variants'])
+            ->where('seller_id', auth('seller')->id())
+            ->findOrFail($id);
+
+        $validated = $this->validateProduct($request, $product);
+
+        DB::transaction(function () use ($request, $validated, $product) {
+
+            // update product
+            $product->update([
+                'name' => $validated['name'],
+                'brand' => $validated['brand'] ?? null,
+                'model' => $validated['model'] ?? null,
+                'description' => $validated['description'] ?? null,
+            ]);
+
+            $this->deleteSelectedProductImages($request, $product);
+            $this->storeProductImages($request, $product);
+
+            $keptVariantIds = [];
+
+            foreach ($request->variants as $index => $variant) {
+                $variantImage = $this->storeVariantImage($request, $index);
+                $variantId = $variant['id'] ?? null;
+
+                $payload = [
+                    'product_id' => $product->id,
+                    'sku' => $variant['sku'],
+                    'ram_gb' => $variant['ram_gb'] ?? null,
+                    'storage_gb' => $variant['storage_gb'] ?? null,
+                    'color' => $variant['color'] ?? null,
+                    'price' => $variant['price'],
+                    'stock' => $variant['stock'] ?? 0,
+                ];
+
+                if ($variantImage) {
+                    $payload['image_url'] = $variantImage;
+                }
+
+                if ($variantId) {
+                    $productVariant = ProductVariant::where('product_id', $product->id)
+                        ->where('id', $variantId)
+                        ->first();
+
+                    if ($productVariant) {
+                        if ($variantImage && $productVariant->image_url) {
+                            Storage::disk('public')->delete($productVariant->image_url);
+                        }
+
+                        $productVariant->update($payload);
+                        $keptVariantIds[] = $productVariant->id;
+
+                        continue;
+                    }
+                }
+
+                $newVariant = ProductVariant::create($payload);
+                $keptVariantIds[] = $newVariant->id;
+            }
+
+            $product->variants()
+                ->whereNotIn('id', $keptVariantIds)
+                ->get()
+                ->each(function (ProductVariant $variant) {
+                    if ($variant->image_url) {
+                        Storage::disk('public')->delete($variant->image_url);
+                    }
+
+                    $variant->delete();
+                });
+        });
+
+        return redirect()
+            ->route('seller.electronic-installment.index')
+            ->with('success', 'Produk berhasil diupdate.');
+    }
+
+    public function deleteProduct($id)
+    {
+        $product = Product::with(['images', 'variants'])
+            ->where('seller_id', auth('seller')->id())
+            ->where('id', $id)
+            ->firstOrFail();
+
+        foreach ($product->images as $image) {
+            Storage::disk('public')->delete($image->image_url);
+        }
+
+        foreach ($product->variants as $variant) {
+            if ($variant->image_url) {
+                Storage::disk('public')->delete($variant->image_url);
+            }
+        }
+
+        $product->delete();
+
+        return back()->with('success', 'Produk berhasil dihapus.');
     }
 
     public function importProductPage()
@@ -35,23 +191,12 @@ class ElectronicInstallmentController extends Controller
         return view('seller.electronic-installment.import');
     }
 
-    public function storeProduct(Request $request)
+    public function downloadTemplate()
     {
-        $validated = $this->validateProduct($request);
-
-        $products = session('seller_electronic_installment_products', []);
-        $products[] = array_merge($validated, [
-            'id' => $this->nextProductId($products),
-        ]);
-
-        session(['seller_electronic_installment_products' => $products]);
-
-        return redirect()
-            ->route('seller.electronic-installment.index')
-            ->with('success', 'Product has been added.');
+        return Excel::download(new SellerElectronicProductTemplateExport(), 'template-produk-elektronik.xlsx');
     }
 
-    public function importProducts(Request $request)
+    public function importProducts(Request $request): RedirectResponse
     {
         $request->validate([
             'file' => ['required', 'file', 'mimes:xlsx,xls,csv'],
@@ -60,138 +205,145 @@ class ElectronicInstallmentController extends Controller
         $import = new SellerElectronicProductImport();
         Excel::import($import, $request->file('file'));
 
-        $importedProducts = $import->getProducts();
-        $products = session('seller_electronic_installment_products', []);
-        $createdCount = 0;
-        $updatedCount = 0;
+        DB::transaction(function () use ($import) {
+            foreach ($import->getProducts() as $row) {
+                $variant = ProductVariant::with('product')
+                    ->where('sku', $row['sku'])
+                    ->first();
 
-        foreach ($importedProducts as $product) {
-            $existingIndex = $this->findProductIndex($products, $product);
-
-            if ($existingIndex === null) {
-                $products[] = array_merge($product, [
-                    'id' => $this->nextProductId($products),
-                ]);
-                $createdCount++;
-
-                continue;
-            }
-
-            $products[$existingIndex] = array_merge($products[$existingIndex], $product);
-            $updatedCount++;
-        }
-
-        session(['seller_electronic_installment_products' => $products]);
-
-        return redirect()
-            ->route('seller.electronic-installment.index')
-            ->with('success', "{$createdCount} products have been created and {$updatedCount} products have been updated.");
-    }
-
-    public function editProduct(int $id)
-    {
-        $product = collect(session('seller_electronic_installment_products', []))
-            ->firstWhere('id', $id);
-
-        if (!$product) {
-            abort(404, 'Product not found');
-        }
-
-        return view('seller.electronic-installment.edit', compact('product'));
-    }
-
-    public function updateProduct(Request $request, int $id)
-    {
-        $validated = $this->validateProduct($request);
-
-        $products = collect(session('seller_electronic_installment_products', []))
-            ->map(function ($product) use ($id, $validated) {
-                if ((int) $product['id'] !== $id) {
-                    return $product;
+                if ($variant && (int) $variant->product->seller_id !== (int) auth('seller')->id()) {
+                    throw ValidationException::withMessages([
+                        'file' => "SKU {$row['sku']} sudah digunakan seller lain.",
+                    ]);
                 }
 
-                return array_merge($product, $validated);
-            })
-            ->values()
-            ->toArray();
+                $product = $variant?->product ?? Product::create([
+                    'seller_id' => auth('seller')->id(),
+                    'name' => $row['product_name'],
+                    'slug' => Str::slug($row['product_name']) . '-' . Str::lower(Str::random(6)),
+                    'brand' => $row['brand'] ?? null,
+                    'model' => $row['product_model'] ?? null,
+                    'description' => $row['description'] ?? null,
+                ]);
 
-        session(['seller_electronic_installment_products' => $products]);
+                $product->update([
+                    'name' => $row['product_name'],
+                    'brand' => $row['brand'] ?? null,
+                    'model' => $row['product_model'] ?? null,
+                    'description' => $row['description'] ?? null,
+                ]);
+
+                $variantPayload = [
+                    'product_id' => $product->id,
+                    'ram_gb' => $row['ram_gb'] ?? null,
+                    'storage_gb' => $row['storage_gb'] ?? null,
+                    'color' => $row['color'] ?? null,
+                    'price' => $row['price'],
+                    'stock' => $row['stock'] ?? 0,
+                ];
+
+                if ($variant) {
+                    $variant->update($variantPayload);
+                } else {
+                    ProductVariant::create($variantPayload + ['sku' => $row['sku']]);
+                }
+            }
+        });
 
         return redirect()
             ->route('seller.electronic-installment.index')
-            ->with('success', 'Product has been updated.');
+            ->with('success', 'Produk berhasil diimport.');
     }
 
-    public function deleteProduct(int $id)
+    private function validateProduct(Request $request, ?Product $product = null): array
     {
-        $products = collect(session('seller_electronic_installment_products', []))
-            ->reject(fn($product) => (int) $product['id'] === $id)
-            ->values()
-            ->toArray();
-
-        session(['seller_electronic_installment_products' => $products]);
-
-        return redirect()
-            ->route('seller.electronic-installment.index')
-            ->with('success', 'Product has been deleted.');
-    }
-
-    private function validateProduct(Request $request): array
-    {
-        return $request->validate([
-            'product_name' => ['required', 'string', 'max:150'],
-            'category' => ['required', 'in:electronic,gadget'],
-            'product_model' => ['nullable', 'string', 'max:100'],
-            'sku' => ['nullable', 'string', 'max:100'],
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
             'brand' => ['nullable', 'string', 'max:100'],
-            'condition' => ['required', 'in:new,used,refurbished'],
-            'warranty' => ['nullable', 'string', 'max:100'],
-            'color' => ['nullable', 'string', 'max:50'],
-            'ram' => ['nullable', 'string', 'max:50'],
-            'storage' => ['nullable', 'string', 'max:50'],
-            'screen_size' => ['nullable', 'string', 'max:50'],
-            'battery' => ['nullable', 'string', 'max:50'],
-            'camera' => ['nullable', 'string', 'max:100'],
-            'operating_system' => ['nullable', 'string', 'max:100'],
-            'network' => ['nullable', 'string', 'max:100'],
-            'included_items' => ['nullable', 'string', 'max:255'],
-            'price' => ['required', 'numeric', 'min:0'],
-            'stock' => ['required', 'integer', 'min:0'],
-            'description' => ['nullable', 'string', 'max:500'],
+            'model' => ['nullable', 'string', 'max:100'],
+            'description' => ['nullable', 'string'],
+            'images' => ['nullable', 'array', 'max:3'],
+            'images.*' => ['image', 'max:2048'],
+            'remove_image_ids' => ['nullable', 'array'],
+            'remove_image_ids.*' => ['integer'],
+
+            'variants' => ['required', 'array', 'min:1'],
+            'variants.*.id' => ['nullable', 'integer'],
+            'variants.*.sku' => ['required', 'string', 'max:100'],
+            'variants.*.ram_gb' => ['nullable', 'integer', 'min:0'],
+            'variants.*.storage_gb' => ['nullable', 'integer', 'min:0'],
+            'variants.*.color' => ['nullable', 'string', 'max:50'],
+            'variants.*.price' => ['required', 'numeric', 'min:0'],
+            'variants.*.stock' => ['nullable', 'integer', 'min:0'],
+            'variants.*.image' => ['nullable', 'image', 'max:2048'],
         ]);
-    }
 
-    private function nextProductId(array $products): int
-    {
-        return ((int) collect($products)->max('id')) + 1;
-    }
+        $ownedVariantIds = $product
+            ? $product->variants->pluck('id')->all()
+            : [];
 
-    private function findProductIndex(array $products, array $importedProduct): ?int
-    {
-        $importedSku = strtolower(trim((string) ($importedProduct['sku'] ?? '')));
-        $importedKey = $this->productIdentityKey($importedProduct);
+        foreach ($request->input('variants', []) as $index => $variant) {
+            $variantId = in_array((int) ($variant['id'] ?? 0), $ownedVariantIds, true)
+                ? (int) $variant['id']
+                : null;
 
-        foreach ($products as $index => $product) {
-            $productSku = strtolower(trim((string) ($product['sku'] ?? '')));
-
-            if ($importedSku !== '' && $productSku !== '' && $importedSku === $productSku) {
-                return $index;
-            }
-
-            if ($importedSku === '' && $importedKey === $this->productIdentityKey($product)) {
-                return $index;
-            }
+            $request->validate([
+                "variants.$index.sku" => [
+                    'required',
+                    'string',
+                    'max:100',
+                    Rule::unique('product_variants', 'sku')->ignore($variantId),
+                ],
+            ]);
         }
 
-        return null;
+        return $validated;
     }
 
-    private function productIdentityKey(array $product): string
+    private function storeProductImages(Request $request, Product $product): void
     {
-        return strtolower(implode('|', [
-            trim((string) ($product['product_name'] ?? '')),
-            trim((string) ($product['brand'] ?? '')),
-            trim((string) ($product['product_model'] ?? '')),
-        ]));
+        $existingCount = $product->images()->count();
+        $newImages = $request->file('images', []);
+
+        if ($existingCount + count($newImages) > 3) {
+            throw ValidationException::withMessages([
+                'images' => 'Gambar produk maksimal 3 file.',
+            ]);
+        }
+
+        foreach ($newImages as $image) {
+            ProductImage::create([
+                'product_id' => $product->id,
+                'image_url' => $image->store('products', 'public'),
+            ]);
+        }
+    }
+
+    private function deleteSelectedProductImages(Request $request, Product $product): void
+    {
+        $imageIds = $request->input('remove_image_ids', []);
+
+        if (empty($imageIds)) {
+            return;
+        }
+
+        $product->images()
+            ->whereIn('id', $imageIds)
+            ->get()
+            ->each(function (ProductImage $image) {
+                Storage::disk('public')->delete($image->image_url);
+                $image->delete();
+            });
+    }
+
+    private function storeVariantImage(Request $request, int|string $index): ?string
+    {
+        $image = $request->file("variants.$index.image");
+
+        if (!$image) {
+            return null;
+        }
+
+        return $image->store('product-variants', 'public');
     }
 }
