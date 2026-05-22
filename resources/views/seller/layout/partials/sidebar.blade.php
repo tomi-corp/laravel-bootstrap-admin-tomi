@@ -57,7 +57,7 @@
                 </li>
 
                 <li>
-                    <a href="#">
+                    <a href="{{ route('seller.electronic-installment.orders.index') }}">
                         <i class="dripicons-cart"></i>
                         <span> Pesanan </span>
                     </a>
