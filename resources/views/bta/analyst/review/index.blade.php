@@ -1393,11 +1393,16 @@
         // Ambil data dari form KTA Multiguna (hanya field yang bisa diedit)
         $('#tab-kta-review').find('input[name], select[name]').each(function () {
             let name = $(this).attr('name');
-            let value = $(this).val();
-            // Abaikan field produk_kredit jika readonly
-            if (name !== 'produk_kredit') {
-                formData.append(name, value);
+
+            if (name === 'produk_kredit') return;
+
+            // khusus radio, hanya ambil yang checked
+            if ($(this).attr('type') === 'radio' && !$(this).is(':checked')) {
+                return;
             }
+
+            let value = $(this).val();
+            formData.append(name, value);
         });
 
         // DEBUG: Log isi FormData sebelum kirim

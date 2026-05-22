@@ -118,6 +118,12 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                     </a>
                 </li>
                 <li>
+                    <a href="{{ route('seller.tagihan-layanan-bta.index') }}">
+                        <i class="dripicons-briefcase"></i>
+                        <span> Tagihan Layanan BTA </span>
+                    </a>
+                </li>
+                <li>
                     <a href="{{ route('admin.cicilan-elektronik.index') }}">
                         <i class="dripicons-briefcase"></i>
                         <span> Cicilan Gedget </span>
