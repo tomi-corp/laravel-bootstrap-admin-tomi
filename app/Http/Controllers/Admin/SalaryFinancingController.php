@@ -14,8 +14,15 @@ class SalaryFinancingController extends Controller
 {
     public function index()
     {
-        $perusahaans = DB::table('salary_financing_companies')
-            ->orderByDesc('id')
+        $admin = auth()->guard('admin')->user();
+        $query = DB::table('list_perusahaans')
+            ->orderByDesc('id');
+
+        if ($admin->role === 'pic' || $admin->type === 'pic') {
+            $query->where('id', $admin->company_id);
+        }
+
+        $perusahaans = $query
             ->get()
             ->map(fn($company) => $this->mapCompany($company));
 
@@ -32,7 +39,9 @@ class SalaryFinancingController extends Controller
             ->filter(fn($provinsi) => $provinsi && $provinsi !== '-')
             ->unique()
             ->values()
-            ->map(fn($provinsi) => ['provinsi' => $provinsi]);
+            ->map(fn($provinsi) => [
+                'provinsi' => $provinsi
+            ]);
 
         return view('admin.salary-financing.index', [
             'perusahaans' => $perusahaans,
