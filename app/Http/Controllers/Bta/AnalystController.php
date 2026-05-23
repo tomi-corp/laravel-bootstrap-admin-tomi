@@ -215,6 +215,7 @@ class AnalystController extends Controller
         $nasabah->biaya_koperasi    = $request->biaya_koperasi;
         $nasabah->simpanan_koperasi = $request->simpanan_koperasi;
         $nasabah->gaji_bersih       = $request->gaji_bersih;
+        $nasabah->tanggal_pengajuan = $request->tanggal_pengajuan;
         $nasabah->mulai_pinjaman = $request->mulai_pinjaman;
         $nasabah->akhir_pinjaman = $request->akhir_pinjaman;
         $nasabah->dbr = $request->dbr;

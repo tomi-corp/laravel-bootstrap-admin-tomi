@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\InvoiceFeePdfController;
 use App\Http\Controllers\Admin\SalaryFinancingController;
 use App\Http\Controllers\Admin\NewDashboardController;
 use App\Http\Controllers\Admin\ElectronicInstallmentController;
+use App\Http\Controllers\Admin\WebsiteInvoiceController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -201,6 +202,12 @@ Route::middleware(['AdminMiddleware'])->group(
                 Route::get('/salary-financing/{id}', [SalaryFinancingController::class, 'show'])->name('admin.salary-financing.show');
 
                 Route::get('/cicilan-elektronik', [ElectronicInstallmentController::class, 'index'])->name('admin.cicilan-elektronik.index');
+
+                Route::get('/website/invoice', [WebsiteInvoiceController::class, 'index'])
+                    ->name('admin.website.invoice.index');
+
+                Route::get('/website/invoice/generate/{bulan}/{tahun}', [WebsiteInvoiceController::class, 'generate'])
+                    ->name('admin.website.invoice.generate');
             }
         );
     }

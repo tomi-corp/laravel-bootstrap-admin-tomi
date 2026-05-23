@@ -117,12 +117,7 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                         <span> Pinjaman Regular </span>
                     </a>
                 </li>
-                <li>
-                    <a href="{{ route('seller.tagihan-layanan-bta.index') }}">
-                        <i class="dripicons-briefcase"></i>
-                        <span> Tagihan Layanan BTA </span>
-                    </a>
-                </li>
+
                 <li>
                     <a href="{{ route('admin.cicilan-elektronik.index') }}">
                         <i class="dripicons-briefcase"></i>
@@ -172,6 +167,23 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
 
                 @endif
 
+                <li class="menu-title">BTA</li>
+
+                <li>
+                    <a href="javascript: void(0);">
+                        <i class="dripicons-web"></i>
+                        <span> Layanan Website </span>
+                        <span class="menu-arrow"></span>
+                    </a>
+
+                    <ul class="nav-second-level" aria-expanded="false">
+                        <li>
+                            <a href="{{ route('admin.website.invoice.index') }}">
+                                Invoice
+                            </a>
+                        </li>
+                    </ul>
+                </li>
             </ul>
         </div>
 

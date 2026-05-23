@@ -144,6 +144,7 @@ class NasabahInsertRequest extends FormRequest
             'simpanan_koperasi' => 'required|numeric|min:0',
             'tujuan_penggunaan' => 'required|in:Konsumsi,Modal Kerja,Investasi',
             'gaji_bersih' => 'required|numeric|min:0',
+            'tanggal_pengajuan' => 'required|date',
             'mulai_pinjaman' => 'required|date',
             'akhir_pinjaman' => 'required|date|after_or_equal:mulai_pinjaman',
             'dbr' => 'required|numeric|min:0', // Harusnya input angka, bukan persen?

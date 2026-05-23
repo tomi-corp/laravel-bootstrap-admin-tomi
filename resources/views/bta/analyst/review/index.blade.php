@@ -695,6 +695,14 @@
                                     <small class="text-danger" id="errGajiBersih"></small>
                                 </div>
                                 <div class="form-group">
+                                    <label for="tanggal_pengajuan">Tanggal Pengajuan: <span
+                                            class="text-danger">*</span></label>
+                                    <input type="date" class="form-control" name="tanggal_pengajuan"
+                                        id="tanggal_pengajuan"
+                                        value="{{ \Carbon\Carbon::parse($nasabah->tanggal_pengajuan)->format('Y-m-d') }}">
+                                    <small class="text-danger" id="errMulaiPinjaman"></small>
+                                </div>
+                                <div class="form-group">
                                     <label for="mulai_pinjaman">Mulai Pinjaman: <span
                                             class="text-danger">*</span></label>
                                     <input type="date" class="form-control" name="mulai_pinjaman" id="mulai_pinjaman"

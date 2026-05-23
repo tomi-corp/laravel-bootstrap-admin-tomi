@@ -512,6 +512,7 @@ class NasabahController extends Controller
             $nasabah->simpanan_koperasi = $request->simpanan_koperasi;
             $nasabah->tujuan_penggunaan = strtoupper($request->tujuan_penggunaan);
             $nasabah->gaji_bersih = $request->gaji_bersih;
+            $nasabah->tanggal_pengajuan = $request->tanggal_pengajuan;
             $nasabah->mulai_pinjaman = $request->mulai_pinjaman;
             $nasabah->akhir_pinjaman = $request->akhir_pinjaman;
             $nasabah->dbr = $request->dbr;
@@ -656,6 +657,7 @@ class NasabahController extends Controller
         $nasabah->simpanan_koperasi = $this->rupiahToNumber($req->simpanan_koperasi);
         $nasabah->tujuan_penggunaan = $req->tujuan_penggunaan;
         $nasabah->gaji_bersih = $this->rupiahToNumber($req->gaji_bersih);
+        $nasabah->tanggal_pengajuan = $req->tanggal_pengajuan;
         $nasabah->mulai_pinjaman = $req->mulai_pinjaman;
         $nasabah->akhir_pinjaman = $req->akhir_pinjaman;
         $nasabah->dbr = $req->dbr;
