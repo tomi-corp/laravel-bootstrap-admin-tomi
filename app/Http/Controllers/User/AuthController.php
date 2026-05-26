@@ -173,7 +173,7 @@ class AuthController extends Controller
             Log::channel('registerlog')->info($th);
             return response()->json([
                 'code' => 400,
-                'message' => "register gagal",
+                'message' => $th,
             ], 400);
         }
     }

@@ -21,7 +21,7 @@ if (! function_exists('sendOTPWhatsapp')) {
         $uri = 'https://api.verihubs.com/v2/whatsapp/otp/send';
         $body = [
             "msisdn" => $nohp,
-            "otp" => $code,
+            "otp" => (string) $code,
             "time_limit" => 60,
             "template_name" => "otp_tomi",
             "lang_code" => "id",
@@ -30,10 +30,10 @@ if (! function_exists('sendOTPWhatsapp')) {
         $res = $client->request('POST', $uri, [
             'body' => json_encode($body),
             'headers' => [
-                'Accept' => 'application/json',
                 'APP-ID' => '4ac45ece-4051-4ff5-a597-bde23bcf17d3',
                 'API-Key' => 'rlelTbhhJE1xub2TeGE7psMYd+Ztxix6',
-                'Content-Type' => 'application/json'
+                'Content-Type' => 'application/json',
+                'Accept' => 'application/json'
             ]
         ])->getBody()->getContents();
 
