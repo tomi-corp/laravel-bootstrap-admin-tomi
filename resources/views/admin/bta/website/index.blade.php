@@ -1,5 +1,7 @@
 @extends('layout.app')
 
+@section('title', 'Layanan Website')
+
 @section('content')
 
 <div class="container-fluid">

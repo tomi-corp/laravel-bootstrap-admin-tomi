@@ -12,6 +12,12 @@ class DashboardController extends Controller
     public function dashboard()
     {
         $totalPengajuan = nasabah::count();
+        // revisi 
+        // analyst
+        // disetujui analyst
+        // credit administrator
+        // di tolak
+        // selesai
         $totalPending = nasabah::where('status', 'pending')->count();
         $totalRevisi = nasabah::where('status', 'revisi')->count();
         $totalApprove = nasabah::where('status', 'approve')->count();

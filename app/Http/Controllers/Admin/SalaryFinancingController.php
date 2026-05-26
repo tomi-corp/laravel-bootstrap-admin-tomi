@@ -68,7 +68,7 @@ class SalaryFinancingController extends Controller
 
     public function show($id)
     {
-        $company = DB::table('salary_financing_companies')
+        $company = DB::table('list_perusahaans')
             ->where('id', $id)
             ->first();
 
