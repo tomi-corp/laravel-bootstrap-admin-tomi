@@ -18,7 +18,7 @@ if (! function_exists('sendOTPWhatsapp')) {
     function sendOTPWhatsapp($nohp, $code)
     {
         $client = new Client(['verify' => false]);
-        $uri = 'https://api.verihubs.com/v1/whatsapp/otp/send';
+        $uri = 'https://api.verihubs.com/v2/whatsapp/otp/send';
         $body = [
             "msisdn" => $nohp,
             "otp" => $code,
