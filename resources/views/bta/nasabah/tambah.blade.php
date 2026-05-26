@@ -53,7 +53,7 @@
                                     <div class="form-group">
                                         <label>Nama Lengkap <span class="text-danger">*</span></label>
                                         <input class="form-control" id="namaLengkap" name="nama_lengkap"
-                                            placeholder="Nama sesuai KTP" />
+                                            value="{{ old('nama_lengkap') }}" placeholder="Nama sesuai KTP" />
                                         <small class="text-danger" id="errNamaLengkap"></small>
                                     </div>
                                 </div>
@@ -62,7 +62,7 @@
                                     <div class="form-group">
                                         <label>Nama Singkat</label>
                                         <input class="form-control" id="namaSingkat" name="nama_singkat"
-                                            placeholder="Nama panggilan" />
+                                            value="{{ old('nama_singkat') }}" placeholder="Nama panggilan" />
                                         <small class="text-danger" id="errNamaSingkat"></small>
                                     </div>
                                 </div>
@@ -70,7 +70,7 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>No. KTP <span class="text-danger">*</span></label>
-                                        <input class="form-control" id="noKtp" name="no_ktp"
+                                        <input class="form-control" id="noKtp" name="no_ktp" value="{{ old('no_ktp') }}"
                                             placeholder="Contoh: 3275041234567890" maxlength="16" />
                                         <small class="text-danger" id="errNoKtp"></small>
                                     </div>
@@ -99,7 +99,8 @@
                                     <div class="form-group">
                                         <label>No. NPWP <span class="text-danger">*</span></label>
                                         <input class="form-control" id="noNpwp" name="no_npwp"
-                                            placeholder="Contoh: 012345678901234" maxlength="16" />
+                                            value="{{ old('no_npwp') }}" placeholder="Contoh: 012345678901234"
+                                            maxlength="16" />
                                         <small class="text-danger" id="errNoNpwp"></small>
                                     </div>
                                 </div>
@@ -128,8 +129,10 @@
                                         <label>Jenis Kelamin <span class="text-danger">*</span></label>
                                         <select class="form-control" id="jenisKelamin" name="jenis_kelamin">
                                             <option value="">Pilih</option>
-                                            <option value="Laki-laki">Laki-laki</option>
-                                            <option value="Perempuan">Perempuan</option>
+                                            <option value="Laki-laki" @selected(old('jenis_kelamin')=='Laki-laki' )>
+                                                Laki-laki</option>
+                                            <option value="Perempuan" @selected(old('jenis_kelamin')=='Perempuan' )>
+                                                Perempuan</option>
                                         </select>
                                         <small class="text-danger" id="errJenisKelamin"></small>
                                     </div>
@@ -139,7 +142,7 @@
                                     <div class="form-group">
                                         <label>Tempat Lahir <span class="text-danger">*</span></label>
                                         <input class="form-control" id="tempatLahir" name="tempat_lahir"
-                                            placeholder="Contoh: Jakarta" />
+                                            value="{{ old('tempat_lahir') }}" placeholder="Contoh: Jakarta" />
                                         <small class="text-danger" id="errTempatLahir"></small>
                                     </div>
                                 </div>
@@ -147,8 +150,8 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Tanggal Lahir <span class="text-danger">*</span></label>
-                                        <input class="form-control" id="tanggalLahir" name="tanggal_lahir"
-                                            type="date" />
+                                        <input class="form-control" id="tanggalLahir" name="tanggal_lahir" type="date"
+                                            value="{{ old('tanggal_lahir') }}" />
                                         <small class="text-danger" id="errTanggalLahir"></small>
                                     </div>
                                 </div>
@@ -157,7 +160,7 @@
                                     <div class="form-group">
                                         <label>Nama Gadis Ibu Kandung <span class="text-danger">*</span></label>
                                         <input class="form-control" id="namaIbu" name="nama_ibu"
-                                            placeholder="Nama ibu kandung" />
+                                            value="{{ old('nama_ibu') }}" placeholder="Nama ibu kandung" />
                                         <small class="text-danger" id="errNamaIbu"></small>
                                     </div>
                                 </div>
@@ -185,7 +188,7 @@
                                     <div class="form-group">
                                         <label>No. Telepon <span class="text-danger">*</span></label>
                                         <input class="form-control" id="noTelp" name="no_telp"
-                                            placeholder="081234567890" />
+                                            value="{{ old('no_telp') }}" placeholder="081234567890" />
                                         <small class="text-danger" id="errNoTelp"></small>
                                     </div>
                                 </div>
@@ -203,11 +206,12 @@
                                         <label>Agama <span class="text-danger">*</span></label>
                                         <select class="form-control" id="agama" name="agama">
                                             <option value="">Pilih</option>
-                                            <option value="Islam">Islam</option>
-                                            <option value="Katolik">Katolik</option>
-                                            <option value="Kristen">Kristen</option>
-                                            <option value="Buddha">Buddha</option>
-                                            <option value="Konghucu">Konghucu</option>
+                                            <option value="Islam" @selected(old('agama')=='Islam' )>Islam</option>
+                                            <option value="Katolik" @selected(old('agama')=='Katolik' )>Katolik</option>
+                                            <option value="Kristen" @selected(old('agama')=='Kristen' )>Kristen</option>
+                                            <option value="Buddha" @selected(old('agama')=='Buddha' )>Buddha</option>
+                                            <option value="Konghucu" @selected(old('agama')=='Konghucu' )>Konghucu
+                                            </option>
                                         </select>
                                         <small class="text-danger" id="errAgama"></small>
                                     </div>
@@ -218,15 +222,15 @@
                                         <label>Pendidikan Terakhir <span class="text-danger">*</span></label>
                                         <select class="form-control" id="pendidikan" name="pendidikan">
                                             <option value="">Pilih</option>
-                                            <option value="SD">SD</option>
-                                            <option value="SMP">SMP</option>
-                                            <option value="SMA">SMA</option>
-                                            <option value="D1">D1</option>
-                                            <option value="D3">D3</option>
-                                            <option value="D4">D4</option>
-                                            <option value="S1">S1</option>
-                                            <option value="S2">S2</option>
-                                            <option value="S3">S3</option>
+                                            <option value="SD" @selected(old('pendidikan')=='SD' )>SD</option>
+                                            <option value="SMP" @selected(old('pendidikan')=='SMP' )>SMP</option>
+                                            <option value="SMA" @selected(old('pendidikan')=='SMA' )>SMA</option>
+                                            <option value="D1" @selected(old('pendidikan')=='D1' )>D1</option>
+                                            <option value="D3" @selected(old('pendidikan')=='D3' )>D3</option>
+                                            <option value="D4" @selected(old('pendidikan')=='D4' )>D4</option>
+                                            <option value="S1" @selected(old('pendidikan')=='S1' )>S1</option>
+                                            <option value="S2" @selected(old('pendidikan')=='S2' )>S2</option>
+                                            <option value="S3" @selected(old('pendidikan')=='S3' )>S3</option>
                                         </select>
                                         <small class="text-danger" id="errPendidikan"></small>
                                     </div>
@@ -237,10 +241,14 @@
                                         <label>Status Perkawinan <span class="text-danger">*</span></label>
                                         <select class="form-control" id="statusPerkawinan" name="status_perkawinan">
                                             <option value="">Pilih</option>
-                                            <option value="Kawin">Kawin</option>
-                                            <option value="Tidak Kawin">Tidak Kawin</option>
-                                            <option value="Cerai Hidup">Cerai Hidup</option>
-                                            <option value="Cerai Mati">Cerai Mati</option>
+                                            <option value="Kawin" @selected(old('status_perkawinan')=='Kawin' )>Kawin
+                                            </option>
+                                            <option value="Tidak Kawin"
+                                                @selected(old('status_perkawinan')=='Tidak Kawin' )>Tidak Kawin</option>
+                                            <option value="Cerai Hidup"
+                                                @selected(old('status_perkawinan')=='Cerai Hidup' )>Cerai Hidup</option>
+                                            <option value="Cerai Mati" @selected(old('status_perkawinan')=='Cerai Mati'
+                                                )>Cerai Mati</option>
                                         </select>
                                         <small class="text-danger" id="errStatusPerkawinan"></small>
                                     </div>
@@ -251,7 +259,7 @@
                                     <div class="form-group">
                                         <label>Nama Pasangan</label>
                                         <input class="form-control" id="namaPasangan" name="nama_pasangan"
-                                            placeholder="Nama pasangan" />
+                                            value="{{ old('nama_pasangan') }}" placeholder="Nama pasangan" />
                                         <small class="text-danger" id="errNamaPasangan"></small>
                                     </div>
                                 </div>
@@ -260,7 +268,7 @@
                                     <div class="form-group">
                                         <label>Tgl Lahir Pasangan</label>
                                         <input class="form-control" id="tglLahirPasangan" name="tgl_lahir_pasangan"
-                                            type="date" />
+                                            type="date" value="{{ old('tgl_lahir_pasangan') }}" />
                                         <small class="text-danger" id="errTglLahirPasangan"></small>
                                     </div>
                                 </div>
@@ -270,7 +278,7 @@
                                     <div class="form-group">
                                         <label>Alamat Rumah <span class="text-danger">*</span></label>
                                         <textarea class="form-control" id="alamatRumah" name="alamat_rumah" rows="3"
-                                            placeholder="Alamat lengkap"></textarea>
+                                            placeholder="Alamat lengkap">{{ old('alamat_rumah') }}</textarea>
                                         <small class="text-danger" id="errAlamatRumah"></small>
                                     </div>
                                 </div>
@@ -281,7 +289,8 @@
                                         <select class="form-control select2" id="provinsiSelect" name="provinsi">
                                             <option value="">Pilih</option>
                                             @foreach ($provinsis as $provinsi)
-                                            <option value="{{ $provinsi->id }}">{{ $provinsi->provinsi }}
+                                            <option value="{{ $provinsi->id }}" @selected(old('provinsi')==$provinsi->
+                                                id)>{{ $provinsi->provinsi }}
                                             </option>
                                             @endforeach
                                         </select>
@@ -322,8 +331,8 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Kode Pos <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" readonly value="" id="kodePos"
-                                            placeholder="00000" name="kodePos">
+                                        <input type="text" class="form-control" readonly value="{{ old('kodePos') }}"
+                                            id="kodePos" placeholder="00000" name="kodePos">
                                         <small class="text-danger" id="errKodePos"></small>
                                     </div>
                                 </div>
@@ -331,8 +340,8 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Kode DATI <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" readonly value="" id="kodeDati"
-                                            name="kode_dati" placeholder="00000">
+                                        <input type="text" class="form-control" readonly value="{{ old('kode_dati') }}"
+                                            id="kodeDati" name="kode_dati" placeholder="00000">
                                         <small class="text-danger" id="errKodeDati"></small>
                                     </div>
                                 </div>
@@ -349,9 +358,14 @@
                                         <label>Status Pegawai <span class="text-danger">*</span></label>
                                         <select class="form-control" id="statusPegawai" name="status_pegawai">
                                             <option value="">Pilih</option>
-                                            <option value="Karyawan Tetap">Karyawan Tetap</option>
-                                            <option value="Karyawan Tidak Tetap">Karyawan Tidak Tetap</option>
-                                            <option value="Pensiun">Pensiun</option>
+                                            <option value="Karyawan Tetap"
+                                                @selected(old('status_pegawai')=='Karyawan Tetap' )>Karyawan Tetap
+                                            </option>
+                                            <option value="Karyawan Tidak Tetap"
+                                                @selected(old('status_pegawai')=='Karyawan Tidak Tetap' )>Karyawan Tidak
+                                                Tetap</option>
+                                            <option value="Pensiun" @selected(old('status_pegawai')=='Pensiun' )>Pensiun
+                                            </option>
                                         </select>
                                         <small class="text-danger" id="errStatusPegawai"></small>
                                     </div>
@@ -361,7 +375,7 @@
                                     <div class="form-group">
                                         <label>Nama Perusahaan <span class="text-danger">*</span></label>
                                         <input class="form-control" id="namaPerusahaan" name="nama_perusahaan"
-                                            placeholder="Nama perusahaan" />
+                                            value="{{ old('nama_perusahaan') }}" placeholder="Nama perusahaan" />
                                         <small class="text-danger" id="errNamaPerusahaan"></small>
                                     </div>
                                 </div>
@@ -370,6 +384,7 @@
                                     <div class="form-group">
                                         <label>Bidang Usaha <span class="text-danger">*</span></label>
                                         <input class="form-control" id="bidangUsaha" name="bidang_usaha"
+                                            value="{{ old('bidang_usaha') }}"
                                             placeholder="Contoh: Retail, Konstruksi" />
                                         <small class="text-danger" id="errBidangUsaha"></small>
                                     </div>
@@ -379,7 +394,7 @@
                                     <div class="form-group">
                                         <label>Alamat Tempat Kerja <span class="text-danger">*</span></label>
                                         <textarea class="form-control" id="alamatKerja" name="alamat_kerja" rows="3"
-                                            placeholder="Alamat kantor"></textarea>
+                                            placeholder="Alamat kantor">{{ old('alamat_kerja') }}</textarea>
                                         <small class="text-danger" id="errAlamatKerja"></small>
                                     </div>
                                 </div>
@@ -387,7 +402,8 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>NIP (No Induk Pegawai) / KARIP (Kartu Identitas Pensiun)</label>
-                                        <input class="form-control" id="nip" name="nip" placeholder="Opsional" />
+                                        <input class="form-control" id="nip" name="nip" value="{{ old('nip') }}"
+                                            placeholder="Opsional" />
                                         <small class="text-danger" id="errNip"></small>
                                     </div>
                                 </div>
@@ -396,7 +412,7 @@
                                     <div class="form-group">
                                         <label>Tgl Akhir Kontrak Kerja / Tanggal Pensiun</label>
                                         <input class="form-control" id="tglAkhirKontrak" name="tgl_akhir_kontrak"
-                                            type="date" />
+                                            type="date" value="{{ old('tgl_akhir_kontrak') }}" />
                                         <small class="text-danger" id="errTglAkhirKontrak"></small>
                                     </div>
                                 </div>
@@ -473,7 +489,8 @@
                                         <select class="form-control select2" id="bankSelect" name="bankSelect">
                                             <option value="">Pilih</option>
                                             @foreach ($banks as $bank)
-                                            <option value="{{ $bank->id }}">{{ $bank->code_bank }} -
+                                            <option value="{{ $bank->id }}" @selected(old('bankSelect')==$bank->id)>{{
+                                                $bank->code_bank }} -
                                                 {{ $bank->description }}</option>
                                             @endforeach
                                         </select>
@@ -485,6 +502,7 @@
                                     <div class="form-group">
                                         <label>Nama Pemilik Rekening <span class="text-danger">*</span></label>
                                         <input class="form-control" id="namaPemilikRek" name="nama_pemilik_rek"
+                                            value="{{ old('nama_pemilik_rek') }}"
                                             placeholder="Harus sama dengan nama lengkap" />
                                         <small class="text-danger" id="errNamaPemilikRek"></small>
                                     </div>
@@ -493,7 +511,8 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>No Rekening Bank <span class="text-danger">*</span></label>
-                                        <input class="form-control" id="noRek" name="no_rek" placeholder="1234567890" />
+                                        <input class="form-control" id="noRek" name="no_rek" value="{{ old('no_rek') }}"
+                                            placeholder="1234567890" />
                                         <small class="text-danger" id="errNoRek"></small>
                                     </div>
                                 </div>
@@ -550,7 +569,7 @@
                                         <label for="plafond">Jumlah Pengajuan: <span
                                                 class="text-danger">*</span></label>
                                         <input type="text" class="form-control rupiah-format" name="plafond"
-                                            id="plafond" value="" placeholder="Jumlah Pengajuan">
+                                            id="plafond" value="{{ old('plafond') }}" placeholder="Jumlah Pengajuan">
                                         <small class="text-danger" id="errPlafond"></small>
                                     </div>
 
@@ -558,12 +577,14 @@
                                         <label for="tipe_bunga">Tipe Bunga: <span class="text-danger">*</span></label>
                                         <div class="custom-control custom-radio">
                                             <input type="radio" id="customRadio1" name="tipe_bunga"
-                                                class="custom-control-input" value="flat" checked>
+                                                class="custom-control-input" value="flat"
+                                                @checked(old('tipe_bunga', 'flat' )=='flat' )>
                                             <label class="custom-control-label" for="customRadio1">Flat</label>
                                         </div>
                                         <div class="custom-control custom-radio">
                                             <input type="radio" id="customRadio2" name="tipe_bunga"
-                                                class="custom-control-input" value="efektif">
+                                                class="custom-control-input" value="efektif"
+                                                @checked(old('tipe_bunga')=='efektif' )>
                                             <label class="custom-control-label" for="customRadio2">Efektif
                                                 (Anuitas)</label>
                                         </div>
@@ -575,7 +596,8 @@
                                             Jangka Waktu (bulan): <span class="text-danger">*</span>
                                         </label>
                                         <input type="number" class="form-control" name="jangka_waktu" id="jangka_waktu"
-                                            value="" min="1" max="180" placeholder="Jangka Waktu"
+                                            value="{{ old('jangka_waktu') }}" min="1" max="180"
+                                            placeholder="Jangka Waktu"
                                             oninput="if(this.value > 180) this.value = 180; if(this.value < 1) this.value = 1;">
                                         <small class="text-danger" id="errJangkaWaktu"></small>
                                     </div>
@@ -586,7 +608,8 @@
                                         <div class="input-group">
                                             <input type="number" step="0.01" class="form-control" id="suku_bunga"
                                                 placeholder="Masukkan angka" aria-label="suku_bunga"
-                                                aria-describedby="persen-addon" name="suku_bunga" value="">
+                                                aria-describedby="persen-addon" name="suku_bunga"
+                                                value="{{ old('suku_bunga') }}">
                                             <span class="input-group-text" id="persen-addon">%</span>
                                         </div>
                                         <small class="text-danger" id="errSukuBunga"></small>
@@ -596,33 +619,34 @@
                                         <label for="nilai_angsuran">Nilai Angsuran (PMT): <span
                                                 class="text-danger">*</span></label>
                                         <input type="text" readonly class="form-control" name="nilai_angsuran"
-                                            id="nilai_angsuran" value="">
+                                            id="nilai_angsuran" value="{{ old('nilai_angsuran') }}">
                                     </div>
                                     <div class="form-group">
                                         <label for="biaya_bank">Biaya Bank: <span class="text-danger">*</span></label>
                                         <input type="text" step="0.01" class="form-control rupiah-format"
-                                            name="biaya_bank" id="biaya_bank" value="" placeholder="Masukan angka">
+                                            name="biaya_bank" id="biaya_bank" value="{{ old('biaya_bank') }}"
+                                            placeholder="Masukan angka">
                                     </div>
                                     <div class="form-group">
                                         <label for="biaya_asuransi">Biaya Asuransi: <span
                                                 class="text-danger">*</span></label>
                                         <input type="text" step="0.01" class="form-control rupiah-format"
-                                            name="biaya_asuransi" id="biaya_asuransi" value=""
-                                            placeholder="Masukan angka">
+                                            name="biaya_asuransi" id="biaya_asuransi"
+                                            value="{{ old('biaya_asuransi') }}" placeholder="Masukan angka">
                                     </div>
                                     <div class="form-group">
                                         <label for="biaya_koperasi">Biaya Koperasi:
                                             <span class="text-danger">*</span></label>
                                         <input type="text" step="0.01" class="form-control rupiah-format"
-                                            name="biaya_koperasi" id="biaya_koperasi" value=""
-                                            placeholder="Masukan angka">
+                                            name="biaya_koperasi" id="biaya_koperasi"
+                                            value="{{ old('biaya_koperasi') }}" placeholder="Masukan angka">
                                     </div>
                                     <div class="form-group">
                                         <label for="simpanan_koperasi">Simpanan Koperasi: <span
                                                 class="text-danger">*</span></label>
                                         <input type="text" step="0.01" class="form-control rupiah-format"
-                                            name="simpanan_koperasi" id="simpanan_koperasi" value=""
-                                            placeholder="Masukan angka">
+                                            name="simpanan_koperasi" id="simpanan_koperasi"
+                                            value="{{ old('simpanan_koperasi') }}" placeholder="Masukan angka">
                                     </div>
                                 </div>
                                 <div class="col-md-6">
@@ -630,12 +654,13 @@
                                         <label for="tujuan_penggunaan">Tujuan Penggunaan: <span
                                                 class="text-danger">*</span></label>
                                         <select class="form-control" name="tujuan_penggunaan" id="tujuan_penggunaan">
-                                            <option value="" disabled selected>-- Pilih Tujuan --</option>
+                                            <option value="" disabled @selected(!old('tujuan_penggunaan'))>-- Pilih
+                                                Tujuan --</option>
                                             @php
                                             $options = ['Konsumsi', 'Modal Kerja', 'Investasi'];
                                             @endphp
                                             @foreach ($options as $option)
-                                            <option value="{{ $option }}">
+                                            <option value="{{ $option }}" @selected(old('tujuan_penggunaan')==$option)>
                                                 {{ $option }}
                                             </option>
                                             @endforeach
@@ -645,34 +670,35 @@
                                     <div class="form-group">
                                         <label for="gaji_bersih">Gaji Bersih: <span class="text-danger">*</span></label>
                                         <input type="text" step="0.01" class="form-control rupiah-format"
-                                            name="gaji_bersih" id="gaji_bersih" value="" placeholder="Masukan angka">
+                                            name="gaji_bersih" id="gaji_bersih" value="{{ old('gaji_bersih') }}"
+                                            placeholder="Masukan angka">
                                         <small class="text-danger" id="errGajiBersih"></small>
                                     </div>
                                     <div class="form-group">
                                         <label for="tanggal_pengajuan">Tanggal Pengajuan: <span
                                                 class="text-danger">*</span></label>
                                         <input type="date" class="form-control" name="tanggal_pengajuan"
-                                            id="tanggal_pengajuan" value="">
+                                            id="tanggal_pengajuan" value="{{ old('tanggal_pengajuan') }}">
                                         <small class="text-danger" id="errMulaiPinjaman"></small>
                                     </div>
                                     <div class="form-group">
                                         <label for="mulai_pinjaman">Mulai Pinjaman: <span
                                                 class="text-danger">*</span></label>
                                         <input type="date" class="form-control" name="mulai_pinjaman"
-                                            id="mulai_pinjaman" value="">
+                                            id="mulai_pinjaman" value="{{ old('mulai_pinjaman') }}">
                                         <small class="text-danger" id="errMulaiPinjaman"></small>
                                     </div>
                                     <div class="form-group">
                                         <label for="akhir_pinjaman">Akhir Pinjaman: <span
                                                 class="text-danger">*</span></label>
                                         <input type="date" class="form-control" readonly name="akhir_pinjaman"
-                                            id="akhir_pinjaman" value="">
+                                            id="akhir_pinjaman" value="{{ old('akhir_pinjaman') }}">
                                     </div>
                                     <div class="form-group">
                                         <label for="dbr">DBR (Debt Burden Ratio): <span
                                                 class="text-danger">*</span></label>
                                         <input type="number" step="0.01" class="form-control" name="dbr" id="dbr"
-                                            value="">
+                                            value="{{ old('dbr') }}">
                                     </div>
                                 </div>
                             </div>

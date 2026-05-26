@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Barryvdh\DomPDF\Facade\Pdf;
-use App\Models\Nasabah;
+use App\Models\nasabah;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
@@ -13,7 +13,7 @@ class WebsiteInvoiceController extends Controller
     // Halaman list invoice
     public function index()
     {
-        $invoices = Nasabah::select(
+        $invoices = nasabah::select(
             DB::raw('MONTH(mulai_pinjaman) as bulan'),
             DB::raw('YEAR(mulai_pinjaman) as tahun'),
             DB::raw('COUNT(*) as total')
@@ -47,7 +47,7 @@ class WebsiteInvoiceController extends Controller
     // Generate PDF
     public function generate($bulan, $tahun)
     {
-        $items = Nasabah::where('position', 'credam')
+        $items = nasabah::where('position', 'credam')
             ->where('status', 'approve')
             ->whereMonth('mulai_pinjaman', $bulan)
             ->whereYear('mulai_pinjaman', $tahun)
