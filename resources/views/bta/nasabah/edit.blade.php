@@ -1198,8 +1198,10 @@
                                                     class="text-danger">*</span></label>
                                             <input type="date" class="form-control" name="tanggal_pengajuan"
                                                 id="tanggal_pengajuan"
-                                                value="{{ old('tanggal_pengajuan', $nasabah->tanggal_pengajuan) }}">
-                                            <small class="text-danger" id="errMulaiPinjaman"></small>
+                                                value="{{ old('tanggal_pengajuan', $nasabah->tanggal_pengajuan) }}"
+                                                min="{{ now()->subWeek()->toDateString() }}"
+                                                max="{{ now()->addWeek()->toDateString() }}">
+                                            <small class="text-danger" id="errTanggalPengajuan"></small>
                                         </div>
                                         <div class="form-group">
                                             <label for="mulai_pinjaman">Mulai Pinjaman: <span
@@ -2492,6 +2494,9 @@
                         markError('gaji_bersih', 'Gaji bersih wajib diisi');
                         isValid = false;
                     }
+                    if (!isTanggalPengajuanValid()) {
+                        isValid = false;
+                    }
                     if (!$('#mulai_pinjaman').val()) {
                         markError('mulai_pinjaman', 'Tanggal mulai wajib diisi');
                         isValid = false;
@@ -2588,6 +2593,27 @@
             $(`#${fieldId}`).addClass('is-invalid');
             const fieldName = fieldId.charAt(0).toUpperCase() + fieldId.slice(1);
             $(`#err${fieldName}`).text(message);
+        }
+
+        function isTanggalPengajuanValid() {
+            const value = $('#tanggal_pengajuan').val();
+            const minDate = $('#tanggal_pengajuan').attr('min');
+            const maxDate = $('#tanggal_pengajuan').attr('max');
+
+            if (!value) {
+                showError('tanggal_pengajuan', 'Tanggal pengajuan wajib diisi');
+                $('#errTanggalPengajuan').text('Tanggal pengajuan wajib diisi');
+                return false;
+            }
+
+            if (value < minDate || value > maxDate) {
+                const message = 'Tanggal pengajuan hanya boleh dalam rentang 1 minggu dari tanggal hari ini';
+                showError('tanggal_pengajuan', message);
+                $('#errTanggalPengajuan').text(message);
+                return false;
+            }
+
+            return true;
         }
 
         function showError(fieldId, message) {

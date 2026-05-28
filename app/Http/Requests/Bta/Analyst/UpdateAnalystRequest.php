@@ -77,6 +77,7 @@ class UpdateAnalystRequest extends FormRequest
             'simpanan_koperasi'      => 'required|numeric',
 
             // Tanggal
+            'tanggal_pengajuan'       => 'required|date|after_or_equal:' . now()->subWeek()->toDateString() . '|before_or_equal:' . now()->addWeek()->toDateString(),
             'mulai_pinjaman'         => 'required|date',
             'akhir_pinjaman'         => 'required|date|after:mulai_pinjaman',
 
@@ -138,6 +139,8 @@ class UpdateAnalystRequest extends FormRequest
             'in'       => 'Pilihan :attribute tidak valid.',
             'date'     => ':attribute harus berupa tanggal yang valid.',
             'after'    => 'Tanggal akhir pinjaman harus setelah tanggal mulai.',
+            'tanggal_pengajuan.after_or_equal' => 'Tanggal pengajuan tidak boleh kurang dari 1 minggu dari tanggal hari ini.',
+            'tanggal_pengajuan.before_or_equal' => 'Tanggal pengajuan tidak boleh lebih dari 1 minggu dari tanggal hari ini.',
         ];
     }
 }

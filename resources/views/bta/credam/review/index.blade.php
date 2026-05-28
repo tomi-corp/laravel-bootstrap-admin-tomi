@@ -693,6 +693,16 @@
                                     <small class="text-danger" id="errGajiBersih"></small>
                                 </div>
                                 <div class="form-group">
+                                    <label for="tanggal_pengajuan">Tanggal Pengajuan: <span
+                                            class="text-danger">*</span></label>
+                                    <input type="date" readonly class="form-control" name="tanggal_pengajuan"
+                                        id="tanggal_pengajuan"
+                                        value="{{ $nasabah->tanggal_pengajuan ? \Carbon\Carbon::parse($nasabah->tanggal_pengajuan)->format('Y-m-d') : '' }}"
+                                        min="{{ now()->subWeek()->toDateString() }}"
+                                        max="{{ now()->addWeek()->toDateString() }}">
+                                    <small class="text-danger" id="errTanggalPengajuan"></small>
+                                </div>
+                                <div class="form-group">
                                     <label for="mulai_pinjaman">Mulai Pinjaman: <span
                                             class="text-danger">*</span></label>
                                     <input type="date" readonly class="form-control" name="mulai_pinjaman"

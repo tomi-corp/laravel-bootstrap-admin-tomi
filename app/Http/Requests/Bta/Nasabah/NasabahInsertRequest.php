@@ -144,7 +144,7 @@ class NasabahInsertRequest extends FormRequest
             'simpanan_koperasi' => 'required|numeric|min:0',
             'tujuan_penggunaan' => 'required|in:Konsumsi,Modal Kerja,Investasi',
             'gaji_bersih' => 'required|numeric|min:0',
-            'tanggal_pengajuan' => 'required|date',
+            'tanggal_pengajuan' => 'required|date|after_or_equal:' . now()->subWeek()->toDateString() . '|before_or_equal:' . now()->addWeek()->toDateString(),
             'mulai_pinjaman' => 'required|date',
             'akhir_pinjaman' => 'required|date|after_or_equal:mulai_pinjaman',
             'dbr' => 'required|numeric|min:0', // Harusnya input angka, bukan persen?
@@ -199,6 +199,8 @@ class NasabahInsertRequest extends FormRequest
             'max.file' => 'Ukuran file :attribute maksimal 5MB.',
             'unique' => ':attribute ini sudah terdaftar.',
             'after_or_equal' => 'Tanggal akhir pinjaman harus sama atau setelah tanggal mulai pinjaman.',
+            'tanggal_pengajuan.after_or_equal' => 'Tanggal pengajuan tidak boleh kurang dari 1 minggu dari tanggal hari ini.',
+            'tanggal_pengajuan.before_or_equal' => 'Tanggal pengajuan tidak boleh lebih dari 1 minggu dari tanggal hari ini.',
             'numeric' => ':attribute harus berupa angka.',
 
             'upload_video_interview.required' => 'Video Interview wajib diupload untuk nasabah Pensiun',

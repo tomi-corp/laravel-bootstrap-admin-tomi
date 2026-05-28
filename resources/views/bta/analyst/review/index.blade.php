@@ -699,8 +699,10 @@
                                             class="text-danger">*</span></label>
                                     <input type="date" class="form-control" name="tanggal_pengajuan"
                                         id="tanggal_pengajuan"
-                                        value="{{ \Carbon\Carbon::parse($nasabah->tanggal_pengajuan)->format('Y-m-d') }}">
-                                    <small class="text-danger" id="errMulaiPinjaman"></small>
+                                        value="{{ $nasabah->tanggal_pengajuan ? \Carbon\Carbon::parse($nasabah->tanggal_pengajuan)->format('Y-m-d') : '' }}"
+                                        min="{{ now()->subWeek()->toDateString() }}"
+                                        max="{{ now()->addWeek()->toDateString() }}">
+                                    <small class="text-danger" id="errTanggalPengajuan"></small>
                                 </div>
                                 <div class="form-group">
                                     <label for="mulai_pinjaman">Mulai Pinjaman: <span

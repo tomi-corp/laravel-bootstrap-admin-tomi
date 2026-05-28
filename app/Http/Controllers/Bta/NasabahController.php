@@ -21,6 +21,7 @@ use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Database\QueryException;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 
 class NasabahController extends Controller
 {
@@ -584,6 +585,22 @@ class NasabahController extends Controller
 
     public function nasabahUpdate(Request $req)
     {
+        $validator = Validator::make($req->all(), [
+            'tanggal_pengajuan' => 'required|date|after_or_equal:' . now()->subWeek()->toDateString() . '|before_or_equal:' . now()->addWeek()->toDateString(),
+        ], [
+            'tanggal_pengajuan.required' => 'Tanggal pengajuan wajib diisi.',
+            'tanggal_pengajuan.date' => 'Tanggal pengajuan harus berupa tanggal yang valid.',
+            'tanggal_pengajuan.after_or_equal' => 'Tanggal pengajuan tidak boleh kurang dari 1 minggu dari tanggal hari ini.',
+            'tanggal_pengajuan.before_or_equal' => 'Tanggal pengajuan tidak boleh lebih dari 1 minggu dari tanggal hari ini.',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validasi gagal',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
         $nasabah = Nasabah::where('id', $req->id)
             ->where('position', 'analyst')
             ->where('status', 'revisi')
