@@ -683,7 +683,7 @@
                                             max="{{ now()->addWeek()->toDateString() }}">
                                         <small class="text-danger" id="errTanggalPengajuan"></small>
                                     </div>
-                                    <div class="form-group">
+                                    {{-- <div class="form-group">
                                         <label for="mulai_pinjaman">Mulai Pinjaman: <span
                                                 class="text-danger">*</span></label>
                                         <input type="date" class="form-control" name="mulai_pinjaman"
@@ -695,7 +695,7 @@
                                                 class="text-danger">*</span></label>
                                         <input type="date" class="form-control" readonly name="akhir_pinjaman"
                                             id="akhir_pinjaman" value="{{ old('akhir_pinjaman') }}">
-                                    </div>
+                                    </div> --}}
                                     <div class="form-group">
                                         <label for="dbr">DBR (Debt Burden Ratio): <span
                                                 class="text-danger">*</span></label>
@@ -1640,10 +1640,10 @@
                         markError('gaji_bersih', 'Gaji bersih wajib diisi');
                         isValid = false;
                     }
-                    if (!$('#mulai_pinjaman').val()) {
-                        markError('mulai_pinjaman', 'Tanggal mulai pinjaman wajib diisi');
-                        isValid = false;
-                    }
+                    // if (!$('#mulai_pinjaman').val()) {
+                    //     markError('mulai_pinjaman', 'Tanggal mulai pinjaman wajib diisi');
+                    //     isValid = false;
+                    // }
                     break;
 
                 case 5: // Dokumen
@@ -1881,10 +1881,10 @@
                     if (!isTanggalPengajuanValid()) {
                         isValid = false;
                     }
-                    if (!$('#mulai_pinjaman').val()) {
-                        showError('mulai_pinjaman', 'Tanggal mulai pinjaman wajib diisi');
-                        isValid = false;
-                    }
+                    // if (!$('#mulai_pinjaman').val()) {
+                    //     showError('mulai_pinjaman', 'Tanggal mulai pinjaman wajib diisi');
+                    //     isValid = false;
+                    // }
                     break;
 
                 case 5: // Dokumen

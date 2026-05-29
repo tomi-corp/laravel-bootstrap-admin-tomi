@@ -64,9 +64,11 @@ class UpdateAnalystRequest extends FormRequest
             // Data Pinjaman
             'plafond'                => 'required|numeric',
             'tipe_bunga'             => 'required|in:flat,efektif',
-            'jangka_waktu'           => 'required|integer|min:1',
+            // 'jangka_waktu'           => 'required|integer|min:1',
+            'jangka_waktu'           => 'nullable|integer|min:1',
             'suku_bunga'             => 'required|numeric',
-            'nilai_angsuran'         => 'required|numeric',
+            // 'nilai_angsuran'         => 'required|numeric',
+            'nilai_angsuran'         => 'nullable|numeric',
             'gaji_bersih'            => 'required|numeric',
             'dbr'                    => 'required|numeric',
 
@@ -78,8 +80,10 @@ class UpdateAnalystRequest extends FormRequest
 
             // Tanggal
             'tanggal_pengajuan'       => 'required|date|after_or_equal:' . now()->subWeek()->toDateString() . '|before_or_equal:' . now()->addWeek()->toDateString(),
-            'mulai_pinjaman'         => 'required|date',
-            'akhir_pinjaman'         => 'required|date|after:mulai_pinjaman',
+            // 'mulai_pinjaman'         => 'required|date',
+            // 'akhir_pinjaman'         => 'required|date|after:mulai_pinjaman',
+            'mulai_pinjaman'         => 'nullable|date',
+            'akhir_pinjaman'         => 'nullable|date|after:mulai_pinjaman',
 
             // Status Dokumen - Wajib untuk SEMUA status
             'status_npwp'            => 'required|in:approve,reject',

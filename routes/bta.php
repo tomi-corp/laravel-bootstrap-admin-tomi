@@ -4,6 +4,7 @@ use App\Http\Controllers\Bta\AnalystController;
 use App\Http\Controllers\Bta\AuthController;
 use App\Http\Controllers\Bta\CredamController;
 use App\Http\Controllers\Bta\DashboardController;
+use App\Http\Controllers\Bta\FinanceController;
 use App\Http\Controllers\Bta\NasabahController;
 use App\Http\Controllers\Bta\UserController;
 use App\Http\Controllers\Bta\WilayahController;
@@ -18,6 +19,22 @@ Route::middleware(['BtaGuestMiddleware'])->group(function () {
 Route::middleware(['BtaMiddleware'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('bta.dashboard.index');
     Route::post('/logout', [AuthController::class, 'logout'])->name('bta.logout');
+
+    Route::get('/finance', [FinanceController::class, 'index'])
+        ->middleware('bta.type:admin,master,analyst,credam,super user')
+        ->name('bta.finance.index');
+
+    Route::post('/finance/table', [FinanceController::class, 'table'])
+        ->middleware('bta.type:admin,master,analyst,credam,super user')
+        ->name('bta.finance.table');
+
+    Route::get('/finance/review/{id}', [FinanceController::class, 'review'])
+        ->middleware('bta.type:admin,master,analyst,credam,super user')
+        ->name('bta.finance.review');
+
+    Route::post('/finance/approve', [FinanceController::class, 'approve'])
+        ->middleware('bta.type:admin,master,analyst,credam,super user')
+        ->name('bta.finance.approve');
 
     /**
      * NASABAH

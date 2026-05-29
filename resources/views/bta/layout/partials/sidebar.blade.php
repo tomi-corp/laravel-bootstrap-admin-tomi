@@ -15,6 +15,7 @@
                     </a>
                 </li>
 
+
                 {{-- MASTER --}}
                 @if(in_array(optional(auth('bta')->user())->type, ['master', 'super user']))
                 <li class="menu-title">Master</li>
@@ -76,6 +77,13 @@
                     </a>
                 </li>
                 @endif
+
+                <li>
+                    <a href="{{ route('bta.finance.index') }}">
+                        <i class="dripicons-wallet"></i>
+                        <span> Finance </span>
+                    </a>
+                </li>
 
                 {{-- SUPER USER --}}
                 @if(optional(auth('bta')->user())->type == 'super user')

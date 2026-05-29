@@ -1,5 +1,12 @@
 @extends('bta.layout.app')
-@section('title', 'Review Nasabah - ' . $nasabah->nama_lengkap)
+@php
+$reviewTitle = $reviewTitle ?? 'Review Nasabah';
+$reviewMenuTitle = $reviewMenuTitle ?? 'Credit Administrator';
+$reviewIndexRoute = $reviewIndexRoute ?? 'bta.credam.index';
+$reviewApproveRoute = $reviewApproveRoute ?? 'bta.credam.approve';
+@endphp
+
+@section('title', $reviewTitle . ' - ' . $nasabah->nama_lengkap)
 @section('content')
 <div class="row">
     <div class="col-12">
@@ -7,11 +14,11 @@
             <div class="page-title-right">
                 <ol class="breadcrumb m-0">
                     <li class="breadcrumb-item"><a href="{{ route('bta.dashboard.index') }}">Dashboard</a></li>
-                    <li class="breadcrumb-item"><a href="{{ route('bta.analyst.index') }}">Credit Administrator</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route($reviewIndexRoute) }}">{{ $reviewMenuTitle }}</a></li>
                     <li class="breadcrumb-item active">Review</li>
                 </ol>
             </div>
-            <h4 class="page-title">Review Nasabah: {{ $nasabah->nama_lengkap }}</h4>
+            <h4 class="page-title">{{ $reviewTitle }}: {{ $nasabah->nama_lengkap }}</h4>
         </div>
     </div>
 </div>
@@ -702,12 +709,12 @@
                                         max="{{ now()->addWeek()->toDateString() }}">
                                     <small class="text-danger" id="errTanggalPengajuan"></small>
                                 </div>
-                                <div class="form-group">
+                                {{-- <div class="form-group">
                                     <label for="mulai_pinjaman">Mulai Pinjaman: <span
                                             class="text-danger">*</span></label>
-                                    <input type="date" readonly class="form-control" name="mulai_pinjaman"
+                                    <input type="date" class="form-control" name="mulai_pinjaman"
                                         id="mulai_pinjaman"
-                                        value="{{ \Carbon\Carbon::parse($nasabah->mulai_pinjaman)->format('Y-m-d') }}">
+                                        value="{{ $nasabah->mulai_pinjaman ? \Carbon\Carbon::parse($nasabah->mulai_pinjaman)->format('Y-m-d') : '' }}">
                                     <small class="text-danger" id="errMulaiPinjaman"></small>
                                 </div>
                                 <div class="form-group">
@@ -715,8 +722,9 @@
                                             class="text-danger">*</span></label>
                                     <input type="date" class="form-control" readonly name="akhir_pinjaman"
                                         id="akhir_pinjaman"
-                                        value="{{ \Carbon\Carbon::parse($nasabah->akhir_pinjaman)->format('Y-m-d') }}">
-                                </div>
+                                        value="{{ ($nasabah->mulai_pinjaman && $nasabah->jangka_waktu) ? \Carbon\Carbon::parse($nasabah->mulai_pinjaman)->addMonths((int) $nasabah->jangka_waktu)->format('Y-m-d') : ($nasabah->akhir_pinjaman ? \Carbon\Carbon::parse($nasabah->akhir_pinjaman)->format('Y-m-d') : '') }}">
+                                    <small class="text-danger" id="errAkhirPinjaman"></small>
+                                </div> --}}
                                 <div class="form-group">
                                     <label for="dbr">DBR (Debt Burden Ratio): <span class="text-danger">*</span></label>
                                     <input type="number" readonly step="0.01" class="form-control" name="dbr" id="dbr"
@@ -929,7 +937,7 @@
                         <div class="row mt-4">
                             <div class="col-md-12">
                                 <div class="d-flex float-right">
-                                    <a href="{{ route('bta.credam.index') }}" class="btn btn-secondary mr-2">Kembali</a>
+                                    <a href="{{ route($reviewIndexRoute) }}" class="btn btn-secondary mr-2">Kembali</a>
                                     <button class="btn btn-primary" id="lanjutkanKredit">Selesai</button>
                                 </div>
 
@@ -1096,11 +1104,13 @@
             $btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Processing...');
 
             $.ajax({
-                url: '{!! route('bta.credam.approve') !!}',
+                url: '{!! route($reviewApproveRoute) !!}',
                 type: 'POST',
                 data: {
                     '_token': "{{ csrf_token() }}",
                     'no_ktp': '{{ $nasabah->no_ktp }}',
+                    // 'mulai_pinjaman': $('#mulai_pinjaman').val(),
+                    // 'akhir_pinjaman': $('#akhir_pinjaman').val(),
                 },
                 dataType: 'json',
                 success: function (response) {
@@ -1108,10 +1118,16 @@
 
                     // Redirect ke route index setelah jeda singkat (agar user sempat baca toastr)
                     setTimeout(function () {
-                        window.location.href = "{{ route('bta.credam.index') }}";
+                        window.location.href = "{{ route($reviewIndexRoute) }}";
                     }, 1500);
                 },
                 error: function (xhr) {
+                    // if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
+                    //     const errors = xhr.responseJSON.errors;
+                    //     $('#errMulaiPinjaman').text(errors.mulai_pinjaman ? errors.mulai_pinjaman[0] : '');
+                    //     $('#errAkhirPinjaman').text(errors.akhir_pinjaman ? errors.akhir_pinjaman[0] : '');
+                    // }
+
                     // Mengambil pesan error dari server jika ada, jika tidak pakai pesan default
                     let errorMsg = xhr.responseJSON ? xhr.responseJSON.message :
                         'Ada kesalahan pada server';
@@ -1149,6 +1165,32 @@
                 $(this).val(formatRupiah(val.replace(/[^0-9]/g, '')));
             }
         });
+
+        // function calculateAkhirPinjamanCredam() {
+        //     const mulaiPinjaman = $('#mulai_pinjaman').val();
+        //     const jangkaWaktu = parseInt('{{ (int) $nasabah->jangka_waktu }}') || parseInt($('#jangka_waktu').val()) || 0;
+
+        //     if (!mulaiPinjaman || jangkaWaktu <= 0) {
+        //         $('#akhir_pinjaman').val('');
+        //         return;
+        //     }
+
+        //     const [yearValue, monthValue, dayValue] = mulaiPinjaman.split('-').map(Number);
+        //     const startDate = new Date(yearValue, monthValue - 1, dayValue);
+        //     startDate.setMonth(startDate.getMonth() + jangkaWaktu);
+
+        //     const year = startDate.getFullYear();
+        //     const month = String(startDate.getMonth() + 1).padStart(2, '0');
+        //     const day = String(startDate.getDate()).padStart(2, '0');
+
+        //     $('#akhir_pinjaman').val(`${year}-${month}-${day}`);
+        // }
+
+        // $('#mulai_pinjaman').on('change input', function () {
+        //     calculateAkhirPinjamanCredam();
+        // });
+
+        // calculateAkhirPinjamanCredam();
 
         // Fungsi format rupiah sederhana
         function formatRupiah(angka) {
@@ -1208,7 +1250,7 @@
         $btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Processing...');
 
         $.ajax({
-            url: '{!! route('bta.credam.approve') !!}',
+            url: '{!! route($reviewApproveRoute) !!}',
             type: 'POST',
             data: {
                 '_token': "{{ csrf_token() }}",
@@ -1220,7 +1262,7 @@
 
                 // Redirect ke route index setelah jeda singkat (agar user sempat baca toastr)
                 setTimeout(function () {
-                    window.location.href = "{{ route('bta.credam.index') }}";
+                    window.location.href = "{{ route($reviewIndexRoute) }}";
                 }, 1500);
             },
             error: function (xhr) {
@@ -1250,11 +1292,7 @@
         calculateAngsuran();
     });
 
-    $('#mulai_pinjaman, #jangka_waktu').on('change input', function () {
-        calculateAkhirPinjaman();
-    });
-
-    $('#mulai_pinjaman, #jangka_waktu').on('change input', function () {
+    $('#mulai_pinjaman').on('change input', function () {
         calculateAkhirPinjaman();
     });
 
@@ -1294,7 +1332,8 @@
         const jangkaWaktu = parseInt($('#jangka_waktu').val()) || 0;
 
         if (mulaiPinjaman && jangkaWaktu > 0) {
-            const startDate = new Date(mulaiPinjaman);
+            const [yearValue, monthValue, dayValue] = mulaiPinjaman.split('-').map(Number);
+            const startDate = new Date(yearValue, monthValue - 1, dayValue);
             startDate.setMonth(startDate.getMonth() + jangkaWaktu);
 
             const year = startDate.getFullYear();
@@ -1306,6 +1345,8 @@
             $('#akhir_pinjaman').val('');
         }
     }
+
+    calculateAkhirPinjaman();
 
 
     // Fungsi previewFile: Menyimpan key, mengisi modal dari form utama, menampilkan
@@ -1608,7 +1649,7 @@
                 );
                 // Redirect ke route index setelah jeda singkat
                 setTimeout(function () {
-                    window.location.href = "{{ route('bta.analyst.index') }}";
+                    window.location.href = "{{ route($reviewIndexRoute) }}";
                 }, 1500);
             },
             error: function (xhr) {

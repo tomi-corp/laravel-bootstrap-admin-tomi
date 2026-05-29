@@ -113,7 +113,26 @@ class CredamController extends Controller
 
     public function credamApprove(Request $req)
     {
-        $nasabah = nasabah::where("no_ktp", $req->no_ktp)->first();
+        $validated = $req->validate([
+            'no_ktp' => 'required',
+            // 'mulai_pinjaman' => 'required|date',
+            // 'akhir_pinjaman' => 'required|date|after_or_equal:mulai_pinjaman',
+        ], [
+            // 'mulai_pinjaman.required' => 'Mulai pinjaman wajib diisi.',
+            // 'akhir_pinjaman.required' => 'Akhir pinjaman wajib diisi.',
+            // 'akhir_pinjaman.after_or_equal' => 'Akhir pinjaman harus sama atau setelah mulai pinjaman.',
+        ]);
+
+        $nasabah = nasabah::where("no_ktp", $validated['no_ktp'])->first();
+
+        if (!$nasabah) {
+            return response()->json([
+                'message' => 'Data nasabah tidak ditemukan.'
+            ], 404);
+        }
+
+        // $nasabah->mulai_pinjaman = $validated['mulai_pinjaman'];
+        // $nasabah->akhir_pinjaman = $validated['akhir_pinjaman'];
         $nasabah->position = 'credam';
         $nasabah->status = 'approve';
         $nasabah->save();

@@ -216,10 +216,10 @@ class AnalystController extends Controller
         $nasabah->simpanan_koperasi = $request->simpanan_koperasi;
         $nasabah->gaji_bersih       = $request->gaji_bersih;
         $nasabah->tanggal_pengajuan = $request->tanggal_pengajuan;
-        $nasabah->mulai_pinjaman = $request->mulai_pinjaman;
-        $nasabah->akhir_pinjaman = $request->akhir_pinjaman;
+        // $nasabah->mulai_pinjaman = $request->mulai_pinjaman;
+        // $nasabah->akhir_pinjaman = $request->akhir_pinjaman;
         $nasabah->dbr = $request->dbr;
-        $nasabah->jangka_waktu = $request->jangka_waktu;
+        // $nasabah->jangka_waktu = $request->jangka_waktu;
         $nasabah->tipe_bunga = $request->tipe_bunga;
         $nasabah->suku_bunga = $request->suku_bunga;
         $nasabah->tujuan_penggunaan = $request->tujuan_penggunaan;

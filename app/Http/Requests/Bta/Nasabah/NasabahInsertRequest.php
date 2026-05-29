@@ -145,8 +145,10 @@ class NasabahInsertRequest extends FormRequest
             'tujuan_penggunaan' => 'required|in:Konsumsi,Modal Kerja,Investasi',
             'gaji_bersih' => 'required|numeric|min:0',
             'tanggal_pengajuan' => 'required|date|after_or_equal:' . now()->subWeek()->toDateString() . '|before_or_equal:' . now()->addWeek()->toDateString(),
-            'mulai_pinjaman' => 'required|date',
-            'akhir_pinjaman' => 'required|date|after_or_equal:mulai_pinjaman',
+            // 'mulai_pinjaman' => 'required|date',
+            // 'akhir_pinjaman' => 'required|date|after_or_equal:mulai_pinjaman',
+            'mulai_pinjaman' => 'nullable|date',
+            'akhir_pinjaman' => 'nullable|date|after_or_equal:mulai_pinjaman',
             'dbr' => 'required|numeric|min:0', // Harusnya input angka, bukan persen?
 
             // Upload File

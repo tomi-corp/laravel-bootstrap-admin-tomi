@@ -607,14 +607,14 @@
                                     <small class="text-danger" id="errTipeBunga"></small>
                                 </div>
 
-                                <div class="form-group">
+                                {{-- <div class="form-group">
                                     <label for="jangka_waktu">Jangka Waktu (bulan): <span
                                             class="text-danger">*</span></label>
                                     <input type="number" class="form-control" name="jangka_waktu" id="jangka_waktu"
                                         value="{{ $nasabah->jangka_waktu }}" min="1" max="60"
                                         placeholder="Jangka Waktu">
                                     <small class="text-danger" id="errJangkaWaktu"></small>
-                                </div>
+                                </div> --}}
 
                                 <div class="form-group">
                                     <label for="suku_bunga" class="form-label">Suku Bunga: <span
@@ -704,7 +704,7 @@
                                         max="{{ now()->addWeek()->toDateString() }}">
                                     <small class="text-danger" id="errTanggalPengajuan"></small>
                                 </div>
-                                <div class="form-group">
+                                {{-- <div class="form-group">
                                     <label for="mulai_pinjaman">Mulai Pinjaman: <span
                                             class="text-danger">*</span></label>
                                     <input type="date" class="form-control" name="mulai_pinjaman" id="mulai_pinjaman"
@@ -717,7 +717,7 @@
                                     <input type="date" class="form-control" readonly name="akhir_pinjaman"
                                         id="akhir_pinjaman"
                                         value="{{ \Carbon\Carbon::parse($nasabah->akhir_pinjaman)->format('Y-m-d') }}">
-                                </div>
+                                </div> --}}
                                 <div class="form-group">
                                     <label for="dbr">DBR (Debt Burden Ratio): <span class="text-danger">*</span></label>
                                     <input type="number" step="0.01" class="form-control" name="dbr" id="dbr"

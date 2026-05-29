@@ -1203,7 +1203,7 @@
                                                 max="{{ now()->addWeek()->toDateString() }}">
                                             <small class="text-danger" id="errTanggalPengajuan"></small>
                                         </div>
-                                        <div class="form-group">
+                                        {{-- <div class="form-group">
                                             <label for="mulai_pinjaman">Mulai Pinjaman: <span
                                                     class="text-danger">*</span></label>
                                             <input type="date" class="form-control" name="mulai_pinjaman"
@@ -1217,7 +1217,7 @@
                                             <input type="date" class="form-control" readonly name="akhir_pinjaman"
                                                 id="akhir_pinjaman"
                                                 value="{{ old('akhir_pinjaman', $nasabah->akhir_pinjaman) }}">
-                                        </div>
+                                        </div> --}}
                                         <div class="form-group">
                                             <label for="dbr">DBR (Debt Burden Ratio): <span
                                                     class="text-danger">*</span></label>
@@ -2497,10 +2497,10 @@
                     if (!isTanggalPengajuanValid()) {
                         isValid = false;
                     }
-                    if (!$('#mulai_pinjaman').val()) {
-                        markError('mulai_pinjaman', 'Tanggal mulai wajib diisi');
-                        isValid = false;
-                    }
+                    // if (!$('#mulai_pinjaman').val()) {
+                    //     markError('mulai_pinjaman', 'Tanggal mulai wajib diisi');
+                    //     isValid = false;
+                    // }
                     break;
                 case 5: // Dokumen
                     const allowedDocTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
