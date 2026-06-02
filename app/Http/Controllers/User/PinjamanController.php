@@ -161,31 +161,16 @@ class PinjamanController extends Controller
             ->with(['karyawanSingle' => function ($q) use ($nip) {
                 $q->where('nip', '=', $nip[1]);
                 $q->first();
-            }])
+            }, 'amount_pinjaman'])
             ->first();
 
         // $pendapatan = 70 / 100 * $perusahaan->karyawanSingle->penghasilan;
 
 
-        if ($req->nominal > $perusahaan->amount_pinjaman->maximal) {
-            $maksimal = $perusahaan->amount_pinjaman->maximal;
-        } elseif ($req->nominal > $perusahaan->karyawanSingle->max_plafon) {
-            $maksimal = $perusahaan->karyawanSingle->max_plafon;
-        } else {
-            $maksimal = $req->nominal;
-        }
-
-
-        $range = [
-            'maximal' => $maksimal,
-            'minimal' => $perusahaan->amount_pinjaman->minimal
-        ];
-
-
         $tenor = tenor_pinjaman::where('id_perusahaan', $perusahaan->id)
-            ->where(function ($q) use ($range, $req) {
-                $q->where('minimal_nominal', '>=', $range['minimal'])
-                    ->where('minimal_nominal', '<=',  $req->nominal);
+            ->where(function ($q) use ($req) {
+                $q->where('minimal_nominal', '<=', $req->nominal)
+                    ->where('maximal_nominal', '>=', $req->nominal);
             })
             ->with('amount_pinjaman')
             ->orderBy('tenor')

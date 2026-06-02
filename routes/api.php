@@ -62,7 +62,9 @@
                         Route::post('/get/maximal/minimal', [PinjamanController::class, 'maximalMinimal']);
                         Route::post('/get/tenor', [PinjamanController::class, 'getTenor']);
 
-                        Route::post('/get/simulation', [PinjamanController::class, 'getSimulation']);
+                        Route::post('/cek/pegawai', [PinjamanController::class, 'cekPegawai']);
+                        Route::post('/get/maximal/minimal', [PinjamanController::class, 'maximalMinimal']);
+                        Route::match(['get', 'post'], '/get/tenor', [PinjamanController::class, 'getTenor']);
 
                         Route::post('/action/pinjaman', [PinjamanController::class, 'actionPinjaman']);
                         Route::post('/action/pinjaman/otp', [PinjamanController::class, 'actionPinjamanOTP']);

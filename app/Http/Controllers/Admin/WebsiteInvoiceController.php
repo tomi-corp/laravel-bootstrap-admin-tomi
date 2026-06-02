@@ -33,7 +33,7 @@ class WebsiteInvoiceController extends Controller
 
             return [
                 'id' => $index + 1,
-                'invoice' => 'LW-' . Carbon::createFromDate((int) $item->tahun, (int) $item->bulan, 1)->format('Ymd'),
+                'invoice' => 'LW-' . str_pad($index + 1, 3, '0', STR_PAD_LEFT),
                 'bulan' => $namaBulan . ' ' . $item->tahun,
                 'total_nasabah' => $item->total,
                 'bulan_angka' => $item->bulan,
@@ -57,14 +57,25 @@ class WebsiteInvoiceController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
+        $tanggalInvoice = \Carbon\Carbon::createFromDate(
+            $tahun,
+            $bulan,
+            1
+        );
+
         $data = [
             'title' => 'Invoice Website',
+
+            // tanggal invoice
             'tanggal' => $tanggalInvoice->translatedFormat('d F Y'),
-            'invoice' => [
-                'nomor_invoice' => $nomorInvoice,
-                'created_at' => $tanggalInvoice,
-            ],
-            'customer' => 'Tokomikro',
+
+            // nomor invoice
+            'invoice' => 'LW-' . $tahun . str_pad($bulan, 2, '0', STR_PAD_LEFT) . '1',
+
+            // kirim bulan & tahun ke blade
+            'bulan' => $bulan,
+            'tahun' => $tahun,
+
             'items' => $items,
         ];
 

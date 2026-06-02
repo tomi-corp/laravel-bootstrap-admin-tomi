@@ -50,11 +50,19 @@ class GetTenorRequest extends FormRequest
     private function cekMinimalNominal()
     {
         $nip = explode("-", $this->nip);
+        if (count($nip) < 2) {
+            return false;
+        }
+
         $perusahaan = ListPerusahaan::where('unique_code', $nip[0])
             ->with(['karyawanSingle' => function ($q) use ($nip) {
                 $q->where('nip', '=', $nip[1]);
                 $q->first();
             }, 'amount_pinjaman'])->first();
+
+        if (!isset($perusahaan, $perusahaan->amount_pinjaman)) {
+            return false;
+        }
 
         if ($this->nominal < $perusahaan->amount_pinjaman->minimal) {
             return [
@@ -69,11 +77,19 @@ class GetTenorRequest extends FormRequest
     private function cekMaximalNominal()
     {
         $nip = explode("-", $this->nip);
+        if (count($nip) < 2) {
+            return false;
+        }
+
         $perusahaan = ListPerusahaan::where('unique_code', $nip[0])
             ->with(['karyawanSingle' => function ($q) use ($nip) {
                 $q->where('nip', '=', $nip[1]);
                 $q->first();
             }, 'amount_pinjaman'])->first();
+
+        if (!isset($perusahaan, $perusahaan->karyawanSingle, $perusahaan->amount_pinjaman)) {
+            return false;
+        }
 
         $pendapatan = $perusahaan->karyawanSingle->max_plafon;
 
@@ -95,12 +111,16 @@ class GetTenorRequest extends FormRequest
     private function cekNipAdaAtauTidak()
     {
         $nip = explode("-", $this->nip);
+        if (count($nip) < 2) {
+            return false;
+        }
+
         $perusahaan = ListPerusahaan::where('unique_code', $nip[0])
             ->with(['karyawanSingle' => function ($q) use ($nip) {
                 $q->where('nip', '=', $nip[1]);
                 $q->first();
             }])->first();
-        if (isset($perusahaan)) {
+        if (isset($perusahaan, $perusahaan->karyawanSingle)) {
             return true;
         } else {
             return false;

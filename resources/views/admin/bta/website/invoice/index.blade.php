@@ -1,8 +1,6 @@
 @php
 $items = collect($items ?? []);
 
-$nomorInvoice = $invoice['nomor_invoice'] ?? 'INV-' . date('Ym');
-
 $totalPlafond = $items->sum(function ($item) {
 return (float) ($item['plafond'] ?? 0);
 });
@@ -11,8 +9,12 @@ $totalFeeWebsite = $items->sum(function ($item) {
 return ((float) ($item['plafond'] ?? 0)) * 0.0025;
 });
 
-$tanggalInvoice = !empty($invoice['created_at'])
-? \Carbon\Carbon::parse($invoice['created_at'])->translatedFormat('d F Y')
+$tanggalInvoice = !empty($tahun) && !empty($bulan)
+? \Carbon\Carbon::createFromDate(
+$tahun,
+$bulan,
+1
+)->translatedFormat('d F Y')
 : '-';
 
 $tanggalJatuhTempo = !empty($invoice['created_at'])
@@ -157,7 +159,7 @@ $tanggalJatuhTempo = !empty($invoice['created_at'])
             <h1 class="title">LAYANAN WEBSITE</h1>
 
             <div style="margin-top: 5px;">
-                <b>No. Invoice:</b> {{ $nomorInvoice }}
+                <b>No. Invoice:</b> {{ $invoice }}
             </div>
 
             <div style="margin-top: 3px;">
@@ -172,7 +174,7 @@ $tanggalJatuhTempo = !empty($invoice['created_at'])
 
     <p>
         Berikut rincian tagihan layanan pengembangan dan implementasi website
-        <b>TOMI dan Bank Tata Asia</b>,
+        <b>TOMI pada Bank Tata Asia</b>,
         sebagai berikut:
     </p>
 
