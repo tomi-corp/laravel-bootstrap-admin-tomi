@@ -16,11 +16,7 @@ class ProductController extends Controller
     public function list(Request $request)
     {
         $query = Product::query()
-            ->with([
-                'seller',
-                'variants',
-                'images',
-            ]);
+            ->with($this->productRelationsForDisplay());
 
         // Filter berdasarkan seller
         if ($request->filled('seller_id')) {
@@ -44,7 +40,7 @@ class ProductController extends Controller
 
         $products = $query
             ->orderBy('created_at', 'desc')
-            ->paginate($request->per_page ?? 10);
+            ->get();
 
         return response()->json([
             'status' => true,
@@ -72,11 +68,8 @@ class ProductController extends Controller
             ], 422);
         }
 
-        $product = Product::with([
-            'seller',
-            'variants',
-            'images',
-        ])->find($request->product_id);
+        $product = Product::with($this->productRelationsForDisplay())
+            ->find($request->product_id);
 
         if (!$product) {
             return response()->json([
@@ -156,5 +149,20 @@ class ProductController extends Controller
             'message' => 'Detail variant berhasil diambil',
             'data' => $variant,
         ]);
+    }
+
+    private function productRelationsForDisplay(): array
+    {
+        return [
+            'seller',
+            'variants' => function ($query) {
+                $query->where('is_active', true)
+                    ->orderBy('price', 'asc')
+                    ->orderBy('id', 'asc');
+            },
+            'images' => function ($query) {
+                $query->orderBy('id', 'asc');
+            },
+        ];
     }
 }
