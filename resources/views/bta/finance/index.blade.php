@@ -1,24 +1,67 @@
 @extends('bta.layout.app')
 
-@section('title', 'Finance')
+@section('title', $pageTitle ?? 'Finance')
 
 @section('content')
+<style>
+    .finance-nav {
+        border-bottom: 1px solid #e2e8f0;
+        margin-bottom: 18px;
+    }
+
+    .finance-nav .nav-link {
+        border: none;
+        border-bottom: 2px solid transparent;
+        color: #64748b;
+        font-weight: 600;
+        padding: 0 0 12px;
+        margin-right: 24px;
+    }
+
+    .finance-nav .nav-link.active {
+        background: transparent;
+        border-bottom-color: #2563eb;
+        color: #2563eb;
+    }
+
+    .proof-preview {
+        width: 100%;
+        max-height: 72vh;
+        object-fit: contain;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        background: #f8fafc;
+    }
+
+</style>
+
 <div class="row">
     <div class="col-12">
         <div class="page-title-box">
             <div class="page-title-right">
                 <ol class="breadcrumb m-0">
                     <li class="breadcrumb-item"><a href="javascript: void(0);">BTA</a></li>
-                    <li class="breadcrumb-item active">Finance</li>
+                    <li class="breadcrumb-item active">{{ $pageTitle ?? 'Finance' }}</li>
                 </ol>
             </div>
-            <h4 class="page-title">Finance</h4>
+            <h4 class="page-title">{{ $pageTitle ?? 'Finance' }}</h4>
         </div>
     </div>
 
     <div class="col-12">
         <div class="card">
             <div class="card-body">
+                <div class="nav finance-nav">
+                    <a href="{{ route('bta.finance.index') }}"
+                        class="nav-link {{ ($mode ?? 'pending') === 'pending' ? 'active' : '' }}">
+                        <i class="mdi mdi-upload"></i> Belum Upload Bukti
+                    </a>
+                    <a href="{{ route('bta.finance.uploaded.index') }}"
+                        class="nav-link {{ ($mode ?? 'pending') === 'uploaded' ? 'active' : '' }}">
+                        <i class="mdi mdi-check-circle-outline"></i> Sudah Upload Bukti Bayar
+                    </a>
+                </div>
+
                 <table id="tableFinance" class="table dt-responsive table-hover mt-4 text-center justify-center"
                     style="width:100%">
                     <thead>
@@ -35,6 +78,52 @@
                         </tr>
                     </thead>
                 </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalProof" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modalProofLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalProofLabel">Bukti Bayar</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Nama Nasabah</label>
+                    <input type="text" class="form-control" id="proofNama" disabled>
+                </div>
+
+                <div class="form-group">
+                    <label>Tanggal Disbursement</label>
+                    <input type="date" class="form-control" id="proofTanggalDisbursement" disabled>
+                </div>
+
+                <div class="form-group">
+                    <label>Mulai Pinjaman</label>
+                    <input type="date" class="form-control" id="proofMulaiPinjaman" disabled>
+                </div>
+
+                <div class="form-group">
+                    <label>Akhir Pinjaman</label>
+                    <input type="date" class="form-control" id="proofAkhirPinjaman" disabled>
+                </div>
+
+                <label>Bukti Disbursement</label>
+                <div class="text-center">
+                    <img src="" alt="Bukti Bayar" class="proof-preview" id="proofPreview">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="#" class="btn btn-outline-primary" id="proofOpenNewTab" target="_blank">
+                    <i class="mdi mdi-open-in-new"></i> Buka
+                </a>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
             </div>
         </div>
     </div>
@@ -145,7 +234,7 @@
             },
             ajax: {
                 "type": "POST",
-                "url": '{!! route('bta.finance.table') !!}',
+                "url": '{!! route($tableRoute ?? 'bta.finance.table') !!}',
                 "data": function(d) {
                     return $.extend({}, d, dataTable);
                 },
@@ -237,6 +326,29 @@
 
         $('#mulai_pinjaman').on('change input', function() {
             calculateAkhirPinjaman();
+        });
+
+        $(document).on('click', '.btn-view-proof', function() {
+            var url = $(this).data('url');
+            var nama = $(this).data('nama') || 'Nasabah';
+
+            $('#modalProofLabel').text('Bukti Bayar - ' + nama);
+            $('#proofNama').val(nama);
+            $('#proofTanggalDisbursement').val($(this).data('tanggal-disbursement') || '');
+            $('#proofMulaiPinjaman').val($(this).data('mulai-pinjaman') || '');
+            $('#proofAkhirPinjaman').val($(this).data('akhir-pinjaman') || '');
+            $('#proofPreview').attr('src', url);
+            $('#proofOpenNewTab').attr('href', url);
+            $('#modalProof').modal('show');
+        });
+
+        $('#modalProof').on('hidden.bs.modal', function() {
+            $('#proofNama').val('');
+            $('#proofTanggalDisbursement').val('');
+            $('#proofMulaiPinjaman').val('');
+            $('#proofAkhirPinjaman').val('');
+            $('#proofPreview').attr('src', '');
+            $('#proofOpenNewTab').attr('href', '#');
         });
 
         $('#formDisbursement').on('submit', function(e) {

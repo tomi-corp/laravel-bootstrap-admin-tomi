@@ -28,6 +28,18 @@ Route::middleware(['BtaMiddleware'])->group(function () {
         ->middleware('bta.type:admin,master,analyst,credam,super user')
         ->name('bta.finance.table');
 
+    Route::get('/finance/sudah-upload', [FinanceController::class, 'uploadedIndex'])
+        ->middleware('bta.type:admin,master,analyst,credam,super user')
+        ->name('bta.finance.uploaded.index');
+
+    Route::post('/finance/sudah-upload/table', [FinanceController::class, 'uploadedTable'])
+        ->middleware('bta.type:admin,master,analyst,credam,super user')
+        ->name('bta.finance.uploaded.table');
+
+    Route::get('/finance/bukti/{id}', [FinanceController::class, 'proof'])
+        ->middleware('bta.type:admin,master,analyst,credam,super user')
+        ->name('bta.finance.proof');
+
     Route::get('/finance/review/{id}', [FinanceController::class, 'review'])
         ->middleware('bta.type:admin,master,analyst,credam,super user')
         ->name('bta.finance.review');

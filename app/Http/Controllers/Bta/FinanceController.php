@@ -14,10 +14,33 @@ class FinanceController extends Controller
 {
     public function index()
     {
-        return view('bta.finance.index');
+        return view('bta.finance.index', [
+            'pageTitle' => 'Finance - Belum Upload Bukti',
+            'tableRoute' => 'bta.finance.table',
+            'mode' => 'pending',
+        ]);
+    }
+
+    public function uploadedIndex()
+    {
+        return view('bta.finance.index', [
+            'pageTitle' => 'Finance - Sudah Upload Bukti',
+            'tableRoute' => 'bta.finance.uploaded.table',
+            'mode' => 'uploaded',
+        ]);
     }
 
     public function table()
+    {
+        return $this->financeTable('pending');
+    }
+
+    public function uploadedTable()
+    {
+        return $this->financeTable('uploaded');
+    }
+
+    private function financeTable(string $uploadStatus)
     {
         $columns = [
             'id',
@@ -34,42 +57,106 @@ class FinanceController extends Controller
             'akhir_pinjaman',
         ];
 
-        if (Schema::hasColumn('nasabahs', 'tanggal_disbursement')) {
+        $hasTanggalDisbursement = Schema::hasColumn('nasabahs', 'tanggal_disbursement');
+        $hasBuktiDisbursement = Schema::hasColumn('nasabahs', 'bukti_disbursement');
+
+        if ($hasTanggalDisbursement) {
             $columns[] = 'tanggal_disbursement';
         }
 
-        if (Schema::hasColumn('nasabahs', 'bukti_disbursement')) {
+        if ($hasBuktiDisbursement) {
             $columns[] = 'bukti_disbursement';
         }
 
         $nasabah = nasabah::where('position', 'credam')
-            ->where('status', 'approve')
-            ->select($columns)
-            ->get();
+            ->where('status', 'approve');
+
+        if ($hasBuktiDisbursement) {
+            if ($uploadStatus === 'uploaded') {
+                $nasabah->whereNotNull('bukti_disbursement')
+                    ->where('bukti_disbursement', '!=', '');
+            } else {
+                $nasabah->where(function ($query) {
+                    $query->whereNull('bukti_disbursement')
+                        ->orWhere('bukti_disbursement', '');
+                });
+            }
+        } elseif ($uploadStatus === 'uploaded') {
+            $nasabah->whereRaw('1 = 0');
+        }
+
+        $nasabah = $nasabah->select($columns)->get();
 
         return DataTables::of($nasabah)
             ->addIndexColumn()
-            ->addColumn('action', function ($row) {
+            ->addColumn('action', function ($row) use ($hasTanggalDisbursement, $hasBuktiDisbursement, $uploadStatus) {
+                if ($uploadStatus === 'uploaded') {
+                    $tanggalDisbursement = $hasTanggalDisbursement && $row->tanggal_disbursement
+                        ? date('Y-m-d', strtotime($row->tanggal_disbursement))
+                        : '';
+                    $mulaiPinjaman = $row->mulai_pinjaman ? date('Y-m-d', strtotime($row->mulai_pinjaman)) : '';
+                    $akhirPinjaman = $row->akhir_pinjaman ? date('Y-m-d', strtotime($row->akhir_pinjaman)) : '';
+
+                    return '
+                        <button type="button"
+                            class="btn btn-info btn-sm btn-view-proof"
+                            title="Lihat Bukti Bayar"
+                            data-nama="' . e($row->nama_lengkap) . '"
+                            data-tanggal-disbursement="' . e($tanggalDisbursement) . '"
+                            data-mulai-pinjaman="' . e($mulaiPinjaman) . '"
+                            data-akhir-pinjaman="' . e($akhirPinjaman) . '"
+                            data-url="' . e(route('bta.finance.proof', $row->id)) . '">
+                            <i class="mdi mdi-eye"></i>
+                        </button>
+                    ';
+                }
+
                 $mulaiPinjaman = $row->mulai_pinjaman ? date('Y-m-d', strtotime($row->mulai_pinjaman)) : '';
                 $akhirPinjaman = $row->akhir_pinjaman ? date('Y-m-d', strtotime($row->akhir_pinjaman)) : '';
-                $tanggalDisbursement = $row->tanggal_disbursement ? date('Y-m-d', strtotime($row->tanggal_disbursement)) : '';
+                $tanggalDisbursement = $hasTanggalDisbursement && $row->tanggal_disbursement
+                    ? date('Y-m-d', strtotime($row->tanggal_disbursement))
+                    : '';
+                $hasBukti = $hasBuktiDisbursement && !empty($row->bukti_disbursement);
 
                 return '
                     <button type="button"
                         class="btn btn-success btn-sm btn-disbursement"
+                        title="Upload Bukti Disbursement"
                         data-id="' . e($row->id) . '"
                         data-nama="' . e($row->nama_lengkap) . '"
                         data-jangka-waktu="' . e($row->jangka_waktu) . '"
                         data-mulai-pinjaman="' . e($mulaiPinjaman) . '"
                         data-akhir-pinjaman="' . e($akhirPinjaman) . '"
                         data-tanggal-disbursement="' . e($tanggalDisbursement) . '"
-                        data-has-bukti="' . e($row->bukti_disbursement ? '1' : '0') . '">
+                        data-has-bukti="' . e($hasBukti ? '1' : '0') . '">
                         <i class="mdi mdi-magnify"></i>
                     </button>
                 ';
             })
             ->rawColumns(['action'])
             ->toJson();
+    }
+
+    public function proof($id)
+    {
+        $nasabah = nasabah::where('id', $id)
+            ->where('position', 'credam')
+            ->where('status', 'approve')
+            ->first();
+
+        if (!$nasabah || empty($nasabah->bukti_disbursement)) {
+            abort(404);
+        }
+
+        $path = 'bta/' . $nasabah->bukti_disbursement;
+
+        if (!Storage::exists($path)) {
+            abort(404);
+        }
+
+        return response()->file(Storage::path($path), [
+            'Content-Type' => Storage::mimeType($path),
+        ]);
     }
 
     public function review($id)

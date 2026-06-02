@@ -572,83 +572,8 @@
                                             id="plafond" value="{{ old('plafond') }}" placeholder="Jumlah Pengajuan">
                                         <small class="text-danger" id="errPlafond"></small>
                                     </div>
-
-                                    <div class="form-group">
-                                        <label for="tipe_bunga">Tipe Bunga: <span class="text-danger">*</span></label>
-                                        <div class="custom-control custom-radio">
-                                            <input type="radio" id="customRadio1" name="tipe_bunga"
-                                                class="custom-control-input" value="flat"
-                                                @checked(old('tipe_bunga', 'flat' )=='flat' )>
-                                            <label class="custom-control-label" for="customRadio1">Flat</label>
-                                        </div>
-                                        <div class="custom-control custom-radio">
-                                            <input type="radio" id="customRadio2" name="tipe_bunga"
-                                                class="custom-control-input" value="efektif"
-                                                @checked(old('tipe_bunga')=='efektif' )>
-                                            <label class="custom-control-label" for="customRadio2">Efektif
-                                                (Anuitas)</label>
-                                        </div>
-                                        <small class="text-danger" id="errTipeBunga"></small>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label for="jangka_waktu">
-                                            Jangka Waktu (bulan): <span class="text-danger">*</span>
-                                        </label>
-                                        <input type="number" class="form-control" name="jangka_waktu" id="jangka_waktu"
-                                            value="{{ old('jangka_waktu') }}" min="1" max="180"
-                                            placeholder="Jangka Waktu"
-                                            oninput="if(this.value > 180) this.value = 180; if(this.value < 1) this.value = 1;">
-                                        <small class="text-danger" id="errJangkaWaktu"></small>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label for="suku_bunga" class="form-label">Suku Bunga: <span
-                                                class="text-danger">*</span></label>
-                                        <div class="input-group">
-                                            <input type="number" step="0.01" class="form-control" id="suku_bunga"
-                                                placeholder="Masukkan angka" aria-label="suku_bunga"
-                                                aria-describedby="persen-addon" name="suku_bunga"
-                                                value="{{ old('suku_bunga') }}">
-                                            <span class="input-group-text" id="persen-addon">%</span>
-                                        </div>
-                                        <small class="text-danger" id="errSukuBunga"></small>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label for="nilai_angsuran">Nilai Angsuran (PMT): <span
-                                                class="text-danger">*</span></label>
-                                        <input type="text" readonly class="form-control" name="nilai_angsuran"
-                                            id="nilai_angsuran" value="{{ old('nilai_angsuran') }}">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="biaya_bank">Biaya Bank: <span class="text-danger">*</span></label>
-                                        <input type="text" step="0.01" class="form-control rupiah-format"
-                                            name="biaya_bank" id="biaya_bank" value="{{ old('biaya_bank') }}"
-                                            placeholder="Masukan angka">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="biaya_asuransi">Biaya Asuransi: <span
-                                                class="text-danger">*</span></label>
-                                        <input type="text" step="0.01" class="form-control rupiah-format"
-                                            name="biaya_asuransi" id="biaya_asuransi"
-                                            value="{{ old('biaya_asuransi') }}" placeholder="Masukan angka">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="biaya_koperasi">Biaya Koperasi:
-                                            <span class="text-danger">*</span></label>
-                                        <input type="text" step="0.01" class="form-control rupiah-format"
-                                            name="biaya_koperasi" id="biaya_koperasi"
-                                            value="{{ old('biaya_koperasi') }}" placeholder="Masukan angka">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="simpanan_koperasi">Simpanan Koperasi: <span
-                                                class="text-danger">*</span></label>
-                                        <input type="text" step="0.01" class="form-control rupiah-format"
-                                            name="simpanan_koperasi" id="simpanan_koperasi"
-                                            value="{{ old('simpanan_koperasi') }}" placeholder="Masukan angka">
-                                    </div>
                                 </div>
+
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="tujuan_penggunaan">Tujuan Penggunaan: <span
@@ -667,6 +592,29 @@
                                         </select>
                                         <small class="text-danger" id="errTujuanPenggunaan"></small>
                                     </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="tipe_bunga">Tipe Bunga: <span class="text-danger">*</span></label>
+                                        <div class="custom-control custom-radio">
+                                            <input type="radio" id="customRadio1" name="tipe_bunga"
+                                                class="custom-control-input" value="flat"
+                                                @checked(old('tipe_bunga', 'flat' )=='flat' )>
+                                            <label class="custom-control-label" for="customRadio1">Flat</label>
+                                        </div>
+                                        <div class="custom-control custom-radio">
+                                            <input type="radio" id="customRadio2" name="tipe_bunga"
+                                                class="custom-control-input" value="efektif"
+                                                @checked(old('tipe_bunga')=='efektif' )>
+                                            <label class="custom-control-label" for="customRadio2">Efektif
+                                                (Anuitas)</label>
+                                        </div>
+                                        <small class="text-danger" id="errTipeBunga"></small>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="gaji_bersih">Gaji Bersih: <span class="text-danger">*</span></label>
                                         <input type="text" step="0.01" class="form-control rupiah-format"
@@ -674,6 +622,75 @@
                                             placeholder="Masukan angka">
                                         <small class="text-danger" id="errGajiBersih"></small>
                                     </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="jangka_waktu">
+                                            Jangka Waktu (bulan): <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="number" class="form-control" name="jangka_waktu" id="jangka_waktu"
+                                            value="{{ old('jangka_waktu') }}" min="1" max="180"
+                                            placeholder="Jangka Waktu"
+                                            oninput="if(this.value > 180) this.value = 180; if(this.value < 1) this.value = 1;">
+                                        <small class="text-danger" id="errJangkaWaktu"></small>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="suku_bunga" class="form-label">Suku Bunga: <span
+                                                class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <input type="number" step="0.01" class="form-control" id="suku_bunga"
+                                                placeholder="Masukkan angka" aria-label="suku_bunga"
+                                                aria-describedby="persen-addon" name="suku_bunga"
+                                                value="{{ old('suku_bunga') }}">
+                                            <span class="input-group-text" id="persen-addon">%</span>
+                                        </div>
+                                        <small class="text-danger" id="errSukuBunga"></small>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="nilai_angsuran">Nilai Angsuran (PMT): <span
+                                                class="text-danger">*</span></label>
+                                        <input type="text" readonly class="form-control" name="nilai_angsuran"
+                                            id="nilai_angsuran" value="{{ old('nilai_angsuran') }}">
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="biaya_bank">Biaya Bank: <span class="text-danger">*</span></label>
+                                        <input type="text" step="0.01" class="form-control rupiah-format"
+                                            name="biaya_bank" id="biaya_bank" value="{{ old('biaya_bank') }}"
+                                            placeholder="Masukan angka">
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="biaya_asuransi">Biaya Asuransi: <span
+                                                class="text-danger">*</span></label>
+                                        <input type="text" step="0.01" class="form-control rupiah-format"
+                                            name="biaya_asuransi" id="biaya_asuransi"
+                                            value="{{ old('biaya_asuransi') }}" placeholder="Masukan angka">
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="biaya_koperasi">Biaya Koperasi:
+                                            <span class="text-danger">*</span></label>
+                                        <input type="text" step="0.01" class="form-control rupiah-format"
+                                            name="biaya_koperasi" id="biaya_koperasi"
+                                            value="{{ old('biaya_koperasi') }}" placeholder="Masukan angka">
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="tanggal_pengajuan">Tanggal Pengajuan: <span
                                                 class="text-danger">*</span></label>
@@ -683,19 +700,38 @@
                                             max="{{ now()->addWeek()->toDateString() }}">
                                         <small class="text-danger" id="errTanggalPengajuan"></small>
                                     </div>
-                                    {{-- <div class="form-group">
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="simpanan_koperasi">Simpanan Koperasi: <span
+                                                class="text-danger">*</span></label>
+                                        <input type="text" step="0.01" class="form-control rupiah-format"
+                                            name="simpanan_koperasi" id="simpanan_koperasi"
+                                            value="{{ old('simpanan_koperasi') }}" placeholder="Masukan angka">
+                                    </div>
+                                </div>
+
+                                {{-- <div class="col-md-6">
+                                    <div class="form-group">
                                         <label for="mulai_pinjaman">Mulai Pinjaman: <span
                                                 class="text-danger">*</span></label>
                                         <input type="date" class="form-control" name="mulai_pinjaman"
                                             id="mulai_pinjaman" value="{{ old('mulai_pinjaman') }}">
                                         <small class="text-danger" id="errMulaiPinjaman"></small>
                                     </div>
+                                </div>
+
+                                <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="akhir_pinjaman">Akhir Pinjaman: <span
                                                 class="text-danger">*</span></label>
                                         <input type="date" class="form-control" readonly name="akhir_pinjaman"
                                             id="akhir_pinjaman" value="{{ old('akhir_pinjaman') }}">
-                                    </div> --}}
+                                    </div>
+                                </div> --}}
+
+                                <div class="col-md-12">
                                     <div class="form-group">
                                         <label for="dbr">DBR (Debt Burden Ratio): <span
                                                 class="text-danger">*</span></label>
