@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Seller;
 
 use App\Http\Controllers\Controller;
+use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\ProductVariant;
@@ -158,17 +159,30 @@ class ProductController extends Controller
             ->where('seller_id', auth('seller')->id())
             ->findOrFail($id);
 
-        foreach ($product->images as $image) {
-            Storage::disk('public')->delete($image->image_url);
+        $hasOrders = Order::where('product_id', $product->id)
+            ->orWhereIn('variant_id', $product->variants->pluck('id'))
+            ->exists();
+
+        if ($hasOrders) {
+            return back()->withErrors('Produk tidak bisa dihapus karena sudah memiliki order.');
         }
 
-        foreach ($product->variants as $variant) {
-            if ($variant->image_url) {
-                Storage::disk('public')->delete($variant->image_url);
+        DB::transaction(function () use ($product) {
+            foreach ($product->images as $image) {
+                Storage::disk('public')->delete($image->image_url);
+                $image->delete();
             }
-        }
 
-        $product->delete();
+            foreach ($product->variants as $variant) {
+                if ($variant->image_url) {
+                    Storage::disk('public')->delete($variant->image_url);
+                }
+
+                $variant->delete();
+            }
+
+            $product->delete();
+        });
 
         return back()->with('success', 'Produk berhasil dihapus.');
     }
