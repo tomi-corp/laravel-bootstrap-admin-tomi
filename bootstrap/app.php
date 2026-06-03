@@ -43,6 +43,8 @@ return Application::configure(basePath: dirname(__DIR__))
     // )
 
     ->withMiddleware(function (Middleware $middleware) {
+        $middleware->trustProxies(at: '*');
+
         // Tambahkan CORS sebagai middleware GLOBAL (berlaku untuk SEMUA request)
         $middleware->prepend([
             \App\Http\Middleware\CorsMiddleware::class,
