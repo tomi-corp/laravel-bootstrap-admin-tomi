@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Seller;
 
 use App\Http\Controllers\Controller;
+use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\ProductVariant;
@@ -44,6 +45,7 @@ class ProductController extends Controller
                 'brand' => $validated['brand'] ?? null,
                 'model' => $validated['model'] ?? null,
                 'description' => $validated['description'] ?? null,
+                'is_active' => (bool) ($validated['is_active'] ?? true),
             ]);
 
             $this->storeProductImages($request, $product);
@@ -58,6 +60,7 @@ class ProductController extends Controller
                     'price' => $variant['price'],
                     'stock' => $variant['stock'] ?? 0,
                     'image_url' => $this->storeVariantImage($request, $index),
+                    'is_active' => (bool) ($variant['is_active'] ?? true),
                 ]);
             }
         });
@@ -90,6 +93,7 @@ class ProductController extends Controller
                 'brand' => $validated['brand'] ?? null,
                 'model' => $validated['model'] ?? null,
                 'description' => $validated['description'] ?? null,
+                'is_active' => (bool) ($validated['is_active'] ?? true),
             ]);
 
             $this->deleteSelectedProductImages($request, $product);
@@ -108,6 +112,7 @@ class ProductController extends Controller
                     'color' => $variant['color'] ?? null,
                     'price' => $variant['price'],
                     'stock' => $variant['stock'] ?? 0,
+                    'is_active' => (bool) ($variant['is_active'] ?? true),
                 ];
 
                 if ($variantImage) {
@@ -158,17 +163,30 @@ class ProductController extends Controller
             ->where('seller_id', auth('seller')->id())
             ->findOrFail($id);
 
-        foreach ($product->images as $image) {
-            Storage::disk('public')->delete($image->image_url);
+        $hasOrders = Order::where('product_id', $product->id)
+            ->orWhereIn('variant_id', $product->variants->pluck('id'))
+            ->exists();
+
+        if ($hasOrders) {
+            return back()->withErrors('Produk tidak bisa dihapus karena sudah memiliki order.');
         }
 
-        foreach ($product->variants as $variant) {
-            if ($variant->image_url) {
-                Storage::disk('public')->delete($variant->image_url);
+        DB::transaction(function () use ($product) {
+            foreach ($product->images as $image) {
+                Storage::disk('public')->delete($image->image_url);
+                $image->delete();
             }
-        }
 
-        $product->delete();
+            foreach ($product->variants as $variant) {
+                if ($variant->image_url) {
+                    Storage::disk('public')->delete($variant->image_url);
+                }
+
+                $variant->delete();
+            }
+
+            $product->delete();
+        });
 
         return back()->with('success', 'Produk berhasil dihapus.');
     }
@@ -180,6 +198,7 @@ class ProductController extends Controller
             'brand' => ['nullable', 'string', 'max:100'],
             'model' => ['nullable', 'string', 'max:100'],
             'description' => ['nullable', 'string'],
+            'is_active' => ['required', 'boolean'],
 
             'images' => ['nullable', 'array', 'max:3'],
             'images.*' => ['image', 'max:2048'],
@@ -195,6 +214,7 @@ class ProductController extends Controller
             'variants.*.price' => ['required', 'numeric', 'min:0'],
             'variants.*.stock' => ['nullable', 'integer', 'min:0'],
             'variants.*.image' => ['nullable', 'image', 'max:2048'],
+            'variants.*.is_active' => ['required', 'boolean'],
         ]);
 
         $ownedVariantIds = $product ? $product->variants->pluck('id')->all() : [];

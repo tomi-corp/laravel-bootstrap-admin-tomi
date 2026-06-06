@@ -1,18 +1,19 @@
-    <?php
+<?php
 
-    use App\Http\Controllers\Admin\DashboardController;
     use App\Http\Controllers\Server\DocumentController;
     use App\Http\Controllers\User\AuthController;
     use App\Http\Controllers\User\DailyCheckinController;
     use App\Http\Controllers\User\HistoryController;
     use App\Http\Controllers\User\MenuController;
     use App\Http\Controllers\User\NotificationController;
+    use App\Http\Controllers\User\OrderController;
     use App\Http\Controllers\User\OtaController;
     use App\Http\Controllers\User\PinjamanController;
     use App\Http\Controllers\User\PointController;
     use App\Http\Controllers\User\PrivyController;
     use App\Http\Controllers\User\ProductController;
     use App\Http\Controllers\User\ProductVariantController;
+    use App\Http\Controllers\User\GadgetInstallmentController;
     use Illuminate\Support\Facades\Route;
 
     Route::middleware(['CenterFileMiddleware'])->group(
@@ -118,6 +119,16 @@
                     Route::post('/product/variant/store', [ProductVariantController::class, 'store']);
                     Route::post('/product/variant/update', [ProductVariantController::class, 'update']);
                     Route::post('/product/variant/delete', [ProductVariantController::class, 'delete']);
+
+                    // order
+                    Route::post('/order/store', [OrderController::class, 'store']);
+
+                    Route::get('/gadget-installments', [GadgetInstallmentController::class, 'index']);
+                    Route::post('/gadget-installments', [GadgetInstallmentController::class, 'store']);
+                    Route::get('/gadget-installments/{id}', [GadgetInstallmentController::class, 'show']);
+                    Route::put('/gadget-installments/{id}', [GadgetInstallmentController::class, 'update']);
+                    Route::patch('/gadget-installments/{id}', [GadgetInstallmentController::class, 'update']);
+                    Route::delete('/gadget-installments/{id}', [GadgetInstallmentController::class, 'destroy']);
                 }
             );
         }

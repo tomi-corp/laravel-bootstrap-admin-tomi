@@ -43,6 +43,8 @@ return Application::configure(basePath: dirname(__DIR__))
     // )
 
     ->withMiddleware(function (Middleware $middleware) {
+        $middleware->trustProxies(at: '*');
+
         // Tambahkan CORS sebagai middleware GLOBAL (berlaku untuk SEMUA request)
         $middleware->prepend([
             \App\Http\Middleware\CorsMiddleware::class,
@@ -61,6 +63,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'TwoFactorMiddleware' =>  \App\Http\Middleware\TwoFactorMiddleware::class,
             'BtaMiddleware' =>  \App\Http\Middleware\BtaMiddleware::class,
             'BtaGuestMiddleware' =>  \App\Http\Middleware\BtaGuestMiddleware::class,
+            'SellerMiddleware' =>  \App\Http\Middleware\SellerMiddleware::class,
+            'SellerGuestMiddleware' =>  \App\Http\Middleware\SellerGuestMiddleware::class,
             'Cors' => \App\Http\Middleware\CorsMiddleware::class,
             'bta.type' => \App\Http\Middleware\BtaRoleMiddleware::class,
 

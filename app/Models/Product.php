@@ -3,36 +3,29 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Product extends Model
 {
-    protected $fillable = [
-        'seller_id',
-        'name',
-        'slug',
-        'brand',
-        'model',
-        'description',
-        'is_active',
-    ];
+    protected $guarded = [];
 
-    protected $casts = [
-        'is_active' => 'boolean',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'is_active' => 'boolean',
+        ];
+    }
 
-    public function seller(): BelongsTo
+    public function seller()
     {
         return $this->belongsTo(Seller::class);
     }
 
-    public function variants(): HasMany
+    public function variants()
     {
         return $this->hasMany(ProductVariant::class);
     }
 
-    public function images(): HasMany
+    public function images()
     {
         return $this->hasMany(ProductImage::class);
     }

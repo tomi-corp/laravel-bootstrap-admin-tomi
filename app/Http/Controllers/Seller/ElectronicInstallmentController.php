@@ -52,6 +52,7 @@ class ElectronicInstallmentController extends Controller
                 'brand' => $validated['brand'] ?? null,
                 'model' => $validated['model'] ?? null,
                 'description' => $validated['description'] ?? null,
+                'is_active' => (bool) ($validated['is_active'] ?? true),
             ]);
 
             $this->storeProductImages($request, $product);
@@ -67,6 +68,7 @@ class ElectronicInstallmentController extends Controller
                     'price' => $variant['price'],
                     'stock' => $variant['stock'] ?? 0,
                     'image_url' => $this->storeVariantImage($request, $index),
+                    'is_active' => (bool) ($variant['is_active'] ?? true),
                 ]);
             }
         });
@@ -101,6 +103,7 @@ class ElectronicInstallmentController extends Controller
                 'brand' => $validated['brand'] ?? null,
                 'model' => $validated['model'] ?? null,
                 'description' => $validated['description'] ?? null,
+                'is_active' => (bool) ($validated['is_active'] ?? true),
             ]);
 
             $this->deleteSelectedProductImages($request, $product);
@@ -120,6 +123,7 @@ class ElectronicInstallmentController extends Controller
                     'color' => $variant['color'] ?? null,
                     'price' => $variant['price'],
                     'stock' => $variant['stock'] ?? 0,
+                    'is_active' => (bool) ($variant['is_active'] ?? true),
                 ];
 
                 if ($variantImage) {
@@ -262,6 +266,7 @@ class ElectronicInstallmentController extends Controller
             'brand' => ['nullable', 'string', 'max:100'],
             'model' => ['nullable', 'string', 'max:100'],
             'description' => ['nullable', 'string'],
+            'is_active' => ['required', 'boolean'],
             'images' => ['nullable', 'array', 'max:3'],
             'images.*' => ['image', 'max:2048'],
             'remove_image_ids' => ['nullable', 'array'],
@@ -276,6 +281,7 @@ class ElectronicInstallmentController extends Controller
             'variants.*.price' => ['required', 'numeric', 'min:0'],
             'variants.*.stock' => ['nullable', 'integer', 'min:0'],
             'variants.*.image' => ['nullable', 'image', 'max:2048'],
+            'variants.*.is_active' => ['required', 'boolean'],
         ]);
 
         $ownedVariantIds = $product

@@ -14,14 +14,14 @@ class OrderController extends Controller
             ->latest()
             ->get();
 
-        return view('seller.orders.index', compact('orders'));
+        return view('seller.electronic-installment.orders.index', compact('orders'));
     }
 
     public function show($id)
     {
         $order = Order::findOrFail($id);
 
-        return view('seller.orders.show', compact('order'));
+        return view('seller.electronic-installment.orders.show', compact('order'));
     }
 
     public function updateStatus(Request $request, $id)
@@ -63,7 +63,7 @@ class OrderController extends Controller
         $order->update([
             'serial_number' => $request->serial_number,
             'imei' => $request->imei,
-            'status' => 'approved',
+            'status' => 'menunggu pembayaran',
         ]);
 
         return redirect()

@@ -6,19 +6,16 @@ use Illuminate\Database\Eloquent\Model;
 
 class Order extends Model
 {
-    protected $table = 'orders';
-    protected $fillable = [
-        'user_id',
-        'product_id',
-        'variant_id',
-        'price',
-        'down_payment',
-        'installment_month',
-        'monthly_installment',
-        'status',
-        'serial_number',
-        'imei',
-    ];
+    protected $guarded = [];
+
+    protected function casts(): array
+    {
+        return [
+            'price' => 'decimal:2',
+            'installment_month' => 'integer',
+            'monthly_installment' => 'decimal:2',
+        ];
+    }
 
     public function user()
     {

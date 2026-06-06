@@ -19,7 +19,7 @@ class ProfileController extends Controller
     public function index(Request $req)
     {
         $user = Admin::where('id', auth('admin')->user()->id)->first();
-        if (isset($user->twofactor)) {
+        if (! blank($user->google2fa_secret)) {
             $enabled = true;
         } else {
             $enabled = false;
@@ -31,7 +31,7 @@ class ProfileController extends Controller
     {
         $user = Admin::where('id', auth('admin')->user()->id)->first();
 
-        if (isset($user->google2fa_secret)) {
+        if (! blank($user->google2fa_secret)) {
             return response()->json([
                 'status' => 400,
                 'message' => 'anda sudah mengaktifkan 2fa'

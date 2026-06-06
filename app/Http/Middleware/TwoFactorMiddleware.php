@@ -16,7 +16,7 @@ class TwoFactorMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         $user = auth('admin')->user();
-        if ($user && $user->google2fa_secret && !session('2fa_passed')) {
+        if ($user && ! blank($user->google2fa_secret) && !session('2fa_passed')) {
             return redirect()->route('admin.profile.confirmationCode');
         }
         return $next($request);
