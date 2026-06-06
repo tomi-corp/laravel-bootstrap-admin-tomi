@@ -139,7 +139,7 @@ Route::middleware(['AdminMiddleware'])->group(
                 Route::post('/ksp/konfigurasi/detail', [KspController::class, 'detailKonfigurasi'])->name('admin.ksp.konfigurasi.detail');
                 Route::post('/ksp/konfigurasi/edit', [KspController::class, 'editKonfigurasi'])->name('admin.ksp.konfigurasi.edit');
                 // KSP => Pengajuan => invoicing
-                Route::post('/ksp/invoicing/table', [KspController::class, 'invoicingTable'])->name('admin.ksp.invoicing.lender.table');
+                Route::post('/ksp/invoicing/table', [KspController::class, 'invoicingTable'])->name('admin.ksp.invoicing.table');
                 Route::post('/ksp/invoicing/update', [KspController::class, 'invoicingUpdate'])->name('admin.ksp.invoicing.update');
                 // KSP => Pengajuan => pending
                 Route::post('/ksp/pengajuan/statistic', [KspController::class, 'pengajuanStatistic'])->name('admin.ksp.pengajuan.statistic');

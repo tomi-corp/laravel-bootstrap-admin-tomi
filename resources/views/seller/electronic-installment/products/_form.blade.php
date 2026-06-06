@@ -4,36 +4,34 @@
 @method($method)
 @endif
 
+@php
+$imageUrl = function (?string $path) {
+    if (empty($path)) {
+        return null;
+    }
+
+    if (preg_match('/^https?:\/\//', $path) || str_starts_with($path, '/')) {
+        return $path;
+    }
+
+    $path = preg_replace('/^(public\/|storage\/)/', '', $path);
+
+    return asset('storage/' . $path);
+};
+@endphp
+
 <div class="form-group">
-    <label for="product_name">Product Name</label>
-    <input type="text" class="form-control @error('product_name') is-invalid @enderror" id="product_name"
-        name="product_name" value="{{ old('product_name', $product->product_name ?? '') }}"
+    <label for="name">Product Name</label>
+    <input type="text" class="form-control @error('name') is-invalid @enderror" id="name"
+        name="name" value="{{ old('name', $product->name ?? '') }}"
         placeholder="Example: Samsung Galaxy A55" required>
 
-    @error('product_name')
+    @error('name')
     <small class="text-danger">{{ $message }}</small>
     @enderror
 </div>
 
 <div class="form-row">
-    <div class="form-group col-md-6">
-        <label for="category">Category</label>
-
-        @php
-        $selectedCategory = old('category', $product->category ?? '');
-        @endphp
-
-        <select class="form-control @error('category') is-invalid @enderror" id="category" name="category" required>
-            <option value="">Choose category</option>
-            <option value="electronic" @selected($selectedCategory==='electronic' )>Electronic</option>
-            <option value="gadget" @selected($selectedCategory==='gadget' )>Gadget</option>
-        </select>
-
-        @error('category')
-        <small class="text-danger">{{ $message }}</small>
-        @enderror
-    </div>
-
     <div class="form-group col-md-6">
         <label for="brand">Brand</label>
         <input type="text" class="form-control @error('brand') is-invalid @enderror" id="brand" name="brand"
@@ -43,117 +41,36 @@
         <small class="text-danger">{{ $message }}</small>
         @enderror
     </div>
-</div>
 
-<div class="form-row">
     <div class="form-group col-md-6">
-        <label for="product_model">Model</label>
-        <input type="text" class="form-control @error('product_model') is-invalid @enderror" id="product_model"
-            name="product_model" value="{{ old('product_model', $product->product_model ?? '') }}"
+        <label for="model">Model</label>
+        <input type="text" class="form-control @error('model') is-invalid @enderror" id="model"
+            name="model" value="{{ old('model', $product->model ?? '') }}"
             placeholder="Example: SM-A556E">
 
-        @error('product_model')
+        @error('model')
         <small class="text-danger">{{ $message }}</small>
         @enderror
     </div>
+</div>
 
+<div class="form-row">
     <div class="form-group col-md-6">
-        <label for="condition">Condition</label>
+        <label for="is_active">Product Status</label>
 
         @php
-        $selectedCondition = old('condition', $product->condition ?? '');
+        $selectedProductStatus = old('is_active', isset($product) ? (int) $product->is_active : 1);
         @endphp
 
-        <select class="form-control @error('condition') is-invalid @enderror" id="condition" name="condition" required>
-            <option value="">Choose condition</option>
-            <option value="new" @selected($selectedCondition==='new' )>New</option>
-            <option value="used" @selected($selectedCondition==='used' )>Used</option>
-            <option value="refurbished" @selected($selectedCondition==='refurbished' )>Refurbished</option>
+        <select class="form-control @error('is_active') is-invalid @enderror" id="is_active" name="is_active" required>
+            <option value="1" @selected((string) $selectedProductStatus==='1' )>Active</option>
+            <option value="0" @selected((string) $selectedProductStatus==='0' )>Inactive</option>
         </select>
 
-        @error('condition')
+        @error('is_active')
         <small class="text-danger">{{ $message }}</small>
         @enderror
     </div>
-</div>
-
-<div class="form-row">
-    <div class="form-group col-md-6">
-        <label for="warranty">Warranty</label>
-        <input type="text" class="form-control @error('warranty') is-invalid @enderror" id="warranty" name="warranty"
-            value="{{ old('warranty', $product->warranty ?? '') }}" placeholder="Example: Official 12 months">
-
-        @error('warranty')
-        <small class="text-danger">{{ $message }}</small>
-        @enderror
-    </div>
-
-    <div class="form-group col-md-6">
-        <label for="screen_size">Screen Size</label>
-        <input type="text" class="form-control @error('screen_size') is-invalid @enderror" id="screen_size"
-            name="screen_size" value="{{ old('screen_size', $product->screen_size ?? '') }}"
-            placeholder="Example: 6.6 inch">
-
-        @error('screen_size')
-        <small class="text-danger">{{ $message }}</small>
-        @enderror
-    </div>
-</div>
-
-<div class="form-row">
-    <div class="form-group col-md-6">
-        <label for="battery">Battery</label>
-        <input type="text" class="form-control @error('battery') is-invalid @enderror" id="battery" name="battery"
-            value="{{ old('battery', $product->battery ?? '') }}" placeholder="Example: 5000 mAh">
-
-        @error('battery')
-        <small class="text-danger">{{ $message }}</small>
-        @enderror
-    </div>
-
-    <div class="form-group col-md-6">
-        <label for="camera">Camera</label>
-        <input type="text" class="form-control @error('camera') is-invalid @enderror" id="camera" name="camera"
-            value="{{ old('camera', $product->camera ?? '') }}" placeholder="Example: 50 MP + 12 MP">
-
-        @error('camera')
-        <small class="text-danger">{{ $message }}</small>
-        @enderror
-    </div>
-</div>
-
-<div class="form-row">
-    <div class="form-group col-md-6">
-        <label for="operating_system">Operating System</label>
-        <input type="text" class="form-control @error('operating_system') is-invalid @enderror" id="operating_system"
-            name="operating_system" value="{{ old('operating_system', $product->operating_system ?? '') }}"
-            placeholder="Example: Android 14">
-
-        @error('operating_system')
-        <small class="text-danger">{{ $message }}</small>
-        @enderror
-    </div>
-
-    <div class="form-group col-md-6">
-        <label for="network">Network</label>
-        <input type="text" class="form-control @error('network') is-invalid @enderror" id="network" name="network"
-            value="{{ old('network', $product->network ?? '') }}" placeholder="Example: 4G/5G">
-
-        @error('network')
-        <small class="text-danger">{{ $message }}</small>
-        @enderror
-    </div>
-</div>
-
-<div class="form-group">
-    <label for="included_items">Included Items</label>
-    <input type="text" class="form-control @error('included_items') is-invalid @enderror" id="included_items"
-        name="included_items" value="{{ old('included_items', $product->included_items ?? '') }}"
-        placeholder="Example: Box, charger, warranty card">
-
-    @error('included_items')
-    <small class="text-danger">{{ $message }}</small>
-    @enderror
 </div>
 
 <div class="form-group">
@@ -167,6 +84,66 @@
     @enderror
 </div>
 
+<div class="form-group">
+    <label>Product Images</label>
+
+    @php
+    $existingImages = isset($product) && $product->relationLoaded('images')
+    ? $product->images->take(3)->values()
+    : collect();
+    @endphp
+
+    <div>
+        <div class="d-flex flex-wrap" style="gap: 12px;">
+            @for ($imageIndex = 0; $imageIndex < 3; $imageIndex++)
+            @php
+            $existingImage = $existingImages->get($imageIndex);
+            $isVisible = $imageIndex === 0 || $existingImage || $existingImages->count() > $imageIndex;
+            @endphp
+
+            <div class="product-image-slot" data-image-slot="{{ $imageIndex }}" style="{{ $isVisible ? '' : 'display:none;' }}">
+                <label for="product-image-{{ $imageIndex }}"
+                    class="btn btn-outline-secondary rounded d-inline-flex align-items-center justify-content-center text-center p-0 overflow-hidden mb-0"
+                    style="width: 150px; height: 150px;">
+                    <div class="product-image-preview w-100 h-100 d-flex align-items-center justify-content-center">
+                        @if ($existingImage)
+                        <img src="{{ $imageUrl($existingImage->image_url) }}" alt="Product Image {{ $imageIndex + 1 }}"
+                            class="w-100 h-100" style="object-fit: cover;">
+                        @else
+                        <div class="text-muted">
+                            <div class="display-4 font-weight-light">+</div>
+                            <div class="small font-weight-bold">Upload Image</div>
+                        </div>
+                        @endif
+                    </div>
+                </label>
+
+                <input type="file" id="product-image-{{ $imageIndex }}" name="images[]"
+                    class="d-none product-image-input @error('images.' . $imageIndex) is-invalid @enderror"
+                    accept="image/*" data-image-index="{{ $imageIndex }}">
+
+                @if ($existingImage)
+                <input type="hidden" name="remove_image_ids[]" value="{{ $existingImage->id }}"
+                    class="product-image-remove-input" disabled>
+                @endif
+            </div>
+            @endfor
+        </div>
+
+        <small class="form-text text-muted">
+            Klik kotak untuk upload gambar bertahap. Maksimal 3 gambar. Format: JPG, PNG, WEBP. Max 2MB.
+        </small>
+
+        @error('images')
+        <small class="text-danger d-block">{{ $message }}</small>
+        @enderror
+
+        @error('images.*')
+        <small class="text-danger d-block">{{ $message }}</small>
+        @enderror
+    </div>
+</div>
+
 <hr>
 
 <h5 class="mb-3">Product Variants</h5>
@@ -176,10 +153,12 @@ $defaultVariants = [
 [
 'sku' => '',
 'color' => '',
-'internal' => '',
-'ram' => '',
+'storage_gb' => '',
+'ram_gb' => '',
 'price' => '',
 'stock' => '',
+'image_url' => '',
+'is_active' => 1,
 ],
 ];
 
@@ -191,10 +170,12 @@ return [
 'id' => $variant->id,
 'sku' => $variant->sku,
 'color' => $variant->color,
-'internal' => $variant->internal,
-'ram' => $variant->ram,
+'storage_gb' => $variant->storage_gb,
+'ram_gb' => $variant->ram_gb,
 'price' => $variant->price,
 'stock' => $variant->stock,
+'image_url' => $variant->image_url,
+'is_active' => (int) $variant->is_active,
 ];
 })->toArray();
 
@@ -207,10 +188,12 @@ return [
 'id' => $variant->id,
 'sku' => $variant->sku,
 'color' => $variant->color,
-'internal' => $variant->internal,
-'ram' => $variant->ram,
+'storage_gb' => $variant->storage_gb,
+'ram_gb' => $variant->ram_gb,
 'price' => $variant->price,
 'stock' => $variant->stock,
+'image_url' => $variant->image_url,
+'is_active' => (int) $variant->is_active,
 ];
 })->toArray();
 
@@ -239,33 +222,36 @@ $variants = $defaultVariants;
         <div class="form-row">
             <div class="form-group col-md-4">
                 <label>SKU</label>
-                <input type="text" name="variants[{{ $index }}][sku]" class="form-control @error(" variants.$index.sku")
-                    is-invalid @enderror" value="{{ old(" variants.$index.sku", $variant['sku'] ?? '' ) }}"
-                    placeholder="Example: A55-BLK-128">
+                <input type="text" name="variants[{{ $index }}][sku]"
+                    class="form-control @error('variants.' . $index . '.sku') is-invalid @enderror"
+                    value="{{ old('variants.' . $index . '.sku', $variant['sku'] ?? '') }}"
+                    placeholder="Example: A55-BLK-128" required>
 
-                @error("variants.$index.sku")
+                @error('variants.' . $index . '.sku')
                 <small class="text-danger">{{ $message }}</small>
                 @enderror
             </div>
 
             <div class="form-group col-md-4">
                 <label>Color</label>
-                <input type="text" name="variants[{{ $index }}][color]" class="form-control @error("
-                    variants.$index.color") is-invalid @enderror" value="{{ old(" variants.$index.color",
-                    $variant['color'] ?? '' ) }}" placeholder="Example: Black">
+                <input type="text" name="variants[{{ $index }}][color]"
+                    class="form-control @error('variants.' . $index . '.color') is-invalid @enderror"
+                    value="{{ old('variants.' . $index . '.color', $variant['color'] ?? '') }}"
+                    placeholder="Example: Black">
 
-                @error("variants.$index.color")
+                @error('variants.' . $index . '.color')
                 <small class="text-danger">{{ $message }}</small>
                 @enderror
             </div>
 
             <div class="form-group col-md-4">
-                <label>Internal Storage</label>
-                <input type="text" name="variants[{{ $index }}][internal]" class="form-control @error("
-                    variants.$index.internal") is-invalid @enderror" value="{{ old(" variants.$index.internal",
-                    $variant['internal'] ?? '' ) }}" placeholder="Example: 128 GB">
+                <label>Storage (GB)</label>
+                <input type="number" name="variants[{{ $index }}][storage_gb]"
+                    class="form-control @error('variants.' . $index . '.storage_gb') is-invalid @enderror"
+                    value="{{ old('variants.' . $index . '.storage_gb', $variant['storage_gb'] ?? '') }}"
+                    min="0" placeholder="Example: 128">
 
-                @error("variants.$index.internal")
+                @error('variants.' . $index . '.storage_gb')
                 <small class="text-danger">{{ $message }}</small>
                 @enderror
             </div>
@@ -273,37 +259,88 @@ $variants = $defaultVariants;
 
         <div class="form-row">
             <div class="form-group col-md-4">
-                <label>RAM</label>
-                <input type="text" name="variants[{{ $index }}][ram]" class="form-control @error(" variants.$index.ram")
-                    is-invalid @enderror" value="{{ old(" variants.$index.ram", $variant['ram'] ?? '' ) }}"
-                    placeholder="Example: 8 GB">
+                <label>RAM (GB)</label>
+                <input type="number" name="variants[{{ $index }}][ram_gb]"
+                    class="form-control @error('variants.' . $index . '.ram_gb') is-invalid @enderror"
+                    value="{{ old('variants.' . $index . '.ram_gb', $variant['ram_gb'] ?? '') }}" min="0"
+                    placeholder="Example: 8">
 
-                @error("variants.$index.ram")
+                @error('variants.' . $index . '.ram_gb')
                 <small class="text-danger">{{ $message }}</small>
                 @enderror
             </div>
 
             <div class="form-group col-md-4">
                 <label>Price</label>
-                <input type="number" name="variants[{{ $index }}][price]" class="form-control @error("
-                    variants.$index.price") is-invalid @enderror" value="{{ old(" variants.$index.price",
-                    $variant['price'] ?? '' ) }}" min="0" placeholder="0" required>
+                <input type="number" name="variants[{{ $index }}][price]"
+                    class="form-control @error('variants.' . $index . '.price') is-invalid @enderror"
+                    value="{{ old('variants.' . $index . '.price', $variant['price'] ?? '') }}" min="0" placeholder="0"
+                    required>
 
-                @error("variants.$index.price")
+                @error('variants.' . $index . '.price')
                 <small class="text-danger">{{ $message }}</small>
                 @enderror
             </div>
 
             <div class="form-group col-md-4">
                 <label>Stock</label>
-                <input type="number" name="variants[{{ $index }}][stock]" class="form-control @error("
-                    variants.$index.stock") is-invalid @enderror" value="{{ old(" variants.$index.stock",
-                    $variant['stock'] ?? '' ) }}" min="0" placeholder="0" required>
+                <input type="number" name="variants[{{ $index }}][stock]"
+                    class="form-control @error('variants.' . $index . '.stock') is-invalid @enderror"
+                    value="{{ old('variants.' . $index . '.stock', $variant['stock'] ?? '') }}" min="0" placeholder="0"
+                    required>
 
-                @error("variants.$index.stock")
+                @error('variants.' . $index . '.stock')
                 <small class="text-danger">{{ $message }}</small>
                 @enderror
             </div>
+
+            <div class="form-group col-md-4">
+                <label>Status</label>
+
+                @php
+                $selectedVariantStatus = old('variants.' . $index . '.is_active', $variant['is_active'] ?? 1);
+                @endphp
+
+                <select name="variants[{{ $index }}][is_active]"
+                    class="form-control @error('variants.' . $index . '.is_active') is-invalid @enderror" required>
+                    <option value="1" @selected((string) $selectedVariantStatus==='1' )>Active</option>
+                    <option value="0" @selected((string) $selectedVariantStatus==='0' )>Inactive</option>
+                </select>
+
+                @error('variants.' . $index . '.is_active')
+                <small class="text-danger">{{ $message }}</small>
+                @enderror
+            </div>
+        </div>
+
+        <div class="form-group mb-0">
+            <label>Variant Image</label>
+
+            <div>
+                <label for="variant-image-{{ $index }}"
+                    class="btn btn-outline-secondary rounded d-inline-flex align-items-center justify-content-center text-center p-0 overflow-hidden mb-0"
+                    style="width: 120px; height: 120px;">
+                    <div class="variant-image-preview w-100 h-100 d-flex align-items-center justify-content-center">
+                        @if (!empty($variant['image_url']))
+                        <img src="{{ $imageUrl($variant['image_url']) }}" alt="Variant Image {{ $index + 1 }}"
+                            class="w-100 h-100" style="object-fit: cover;">
+                        @else
+                        <div class="text-muted">
+                            <div class="h2 font-weight-light mb-0">+</div>
+                            <div class="small font-weight-bold">Upload</div>
+                        </div>
+                        @endif
+                    </div>
+                </label>
+
+                <input type="file" id="variant-image-{{ $index }}" name="variants[{{ $index }}][image]"
+                    class="d-none variant-image-input @error('variants.' . $index . '.image') is-invalid @enderror"
+                    accept="image/*">
+            </div>
+
+            @error('variants.' . $index . '.image')
+            <small class="text-danger d-block">{{ $message }}</small>
+            @enderror
         </div>
     </div>
     @endforeach
@@ -330,6 +367,47 @@ $variants = $defaultVariants;
         const wrapper = document.getElementById('variant-wrapper');
         const addButton = document.getElementById('add-variant');
 
+        const imageInputs = document.querySelectorAll('.product-image-input');
+        const imageSlots = document.querySelectorAll('.product-image-slot');
+
+        imageInputs.forEach(function (imageInput) {
+            imageInput.addEventListener('change', function () {
+                const file = this.files[0];
+
+                if (!file) {
+                    return;
+                }
+
+                const slot = this.closest('.product-image-slot');
+                const preview = slot.querySelector('.product-image-preview');
+                const removeInput = slot.querySelector('.product-image-remove-input');
+                const currentIndex = Number(this.dataset.imageIndex);
+                const nextSlot = imageSlots[currentIndex + 1];
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    preview.innerHTML = `
+                        <img
+                            src="${e.target.result}"
+                            alt="Product Image ${currentIndex + 1}"
+                            class="w-100 h-100"
+                            style="object-fit: cover;"
+                        >
+                    `;
+
+                    if (nextSlot) {
+                        nextSlot.style.display = '';
+                    }
+
+                    if (removeInput) {
+                        removeInput.disabled = false;
+                    }
+                };
+
+                reader.readAsDataURL(file);
+            });
+        });
+
         addButton.addEventListener('click', function () {
             const html = `
                 <div class="variant-item border rounded p-3 mb-3">
@@ -351,7 +429,8 @@ $variants = $defaultVariants;
                             <input type="text"
                                 name="variants[${variantIndex}][sku]"
                                 class="form-control"
-                                placeholder="Example: A55-BLK-128">
+                                placeholder="Example: A55-BLK-128"
+                                required>
                         </div>
 
                         <div class="form-group col-md-4">
@@ -363,21 +442,23 @@ $variants = $defaultVariants;
                         </div>
 
                         <div class="form-group col-md-4">
-                            <label>Internal Storage</label>
-                            <input type="text"
-                                name="variants[${variantIndex}][internal]"
+                            <label>Storage (GB)</label>
+                            <input type="number"
+                                name="variants[${variantIndex}][storage_gb]"
                                 class="form-control"
-                                placeholder="Example: 128 GB">
+                                min="0"
+                                placeholder="Example: 128">
                         </div>
                     </div>
 
                     <div class="form-row">
                         <div class="form-group col-md-4">
-                            <label>RAM</label>
-                            <input type="text"
-                                name="variants[${variantIndex}][ram]"
+                            <label>RAM (GB)</label>
+                            <input type="number"
+                                name="variants[${variantIndex}][ram_gb]"
                                 class="form-control"
-                                placeholder="Example: 8 GB">
+                                min="0"
+                                placeholder="Example: 8">
                         </div>
 
                         <div class="form-group col-md-4">
@@ -399,6 +480,40 @@ $variants = $defaultVariants;
                                 placeholder="0"
                                 required>
                         </div>
+
+                        <div class="form-group col-md-4">
+                            <label>Status</label>
+                            <select
+                                name="variants[${variantIndex}][is_active]"
+                                class="form-control"
+                                required>
+                                <option value="1" selected>Active</option>
+                                <option value="0">Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-0">
+                        <label>Variant Image</label>
+
+                        <div>
+                            <label for="variant-image-${variantIndex}"
+                                class="btn btn-outline-secondary rounded d-inline-flex align-items-center justify-content-center text-center p-0 overflow-hidden mb-0"
+                                style="width: 120px; height: 120px;">
+                                <div class="variant-image-preview w-100 h-100 d-flex align-items-center justify-content-center">
+                                    <div class="text-muted">
+                                        <div class="h2 font-weight-light mb-0">+</div>
+                                        <div class="small font-weight-bold">Upload</div>
+                                    </div>
+                                </div>
+                            </label>
+
+                            <input type="file"
+                                id="variant-image-${variantIndex}"
+                                name="variants[${variantIndex}][image]"
+                                class="d-none variant-image-input"
+                                accept="image/*">
+                        </div>
                     </div>
                 </div>
             `;
@@ -411,6 +526,34 @@ $variants = $defaultVariants;
             if (e.target.classList.contains('remove-variant')) {
                 e.target.closest('.variant-item').remove();
             }
+        });
+
+        wrapper.addEventListener('change', function (e) {
+            if (!e.target.classList.contains('variant-image-input')) {
+                return;
+            }
+
+            const file = e.target.files[0];
+
+            if (!file) {
+                return;
+            }
+
+            const preview = e.target.closest('.form-group').querySelector('.variant-image-preview');
+            const reader = new FileReader();
+
+            reader.onload = function (event) {
+                preview.innerHTML = `
+                    <img
+                        src="${event.target.result}"
+                        alt="Variant Image"
+                        class="w-100 h-100"
+                        style="object-fit: cover;"
+                    >
+                `;
+            };
+
+            reader.readAsDataURL(file);
         });
     });
 </script>

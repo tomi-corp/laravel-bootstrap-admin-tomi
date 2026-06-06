@@ -121,7 +121,7 @@ class AuthController extends Controller
                 ], $request->remember === 'on' ? true : false)
             ) {
                 $user = auth('admin')->user();
-                if (isset($user->google2fa_secret)) {
+                if (! blank($user->google2fa_secret)) {
                     return redirect()->route('admin.profile.confirmationCode');
                 }
                 return redirect()->intended(route('admin.dashboard.index'));
@@ -137,7 +137,7 @@ class AuthController extends Controller
                 ], $request->remember === 'on' ? true : false)
             ) {
                 $user = auth('admin')->user();
-                if (isset($user->google2fa_secret)) {
+                if (! blank($user->google2fa_secret)) {
                     return redirect()->route('admin.profile.confirmationCode');
                 }
                 return redirect()->intended(route('admin.dashboard.index'));

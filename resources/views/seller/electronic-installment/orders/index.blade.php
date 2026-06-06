@@ -1,5 +1,7 @@
 @extends('seller.layout.app')
 
+@section('title', 'Electronic Installment Orders')
+
 @section('content')
 
 <div class="container">
@@ -21,22 +23,17 @@
         <div class="card-body table-responsive">
 
             <table id="orders-table" class="table table-bordered table-striped">
-
                 <thead>
-
                     <tr>
                         <th>No</th>
-                        <th>Customer</th>
+                        <th>Pelanggan</th>
                         <th>Produk</th>
-                        <th>Variant</th>
+                        <th>Varian</th>
                         <th>Harga</th>
-                        <th>DP</th>
-                        <th>Tenor</th>
                         <th>Cicilan / Bulan</th>
                         <th>Status</th>
                         <th width="180">Aksi</th>
                     </tr>
-
                 </thead>
 
                 <tbody>
@@ -106,9 +103,6 @@
                             Rp {{ number_format($order->price, 0, ',', '.') }}
                         </td>
 
-                        <td>
-                            Rp {{ number_format($order->down_payment, 0, ',', '.') }}
-                        </td>
 
                         <td>
                             {{ $order->installment_month }} bulan
@@ -235,25 +229,6 @@
 
                     </div>
 
-                    <div class="form-group pt-2">
-
-                        <label>
-                            Action
-                        </label>
-
-                        <select class="form-control" name="action" required>
-
-                            <option value="approve">
-                                APPROVE
-                            </option>
-
-                            <option value="reject">
-                                REJECT
-                            </option>
-
-                        </select>
-
-                    </div>
 
                 </div>
 
