@@ -4,6 +4,9 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use App\Models\GadgetInstallment;
+use App\Models\Product;
+use App\Models\ProductVariant;
+use App\Models\tenor_pinjaman;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -111,6 +114,152 @@ class GadgetInstallmentController extends Controller
         ], 200);
     }
 
+    public function simulation(Request $request)
+    {
+        $this->normalizeSimulationData($request);
+
+        $validator = Validator::make($request->all(), [
+            'product_id' => ['required', 'exists:products,id'],
+            'variant_id' => ['required', 'exists:product_variants,id'],
+            'id_tenor_pinjaman' => ['nullable', 'exists:tenor_pinjamen,id'],
+            'installment_month' => ['required_without:id_tenor_pinjaman', 'integer', 'min:1'],
+            'interest_rate' => ['nullable', 'numeric', 'min:0'],
+        ], [], [
+            'product_id' => 'product',
+            'variant_id' => 'variant',
+            'id_tenor_pinjaman' => 'tenor pinjaman',
+            'installment_month' => 'tenor cicilan',
+            'interest_rate' => 'bunga',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => $validator->errors()->first(),
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $product = Product::where('id', $request->product_id)
+            ->where('is_active', true)
+            ->first();
+
+        if (!$product) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Product tidak ditemukan atau tidak aktif',
+            ], 404);
+        }
+
+        $variant = ProductVariant::where('id', $request->variant_id)
+            ->where('product_id', $request->product_id)
+            ->where('is_active', true)
+            ->first();
+
+        if (!$variant) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Variant tidak ditemukan atau tidak sesuai dengan product',
+            ], 422);
+        }
+
+        $price = (float) $variant->price;
+        $tenor = null;
+        $installmentMonth = (int) $request->installment_month;
+        $interestRate = (float) ($request->interest_rate ?? 0);
+        $usesLoanTenor = $request->filled('id_tenor_pinjaman');
+
+        if ($usesLoanTenor) {
+            $tenor = tenor_pinjaman::find($request->id_tenor_pinjaman);
+
+            if (!$tenor) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tenor pinjaman tidak ditemukan',
+                ], 404);
+            }
+
+            if ($price < (float) $tenor->minimal_nominal || $price > (float) $tenor->maximal_nominal) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Harga gadget tidak sesuai dengan range nominal tenor pinjaman',
+                    'data' => [
+                        'price' => round($price, 2),
+                        'minimal_nominal' => round((float) $tenor->minimal_nominal, 2),
+                        'maximal_nominal' => round((float) $tenor->maximal_nominal, 2),
+                        'formatted' => [
+                            'price' => 'Rp  ' . number_format($price),
+                            'minimal_nominal' => 'Rp  ' . number_format((float) $tenor->minimal_nominal),
+                            'maximal_nominal' => 'Rp  ' . number_format((float) $tenor->maximal_nominal),
+                        ],
+                    ],
+                ], 422);
+            }
+
+            $installmentMonth = (int) $tenor->tenor;
+            $interestRate = (float) $tenor->rate;
+
+            if ($installmentMonth < 1) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tenor pinjaman tidak valid',
+                ], 422);
+            }
+        }
+
+        $interestAmount = $usesLoanTenor
+            ? $price * ($interestRate / 100) * $installmentMonth
+            : $price * ($interestRate / 100);
+        $totalAmount = $price + $interestAmount;
+        $monthlyInstallment = $usesLoanTenor
+            ? ceil(($totalAmount / $installmentMonth) / 1000) * 1000
+            : $totalAmount / $installmentMonth;
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Simulasi cicilan gadget berhasil dihitung',
+            'data' => [
+                'product_id' => (int) $request->product_id,
+                'variant_id' => (int) $request->variant_id,
+                'id_tenor_pinjaman' => $tenor ? (int) $tenor->id : null,
+                'price' => round($price, 2),
+                'installment_month' => $installmentMonth,
+                'interest_rate' => round($interestRate, 2),
+                'interest_amount' => round($interestAmount, 2),
+                'total_amount' => round($totalAmount, 2),
+                'monthly_installment' => round($monthlyInstallment, 2),
+                'formatted' => [
+                    'price' => 'Rp  ' . number_format($price),
+                    'interest_rate' => round($interestRate, 2) . '%',
+                    'interest_amount' => 'Rp  ' . number_format($interestAmount),
+                    'total_amount' => 'Rp  ' . number_format($totalAmount),
+                    'monthly_installment' => 'Rp  ' . number_format($monthlyInstallment),
+                ],
+                'tenor_pinjaman' => $tenor ? [
+                    'id' => $tenor->id,
+                    'tenor' => $tenor->tenor . ' bulan',
+                    'rate' => $tenor->rate . '%',
+                    'minimal_nominal' => 'Rp  ' . number_format((float) $tenor->minimal_nominal),
+                    'maximal_nominal' => 'Rp  ' . number_format((float) $tenor->maximal_nominal),
+                ] : null,
+                'product' => [
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'brand' => $product->brand,
+                    'model' => $product->model,
+                ],
+                'variant' => [
+                    'id' => $variant->id,
+                    'sku' => $variant->sku,
+                    'color' => $variant->color,
+                    'ram_gb' => $variant->ram_gb,
+                    'storage_gb' => $variant->storage_gb,
+                    'stock' => $variant->stock,
+                ],
+            ],
+        ], 200);
+    }
+
     public function update(Request $request, $id)
     {
         $installment = GadgetInstallment::find($id);
@@ -197,6 +346,27 @@ class GadgetInstallmentController extends Controller
         } while (GadgetInstallment::where('invoice_number', $invoiceNumber)->exists());
 
         return $invoiceNumber;
+    }
+
+    private function normalizeSimulationData(Request $request): void
+    {
+        if (!$request->filled('variant_id') && $request->filled('product_variant_id')) {
+            $request->merge([
+                'variant_id' => $request->product_variant_id,
+            ]);
+        }
+
+        if (!$request->filled('installment_month') && $request->filled('tenor_months')) {
+            $request->merge([
+                'installment_month' => $request->tenor_months,
+            ]);
+        }
+
+        if (!$request->filled('id_tenor_pinjaman') && $request->filled('tenor_pinjaman_id')) {
+            $request->merge([
+                'id_tenor_pinjaman' => $request->tenor_pinjaman_id,
+            ]);
+        }
     }
 
     private function installmentRelationsForDisplay(): array

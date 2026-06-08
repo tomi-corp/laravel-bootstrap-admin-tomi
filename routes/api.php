@@ -66,6 +66,7 @@ Route::middleware(['LanguangeMiddleware'])->group(
                     Route::post('/cek/pegawai', [PinjamanController::class, 'cekPegawai']);
                     Route::post('/get/maximal/minimal', [PinjamanController::class, 'maximalMinimal']);
                     Route::match(['get', 'post'], '/get/tenor', [PinjamanController::class, 'getTenor']);
+                    Route::match(['get', 'post'], '/get/simulation', [PinjamanController::class, 'getSimulation']);
 
                     Route::post('/action/pinjaman', [PinjamanController::class, 'actionPinjaman']);
                     Route::post('/action/pinjaman/otp', [PinjamanController::class, 'actionPinjamanOTP']);
@@ -115,6 +116,7 @@ Route::middleware(['LanguangeMiddleware'])->group(
                 Route::post('/order/store', [OrderController::class, 'store']);
 
                 Route::get('/gadget-installments', [GadgetInstallmentController::class, 'index']);
+                Route::post('/gadget-installments/simulation', [GadgetInstallmentController::class, 'simulation']);
                 Route::get('/gadget-installments/{id}', [GadgetInstallmentController::class, 'show']);
             }
         );
