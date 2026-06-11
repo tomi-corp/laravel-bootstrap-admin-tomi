@@ -1179,6 +1179,10 @@ class KspController extends Controller
                 return "Rp  " . number_format($row->jumlah_yang_diterima);
             })
 
+            ->addColumn('biaya', function ($row) {
+                return "Rp  " . number_format($row->cost_tomi);
+            })
+
             ->addColumn('cost_tomi', function ($row) {
                 return "Rp  " . number_format($row->cost_tomi);
             })
@@ -1376,6 +1380,10 @@ class KspController extends Controller
 
             ->addColumn('jumlah_yang_diterima', function ($row) {
                 return "Rp  " . number_format($row->jumlah_yang_diterima);
+            })
+
+            ->addColumn('biaya', function ($row) {
+                return "Rp  " . number_format($row->cost_tomi);
             })
 
             ->addColumn('cost_tomi', function ($row) {
