@@ -4,6 +4,7 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use App\Models\GadgetInstallment;
+use App\Models\GadgetTenor;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\tenor_pinjaman;
@@ -18,7 +19,7 @@ class GadgetInstallmentController extends Controller
         $installments = GadgetInstallment::with($this->installmentRelationsForDisplay())
             ->latest()
             ->get()
-            ->map(fn (GadgetInstallment $installment) => $this->formatInstallmentForDisplay($installment));
+            ->map(fn(GadgetInstallment $installment) => $this->formatInstallmentForDisplay($installment));
 
         return response()->json([
             'success' => true,
@@ -114,6 +115,88 @@ class GadgetInstallmentController extends Controller
         ], 200);
     }
 
+    public function getTenor(GetTenorRequest $req)
+    {
+        $nip = explode("-", $req->nip);
+
+        if (count($nip) < 2) {
+            return response()->json([
+                'status' => 400,
+                'message' => 'Format NIP tidak valid',
+            ], 400);
+        }
+
+        $perusahaan = ListPerusahaan::where('unique_code', $nip[0])
+            ->with([
+                'karyawanSingle' => function ($q) use ($nip) {
+                    $q->where('nip', $nip[1]);
+                },
+            ])
+            ->first();
+
+        if (!$perusahaan) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'Perusahaan tidak ditemukan',
+            ], 404);
+        }
+
+        if (!$perusahaan->karyawanSingle) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'Karyawan tidak ditemukan',
+            ], 404);
+        }
+
+        $tenor = GadgetTenor::where('company_id', $perusahaan->id)
+            ->where('is_active', true)
+            ->where(function ($q) use ($req) {
+                $q->where(function ($query) use ($req) {
+                    $query->whereNull('minimum_amount')
+                        ->orWhere('minimum_amount', '<=', $req->nominal);
+                })
+                    ->where(function ($query) use ($req) {
+                        $query->whereNull('maximum_amount')
+                            ->orWhere('maximum_amount', '>=', $req->nominal);
+                    });
+            })
+            ->orderBy('tenor_months')
+            ->get();
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'success get gadget tenor',
+            'produk' => GadgetTenorResource::collection($tenor),
+        ], 200);
+    }
+
+    private function normalizeGetTenorData(Request $request): void
+    {
+        if (!$request->filled('company_id') && $request->filled('id_perusahaan')) {
+            $request->merge([
+                'company_id' => $request->id_perusahaan,
+            ]);
+        }
+
+        if (!$request->filled('variant_id') && $request->filled('product_variant_id')) {
+            $request->merge([
+                'variant_id' => $request->product_variant_id,
+            ]);
+        }
+
+        if (!$request->filled('price') && $request->filled('harga')) {
+            $request->merge([
+                'price' => $request->harga,
+            ]);
+        }
+
+        if (!$request->filled('nominal') && $request->filled('amount')) {
+            $request->merge([
+                'nominal' => $request->amount,
+            ]);
+        }
+    }
+
     public function simulation(Request $request)
     {
         $this->normalizeSimulationData($request);
@@ -121,12 +204,14 @@ class GadgetInstallmentController extends Controller
         $validator = Validator::make($request->all(), [
             'product_id' => ['required', 'exists:products,id'],
             'variant_id' => ['required', 'exists:product_variants,id'],
+            'gadget_tenor_id' => ['nullable', 'exists:gadget_tenors,id'],
             'id_tenor_pinjaman' => ['nullable', 'exists:tenor_pinjamen,id'],
-            'installment_month' => ['required_without:id_tenor_pinjaman', 'integer', 'min:1'],
+            'installment_month' => ['required_without_all:id_tenor_pinjaman,gadget_tenor_id', 'integer', 'min:1'],
             'interest_rate' => ['nullable', 'numeric', 'min:0'],
         ], [], [
             'product_id' => 'product',
             'variant_id' => 'variant',
+            'gadget_tenor_id' => 'tenor gadget',
             'id_tenor_pinjaman' => 'tenor pinjaman',
             'installment_month' => 'tenor cicilan',
             'interest_rate' => 'bunga',
@@ -165,11 +250,47 @@ class GadgetInstallmentController extends Controller
 
         $price = (float) $variant->price;
         $tenor = null;
+        $gadgetTenor = null;
         $installmentMonth = (int) $request->installment_month;
         $interestRate = (float) ($request->interest_rate ?? 0);
+        $totalFees = 0;
+        $usesGadgetTenor = $request->filled('gadget_tenor_id');
         $usesLoanTenor = $request->filled('id_tenor_pinjaman');
 
-        if ($usesLoanTenor) {
+        if ($usesGadgetTenor) {
+            $gadgetTenor = GadgetTenor::where('id', $request->gadget_tenor_id)
+                ->where('is_active', true)
+                ->first();
+
+            if (!$gadgetTenor) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tenor gadget tidak ditemukan atau tidak aktif',
+                ], 404);
+            }
+
+            if (
+                ($gadgetTenor->minimum_amount !== null && $price < (float) $gadgetTenor->minimum_amount)
+                || ($gadgetTenor->maximum_amount !== null && $price > (float) $gadgetTenor->maximum_amount)
+            ) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Harga gadget tidak sesuai dengan range nominal tenor gadget',
+                    'data' => [
+                        'price' => round($price, 2),
+                        'minimum_amount' => $gadgetTenor->minimum_amount !== null ? round((float) $gadgetTenor->minimum_amount, 2) : null,
+                        'maximum_amount' => $gadgetTenor->maximum_amount !== null ? round((float) $gadgetTenor->maximum_amount, 2) : null,
+                    ],
+                ], 422);
+            }
+
+            $installmentMonth = (int) $gadgetTenor->tenor_months;
+            $interestRate = (float) $gadgetTenor->interest_rate;
+            $totalFees = (float) $gadgetTenor->admin_fee
+                + (float) $gadgetTenor->insurance_fee
+                + (float) $gadgetTenor->provision_fee
+                + (float) ($gadgetTenor->service_fee ?? 0);
+        } elseif ($usesLoanTenor) {
             $tenor = tenor_pinjaman::find($request->id_tenor_pinjaman);
 
             if (!$tenor) {
@@ -210,7 +331,7 @@ class GadgetInstallmentController extends Controller
         $interestAmount = $usesLoanTenor
             ? $price * ($interestRate / 100) * $installmentMonth
             : $price * ($interestRate / 100);
-        $totalAmount = $price + $interestAmount;
+        $totalAmount = $price + $interestAmount + $totalFees;
         $monthlyInstallment = $usesLoanTenor
             ? ceil(($totalAmount / $installmentMonth) / 1000) * 1000
             : $totalAmount / $installmentMonth;
@@ -221,20 +342,24 @@ class GadgetInstallmentController extends Controller
             'data' => [
                 'product_id' => (int) $request->product_id,
                 'variant_id' => (int) $request->variant_id,
+                'gadget_tenor_id' => $gadgetTenor ? (int) $gadgetTenor->id : null,
                 'id_tenor_pinjaman' => $tenor ? (int) $tenor->id : null,
                 'price' => round($price, 2),
                 'installment_month' => $installmentMonth,
                 'interest_rate' => round($interestRate, 2),
                 'interest_amount' => round($interestAmount, 2),
+                'total_fees' => round($totalFees, 2),
                 'total_amount' => round($totalAmount, 2),
                 'monthly_installment' => round($monthlyInstallment, 2),
                 'formatted' => [
                     'price' => 'Rp  ' . number_format($price),
                     'interest_rate' => round($interestRate, 2) . '%',
                     'interest_amount' => 'Rp  ' . number_format($interestAmount),
+                    'total_fees' => 'Rp  ' . number_format($totalFees),
                     'total_amount' => 'Rp  ' . number_format($totalAmount),
                     'monthly_installment' => 'Rp  ' . number_format($monthlyInstallment),
                 ],
+                'gadget_tenor' => $gadgetTenor ? $this->formatGadgetTenor($gadgetTenor) : null,
                 'tenor_pinjaman' => $tenor ? [
                     'id' => $tenor->id,
                     'tenor' => $tenor->tenor . ' bulan',
@@ -367,6 +492,41 @@ class GadgetInstallmentController extends Controller
                 'id_tenor_pinjaman' => $request->tenor_pinjaman_id,
             ]);
         }
+
+        if (!$request->filled('gadget_tenor_id') && $request->filled('tenor_gadget_id')) {
+            $request->merge([
+                'gadget_tenor_id' => $request->tenor_gadget_id,
+            ]);
+        }
+    }
+
+    private function formatGadgetTenor(GadgetTenor $tenor): array
+    {
+        return [
+            'id_gadget_tenor' => $tenor->id,
+            'gadget_tenor_id' => $tenor->id,
+            'company_id' => $tenor->company_id,
+            'tenor_months' => $tenor->tenor_months,
+            'tenor' => $tenor->tenor_months . ' bulan',
+            'interest_rate' => round((float) $tenor->interest_rate, 2),
+            'rate' => round((float) $tenor->interest_rate, 2) . ' %',
+            'insurance_fee' => round((float) $tenor->insurance_fee, 2),
+            'provision_fee' => round((float) $tenor->provision_fee, 2),
+            'admin_fee' => round((float) $tenor->admin_fee, 2),
+            'tomi_fee' => round((float) $tenor->tomi_fee, 2),
+            'service_fee' => round((float) ($tenor->service_fee ?? 0), 2),
+            'minimum_amount' => $tenor->minimum_amount !== null ? round((float) $tenor->minimum_amount, 2) : null,
+            'maximum_amount' => $tenor->maximum_amount !== null ? round((float) $tenor->maximum_amount, 2) : null,
+            'formatted' => [
+                'insurance_fee' => 'Rp  ' . number_format((float) $tenor->insurance_fee),
+                'provision_fee' => 'Rp  ' . number_format((float) $tenor->provision_fee),
+                'admin_fee' => 'Rp  ' . number_format((float) $tenor->admin_fee),
+                'tomi_fee' => 'Rp  ' . number_format((float) $tenor->tomi_fee),
+                'service_fee' => 'Rp  ' . number_format((float) ($tenor->service_fee ?? 0)),
+                'minimum_amount' => $tenor->minimum_amount !== null ? 'Rp  ' . number_format((float) $tenor->minimum_amount) : null,
+                'maximum_amount' => $tenor->maximum_amount !== null ? 'Rp  ' . number_format((float) $tenor->maximum_amount) : null,
+            ],
+        ];
     }
 
     private function installmentRelationsForDisplay(): array
