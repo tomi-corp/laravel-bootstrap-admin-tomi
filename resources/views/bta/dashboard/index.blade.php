@@ -143,6 +143,26 @@
         padding: 18px;
     }
 
+    .stat-card-link {
+        display: block;
+        color: inherit;
+        text-decoration: none;
+        border-radius: 8px;
+        transition: transform 0.16s ease, box-shadow 0.16s ease;
+    }
+
+    .stat-card-link:hover,
+    .stat-card-link:focus {
+        color: inherit;
+        text-decoration: none;
+        transform: translateY(-2px);
+    }
+
+    .stat-card-link:hover .stat-card,
+    .stat-card-link:focus .stat-card {
+        box-shadow: 0 12px 28px rgba(15, 23, 42, 0.11);
+    }
+
     .stat-card-inner {
         display: flex;
         align-items: flex-start;
@@ -337,87 +357,99 @@
         <div class="col-xl-9 col-lg-8">
             <div class="row">
                 <div class="col-md-4 col-sm-6 mb-3">
-                    <div class="stat-card">
-                        <div class="stat-card-inner">
-                            <div>
-                                <div class="stat-label">Revisi</div>
-                                <div class="stat-number">{{ $totalRevisi }}</div>
-                            </div>
-                            <div class="stat-icon soft-warning">
-                                <i class="fas fa-undo"></i>
+                    <a href="{{ route('bta.nasabah.index') }}#revisi" class="stat-card-link">
+                        <div class="stat-card">
+                            <div class="stat-card-inner">
+                                <div>
+                                    <div class="stat-label">Revisi</div>
+                                    <div class="stat-number">{{ $totalRevisi }}</div>
+                                </div>
+                                <div class="stat-icon soft-warning">
+                                    <i class="fas fa-undo"></i>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    </a>
                 </div>
 
                 <div class="col-md-4 col-sm-6 mb-3">
-                    <div class="stat-card">
-                        <div class="stat-card-inner">
-                            <div>
-                                <div class="stat-label">Analyst</div>
-                                <div class="stat-number">{{ $totalAnalyst }}</div>
-                            </div>
-                            <div class="stat-icon soft-info">
-                                <i class="fas fa-search"></i>
+                    <a href="{{ route('bta.nasabah.index') }}#analyst" class="stat-card-link">
+                        <div class="stat-card">
+                            <div class="stat-card-inner">
+                                <div>
+                                    <div class="stat-label">Analyst</div>
+                                    <div class="stat-number">{{ $totalAnalyst }}</div>
+                                </div>
+                                <div class="stat-icon soft-info">
+                                    <i class="fas fa-search"></i>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    </a>
                 </div>
 
                 <div class="col-md-4 col-sm-6 mb-3">
-                    <div class="stat-card">
-                        <div class="stat-card-inner">
-                            <div>
-                                <div class="stat-label">Credam</div>
-                                <div class="stat-number">{{ $totalCredam }}</div>
-                            </div>
-                            <div class="stat-icon soft-primary">
-                                <i class="fas fa-tasks"></i>
+                    <a href="{{ route('bta.credam.index') }}" class="stat-card-link">
+                        <div class="stat-card">
+                            <div class="stat-card-inner">
+                                <div>
+                                    <div class="stat-label">Credam</div>
+                                    <div class="stat-number">{{ $totalCredam }}</div>
+                                </div>
+                                <div class="stat-icon soft-primary">
+                                    <i class="fas fa-tasks"></i>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    </a>
                 </div>
 
                 <div class="col-md-4 col-sm-6 mb-3 mb-md-0">
-                    <div class="stat-card">
-                        <div class="stat-card-inner">
-                            <div>
-                                <div class="stat-label">Ditolak</div>
-                                <div class="stat-number">{{ $totalDitolak }}</div>
-                            </div>
-                            <div class="stat-icon soft-danger">
-                                <i class="fas fa-times-circle"></i>
+                    <a href="{{ route('bta.nasabah.index') }}#ditolak" class="stat-card-link">
+                        <div class="stat-card">
+                            <div class="stat-card-inner">
+                                <div>
+                                    <div class="stat-label">Ditolak</div>
+                                    <div class="stat-number">{{ $totalDitolak }}</div>
+                                </div>
+                                <div class="stat-icon soft-danger">
+                                    <i class="fas fa-times-circle"></i>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    </a>
                 </div>
 
                 <div class="col-md-4 col-sm-6 mb-3 mb-sm-0">
-                    <div class="stat-card">
-                        <div class="stat-card-inner">
-                            <div>
-                                <div class="stat-label">Selesai</div>
-                                <div class="stat-number">{{ $totalSelesai }}</div>
-                            </div>
-                            <div class="stat-icon soft-success">
-                                <i class="fas fa-check-circle"></i>
+                    <a href="{{ route('bta.finance.uploaded.index') }}" class="stat-card-link">
+                        <div class="stat-card">
+                            <div class="stat-card-inner">
+                                <div>
+                                    <div class="stat-label">Selesai</div>
+                                    <div class="stat-number">{{ $totalSelesai }}</div>
+                                </div>
+                                <div class="stat-icon soft-success">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    </a>
                 </div>
 
                 <div class="col-md-4 col-sm-6">
-                    <div class="stat-card">
-                        <div class="stat-card-inner">
-                            <div>
-                                <div class="stat-label">Finance</div>
-                                <div class="stat-number">{{ $totalFinance }}</div>
-                            </div>
-                            <div class="stat-icon soft-info">
-                                <i class="fas fa-money-check-alt"></i>
+                    <a href="{{ route('bta.finance.index') }}" class="stat-card-link">
+                        <div class="stat-card">
+                            <div class="stat-card-inner">
+                                <div>
+                                    <div class="stat-label">Finance</div>
+                                    <div class="stat-number">{{ $totalFinance }}</div>
+                                </div>
+                                <div class="stat-icon soft-info">
+                                    <i class="fas fa-money-check-alt"></i>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    </a>
                 </div>
             </div>
         </div>

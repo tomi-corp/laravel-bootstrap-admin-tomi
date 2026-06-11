@@ -227,6 +227,10 @@ class FinanceController extends Controller
 
     public function approve(Request $req)
     {
+        $req->merge([
+            'mulai_pinjaman' => $req->tanggal_disbursement,
+        ]);
+
         $validated = $req->validate([
             'id' => 'required|exists:nasabahs,id',
             'tanggal_disbursement' => 'required|date',
@@ -263,7 +267,7 @@ class FinanceController extends Controller
 
         $nasabah->tanggal_disbursement = $validated['tanggal_disbursement'];
         $nasabah->bukti_disbursement = $filename;
-        $nasabah->mulai_pinjaman = $validated['mulai_pinjaman'];
+        $nasabah->mulai_pinjaman = $validated['tanggal_disbursement'];
         $nasabah->akhir_pinjaman = $validated['akhir_pinjaman'];
         $nasabah->position = 'credam';
         $nasabah->status = 'approve';

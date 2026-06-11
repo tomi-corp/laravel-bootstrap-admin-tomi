@@ -32,7 +32,6 @@
         border-radius: 6px;
         background: #f8fafc;
     }
-
 </style>
 
 <div class="row">
@@ -152,14 +151,13 @@
 
                 <div class="form-group">
                     <label for="tanggal_disbursement">Tanggal Disbursement <span class="text-danger">*</span></label>
-                    <input type="date" class="form-control" name="tanggal_disbursement"
-                        id="tanggal_disbursement" required>
+                    <input type="date" class="form-control" name="tanggal_disbursement" id="tanggal_disbursement"
+                        required>
                     <small class="text-danger" id="errTanggalDisbursement"></small>
                 </div>
 
                 <div class="form-group">
-                    <label for="bukti_disbursement">Upload Bukti Disbursement <span
-                            class="text-danger">*</span></label>
+                    <label for="bukti_disbursement">Upload Bukti Disbursement <span class="text-danger">*</span></label>
                     <input type="file" class="form-control" name="bukti_disbursement" id="bukti_disbursement"
                         accept=".jpg,.jpeg,.png,.pdf" required>
                     <small class="text-muted d-block" id="buktiInfo">Format: JPG, PNG, atau PDF. Maksimal 5 MB.</small>
@@ -168,14 +166,14 @@
 
                 <div class="form-group">
                     <label for="mulai_pinjaman">Mulai Pinjaman <span class="text-danger">*</span></label>
-                    <input type="date" class="form-control" name="mulai_pinjaman" id="mulai_pinjaman" required>
+                    <input type="hidden" name="mulai_pinjaman" id="mulai_pinjaman">
+                    <input type="date" class="form-control" id="mulai_pinjaman_display" disabled>
                     <small class="text-danger" id="errMulaiPinjaman"></small>
                 </div>
 
                 <div class="form-group">
                     <label for="akhir_pinjaman">Akhir Pinjaman <span class="text-danger">*</span></label>
-                    <input type="date" class="form-control" name="akhir_pinjaman" id="akhir_pinjaman" readonly
-                        required>
+                    <input type="date" class="form-control" name="akhir_pinjaman" id="akhir_pinjaman" readonly required>
                     <small class="text-danger" id="errAkhirPinjaman"></small>
                 </div>
             </div>
@@ -193,7 +191,7 @@
 
 @push('js')
 <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
         var dataTable = {
             "_token": "{{ csrf_token() }}",
         };
@@ -201,29 +199,29 @@
         var tableFinance = $('#tableFinance').DataTable({
             dom: 'B<"clear">lfrtip',
             buttons: [{
-                    extend: 'excel',
-                    className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
-                    text: '<span class="mdi mdi-file-excel"><span class="pl-1">Excel</span></span>',
-                    exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7]
-                    }
-                },
-                {
-                    extend: 'copy',
-                    className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
-                    text: '<span class="mdi mdi-content-copy"><span class="pl-1">Copy</span></span>',
-                    exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7]
-                    }
-                },
-                {
-                    extend: 'print',
-                    className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
-                    text: '<span class="mdi mdi-printer"><span class="pl-1">Print</span></span>',
-                    exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7]
-                    }
+                extend: 'excel',
+                className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
+                text: '<span class="mdi mdi-file-excel"><span class="pl-1">Excel</span></span>',
+                exportOptions: {
+                    columns: [0, 1, 2, 3, 4, 5, 6, 7]
                 }
+            },
+            {
+                extend: 'copy',
+                className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
+                text: '<span class="mdi mdi-content-copy"><span class="pl-1">Copy</span></span>',
+                exportOptions: {
+                    columns: [0, 1, 2, 3, 4, 5, 6, 7]
+                }
+            },
+            {
+                extend: 'print',
+                className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
+                text: '<span class="mdi mdi-printer"><span class="pl-1">Print</span></span>',
+                exportOptions: {
+                    columns: [0, 1, 2, 3, 4, 5, 6, 7]
+                }
+            }
             ],
             "lengthMenu": [10, 50, 100, 500, 1000],
             processing: true,
@@ -235,39 +233,39 @@
             ajax: {
                 "type": "POST",
                 "url": '{!! route($tableRoute ?? 'bta.finance.table') !!}',
-                "data": function(d) {
+                "data": function (d) {
                     return $.extend({}, d, dataTable);
                 },
             },
             columns: [{
-                    data: 'no_ktp'
-                },
-                {
-                    data: 'nama_lengkap'
-                },
-                {
-                    data: 'tanggal_lahir'
-                },
-                {
-                    data: 'jenis_kelamin'
-                },
-                {
-                    data: 'no_telp'
-                },
-                {
-                    data: 'status_perkawinan'
-                },
-                {
-                    data: 'nama_perusahaan'
-                },
-                {
-                    data: 'status_pegawai'
-                },
-                {
-                    data: 'action',
-                    orderable: false,
-                    searchable: false,
-                }
+                data: 'no_ktp'
+            },
+            {
+                data: 'nama_lengkap'
+            },
+            {
+                data: 'tanggal_lahir'
+            },
+            {
+                data: 'jenis_kelamin'
+            },
+            {
+                data: 'no_telp'
+            },
+            {
+                data: 'status_perkawinan'
+            },
+            {
+                data: 'nama_perusahaan'
+            },
+            {
+                data: 'status_pegawai'
+            },
+            {
+                data: 'action',
+                orderable: false,
+                searchable: false,
+            }
             ]
         });
 
@@ -297,7 +295,15 @@
             $('#akhir_pinjaman').val(year + '-' + month + '-' + day);
         }
 
-        $(document).on('click', '.btn-disbursement', function() {
+        function syncMulaiPinjamanWithDisbursement() {
+            var tanggalDisbursement = $('#tanggal_disbursement').val();
+
+            $('#mulai_pinjaman').val(tanggalDisbursement);
+            $('#mulai_pinjaman_display').val(tanggalDisbursement);
+            calculateAkhirPinjaman();
+        }
+
+        $(document).on('click', '.btn-disbursement', function () {
             clearDisbursementErrors();
 
             var today = new Date().toISOString().slice(0, 10);
@@ -308,12 +314,8 @@
             $('#finance_nama').val($(this).data('nama'));
             $('#finance_jangka_waktu').val($(this).data('jangka-waktu'));
             $('#tanggal_disbursement').val(tanggalDisbursement);
-            $('#mulai_pinjaman').val($(this).data('mulai-pinjaman'));
             $('#akhir_pinjaman').val($(this).data('akhir-pinjaman'));
-
-            if ($('#mulai_pinjaman').val() && !$('#akhir_pinjaman').val()) {
-                calculateAkhirPinjaman();
-            }
+            syncMulaiPinjamanWithDisbursement();
 
             if ($(this).data('has-bukti') == 1) {
                 $('#buktiInfo').text('Bukti sebelumnya sudah ada. Upload file baru untuk mengganti.');
@@ -324,11 +326,9 @@
             $('#modalDisbursement').modal('show');
         });
 
-        $('#mulai_pinjaman').on('change input', function() {
-            calculateAkhirPinjaman();
-        });
+        $('#tanggal_disbursement').on('change input', syncMulaiPinjamanWithDisbursement);
 
-        $(document).on('click', '.btn-view-proof', function() {
+        $(document).on('click', '.btn-view-proof', function () {
             var url = $(this).data('url');
             var nama = $(this).data('nama') || 'Nasabah';
 
@@ -342,7 +342,7 @@
             $('#modalProof').modal('show');
         });
 
-        $('#modalProof').on('hidden.bs.modal', function() {
+        $('#modalProof').on('hidden.bs.modal', function () {
             $('#proofNama').val('');
             $('#proofTanggalDisbursement').val('');
             $('#proofMulaiPinjaman').val('');
@@ -351,7 +351,7 @@
             $('#proofOpenNewTab').attr('href', '#');
         });
 
-        $('#formDisbursement').on('submit', function(e) {
+        $('#formDisbursement').on('submit', function (e) {
             e.preventDefault();
             clearDisbursementErrors();
 
@@ -368,12 +368,12 @@
                 processData: false,
                 contentType: false,
                 dataType: 'json',
-                success: function(response) {
+                success: function (response) {
                     toastr.success(response.message || 'Data disbursement berhasil disimpan.');
                     $('#modalDisbursement').modal('hide');
                     tableFinance.ajax.reload(null, false);
                 },
-                error: function(xhr) {
+                error: function (xhr) {
                     if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
                         var errors = xhr.responseJSON.errors;
                         $('#errTanggalDisbursement').text(errors.tanggal_disbursement ? errors
@@ -389,7 +389,7 @@
                             .message : 'Terjadi kesalahan saat menyimpan data.');
                     }
                 },
-                complete: function() {
+                complete: function () {
                     $btn.prop('disabled', false).html(originalHtml);
                 }
             });

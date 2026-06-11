@@ -279,6 +279,32 @@
 @push('js')
 <script>
     $(document).ready(function () {
+        function openTabFromHash() {
+            var hash = window.location.hash;
+
+            if (!hash) {
+                return;
+            }
+
+            var $tab = $('.nav-pills a[href="' + hash + '"]');
+
+            if ($tab.length) {
+                $tab.tab('show');
+            }
+        }
+
+        openTabFromHash();
+
+        $(window).on('hashchange', openTabFromHash);
+
+        $('.nav-pills a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+            var hash = $(e.target).attr('href');
+
+            if (hash && window.location.hash !== hash) {
+                history.replaceState(null, null, hash);
+            }
+        });
+
         let currentFileStatus = {};
         let filesToReplace = {};
         let uploadSetujuAnalyst = '';
