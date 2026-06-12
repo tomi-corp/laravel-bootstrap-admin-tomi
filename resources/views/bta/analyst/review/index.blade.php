@@ -50,7 +50,7 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" data-toggle="tab" href="#tab-dokumen-review" role="tab">
-                            <i class="mdi mdi-file-document mr-1"></i>Dokumen (List)
+                            <i class="mdi mdi-file-document mr-1"></i>Dokumen
                         </a>
                     </li>
                 </ul>
@@ -569,7 +569,6 @@
 
                         <div class="row">
                             <div class="col-md-6">
-
                                 <div class="form-group">
                                     <label for="plafond">Pengajuan Nasabah: <span class="text-danger">*</span></label>
                                     <input type="text" readonly class="form-control rupiah-format" id="pengajuan"
@@ -577,7 +576,9 @@
                                         placeholder="Jumlah Pengajuan Nasabah">
                                     <small class="text-danger" id="errPlafond"></small>
                                 </div>
+                            </div>
 
+                            <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="plafond">Persetujuan Analyst: <span class="text-danger">*</span></label>
                                     <input type="text" class="form-control rupiah-format" name="plafond" id="plafond"
@@ -585,7 +586,9 @@
                                         placeholder="Jumlah Plafond">
                                     <small class="text-danger" id="errPlafond"></small>
                                 </div>
+                            </div>
 
+                            <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="tipe_bunga">Tipe Bunga: <span class="text-danger">*</span></label>
                                     @php
@@ -606,16 +609,19 @@
                                     </div>
                                     <small class="text-danger" id="errTipeBunga"></small>
                                 </div>
+                            </div>
 
-                                {{-- <div class="form-group">
-                                    <label for="jangka_waktu">Jangka Waktu (bulan): <span
-                                            class="text-danger">*</span></label>
-                                    <input type="number" class="form-control" name="jangka_waktu" id="jangka_waktu"
-                                        value="{{ $nasabah->jangka_waktu }}" min="1" max="60"
-                                        placeholder="Jangka Waktu">
-                                    <small class="text-danger" id="errJangkaWaktu"></small>
-                                </div> --}}
+                            {{-- <div class="form-group">
+                                <label for="jangka_waktu">Jangka Waktu (bulan): <span
+                                        class="text-danger">*</span></label>
+                                <input type="number" class="form-control" name="jangka_waktu" id="jangka_waktu"
+                                    value="{{ $nasabah->jangka_waktu }}" min="1" max="60" placeholder="Jangka Waktu">
+                                <small class="text-danger" id="errJangkaWaktu"></small>
+                            </div> --}}
+                            <input type="hidden" name="jangka_waktu" id="jangka_waktu"
+                                value="{{ $nasabah->jangka_waktu }}">
 
+                            <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="suku_bunga" class="form-label">Suku Bunga: <span
                                             class="text-danger">*</span></label>
@@ -628,7 +634,9 @@
                                     </div>
                                     <small class="text-danger" id="errSukuBunga"></small>
                                 </div>
+                            </div>
 
+                            <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="nilai_angsuran">Nilai Angsuran (PMT): <span
                                             class="text-danger">*</span></label>
@@ -636,6 +644,9 @@
                                         id="nilai_angsuran"
                                         value="Rp {{ number_format($nasabah->nilai_angsuran, 0, ',', '.') }}">
                                 </div>
+                            </div>
+
+                            <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="biaya_bank">Biaya Bank: <span class="text-danger">*</span></label>
                                     <input type="text" step="0.01" class="form-control rupiah-format" name="biaya_bank"
@@ -643,6 +654,9 @@
                                         value="Rp {{ number_format($nasabah->biaya_bank, 0, ',', '.') }}"
                                         placeholder="Masukan angka">
                                 </div>
+                            </div>
+
+                            <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="biaya_asuransi">Biaya Asuransi:<span
                                             class="text-danger">*</span></label>
@@ -651,6 +665,9 @@
                                         value="Rp {{ number_format($nasabah->biaya_asuransi, 0, ',', '.') }}"
                                         placeholder="Masukan angka">
                                 </div>
+                            </div>
+
+                            <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="biaya_koperasi">Biaya Koperasi: <span
                                             class="text-danger">*</span></label>
@@ -659,6 +676,9 @@
                                         value="Rp {{ number_format($nasabah->biaya_koperasi, 0, ',', '.') }}"
                                         placeholder="Masukan angka">
                                 </div>
+                            </div>
+
+                            <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="simpanan_koperasi">Simpanan Koperasi: <span
                                             class="text-danger">*</span></label>
@@ -668,6 +688,7 @@
                                         placeholder="Masukan angka">
                                 </div>
                             </div>
+
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="tujuan_penggunaan">Tujuan Penggunaan: <span
@@ -686,6 +707,9 @@
                                     </select>
                                     <small class="text-danger" id="errTujuanPenggunaan"></small>
                                 </div>
+                            </div>
+
+                            <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="gaji_bersih">Gaji Bersih: <span class="text-danger">*</span></label>
                                     <input type="text" step="0.01" class="form-control rupiah-format" name="gaji_bersih"
@@ -694,6 +718,9 @@
                                         placeholder="Masukan angka">
                                     <small class="text-danger" id="errGajiBersih"></small>
                                 </div>
+                            </div>
+
+                            <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="tanggal_pengajuan">Tanggal Pengajuan: <span
                                             class="text-danger">*</span></label>
@@ -704,20 +731,21 @@
                                         max="{{ now()->addWeek()->toDateString() }}">
                                     <small class="text-danger" id="errTanggalPengajuan"></small>
                                 </div>
-                                {{-- <div class="form-group">
-                                    <label for="mulai_pinjaman">Mulai Pinjaman: <span
-                                            class="text-danger">*</span></label>
-                                    <input type="date" class="form-control" name="mulai_pinjaman" id="mulai_pinjaman"
-                                        value="{{ \Carbon\Carbon::parse($nasabah->mulai_pinjaman)->format('Y-m-d') }}">
-                                    <small class="text-danger" id="errMulaiPinjaman"></small>
-                                </div>
-                                <div class="form-group">
-                                    <label for="akhir_pinjaman">Akhir Pinjaman: <span
-                                            class="text-danger">*</span></label>
-                                    <input type="date" class="form-control" readonly name="akhir_pinjaman"
-                                        id="akhir_pinjaman"
-                                        value="{{ \Carbon\Carbon::parse($nasabah->akhir_pinjaman)->format('Y-m-d') }}">
-                                </div> --}}
+                            </div>
+
+                            {{-- <div class="form-group">
+                                <label for="mulai_pinjaman">Mulai Pinjaman: <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control" name="mulai_pinjaman" id="mulai_pinjaman"
+                                    value="{{ \Carbon\Carbon::parse($nasabah->mulai_pinjaman)->format('Y-m-d') }}">
+                                <small class="text-danger" id="errMulaiPinjaman"></small>
+                            </div>
+                            <div class="form-group">
+                                <label for="akhir_pinjaman">Akhir Pinjaman: <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control" readonly name="akhir_pinjaman"
+                                    id="akhir_pinjaman"
+                                    value="{{ \Carbon\Carbon::parse($nasabah->akhir_pinjaman)->format('Y-m-d') }}">
+                            </div> --}}
+                            <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="dbr">DBR (Debt Burden Ratio): <span class="text-danger">*</span></label>
                                     <input type="number" step="0.01" class="form-control" name="dbr" id="dbr"
@@ -1088,10 +1116,12 @@
         // Cek tipe bunga yang dipilih
         const tipeBunga = $('input[name="tipe_bunga"]:checked').val();
 
-        if (plafond > 0 && jangkaWaktu > 0 && sukuBunga > 0) {
+        if (plafond > 0 && jangkaWaktu > 0 && sukuBunga >= 0) {
             let totalAngsuran = 0;
 
-            if (tipeBunga === 'flat') {
+            if (sukuBunga === 0) {
+                totalAngsuran = plafond / jangkaWaktu;
+            } else if (tipeBunga === 'flat') {
                 // RUMUS FLAT (Sesuai Excel Simulasi Flat)
                 const bungaPerBulan = (plafond * (sukuBunga / 100)) / 12;
                 const pokokPerBulan = plafond / jangkaWaktu;
@@ -1105,8 +1135,6 @@
             }
 
             $('#nilai_angsuran').val(formatRupiah(Math.round(totalAngsuran).toString()));
-        } else {
-            $('#nilai_angsuran').val('');
         }
     }
 
