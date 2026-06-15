@@ -339,11 +339,6 @@ class AuthController extends Controller
                 'status' => 200,
                 'message' => 'Data anda sudah terverified, tidak bisa mengubah kembali data yg sudah terverifikasi'
             ], 200);
-        } else if ($user->update_data_privy == 1) {
-            return response()->json([
-                'status' => 200,
-                'message' => 'Data anda sudah terbaru, silahkan melanjutkan aktivitas pinjaman payroll untuk memferifikasi data anda'
-            ], 200);
         } else {
             $user->name = $req->name;
             $user->nama_lengkap = $req->nama_lengkap;
