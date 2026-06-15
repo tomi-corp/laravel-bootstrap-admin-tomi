@@ -1,108 +1,93 @@
-@extends('seller.layout.app')
+@extends('partner.layouts.app')
 
 @section('title', 'Dashboard')
 
 @section('content')
+<div class="space-y-6">
 
-{{-- WELCOME --}}
-<div class="row mt-2">
+    {{-- Header --}}
+    <div>
+        <h1 class="text-2xl font-bold text-slate-800">
+            Dashboard Partner
+        </h1>
+        <p class="text-sm text-slate-500">
+            Ringkasan aktivitas akun Anda
+        </p>
+    </div>
 
-    <div class="col-12">
+    {{-- Cards --}}
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
 
-        <div class="card mb-2">
-
-            <div class="card-body py-3">
-
-                <h4 class="mb-1">
-                    👋 Welcome, {{ auth('seller')->user()->owner_name }}
-                </h4>
-
-                <p class="text-muted mb-0">
-                    Selamat datang di dashboard seller TOMI
-                </p>
-
-            </div>
-
+        <div class="bg-white rounded-xl border border-slate-100 p-5 shadow-sm hover:shadow-md transition">
+            <p class="text-sm text-slate-500">Total Order</p>
+            <h2 class="text-2xl font-bold text-slate-800 mt-1">0</h2>
         </div>
+
+        <div class="bg-white rounded-xl border border-slate-100 p-5 shadow-sm hover:shadow-md transition">
+            <p class="text-sm text-slate-500">Pendapatan</p>
+            <h2 class="text-2xl font-bold text-slate-800 mt-1">Rp 0</h2>
+        </div>
+
+        <div class="bg-white rounded-xl border border-slate-100 p-5 shadow-sm hover:shadow-md transition">
+            <p class="text-sm text-slate-500">Status Akun</p>
+            <span class="inline-block mt-2 px-3 py-1 text-sm rounded-full bg-green-100 text-green-700">
+                Aktif
+            </span>
+        </div>
+
+    </div>
+
+    {{-- Chart Section --}}
+    <div class="bg-white rounded-xl border border-slate-100 p-5 shadow-sm">
+
+        <h3 class="font-semibold text-slate-700 mb-4">
+            Statistik Bulanan
+        </h3>
+
+        <canvas id="partnerChart" height="100"></canvas>
 
     </div>
 
 </div>
-
-{{-- STAT CARDS --}}
-<div class="row g-2">
-
-    <div class="col-md-4">
-        <div class="card mb-2">
-            <div class="card-body py-3">
-                <h6 class="mb-1 text-muted">Total Produk</h6>
-                <h3 class="mb-0">0</h3>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-4">
-        <div class="card mb-2">
-            <div class="card-body py-3">
-                <h6 class="mb-1 text-muted">Total Variant</h6>
-                <h3 class="mb-0">0</h3>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-4">
-        <div class="card mb-2">
-            <div class="card-body py-3">
-                <h6 class="mb-1 text-muted">Total Stok</h6>
-                <h3 class="mb-0">0</h3>
-            </div>
-        </div>
-    </div>
-
-</div>
-
-{{-- STORE INFO --}}
-<div class="row mb-2">
-
-    <div class="col-12">
-
-        <div class="card mb-0">
-
-            <div class="card-body py-3">
-
-                <h5 class="mb-3">Informasi Toko</h5>
-
-                <table class="table table-sm table-borderless mb-0">
-
-                    <tr>
-                        <th width="150">Nama Toko</th>
-                        <td>{{ auth('seller')->user()->store_name }}</td>
-                    </tr>
-
-                    <tr>
-                        <th>Email</th>
-                        <td>{{ auth('seller')->user()->email }}</td>
-                    </tr>
-
-                    <tr>
-                        <th>Status</th>
-                        <td>
-                            @if(auth('seller')->user()->is_verified)
-                            <span class="badge bg-success">Verified</span>
-                            @else
-                            <span class="badge bg-warning">Belum Verified</span>
-                            @endif
-                        </td>
-                    </tr>
-
-                </table>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-
 @endsection
+
+@push('scripts')
+<script>
+    const ctx = document.getElementById('partnerChart');
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            datasets: [{
+                label: 'Pendapatan',
+                data: [0, 0, 0, 0, 0, 0],
+                borderColor: '#3b82f6',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                x: {
+                    grid: {
+                        display: false
+                    }
+                },
+                y: {
+                    grid: {
+                        color: '#f1f5f9'
+                    }
+                }
+            }
+        }
+    });
+</script>
+@endpush

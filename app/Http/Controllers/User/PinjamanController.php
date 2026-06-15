@@ -16,10 +16,8 @@ use App\Http\Resources\User\Pinjaman\HistroyPinjamanResource;
 use App\Http\Resources\User\Pinjaman\TenorPinjamanResource;
 use App\Models\cost;
 use App\Models\jatuh_tempo;
-use App\Models\lender;
 use App\Models\ListPerusahaan;
 use App\Models\pinjaman;
-use App\Models\rekening_tomi;
 use App\Models\tenor_pinjaman;
 use App\Models\User;
 use App\Models\verif_otp_pengajuan;
@@ -29,7 +27,6 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
-use PhpParser\Node\Expr\FuncCall;
 
 class PinjamanController extends Controller
 {
@@ -474,14 +471,6 @@ class PinjamanController extends Controller
                 // $pinjaman->jumlah_profesional_1 = $tenor->profesional_fee_1 / 100 *  $req->nominal;
                 // $pinjaman->jumlah_profesional_2 = $tenor->profesional_fee_2 / 100 *  $req->nominal;
                 // $pinjaman->ksp_fee = $tenor->ksp / 100 *  $req->nominal;
-
-                $pinjaman->profesional_fee_1 = $tenor->profesional_fee_1 ?? 0;
-                $pinjaman->profesional_fee_2 = $tenor->profesional_fee_2 ?? 0;
-
-                $pinjaman->jumlah_profesional_1 = ($tenor->profesional_fee_1 ?? 0) / 100 * $req->nominal;
-                $pinjaman->jumlah_profesional_2 = ($tenor->profesional_fee_2 ?? 0) / 100 * $req->nominal;
-
-                $pinjaman->ksp_fee = ($tenor->ksp ?? 0) / 100 * $req->nominal;
 
                 $pinjaman->iuran_anggota = $simulation['iuran_anggota'];
                 $pinjaman->biaya_layanan = $simulation['biaya_layanan'];

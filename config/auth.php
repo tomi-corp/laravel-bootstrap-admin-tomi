@@ -56,6 +56,10 @@ return [
             'driver' => 'session',
             'provider' => 'btas',
         ],
+        'partner' => [
+            'driver' => 'session',
+            'provider' => 'partners',
+        ],
         'seller' => [
             'driver' => 'session',
             'provider' => 'sellers',
@@ -95,6 +99,10 @@ return [
         'superadmins' => [
             'driver' => 'eloquent',
             'model' => env('AUTH_MODEL', App\Models\SuperAdmin::class),
+        ],
+        'partners' => [
+            'driver' => 'eloquent',
+            'model' => env('AUTH_MODEL', App\Models\Partner::class),
         ],
         'sellers' => [
             'driver' => 'eloquent',

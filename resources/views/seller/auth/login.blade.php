@@ -1,86 +1,67 @@
-@extends('layout.auth')
+@extends('partner.layouts.auth')
 
-@section('title', 'Seller Login')
+@section('title', 'Login')
 
 @section('content')
-<div class="account-pages w-100 mt-5 mb-5">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-8 col-lg-6 col-xl-5">
+<div class="w-full max-w-md bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
 
-                <div class="card">
-                    <div class="card-body p-4">
-
-                        <div class="text-center mb-4">
-                            <img src="{{ asset('assets/images/logo.jpg') }}" alt="TOMI" height="100">
-                            <h1 class="h4 mt-3 mb-1">Seller Login</h1>
-                            <p class="text-muted mb-0">Electronic & Gadget Installment</p>
-                        </div>
-
-                        {{-- GLOBAL ERROR --}}
-                        @if ($errors->any())
-                        <div class="alert alert-danger">
-                            {{ $errors->first() }}
-                        </div>
-                        @endif
-
-                        <form action="{{ route('seller.login.action') }}" method="POST">
-                            @csrf
-
-                            {{-- IDENTITY --}}
-                            <div class="mb-3">
-                                <label for="identity" class="form-label">Username or Email</label>
-
-                                <input type="text" id="identity" name="identity" value="{{ old('identity') }}"
-                                    class="form-control @error('identity') is-invalid @enderror"
-                                    placeholder="Username or Email" required>
-
-                                @error('identity')
-                                <div class="invalid-feedback">
-                                    {{ $message }}
-                                </div>
-                                @enderror
-                            </div>
-
-                            {{-- PASSWORD --}}
-                            <div class="mb-3">
-                                <label for="password" class="form-label">Password</label>
-
-                                <input type="password" id="password" name="password"
-                                    class="form-control @error('password') is-invalid @enderror" placeholder="Password"
-                                    required>
-
-                                @error('password')
-                                <div class="invalid-feedback">
-                                    {{ $message }}
-                                </div>
-                                @enderror
-                            </div>
-
-                            {{-- REMEMBER --}}
-                            <div class="form-check mb-3">
-                                <input type="checkbox" class="form-check-input" id="remember" name="remember" {{
-                                    old('remember') ? 'checked' : '' }}>
-
-                                <label class="form-check-label" for="remember">
-                                    Remember me
-                                </label>
-                            </div>
-
-                            {{-- SUBMIT --}}
-                            <div class="d-grid">
-                                <button class="btn btn-primary" type="submit">
-                                    Log In
-                                </button>
-                            </div>
-
-                        </form>
-
-                    </div>
-                </div>
-
-            </div>
-        </div>
+    <div class="text-center mb-6">
+        <h1 class="text-2xl font-bold text-slate-800">Login</h1>
+        <p class="text-sm text-slate-500 mt-1">
+            Masuk ke dashboard partner
+        </p>
     </div>
+
+    <form action="{{ route('partners.login.process') }}" method="POST" class="space-y-4">
+        @csrf
+
+        <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">
+                Email / Username
+            </label>
+            <input type="text" name="identity" value="{{ old('identity') }}"
+                class="w-full rounded-lg border border-slate-300 px-4 py-2.5 focus:border-blue-500 focus:ring focus:ring-blue-100 outline-none"
+                placeholder="Masukkan email atau username">
+
+            @error('identity')
+            <p class="text-sm text-red-500 mt-1">{{ $message }}</p>
+            @enderror
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">
+                Password
+            </label>
+            <input type="password" name="password"
+                class="w-full rounded-lg border border-slate-300 px-4 py-2.5 focus:border-blue-500 focus:ring focus:ring-blue-100 outline-none"
+                placeholder="Masukkan password">
+
+            @error('password')
+            <p class="text-sm text-red-500 mt-1">{{ $message }}</p>
+            @enderror
+        </div>
+
+        <div class="flex items-center justify-between">
+            <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" name="remember"
+                    class="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500">
+
+                <span class="text-sm text-slate-600">
+                    Ingat Saya
+                </span>
+            </label>
+
+            <a href="{{ route('partners.password.request') }}"
+                class="text-sm text-blue-600 hover:text-blue-700 hover:underline">
+                Lupa Password?
+            </a>
+        </div>
+
+        <button type="submit"
+            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg transition">
+            Login
+        </button>
+    </form>
+
 </div>
 @endsection
