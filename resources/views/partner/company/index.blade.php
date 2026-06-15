@@ -18,13 +18,6 @@
     {{-- Table Card --}}
     <div class="bg-white border border-slate-100 rounded-xl shadow-sm overflow-hidden">
 
-        {{-- Title --}}
-        <div class="p-4 border-b border-slate-100">
-            <h2 class="font-semibold text-slate-700">
-                List Perusahaan
-            </h2>
-        </div>
-
         {{-- Table --}}
         <div class="p-4">
 

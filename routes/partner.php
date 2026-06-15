@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Partner\AuthController;
 use App\Http\Controllers\Partner\DashboardController;
 use App\Http\Controllers\Partner\CompanyController;
+use App\Http\Controllers\Partner\EmployeeController;
+use App\Http\Controllers\Partner\LoanApplicationController;
 
 Route::get('/login', [AuthController::class, 'login'])
     ->name('partners.login');
@@ -31,3 +33,12 @@ Route::post('/forgot-password', [AuthController::class, 'sendResetLink'])
 
 Route::get('/company', [CompanyController::class, 'index'])
     ->name('partners.company.index');
+
+Route::get('/company/configuration', [CompanyController::class, 'configuration'])
+    ->name('partners.configuration.index');
+
+Route::get('/company/employees', [EmployeeController::class, 'index'])
+    ->name('partners.employees.index');
+
+Route::get('/company/loan-applications', [LoanApplicationController::class, 'index'])
+    ->name('partners.loan-applications.index');

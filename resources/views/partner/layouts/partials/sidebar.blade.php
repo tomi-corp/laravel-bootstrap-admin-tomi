@@ -3,7 +3,7 @@
     {{-- Brand --}}
     <div class="h-16 flex items-center px-6 border-b border-slate-200">
         <h1 class="text-xl font-bold text-blue-600">
-            E-Office
+            Tomi Partner
         </h1>
     </div>
 
@@ -39,6 +39,9 @@
                     Perusahaan
                 </a>
 
+                <a href="#" class="block py-2 text-sm text-slate-600 hover:text-blue-600">
+                    Pengajuan
+                </a>
                 <a href="#" class="block py-2 text-sm text-slate-600 hover:text-blue-600">
                     Lender
                 </a>

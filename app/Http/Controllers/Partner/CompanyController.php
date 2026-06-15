@@ -10,4 +10,9 @@ class CompanyController extends Controller
     {
         return view('partner.company.index');
     }
+
+    public function configuration()
+    {
+        return view('partner.company.configuration.index');
+    }
 }

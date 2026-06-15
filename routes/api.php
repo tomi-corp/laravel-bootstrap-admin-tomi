@@ -51,7 +51,7 @@ Route::middleware(['LanguangeMiddleware'])->group(function () {
             Route::post('/email/update', [AuthController::class, 'emailUpdate']);
             Route::post('/email/otp', [AuthController::class, 'emailOtp']);
             Route::post('/password/update', [AuthController::class, 'updatePassword']);
-            Route::post('/profile/update', [AuthController::class, 'profileUp   date']);
+            Route::post('/profile/update', [AuthController::class, 'profileUpdate']);
             Route::post('/profile/update/liveness', [AuthController::class, 'profileUpdateLiveness']);
 
             // pinjaman
