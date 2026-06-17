@@ -611,15 +611,16 @@
                                 </div>
                             </div>
 
-                            {{-- <div class="form-group">
-                                <label for="jangka_waktu">Jangka Waktu (bulan): <span
-                                        class="text-danger">*</span></label>
-                                <input type="number" class="form-control" name="jangka_waktu" id="jangka_waktu"
-                                    value="{{ $nasabah->jangka_waktu }}" min="1" max="60" placeholder="Jangka Waktu">
-                                <small class="text-danger" id="errJangkaWaktu"></small>
-                            </div> --}}
-                            <input type="hidden" name="jangka_waktu" id="jangka_waktu"
-                                value="{{ $nasabah->jangka_waktu }}">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="jangka_waktu">Jangka Waktu (bulan): <span
+                                            class="text-danger">*</span></label>
+                                    <input type="number" class="form-control" name="jangka_waktu" id="jangka_waktu"
+                                        value="{{ $nasabah->jangka_waktu }}" min="1" max="60"
+                                        placeholder="Jangka Waktu">
+                                    <small class="text-danger" id="errJangkaWaktu"></small>
+                                </div>
+                            </div>
 
                             <div class="col-md-6">
                                 <div class="form-group">

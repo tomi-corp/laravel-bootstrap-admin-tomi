@@ -19,18 +19,18 @@ class CenterFileMiddleware
     {
         try {
 
-            if ($request->ip() == "103.153.60.67" || $request->ip() == "103.78.11.202" || $request->ip() == "127.0.0.1") {
+            if ($request->ip() == "103.153.60.67" || $request->ip() == "103.78.11.202" || $request->ip() == "127.0.0.1" || $request->ip() == "0.0.0.0") {
                 return $next($request);
             } else {
                 return response()->json([
                     'success' => false,
-                    'message' => 'unautorized'
+                    'message' => 'unauthorized'
                 ], 401);
             }
         } catch (\Throwable $th) {
             return response()->json([
                 'success' => false,
-                'message' => 'unautorized'
+                'message' => 'unauthorized'
             ], 401);
         }
     }

@@ -100,9 +100,6 @@ Route::middleware(['LanguangeMiddleware'])->group(function () {
             Route::post('/register/privy/check', [PrivyController::class, 'cekStatusPrivy']);
         });
 
-        // ota react native
-        Route::post('/ota/check', [OtaController::class, 'checkUpdate']);
-
         // product
         Route::get('/product/list', [ProductController::class, 'list']);
         Route::post('/product/detail', [ProductController::class, 'detail']);
@@ -110,4 +107,7 @@ Route::middleware(['LanguangeMiddleware'])->group(function () {
         // order
         Route::post('/order/store', [OrderController::class, 'store']);
     });
+
+    // ota react native
+    Route::post('/ota/check', [OtaController::class, 'checkUpdate']);
 });
