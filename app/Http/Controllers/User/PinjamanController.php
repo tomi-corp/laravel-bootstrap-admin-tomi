@@ -26,6 +26,7 @@ use Illuminate\Support\Facades\Storage;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 class PinjamanController extends Controller
@@ -66,6 +67,27 @@ class PinjamanController extends Controller
             'jumlah_diterima' => $nilai_yang_diterima,
         ];
         return $returnData;
+    }
+
+    private function setProfessionalFeeToZero(pinjaman $pinjaman): void
+    {
+        $columns = array_flip(Schema::getColumnListing($pinjaman->getTable()));
+
+        foreach (
+            [
+                'professional_fee_1',
+                'professional_fee_2',
+                'profesional_fee_1',
+                'profesional_fee_2',
+                'jumlah_profesional_1',
+                'jumlah_profesional_2',
+                'ksp_fee',
+            ] as $column
+        ) {
+            if (isset($columns[$column])) {
+                $pinjaman->{$column} = 0;
+            }
+        }
     }
 
     // public function maximalMinimal(CekMinimalMaximalRequest $req)
@@ -464,13 +486,7 @@ class PinjamanController extends Controller
                 $pinjaman->jumlah_yang_diterima = $simulation['jumlah_diterima'];
                 $pinjaman->jumlah_asuransi = $simulation['asuransi'];
                 $pinjaman->jumlah_provisi = $simulation['provisi'];
-                // /profesional fee
-                // $pinjaman->profesional_fee_1 = $tenor->profesional_fee_1;
-                // $pinjaman->profesional_fee_2 = $tenor->profesional_fee_2;
-
-                // $pinjaman->jumlah_profesional_1 = $tenor->profesional_fee_1 / 100 *  $req->nominal;
-                // $pinjaman->jumlah_profesional_2 = $tenor->profesional_fee_2 / 100 *  $req->nominal;
-                // $pinjaman->ksp_fee = $tenor->ksp / 100 *  $req->nominal;
+                $this->setProfessionalFeeToZero($pinjaman);
 
                 $pinjaman->iuran_anggota = $simulation['iuran_anggota'];
                 $pinjaman->biaya_layanan = $simulation['biaya_layanan'];
