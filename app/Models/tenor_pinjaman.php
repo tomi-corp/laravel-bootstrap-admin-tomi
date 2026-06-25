@@ -10,4 +10,9 @@ class tenor_pinjaman extends Model
     {
         return $this->hasOne(amount_pinjaman::class, 'id_perusahaan', 'id_perusahaan');
     }
+
+    public function perusahaan()
+    {
+        return $this->hasOne(ListPerusahaan::class, 'id', 'id_perusahaan');
+    }
 }

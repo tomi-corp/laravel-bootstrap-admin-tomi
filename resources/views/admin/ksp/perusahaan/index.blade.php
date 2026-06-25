@@ -175,7 +175,8 @@
                     <div class="col-md-6">
                         <div class="form-group">
                             <label>Email Perusahaan</label>
-                            <input class="form-control" id="emailPerusahaan" placeholder="Email Perusahaan"></input>
+                            <input class="form-control" id="emailPerusahaan" placeholder="Email Perusahaan"
+                                type="email"></input>
                             <small class="text-danger" id="errEmailPerusahaan"></small>
                         </div>
                     </div>
@@ -529,6 +530,16 @@
     var akhir = "";
     var editID = "";
     var deleteID = "";
+
+    // Ubah semua data teks yang diketik/ditempel menjadi huruf kapital, kecuali email.
+    $(document).on('input', '#modalAdd input:not([type="email"]):not([type="number"]), #modalAdd textarea, #modalEdit input:not([type="email"]):not([type="number"]), #modalEdit textarea', function () {
+        var cursorPosition = this.selectionStart;
+        this.value = this.value.toUpperCase();
+
+        if (cursorPosition !== null && typeof this.setSelectionRange === 'function') {
+            this.setSelectionRange(cursorPosition, cursorPosition);
+        }
+    });
 
     var dataTable = {
         "_token": "{{ csrf_token() }}",

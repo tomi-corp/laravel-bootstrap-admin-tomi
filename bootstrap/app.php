@@ -63,6 +63,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'LimitRequestMiddleware' => \App\Http\Middleware\LimitRequestMiddelware::class,
             'SignedDocumentMiddleware' => \App\Http\Middleware\SignedDocumentMiddleware::class,
             'CenterFileMiddleware' => \App\Http\Middleware\CenterFileMiddleware::class,
+            'PayrollMaintenanceMiddleware' => \App\Http\Middleware\PayrollMaintenanceMiddleware::class,
             'TwoFactorMiddleware' =>  \App\Http\Middleware\TwoFactorMiddleware::class,
             'BtaMiddleware' =>  \App\Http\Middleware\BtaMiddleware::class,
             'BtaGuestMiddleware' =>  \App\Http\Middleware\BtaGuestMiddleware::class,
