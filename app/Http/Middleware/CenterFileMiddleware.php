@@ -5,29 +5,46 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
-
-use function Laravel\Prompts\error;
+use Illuminate\Support\Facades\Log;
 
 class CenterFileMiddleware
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
-     */
     public function handle(Request $request, Closure $next): Response
     {
         try {
+            $allowedIps = [
+                "103.153.60.67",
+                "103.78.11.202",
+                "127.0.0.1",
+                "0.0.0.0",
+            ];
 
-            if ($request->ip() == "103.153.60.67" || $request->ip() == "103.78.11.202" || $request->ip() == "127.0.0.1" || $request->ip() == "0.0.0.0") {
+            Log::info('CENTER FILE MIDDLEWARE DEBUG', [
+                'request_ip' => $request->ip(),
+                'request_ips' => $request->ips(),
+                'remote_addr' => $_SERVER['REMOTE_ADDR'] ?? null,
+                'x_forwarded_for' => $request->header('X-Forwarded-For'),
+                'x_real_ip' => $request->header('X-Real-IP'),
+                'user_agent' => $request->userAgent(),
+                'url' => $request->fullUrl(),
+            ]);
+
+            if (in_array($request->ip(), $allowedIps)) {
                 return $next($request);
-            } else {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'unauthorized'
-                ], 401);
             }
+
+            return response()->json([
+                'success' => false,
+                'message' => 'unauthorized',
+                'debug_ip' => $request->ip(), // sementara aja
+            ], 401);
         } catch (\Throwable $th) {
+            Log::error('CENTER FILE MIDDLEWARE ERROR', [
+                'message' => $th->getMessage(),
+                'file' => $th->getFile(),
+                'line' => $th->getLine(),
+            ]);
+
             return response()->json([
                 'success' => false,
                 'message' => 'unauthorized'
