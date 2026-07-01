@@ -728,8 +728,9 @@
                                     <input type="date" class="form-control" name="tanggal_pengajuan"
                                         id="tanggal_pengajuan"
                                         value="{{ $nasabah->tanggal_pengajuan ? \Carbon\Carbon::parse($nasabah->tanggal_pengajuan)->format('Y-m-d') : '' }}"
+                                        {{-- Tenggang waktu dinonaktifkan sementara selama penyesuaian client.
                                         min="{{ now()->subWeek()->toDateString() }}"
-                                        max="{{ now()->addWeek()->toDateString() }}">
+                                        max="{{ now()->addWeek()->toDateString() }}" --}}>
                                     <small class="text-danger" id="errTanggalPengajuan"></small>
                                 </div>
                             </div>

@@ -79,7 +79,9 @@ class UpdateAnalystRequest extends FormRequest
             'simpanan_koperasi'      => 'required|numeric',
 
             // Tanggal
-            'tanggal_pengajuan'       => 'required|date|after_or_equal:' . now()->subWeek()->toDateString() . '|before_or_equal:' . now()->addWeek()->toDateString(),
+            // Tenggang waktu tanggal pengajuan dinonaktifkan sementara selama penyesuaian client.
+            // 'tanggal_pengajuan'       => 'required|date|after_or_equal:' . now()->subWeek()->toDateString() . '|before_or_equal:' . now()->addWeek()->toDateString(),
+            'tanggal_pengajuan'       => 'required|date',
             // 'mulai_pinjaman'         => 'required|date',
             // 'akhir_pinjaman'         => 'required|date|after:mulai_pinjaman',
             'mulai_pinjaman'         => 'nullable|date',
