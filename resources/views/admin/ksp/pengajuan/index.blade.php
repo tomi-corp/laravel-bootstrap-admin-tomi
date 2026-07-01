@@ -99,34 +99,93 @@
 
 
 
-            <div class="card">
+            <style>
+                .pengajuan-stat-card .stat-grid {
+                    display: grid;
+                    grid-template-columns: repeat(4, minmax(0, 1fr));
+                    gap: 0;
+                    text-align: center;
+                }
+
+                .pengajuan-stat-card .stat-item {
+                    padding: 12px 6px;
+                }
+
+                .pengajuan-stat-card .stat-number {
+                    display: block;
+                    font-size: 32px;
+                    line-height: 1.2;
+                    font-weight: 300;
+                    color: #344054;
+                    margin-bottom: 8px;
+                }
+
+                .pengajuan-stat-card .stat-label {
+                    display: block;
+                    font-size: 15px;
+                    line-height: 1.35;
+                    color: #98a6ad;
+                    white-space: normal;
+                    word-break: normal;
+                    overflow-wrap: normal;
+                }
+
+                .pengajuan-stat-card .stat-done {
+                    grid-column: span 2;
+                    text-align: left;
+                    padding-left: 18px;
+                    margin-top: 10px;
+                }
+
+                .pengajuan-stat-card .chart-wrap {
+                    min-height: 220px;
+                    margin-top: 20px;
+                }
+
+                @media (max-width: 576px) {
+                    .pengajuan-stat-card .stat-grid {
+                        grid-template-columns: repeat(2, minmax(0, 1fr));
+                    }
+
+
+                    .pengajuan-stat-card .stat-done {
+                        grid-column: span 2;
+                    }
+                }
+            </style>
+
+            <div class="card pengajuan-stat-card">
                 <div class="card-body">
                     <h4 class="header-title mb-3">Pengajuan Statistic</h4>
-                    <div class="row text-center">
-                        <div class="col-3 mb-3">
-                            <h3 class="font-weight-light" id="belumValidasiWaCount"></h3>
-                            <p class="text-muted text-overflow">Belum Validasi WA</p>
-                        </div>
-                        <div class="col-3 mb-3">
-                            <h3 class="font-weight-light" id="onprosesCount"></h3>
-                            <p class="text-muted text-overflow">On Proses</p>
-                        </div>
-                        <div class="col-3 mb-3">
-                            <h3 class="font-weight-light" id="pendingCount"></h3>
-                            <p class="text-muted text-overflow">Pending</p>
-                        </div>
-                        <div class="col-3 mb-3">
-                            <h3 class="font-weight-light" id="approveCount"></h3>
-                            <p class="text-muted text-overflow">Approve</p>
+
+                    <div class="stat-grid">
+                        <div class="stat-item">
+                            <span class="stat-number" id="belumValidasiWaCount">0</span>
+                            <span class="stat-label">Belum Validasi WA</span>
                         </div>
 
+                        <div class="stat-item">
+                            <span class="stat-number" id="onprosesCount">0</span>
+                            <span class="stat-label">On Proses</span>
+                        </div>
 
-                        <div class="col-3 mb-3">
-                            <h3 class="font-weight-light" id="doneCount"></h3>
-                            <p class="text-muted text-overflow">Done</p>
+                        <div class="stat-item">
+                            <span class="stat-number" id="pendingCount">0</span>
+                            <span class="stat-label">Pending</span>
+                        </div>
+
+                        <div class="stat-item">
+                            <span class="stat-number" id="approveCount">0</span>
+                            <span class="stat-label">Approve</span>
+                        </div>
+
+                        <div class="stat-item stat-done">
+                            <span class="stat-number" id="doneCount">0</span>
+                            <span class="stat-label">Done</span>
                         </div>
                     </div>
-                    <div class="chartjs-chart-example chartjs-chart">
+
+                    <div class="chart-wrap">
                         <canvas id="doughnut"></canvas>
                     </div>
                 </div>
@@ -497,6 +556,8 @@
 
             // end Date range picker
 
+            let pengajuanDoughnutChart = null;
+
             getStatistic = () => {
                 $.ajax({
                     url: '{!! route('admin.ksp.pengajuan.statistic') !!}',
@@ -507,54 +568,58 @@
                     type: 'POST',
                     dataType: 'json',
                     success: function(dataStatistic) {
-                        $('#onprosesCount').text(dataStatistic.onproses);
-                        $('#belumValidasiWaCount').text(dataStatistic.belum_validasi_wa);
-                        $('#pendingCount').text(dataStatistic.pending);
-                        $('#approveCount').text(dataStatistic.approve);
-                        $('#doneCount').text(dataStatistic.done);
-                        data = {
-                            datasets: [{
-                                    data: [dataStatistic.belum_validasi_wa,
-                                        dataStatistic.onproses,
-                                        dataStatistic.pending,
-                                        dataStatistic.approve,
-                                        dataStatistic.done
-                                    ],
-                                    backgroundColor: ["#fbcc5c",
-                                        "#6c757d",
-                                        "#02a8b5",
-                                        "#6b5eae",
-                                        "#31ce77"
-                                    ],
-                                    borderColor: "transparent",
-                                    borderWidth: "3",
+                        const belumValidasiWa = parseInt(dataStatistic.belum_validasi_wa ?? 0) || 0;
+                        const onProses = parseInt(dataStatistic.onproses ?? 0) || 0;
+                        const pending = parseInt(dataStatistic.pending ?? 0) || 0;
+                        const approve = parseInt(dataStatistic.approve ?? 0) || 0;
+                        const done = parseInt(dataStatistic.done ?? 0) || 0;
 
-                                },
-                                {
-                                    maintainAspectRatio: !1,
-                                    cutoutPercentage: 80,
-                                    legend: {
-                                        display: !1
-                                    },
-                                }
-                            ],
+                        $('#belumValidasiWaCount').text(belumValidasiWa);
+                        $('#onprosesCount').text(onProses);
+                        $('#pendingCount').text(pending);
+                        $('#approveCount').text(approve);
+                        $('#doneCount').text(done);
 
-                            // These labels appear in the legend and in the tooltips when hovering different arcs
+                        const chartData = {
                             labels: [
                                 'Belum Validasi WA',
                                 'On Proses',
                                 'Pending',
                                 'Approve',
                                 'Done'
-                            ]
+                            ],
+                            datasets: [{
+                                data: [belumValidasiWa, onProses, pending, approve, done],
+                                backgroundColor: [
+                                    "#fbcc5c",
+                                    "#6c757d",
+                                    "#02a8b5",
+                                    "#6b5eae",
+                                    "#31ce77"
+                                ],
+                                borderColor: "#ffffff",
+                                borderWidth: 3,
+                            }]
                         };
 
-                        var myDoughnutChart = new Chart($('#doughnut'), {
+                        if (pengajuanDoughnutChart) {
+                            pengajuanDoughnutChart.destroy();
+                        }
+
+                        const doughnutCanvas = document.getElementById('doughnut');
+                        pengajuanDoughnutChart = new Chart(doughnutCanvas, {
                             type: 'doughnut',
-                            data: data,
+                            data: chartData,
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                cutoutPercentage: 80,
+                                legend: {
+                                    display: true,
+                                    position: 'bottom'
+                                }
+                            }
                         });
-
-
                     }
                 });
             }

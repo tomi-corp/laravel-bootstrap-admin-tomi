@@ -1072,13 +1072,13 @@ class PinjamanController extends Controller
             ->where('otp', $req->otp)
             ->with(['pinjaman' => function ($q) {
                 $q->with([
+                    'perusahaan' => function ($p) {
+                        $p->with(['lender' => function ($o) {
+                            $o->with('bank');
+                        }]);
+                    },
                     'data_karyawan' => function ($w) {
                         $w->with('bank');
-                        $w->with(['perusahaan' => function ($p) {
-                            $p->with(['lender' => function ($o) {
-                                $o->with('bank');
-                            }]);
-                        }]);
                     },
                     'jatuh_tempo' => function ($jt) {
                         $jt->orderBy('jatuh_tempo', 'asc');
@@ -1182,6 +1182,8 @@ class PinjamanController extends Controller
 
                 $htmlTabelAngsuran .= '</tbody></table>';
 
+                $snapshotPerusahaan = $verif->pinjaman->perusahaan;
+
                 $dataPengganti = [
                     'nomor' => $pinjamanCount,
                     'hari' => $hari,
@@ -1189,10 +1191,10 @@ class PinjamanController extends Controller
                     'ct' => $carbonTahun,
                     'bulan_romawi' => $bulan_romawi,
                     'id_pinjaman' => $verif->pinjaman->id_pinjaman,
-                    't' => $verif->pinjaman->data_karyawan->perusahaan->payment_date,
+                    't' => $snapshotPerusahaan->payment_date,
                     'pinjaman_jatuh_tempo' => $htmlTabelAngsuran,
 
-                    'pihak_kedua' => '<b>' . $verif->pinjaman->data_karyawan->nama_karyawan . '</b>' . ',' . $usia . ' tahun, ' . 'beralamat di ' . $verif->pinjaman->data_karyawan->alamat . ' pemegang kartu tanda penduduk nomor ' . $verif->pinjaman->data_karyawan->nik . ' karyawan pada ' . $verif->pinjaman->data_karyawan->perusahaan->nama . ' dengan NIP ' . $verif->pinjaman->data_karyawan->nip,
+                    'pihak_kedua' => '<b>' . $verif->pinjaman->data_karyawan->nama_karyawan . '</b>' . ',' . $usia . ' tahun, ' . 'beralamat di ' . $verif->pinjaman->data_karyawan->alamat . ' pemegang kartu tanda penduduk nomor ' . $verif->pinjaman->data_karyawan->nik . ' karyawan pada ' . $snapshotPerusahaan->nama . ' dengan NIP ' . $verif->pinjaman->data_karyawan->nip,
                     'plafond'    => 'Rp  ' . number_format($verif->pinjaman->nominal),
                     'plafond_terbilang'    => ' (' . terbilang($verif->pinjaman->nominal) . ' Rupiah)',
                     'jangka' => $verif->pinjaman->tenor . ' bulan',
@@ -1209,9 +1211,9 @@ class PinjamanController extends Controller
                     'atas_nama_rekening_pencairan' => $verif->pinjaman->data_karyawan->nama_rekening,
                     'jumlah_pencairan' => 'Rp  ' . number_format($verif->pinjaman->jumlah_yang_diterima),
                     'terbilang_jumlah_pencairan' => ' (' . terbilang($verif->pinjaman->jumlah_yang_diterima) . ' Rupiah)',
-                    'bankLender' => $verif->pinjaman->data_karyawan->perusahaan->lender->bank->code_bank,
-                    'rekeningLender' =>  $verif->pinjaman->data_karyawan->perusahaan->lender->no_rekening,
-                    'atasNamaBankLender' =>  $verif->pinjaman->data_karyawan->perusahaan->lender->nama_rekening,
+                    'bankLender' => $snapshotPerusahaan->lender->bank->code_bank,
+                    'rekeningLender' =>  $snapshotPerusahaan->lender->no_rekening,
+                    'atasNamaBankLender' =>  $snapshotPerusahaan->lender->nama_rekening,
                     'penerima_pinjaman' => strtoupper($user->nama_lengkap)
                 ];
 

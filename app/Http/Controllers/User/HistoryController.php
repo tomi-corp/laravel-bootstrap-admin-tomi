@@ -50,7 +50,7 @@ class HistoryController extends Controller
                 ->withHeaders([
                     'Authorization' => 'Bearer Vxx2OfFdXfLPjW0X2fHTGkd3MBC3Ldw7Zj7yx64Z474e0df2'
                 ])
-                ->get($urlPPOBPostPaid);
+                ->get($urlPPOBPostPaid);    
 
 
             // Decode JSON menjadi array asosiatif
@@ -92,7 +92,8 @@ class HistoryController extends Controller
             $menu = menu_mobile::where('path', 'pinjaman-payroll')->first();
             $historyPinjam = pinjaman::where('user_id', auth('api')->user()->id)
                 ->whereBetween('created_at', [$time1, $time2])
-                ->select(['nominal', 'status', 'created_at', 'id'])
+                ->with('perusahaan:id,nama,id_code_perusahaan')
+                ->select(['nominal', 'status', 'created_at', 'id', 'ttd', 'id_perusahaan'])
                 ->paginate(15);
 
             $historyPinjam->map(function ($order) use ($menu) {
@@ -125,7 +126,7 @@ class HistoryController extends Controller
         if ($req->path == 'pinjaman-payroll') {
             $historyPinjam = pinjaman::where('user_id', auth('api')->user()->id)
                 ->where('id', $req->id)
-                ->with('jatuh_tempo')
+                ->with(['jatuh_tempo', 'perusahaan:id,nama,id_code_perusahaan'])
                 ->first();
             if (isset($historyPinjam)) {
                 return response()->json([
