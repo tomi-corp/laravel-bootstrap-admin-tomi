@@ -13,6 +13,7 @@ use App\Http\Controllers\User\PointController;
 use App\Http\Controllers\User\PrivyController;
 use App\Http\Controllers\User\ProductController;
 use App\Http\Controllers\User\GadgetInstallmentController;
+use App\Http\Controllers\User\UserPresenceController;
 use Illuminate\Support\Facades\Route;
 
 // Endpoint lama untuk akses antar-server.
@@ -89,6 +90,15 @@ Route::middleware(['LanguangeMiddleware'])->group(function () {
 
             // point
             Route::post('/point/history', [PointController::class, 'pointHistory']);
+
+            // user presence
+            Route::post('/presence/today', [UserPresenceController::class, 'today']);
+            Route::post('/presence/history', [UserPresenceController::class, 'history']);
+            Route::post('/presence/check-in', [UserPresenceController::class, 'checkIn']);
+            Route::post('/presence/check-out', [UserPresenceController::class, 'checkOut']);
+            Route::post('/presence/list', [UserPresenceController::class, 'list']);
+            Route::post('/presence/store', [UserPresenceController::class, 'store']);
+            Route::post('/presence/update', [UserPresenceController::class, 'update']);
 
             // notification
             Route::post('/notification', [NotificationController::class, 'listNotif']);
