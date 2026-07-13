@@ -20,12 +20,13 @@ class ExpiredKycCron extends Command
      *
      * @var string
      */
-    protected $description = 'Hapus kyc yang lebih dari 90 hari';
+    protected $description = 'Hapus kyc yang lebih dari 180 hari';
+
     /**
      * Execute the console command.
      */
     public function handle()
     {
-        kyc_user::where('created_at', '<', Carbon::now()->subDays(90))->delete();
+        kyc_user::where('created_at', '<', Carbon::now()->subDays(180))->delete();
     }
 }
