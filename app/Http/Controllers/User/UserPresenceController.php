@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use App\Models\list_karyawan;
 use App\Models\user_presence;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -11,6 +12,10 @@ use Illuminate\Support\Facades\Validator;
 
 class UserPresenceController extends Controller
 {
+    private ?list_karyawan $currentEmployee = null;
+
+    private bool $currentEmployeeLoaded = false;
+
     public function today()
     {
         return response()->json([
@@ -83,9 +88,13 @@ class UserPresenceController extends Controller
         $data[$this->dateColumn()] = $now->format('Y-m-d');
         $data[$this->checkInColumn()] = $now;
 
-        if ($this->userColumn()) {
-            $data[$this->userColumn()] = auth('api')->user()->id;
+        $identityPayload = $this->identityPayload();
+
+        if ($identityPayload === null) {
+            return $this->employeeNotFoundResponse();
         }
+
+        $data = array_merge($data, $identityPayload);
 
         if ($this->statusColumn()) {
             $data[$this->statusColumn()] = 'check_in';
@@ -183,9 +192,85 @@ class UserPresenceController extends Controller
     private function currentUserPresenceQuery()
     {
         return user_presence::query()
-            ->when($this->userColumn(), function ($item, $userColumn) {
+            ->when($this->userIdColumn(), function ($item, $userColumn) {
                 $item->where($userColumn, auth('api')->user()->id);
+            })
+            ->when(! $this->userIdColumn() && $this->employeeIdColumn() && $this->currentEmployee(), function ($item) {
+                $item->where($this->employeeIdColumn(), $this->currentEmployee()->id);
+            })
+            ->when(! $this->userIdColumn() && $this->employeeIdColumn() && ! $this->currentEmployee(), function ($item) {
+                $item->whereRaw('1 = 0');
             });
+    }
+
+    private function identityPayload(): ?array
+    {
+        $payload = [];
+        $employee = $this->currentEmployee();
+
+        if ($this->userIdColumn()) {
+            $payload[$this->userIdColumn()] = auth('api')->user()->id;
+        }
+
+        if ($this->employeeIdColumn()) {
+            if (! $employee) {
+                return null;
+            }
+
+            $payload[$this->employeeIdColumn()] = $employee->id;
+        }
+
+        if ($this->companyIdColumn()) {
+            if (! $employee) {
+                return null;
+            }
+
+            $payload[$this->companyIdColumn()] = $employee->id_list_perusahaan;
+        }
+
+        return $payload;
+    }
+
+    private function currentEmployee(): ?list_karyawan
+    {
+        if ($this->currentEmployeeLoaded) {
+            return $this->currentEmployee;
+        }
+
+        $this->currentEmployeeLoaded = true;
+        $user = auth('api')->user();
+
+        if (! $user) {
+            return null;
+        }
+
+        if (! isset($user->nik) && ! isset($user->nohp)) {
+            return null;
+        }
+
+        $this->currentEmployee = list_karyawan::where(function ($query) use ($user) {
+            if (isset($user->nik)) {
+                $query->where('nik', $user->nik);
+            }
+
+            if (isset($user->nohp)) {
+                $query->orWhere('whatsapp', $user->nohp);
+            }
+        })
+            ->where('approve_satu', 'approve')
+            ->where('approve_dua', 'approve')
+            ->latest('id')
+            ->first();
+
+        return $this->currentEmployee;
+    }
+
+    private function employeeNotFoundResponse()
+    {
+        return response()->json([
+            'status' => 400,
+            'message' => 'Data karyawan tidak ditemukan untuk user login',
+        ], 400);
     }
 
     private function locationPayload(Request $request, string $type = 'in'): array
@@ -233,8 +318,8 @@ class UserPresenceController extends Controller
             'missing_columns' => $columns,
             'required_any_of' => [
                 'date' => ['presence_date', 'tanggal', 'date'],
-                'check_in_time' => ['check_in_at', 'masuk_at', 'time_in', 'jam_masuk'],
-                'check_out_time' => ['check_out_at', 'keluar_at', 'time_out', 'jam_keluar'],
+                'check_in_time' => ['clock_in_at', 'check_in_at', 'masuk_at', 'time_in', 'jam_masuk'],
+                'check_out_time' => ['clock_out_at', 'check_out_at', 'keluar_at', 'time_out', 'jam_keluar'],
             ],
         ], 500);
     }
@@ -248,9 +333,19 @@ class UserPresenceController extends Controller
         ], 422);
     }
 
-    private function userColumn(): ?string
+    private function userIdColumn(): ?string
     {
-        return $this->firstExistingColumn(['user_id', 'id_user', 'karyawan_id', 'employee_id']);
+        return $this->firstExistingColumn(['user_id', 'id_user']);
+    }
+
+    private function employeeIdColumn(): ?string
+    {
+        return $this->firstExistingColumn(['employee_id', 'id_karyawan', 'karyawan_id']);
+    }
+
+    private function companyIdColumn(): ?string
+    {
+        return $this->firstExistingColumn(['company_id', 'id_perusahaan', 'id_list_perusahaan']);
     }
 
     private function dateColumn(): ?string
@@ -260,12 +355,12 @@ class UserPresenceController extends Controller
 
     private function checkInColumn(): ?string
     {
-        return $this->firstExistingColumn(['check_in_at', 'masuk_at', 'time_in', 'jam_masuk']);
+        return $this->firstExistingColumn(['clock_in_at', 'check_in_at', 'masuk_at', 'time_in', 'jam_masuk']);
     }
 
     private function checkOutColumn(): ?string
     {
-        return $this->firstExistingColumn(['check_out_at', 'keluar_at', 'time_out', 'jam_keluar']);
+        return $this->firstExistingColumn(['clock_out_at', 'check_out_at', 'keluar_at', 'time_out', 'jam_keluar']);
     }
 
     private function statusColumn(): ?string
