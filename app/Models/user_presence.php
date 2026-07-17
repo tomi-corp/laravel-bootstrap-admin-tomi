@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class user_presence extends Model
 {
+    use SoftDeletes;
+
     protected $table = 'user_presences';
 
     protected $guarded = [];
@@ -19,10 +22,12 @@ class user_presence extends Model
             'presence_date' => 'date',
             'clock_in_at' => 'datetime',
             'clock_out_at' => 'datetime',
-            'check_in_at' => 'datetime',
-            'check_out_at' => 'datetime',
-            'latitude' => 'decimal:8',
-            'longitude' => 'decimal:8',
+            'clock_in_latitude' => 'decimal:7',
+            'clock_in_longitude' => 'decimal:7',
+            'clock_out_latitude' => 'decimal:7',
+            'clock_out_longitude' => 'decimal:7',
+            'approved_by' => 'integer',
+            'approved_at' => 'datetime',
         ];
     }
 

@@ -8,6 +8,7 @@ use App\Models\user_presence;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class UserPresenceController extends Controller
@@ -61,13 +62,22 @@ class UserPresenceController extends Controller
         $missingColumns = $this->missingRequiredColumns([
             'date' => $this->dateColumn(),
             'check_in_time' => $this->checkInColumn(),
+            'latitude' => $this->locationColumn('latitude', 'in'),
+            'longitude' => $this->locationColumn('longitude', 'in'),
+            'address' => $this->locationColumn('address', 'in'),
+            'image' => $this->locationColumn('image', 'in'),
         ]);
 
         if ($missingColumns) {
             return $this->missingColumnResponse($missingColumns);
         }
 
-        $validator = Validator::make($request->all(), $this->locationRules());
+        $validator = Validator::make($request->all(), $this->locationRules(true, true));
+        $validator->after(function ($validator) use ($request) {
+            if (! $this->validPresenceImage($request)) {
+                $validator->errors()->add('image', 'Image presensi harus berupa file gambar atau base64 image yang valid.');
+            }
+        });
 
         if ($validator->fails()) {
             return $this->validationResponse($validator);
@@ -97,7 +107,7 @@ class UserPresenceController extends Controller
         $data = array_merge($data, $identityPayload);
 
         if ($this->statusColumn()) {
-            $data[$this->statusColumn()] = 'check_in';
+            $data[$this->statusColumn()] = 'present';
         }
 
         $presence = user_presence::create($data);
@@ -121,7 +131,12 @@ class UserPresenceController extends Controller
             return $this->missingColumnResponse($missingColumns);
         }
 
-        $validator = Validator::make($request->all(), $this->locationRules());
+        $validator = Validator::make($request->all(), $this->locationRules(false, true));
+        $validator->after(function ($validator) use ($request) {
+            if (($request->hasFile('image') || $request->filled('image')) && ! $this->validPresenceImage($request)) {
+                $validator->errors()->add('image', 'Image presensi harus berupa file gambar atau base64 image yang valid.');
+            }
+        });
 
         if ($validator->fails()) {
             return $this->validationResponse($validator);
@@ -129,7 +144,7 @@ class UserPresenceController extends Controller
 
         $presence = $this->todayPresence();
 
-        if (!$presence || !$presence->{$this->checkInColumn()}) {
+        if (! $presence || ! $presence->{$this->checkInColumn()}) {
             return response()->json([
                 'status' => 400,
                 'message' => 'Presensi masuk hari ini belum dilakukan',
@@ -146,10 +161,6 @@ class UserPresenceController extends Controller
 
         $data = $this->locationPayload($request, 'out');
         $data[$this->checkOutColumn()] = Carbon::now();
-
-        if ($this->statusColumn()) {
-            $data[$this->statusColumn()] = 'check_out';
-        }
 
         $presence->update($data);
 
@@ -179,7 +190,7 @@ class UserPresenceController extends Controller
     {
         $dateColumn = $this->dateColumn();
 
-        if (!$dateColumn) {
+        if (! $dateColumn) {
             return null;
         }
 
@@ -277,9 +288,9 @@ class UserPresenceController extends Controller
     {
         $payload = [];
         $map = [
-            'latitude' => $this->firstExistingColumn(["{$type}_latitude", 'latitude']),
-            'longitude' => $this->firstExistingColumn(["{$type}_longitude", 'longitude']),
-            'address' => $this->firstExistingColumn(["{$type}_address", 'address', 'location']),
+            'latitude' => $this->locationColumn('latitude', $type),
+            'longitude' => $this->locationColumn('longitude', $type),
+            'address' => $this->locationColumn('address', $type),
             'notes' => $this->firstExistingColumn(["{$type}_notes", 'notes', 'description']),
         ];
 
@@ -289,23 +300,118 @@ class UserPresenceController extends Controller
             }
         }
 
+        $imageColumn = $this->locationColumn('image', $type);
+
+        if ($imageColumn && ($request->hasFile('image') || $request->filled('image'))) {
+            $payload[$imageColumn] = $this->storePresenceImage($request, $type);
+        }
+
         return $payload;
     }
 
-    private function locationRules(): array
+    private function locationRules(bool $required = false, bool $withImage = false): array
     {
-        return [
-            'latitude' => ['sometimes', 'nullable', 'numeric'],
-            'longitude' => ['sometimes', 'nullable', 'numeric'],
-            'address' => ['sometimes', 'nullable', 'string'],
+        $rules = [
+            'latitude' => $required ? ['required', 'numeric'] : ['sometimes', 'nullable', 'numeric'],
+            'longitude' => $required ? ['required', 'numeric'] : ['sometimes', 'nullable', 'numeric'],
+            'address' => $required ? ['required', 'string'] : ['sometimes', 'nullable', 'string'],
             'notes' => ['sometimes', 'nullable', 'string'],
         ];
+
+        if ($withImage) {
+            $rules['image'] = [$required ? 'required' : 'sometimes'];
+        }
+
+        return $rules;
+    }
+
+    private function locationColumn(string $field, string $type = 'in'): ?string
+    {
+        $prefix = $type === 'out' ? 'clock_out' : 'clock_in';
+
+        return match ($field) {
+            'latitude' => $this->firstExistingColumn(["{$prefix}_latitude", "{$type}_latitude", "check_{$type}_latitude", 'latitude']),
+            'longitude' => $this->firstExistingColumn(["{$prefix}_longitude", "{$type}_longitude", "check_{$type}_longitude", 'longitude']),
+            'address' => $this->firstExistingColumn(["{$prefix}_address", "{$type}_address", "check_{$type}_address", 'address', 'location']),
+            'image' => $this->firstExistingColumn(["{$prefix}_image", "{$type}_image", "check_{$type}_image", "{$type}_photo", "check_{$type}_photo", 'image', 'photo']),
+            default => null,
+        };
+    }
+
+    private function storePresenceImage(Request $request, string $type): ?string
+    {
+        if ($request->hasFile('image')) {
+            return $request->file('image')->store("presence/{$type}", 'public');
+        }
+
+        $image = $request->input('image');
+
+        if (! is_string($image) || trim($image) === '') {
+            return null;
+        }
+
+        $extension = 'jpg';
+
+        if (preg_match('/^data:image\/(jpeg|jpg|png|webp);base64,/', $image, $matches)) {
+            $extension = $matches[1] === 'jpeg' ? 'jpg' : $matches[1];
+            $image = substr($image, strpos($image, ',') + 1);
+        }
+
+        $contents = base64_decode($image, true);
+
+        if ($contents === false) {
+            return null;
+        }
+
+        $info = @getimagesizefromstring($contents);
+
+        if ($info !== false && isset($info[2])) {
+            $extension = image_type_to_extension($info[2], false) ?: $extension;
+            $extension = $extension === 'jpeg' ? 'jpg' : $extension;
+        }
+
+        $path = "presence/{$type}/".Carbon::now()->format('YmdHis').'_'.auth('api')->user()->id.'_'.bin2hex(random_bytes(4)).'.'.$extension;
+        Storage::disk('public')->put($path, $contents);
+
+        return $path;
+    }
+
+    private function validPresenceImage(Request $request): bool
+    {
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
+
+            return $file->isValid()
+                && in_array($file->getMimeType(), ['image/jpeg', 'image/png', 'image/webp'])
+                && $file->getSize() <= 5 * 1024 * 1024;
+        }
+
+        $image = $request->input('image');
+
+        if (! is_string($image) || trim($image) === '') {
+            return false;
+        }
+
+        if (preg_match('/^data:image\/(jpeg|jpg|png|webp);base64,/', $image)) {
+            $image = substr($image, strpos($image, ',') + 1);
+        }
+
+        $contents = base64_decode($image, true);
+
+        if ($contents === false || strlen($contents) > 5 * 1024 * 1024) {
+            return false;
+        }
+
+        $info = @getimagesizefromstring($contents);
+
+        return $info !== false
+            && in_array($info['mime'] ?? null, ['image/jpeg', 'image/png', 'image/webp']);
     }
 
     private function missingRequiredColumns(array $columns): array
     {
         return collect($columns)
-            ->filter(fn ($column) => !$column)
+            ->filter(fn ($column) => ! $column)
             ->keys()
             ->all();
     }
@@ -320,6 +426,10 @@ class UserPresenceController extends Controller
                 'date' => ['presence_date', 'tanggal', 'date'],
                 'check_in_time' => ['clock_in_at', 'check_in_at', 'masuk_at', 'time_in', 'jam_masuk'],
                 'check_out_time' => ['clock_out_at', 'check_out_at', 'keluar_at', 'time_out', 'jam_keluar'],
+                'latitude' => ['clock_in_latitude', 'in_latitude', 'check_in_latitude', 'latitude'],
+                'longitude' => ['clock_in_longitude', 'in_longitude', 'check_in_longitude', 'longitude'],
+                'address' => ['clock_in_address', 'in_address', 'check_in_address', 'address', 'location'],
+                'image' => ['clock_in_image', 'in_image', 'check_in_image', 'in_photo', 'check_in_photo', 'image', 'photo'],
             ],
         ], 500);
     }
