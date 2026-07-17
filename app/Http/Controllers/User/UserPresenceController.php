@@ -125,15 +125,19 @@ class UserPresenceController extends Controller
             'date' => $this->dateColumn(),
             'check_in_time' => $this->checkInColumn(),
             'check_out_time' => $this->checkOutColumn(),
+            'check_out_latitude' => $this->locationColumn('latitude', 'out'),
+            'check_out_longitude' => $this->locationColumn('longitude', 'out'),
+            'check_out_address' => $this->locationColumn('address', 'out'),
+            'check_out_image' => $this->locationColumn('image', 'out'),
         ]);
 
         if ($missingColumns) {
             return $this->missingColumnResponse($missingColumns);
         }
 
-        $validator = Validator::make($request->all(), $this->locationRules(false, true));
+        $validator = Validator::make($request->all(), $this->locationRules(true, true));
         $validator->after(function ($validator) use ($request) {
-            if (($request->hasFile('image') || $request->filled('image')) && ! $this->validPresenceImage($request)) {
+            if (! $this->validPresenceImage($request)) {
                 $validator->errors()->add('image', 'Image presensi harus berupa file gambar atau base64 image yang valid.');
             }
         });
@@ -430,6 +434,10 @@ class UserPresenceController extends Controller
                 'longitude' => ['clock_in_longitude', 'in_longitude', 'check_in_longitude', 'longitude'],
                 'address' => ['clock_in_address', 'in_address', 'check_in_address', 'address', 'location'],
                 'image' => ['clock_in_image', 'in_image', 'check_in_image', 'in_photo', 'check_in_photo', 'image', 'photo'],
+                'check_out_latitude' => ['clock_out_latitude', 'out_latitude', 'check_out_latitude', 'latitude'],
+                'check_out_longitude' => ['clock_out_longitude', 'out_longitude', 'check_out_longitude', 'longitude'],
+                'check_out_address' => ['clock_out_address', 'out_address', 'check_out_address', 'address', 'location'],
+                'check_out_image' => ['clock_out_image', 'out_image', 'check_out_image', 'out_photo', 'check_out_photo', 'image', 'photo'],
             ],
         ], 500);
     }
