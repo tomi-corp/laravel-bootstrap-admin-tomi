@@ -111,7 +111,7 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                 {{-- Menu di bawah ini hanya tampil selain pic dan staff --}}
                 @if (!$limitedProductRole)
 
-                <li>
+                <!-- <li>
                     <a href="#">
                         <i class="dripicons-briefcase"></i>
                         <span> Pinjaman Regular </span>
@@ -123,7 +123,7 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                         <i class="dripicons-briefcase"></i>
                         <span> Cicilan Gedget </span>
                     </a>
-                </li>
+                </li> -->
 
                 <li class="menu-title">Daily</li>
 
