@@ -1,8 +1,10 @@
 <?php
 
 use App\Http\Controllers\Server\DocumentController;
+use App\Http\Controllers\User\AttendanceController;
 use App\Http\Controllers\User\AuthController;
 use App\Http\Controllers\User\DailyCheckinController;
+use App\Http\Controllers\User\GadgetInstallmentController;
 use App\Http\Controllers\User\HistoryController;
 use App\Http\Controllers\User\MenuController;
 use App\Http\Controllers\User\NotificationController;
@@ -12,7 +14,6 @@ use App\Http\Controllers\User\PinjamanController;
 use App\Http\Controllers\User\PointController;
 use App\Http\Controllers\User\PrivyController;
 use App\Http\Controllers\User\ProductController;
-use App\Http\Controllers\User\GadgetInstallmentController;
 use App\Http\Controllers\User\UserPresenceController;
 use Illuminate\Support\Facades\Route;
 
@@ -49,6 +50,24 @@ Route::middleware(['LanguangeMiddleware'])->group(function () {
             });
             Route::post('/action/gadget-installments/otp/ulang', [GadgetInstallmentController::class, 'actionGadgetInstallmentOTPUlang']);
         });
+
+        // attendance
+        Route::get('/attendance/config', [AttendanceController::class, 'config']);
+        Route::get('/attendance/today', [AttendanceController::class, 'today']);
+        Route::post('/attendance/check-in', [AttendanceController::class, 'checkIn']);
+        Route::post('/attendance/check-out', [AttendanceController::class, 'checkOut']);
+        Route::get('/attendance/detail', [AttendanceController::class, 'detail']);
+        Route::get('/attendance/calendar', [AttendanceController::class, 'calendar']);
+        Route::post('/attendance/location/validate', [AttendanceController::class, 'validateLocation']);
+        Route::post('/attendance/overtime/request', [AttendanceController::class, 'requestOvertime']);
+        Route::get('/attendance/overtime/remaining', [AttendanceController::class, 'remainingOvertime']);
+        Route::post('/attendance/overtime/finish', [AttendanceController::class, 'finishOvertime']);
+        Route::post('/attendance/wfa/request', [AttendanceController::class, 'requestWfa']);
+        Route::post('/attendance/leave/request', [AttendanceController::class, 'requestLeave']);
+        Route::get('/attendance/leave/annual/remaining', [AttendanceController::class, 'remainingAnnualLeave']);
+        Route::get('/attendance/approvals', [AttendanceController::class, 'approvals']);
+        Route::patch('/attendance/approvals/{attendanceRecord}/status', [AttendanceController::class, 'updateApprovalStatus']);
+        Route::post('/attendance/files', [AttendanceController::class, 'uploadFile']);
 
         Route::middleware(['EmailMiddleware', 'WhatsappMiddleware'])->group(function () {
 
