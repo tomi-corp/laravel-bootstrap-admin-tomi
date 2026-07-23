@@ -49,16 +49,22 @@ class AttendanceController extends Controller
     public function detail(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'date' => ['required', 'date'],
+            'date' => ['sometimes', 'nullable', 'date'],
         ]);
 
         if ($validator->fails()) {
             return $this->validationResponse($validator);
         }
 
-        $record = $this->wfoRecordFor(Carbon::parse($request->date)->format('Y-m-d'));
+        $dateKey = $request->filled('date')
+            ? Carbon::parse($request->date)->format('Y-m-d')
+            : Carbon::today()->format('Y-m-d');
 
-        return $this->ok($record ? $this->attendancePayload($record, true) : null);
+        $record = $this->wfoRecordFor($dateKey);
+
+        return response()->json([
+            'data' => $record ? $this->attendanceDetailPayload($record) : null,
+        ], 200);
     }
 
     public function calendar(Request $request)
@@ -751,7 +757,33 @@ class AttendanceController extends Controller
             return $request->file($key)->store($directory, 'public');
         }
 
+        if ($request->filled($key) && is_string($request->input($key))) {
+            $base64Path = $this->storeBase64Image($request->input($key), $directory);
+
+            if ($base64Path) {
+                return $base64Path;
+            }
+        }
+
         return $request->filled($key) && is_string($request->input($key)) ? $request->input($key) : null;
+    }
+
+    private function storeBase64Image(string $value, string $directory): ?string
+    {
+        if (! preg_match('/^data:image\/(jpeg|jpg|png|webp);base64,(.+)$/', $value, $matches)) {
+            return null;
+        }
+
+        $extension = $matches[1] === 'jpeg' ? 'jpg' : $matches[1];
+        $binary = base64_decode($matches[2], true);
+
+        if ($binary === false) {
+            return null;
+        }
+
+        $path = trim($directory, '/').'/'.bin2hex(random_bytes(16)).'.'.$extension;
+
+        return Storage::disk('public')->put($path, $binary) ? $path : null;
     }
 
     private function attendancePayload(AttendanceRecord $record, bool $withDetail = false): array
@@ -780,6 +812,35 @@ class AttendanceController extends Controller
         }
 
         return $payload;
+    }
+
+    private function attendanceDetailPayload(AttendanceRecord $record): array
+    {
+        return [
+            'dateKey' => $record->date_key?->format('Y-m-d'),
+            'checkInAt' => $record->check_in_at?->toISOString(),
+            'checkOutAt' => $record->check_out_at?->toISOString(),
+            'checkInPhoto' => $this->publicFileUrl($record->check_in_photo),
+            'checkOutPhoto' => $this->publicFileUrl($record->check_out_photo),
+            'lastLatitude' => $record->last_latitude !== null ? (float) $record->last_latitude : null,
+            'lastLongitude' => $record->last_longitude !== null ? (float) $record->last_longitude : null,
+            'lastAccuracy' => $record->last_accuracy !== null ? (float) $record->last_accuracy : null,
+            'lastDistance' => $record->last_distance !== null ? (float) $record->last_distance : null,
+            'lastAddress' => $record->last_address,
+        ];
+    }
+
+    private function publicFileUrl(?string $path): ?string
+    {
+        if (! $path) {
+            return null;
+        }
+
+        if (filter_var($path, FILTER_VALIDATE_URL)) {
+            return $path;
+        }
+
+        return Storage::disk('public')->url($path);
     }
 
     private function approvalPayload(AttendanceRecord $record): array
