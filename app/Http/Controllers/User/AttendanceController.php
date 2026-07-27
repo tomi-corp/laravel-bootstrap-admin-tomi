@@ -765,7 +765,9 @@ class AttendanceController extends Controller
             }
         }
 
-        return $request->filled($key) && is_string($request->input($key)) ? $request->input($key) : null;
+        return $request->filled($key) && is_string($request->input($key))
+            ? $this->normalizePublicFilePath($request->input($key))
+            : null;
     }
 
     private function storeBase64Image(string $value, string $directory): ?string
@@ -836,11 +838,26 @@ class AttendanceController extends Controller
             return null;
         }
 
+        $path = $this->normalizePublicFilePath($path);
+
         if (filter_var($path, FILTER_VALIDATE_URL)) {
             return $path;
         }
 
         return Storage::disk('public')->url($path);
+    }
+
+    private function normalizePublicFilePath(string $path): string
+    {
+        $path = trim($path);
+        $storagePrefix = '/storage/';
+        $storagePosition = strpos($path, $storagePrefix);
+
+        if ($storagePosition !== false) {
+            return ltrim(substr($path, $storagePosition + strlen($storagePrefix)), '/');
+        }
+
+        return ltrim($path, '/');
     }
 
     private function approvalPayload(AttendanceRecord $record): array
