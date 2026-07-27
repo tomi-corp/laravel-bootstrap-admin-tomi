@@ -818,12 +818,33 @@ class AttendanceController extends Controller
 
     private function attendanceDetailPayload(AttendanceRecord $record): array
     {
+        $checkInPhoto = $this->normalizeNullablePublicFilePath($record->check_in_photo);
+        $checkOutPhoto = $this->normalizeNullablePublicFilePath($record->check_out_photo);
+        $checkInPhotoUrl = $this->publicFileUrl($checkInPhoto);
+        $checkOutPhotoUrl = $this->publicFileUrl($checkOutPhoto);
+
         return [
             'dateKey' => $record->date_key?->format('Y-m-d'),
             'checkInAt' => $record->check_in_at?->toISOString(),
             'checkOutAt' => $record->check_out_at?->toISOString(),
-            'checkInPhoto' => $this->publicFileUrl($record->check_in_photo),
-            'checkOutPhoto' => $this->publicFileUrl($record->check_out_photo),
+            'checkInPhoto' => $checkInPhotoUrl,
+            'checkOutPhoto' => $checkOutPhotoUrl,
+            'check_in_photo' => $checkInPhoto,
+            'check_in_photo_url' => $checkInPhotoUrl,
+            'photo_in' => $checkInPhoto,
+            'check_out_photo' => $checkOutPhoto,
+            'check_out_photo_url' => $checkOutPhotoUrl,
+            'photo_out' => $checkOutPhoto,
+            'checkIn' => [
+                'photo' => $checkInPhoto,
+                'photoUrl' => $checkInPhotoUrl,
+                'photo_url' => $checkInPhotoUrl,
+            ],
+            'checkOut' => [
+                'photo' => $checkOutPhoto,
+                'photoUrl' => $checkOutPhotoUrl,
+                'photo_url' => $checkOutPhotoUrl,
+            ],
             'lastLatitude' => $record->last_latitude !== null ? (float) $record->last_latitude : null,
             'lastLongitude' => $record->last_longitude !== null ? (float) $record->last_longitude : null,
             'lastAccuracy' => $record->last_accuracy !== null ? (float) $record->last_accuracy : null,
@@ -845,6 +866,11 @@ class AttendanceController extends Controller
         }
 
         return Storage::disk('public')->url($path);
+    }
+
+    private function normalizeNullablePublicFilePath(?string $path): ?string
+    {
+        return $path ? $this->normalizePublicFilePath($path) : null;
     }
 
     private function normalizePublicFilePath(string $path): string
