@@ -467,11 +467,48 @@ class AttendanceController extends Controller
 
         return $this->ok([
             'uri' => $path,
-            'url' => $path ? Storage::disk('public')->url($path) : null,
+            'url' => $path,
             'name' => $request->file('file')?->getClientOriginalName(),
             'mimeType' => $request->file('file')?->getMimeType(),
             'size' => $request->file('file')?->getSize(),
         ], 'File berhasil diupload.');
+    }
+
+    public function photo(AttendanceRecord $attendanceRecord, string $type)
+    {
+        if ((int) $attendanceRecord->user_id !== (int) auth('api')->id()) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'Foto presensi tidak ditemukan.',
+            ], 404);
+        }
+
+        $path = $this->normalizeNullablePublicFilePath(match ($type) {
+            'check-in' => $attendanceRecord->check_in_photo,
+            'check-out' => $attendanceRecord->check_out_photo,
+            default => null,
+        });
+
+        if (! $path) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'Foto presensi tidak ditemukan.',
+            ], 404);
+        }
+
+        $disk = $this->storedAttendanceFileDisk($path);
+
+        if (! $disk) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'Foto presensi tidak ditemukan.',
+            ], 404);
+        }
+
+        return response()->file(Storage::disk($disk)->path($path), [
+            'Content-Type' => Storage::disk($disk)->mimeType($path) ?: 'application/octet-stream',
+            'Cache-Control' => 'private, no-store',
+        ]);
     }
 
     private function validateLeave($validator, Request $request): void
@@ -754,7 +791,7 @@ class AttendanceController extends Controller
     private function storeFile(Request $request, string $key, string $directory): ?string
     {
         if ($request->hasFile($key)) {
-            return $request->file($key)->store($directory, 'public');
+            return $request->file($key)->store($directory, $this->attendanceFileDisk($directory));
         }
 
         if ($request->filled($key) && is_string($request->input($key))) {
@@ -785,7 +822,7 @@ class AttendanceController extends Controller
 
         $path = trim($directory, '/').'/'.bin2hex(random_bytes(16)).'.'.$extension;
 
-        return Storage::disk('public')->put($path, $binary) ? $path : null;
+        return Storage::disk($this->attendanceFileDisk($directory))->put($path, $binary) ? $path : null;
     }
 
     private function attendancePayload(AttendanceRecord $record, bool $withDetail = false): array
@@ -804,11 +841,14 @@ class AttendanceController extends Controller
         ];
 
         if ($withDetail) {
+            $checkInPhoto = $this->normalizeNullablePublicFilePath($record->check_in_photo);
+            $checkOutPhoto = $this->normalizeNullablePublicFilePath($record->check_out_photo);
+
             $payload += [
                 'employeeName' => $record->employee_name,
                 'employeeNip' => $record->employee_nip,
-                'checkInPhoto' => $record->check_in_photo,
-                'checkOutPhoto' => $record->check_out_photo,
+                'checkInPhoto' => $this->attendancePhotoUrl($record, 'check-in', $checkInPhoto),
+                'checkOutPhoto' => $this->attendancePhotoUrl($record, 'check-out', $checkOutPhoto),
                 'valid' => $record->check_in_at !== null,
             ];
         }
@@ -820,8 +860,8 @@ class AttendanceController extends Controller
     {
         $checkInPhoto = $this->normalizeNullablePublicFilePath($record->check_in_photo);
         $checkOutPhoto = $this->normalizeNullablePublicFilePath($record->check_out_photo);
-        $checkInPhotoUrl = $this->publicFileUrl($checkInPhoto);
-        $checkOutPhotoUrl = $this->publicFileUrl($checkOutPhoto);
+        $checkInPhotoUrl = $this->attendancePhotoUrl($record, 'check-in', $checkInPhoto);
+        $checkOutPhotoUrl = $this->attendancePhotoUrl($record, 'check-out', $checkOutPhoto);
 
         return [
             'dateKey' => $record->date_key?->format('Y-m-d'),
@@ -853,19 +893,32 @@ class AttendanceController extends Controller
         ];
     }
 
-    private function publicFileUrl(?string $path): ?string
+    private function attendancePhotoUrl(AttendanceRecord $record, string $type, ?string $path): ?string
     {
         if (! $path) {
             return null;
         }
 
-        $path = $this->normalizePublicFilePath($path);
+        return route('attendance.photo', [
+            'attendanceRecord' => $record->id,
+            'type' => $type,
+        ], false);
+    }
 
-        if (filter_var($path, FILTER_VALIDATE_URL)) {
-            return $path;
+    private function attendanceFileDisk(string $directory): string
+    {
+        return str_starts_with(trim($directory, '/'), 'attendance/') ? 'local' : 'public';
+    }
+
+    private function storedAttendanceFileDisk(string $path): ?string
+    {
+        foreach (['local', 'public'] as $disk) {
+            if (Storage::disk($disk)->exists($path)) {
+                return $disk;
+            }
         }
 
-        return '/storage/'.ltrim($path, '/');
+        return null;
     }
 
     private function normalizeNullablePublicFilePath(?string $path): ?string

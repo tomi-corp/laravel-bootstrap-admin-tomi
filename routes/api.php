@@ -57,6 +57,9 @@ Route::middleware(['LanguangeMiddleware'])->group(function () {
         Route::post('/attendance/check-in', [AttendanceController::class, 'checkIn']);
         Route::post('/attendance/check-out', [AttendanceController::class, 'checkOut']);
         Route::get('/attendance/detail', [AttendanceController::class, 'detail']);
+        Route::get('/attendance/photo/{attendanceRecord}/{type}', [AttendanceController::class, 'photo'])
+            ->whereIn('type', ['check-in', 'check-out'])
+            ->name('attendance.photo');
         Route::get('/attendance/calendar', [AttendanceController::class, 'calendar']);
         Route::post('/attendance/location/validate', [AttendanceController::class, 'validateLocation']);
         Route::post('/attendance/overtime/request', [AttendanceController::class, 'requestOvertime']);
