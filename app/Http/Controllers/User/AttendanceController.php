@@ -828,7 +828,6 @@ class AttendanceController extends Controller
     private function attendancePayload(AttendanceRecord $record, bool $withDetail = false): array
     {
         $payload = [
-            'id' => $record->id,
             'dateKey' => $record->date_key?->format('Y-m-d'),
             'workMode' => $record->work_mode,
             'checkInAt' => $record->check_in_at?->toISOString(),
@@ -864,6 +863,7 @@ class AttendanceController extends Controller
         $checkOutPhotoUrl = $this->attendancePhotoUrl($record, 'check-out', $checkOutPhoto);
 
         return [
+            'id' => $record->id,
             'dateKey' => $record->date_key?->format('Y-m-d'),
             'checkInAt' => $record->check_in_at?->toISOString(),
             'checkOutAt' => $record->check_out_at?->toISOString(),
