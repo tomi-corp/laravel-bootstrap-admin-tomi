@@ -865,7 +865,7 @@ class AttendanceController extends Controller
             return $path;
         }
 
-        return Storage::disk('public')->url($path);
+        return '/storage/'.ltrim($path, '/');
     }
 
     private function normalizeNullablePublicFilePath(?string $path): ?string
