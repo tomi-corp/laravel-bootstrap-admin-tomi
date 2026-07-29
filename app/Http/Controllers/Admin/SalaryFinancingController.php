@@ -97,7 +97,7 @@ class SalaryFinancingController extends Controller
         if ($response->successful()) {
             $result = $response->json();
             $invoice = $this->mapApiInvoice($result, $id);
-            $items = $this->mapApiItems($result['data'] ?? []);
+            $items = $this->mapApiItems($result['data'] ?? [], $invoice['id_perusahaan'] ?? null);
 
             $pdf = Pdf::loadView('admin.salary-financing.invoice-pdf', [
                 'invoice' => $invoice,
@@ -214,20 +214,57 @@ class SalaryFinancingController extends Controller
             'plafon_terpakai',
         ], 0);
 
+        $companyId = $this->value($detail, [
+            'salary_financing_company_id',
+            'salary_financing_companies_id',
+            'company_id',
+            'perusahaan_id',
+            'id_perusahaan',
+        ]);
+        $tenor = $this->value($detail, ['tenor', 'tenor_bulan']);
+        $configuration = $this->getSalaryFinancingConfiguration($companyId, $tenor, $totalPinjaman);
+
+        $biayaAdminRate = (float) $this->value($detail, [
+            'biaya_admin_rate',
+            'persen_biaya_admin',
+            'biaya_admin_persen',
+        ], $configuration['biaya_admin'] ?? 0);
+
+        $feeTomiRate = (float) $this->value($detail, [
+            'fee_tomi',
+            'fee_tomi_rate',
+        ], $configuration['fee_tomi'] ?? 0);
+
+        $profesionalFee1Rate = (float) $this->value($detail, [
+            'profesional_fee_1',
+            'professional_fee_1',
+        ], $configuration['profesional_fee_1'] ?? 0);
+
+        $profesionalFee2Rate = (float) $this->value($detail, [
+            'profesional_fee_2',
+            'professional_fee_2',
+        ], $configuration['profesional_fee_2'] ?? 0);
+
         $biayaAdmin = (float) $this->value($detail, [
+            'jumlah_biaya_admin',
             'biaya_admin',
             'total_dibayarkan',
             'admin_fee',
-        ], $totalPinjaman * 0.0225);
+        ], $totalPinjaman * ($biayaAdminRate / 100));
 
         return [
             'id' => $this->value($detail, ['id']),
+            'id_perusahaan' => $companyId,
             'nama_perusahaan' => $this->value($detail, ['nama_perusahaan', 'company_name', 'nama'], $companyName),
             'nomor_invoice' => $this->value($detail, ['nomor_invoice', 'invoice_number', 'no_invoice']),
             'filename' => $this->value($detail, ['filename', 'file_name', 'nama_file'], '-'),
             'jumlah_peminjam' => (int) $this->value($detail, ['jumlah_peminjam', 'total_peminjam', 'total_karyawan', 'jumlah_karyawan'], 0),
             'total_pinjaman' => $totalPinjaman,
             'biaya_admin' => $biayaAdmin,
+            'biaya_admin_rate' => $biayaAdminRate,
+            'fee_tomi' => $feeTomiRate,
+            'profesional_fee_1' => $profesionalFee1Rate,
+            'profesional_fee_2' => $profesionalFee2Rate,
             'total_tagihan' => (float) $this->value($detail, ['total_tagihan', 'tagihan', 'total_fee'], $totalPinjaman + $biayaAdmin),
             'created_at' => $this->value($detail, ['created_at', 'tanggal_import', 'tanggal']),
             'status' => strtolower((string) $this->value($detail, ['status', 'status_pembayaran'], 'pending')),
@@ -242,6 +279,7 @@ class SalaryFinancingController extends Controller
         $totalPendapatan = (float) $items->sum(fn($item) => (float) ($item['jumlah_pendapatan'] ?? 0));
         $biayaAdmin = (float) $items->sum(fn($item) => (float) ($item['biaya_admin'] ?? 0));
         $totalTagihan = (float) $items->sum(fn($item) => (float) ($item['total_tagihan'] ?? 0));
+        $configuration = $this->getSalaryFinancingConfiguration($salaryFinancing['id_perusahaan'] ?? null);
 
         return [
             'id' => $salaryFinancing['id'] ?? $id,
@@ -252,6 +290,10 @@ class SalaryFinancingController extends Controller
             'jumlah_peminjam' => (int) ($result['total_data'] ?? $items->count()),
             'total_pinjaman' => $totalPendapatan,
             'biaya_admin' => $biayaAdmin,
+            'biaya_admin_rate' => $configuration['biaya_admin'] ?? 2.5,
+            'fee_tomi' => $configuration['fee_tomi'] ?? 1,
+            'profesional_fee_1' => $configuration['profesional_fee_1'] ?? 0,
+            'profesional_fee_2' => $configuration['profesional_fee_2'] ?? 0,
             'total_tagihan' => $totalTagihan,
             'status' => strtolower((string) ($salaryFinancing['status'] ?? 'pending')),
             'tanggal_bukti_bayar' => $salaryFinancing['tanggal_bukti_bayar'] ?? null,
@@ -263,9 +305,16 @@ class SalaryFinancingController extends Controller
         ];
     }
 
-    private function mapApiItems(array $rows): array
+    private function mapApiItems(array $rows, int|string|null $companyId = null): array
     {
-        return collect($rows)->values()->map(function (array $row, int $index) {
+        return collect($rows)->values()->map(function (array $row, int $index) use ($companyId) {
+            $jumlahPendapatan = (float) ($row['jumlah_pendapatan'] ?? 0);
+            $configuration = $this->getSalaryFinancingConfiguration(
+                $row['id_perusahaan'] ?? $row['company_id'] ?? $companyId,
+                $row['tenor'] ?? $row['tenor_bulan'] ?? null,
+                $jumlahPendapatan
+            );
+
             return [
                 'no' => $index + 1,
                 'tanggal_pengajuan' => $this->excelDateToNormal($row['tanggal_pengajuan'] ?? null),
@@ -274,17 +323,85 @@ class SalaryFinancingController extends Controller
                 'nip' => $row['nip'] ?? '-',
                 'nama_perusahaan' => $row['nama_perusahaan'] ?? '-',
                 'penempatan_kerja' => $row['penempatan_kerja'] ?? '-',
-                'jumlah_pendapatan' => (float) ($row['jumlah_pendapatan'] ?? 0),
+                'jumlah_pendapatan' => $jumlahPendapatan,
                 'tanggal_pembayaran' => $this->excelDateToNormal($row['tanggal_pembayaran'] ?? null),
                 'nama_bank' => $row['nama_bank'] ?? '-',
                 'no_rekening' => $row['no_rekening'] ?? '-',
                 'nama_pemilik_rekening' => $row['nama_pemilik_rekening'] ?? '-',
                 'biaya_admin' => (float) ($row['biaya_admin'] ?? 0),
+                'biaya_admin_rate' => (float) ($row['biaya_admin_rate'] ?? $row['persen_biaya_admin'] ?? $configuration['biaya_admin'] ?? 2.5),
+                'fee_tomi' => (float) ($row['fee_tomi'] ?? $configuration['fee_tomi'] ?? 1),
+                'profesional_fee_1' => (float) ($row['profesional_fee_1'] ?? $row['professional_fee_1'] ?? $configuration['profesional_fee_1'] ?? 0),
+                'profesional_fee_2' => (float) ($row['profesional_fee_2'] ?? $row['professional_fee_2'] ?? $configuration['profesional_fee_2'] ?? 0),
                 'total_tagihan' => (float) ($row['total_tagihan'] ?? 0),
                 'total_dibayarkan' => (float) ($row['total_dibayarkan'] ?? 0),
                 'total_fee' => (float) ($row['total_fee'] ?? 0),
             ];
         })->toArray();
+    }
+
+    private function getSalaryFinancingConfiguration(int|string|null $companyId, int|string|null $tenor = null, float|int|null $nominal = null): array
+    {
+        if (empty($companyId) || !Schema::hasTable('salary_financing_configurations')) {
+            return [];
+        }
+
+        $baseQuery = DB::table('salary_financing_configurations')
+            ->where('company_id', $companyId);
+
+        if (Schema::hasColumn('salary_financing_configurations', 'deleted_at')) {
+            $baseQuery->whereNull('deleted_at');
+        }
+
+        $query = clone $baseQuery;
+
+        if (!empty($tenor) && Schema::hasColumn('salary_financing_configurations', 'tenor')) {
+            $query->where('tenor', (int) $tenor);
+        }
+
+        if (
+            !empty($nominal)
+            && Schema::hasColumn('salary_financing_configurations', 'minimal_nominal')
+            && Schema::hasColumn('salary_financing_configurations', 'maximal_nominal')
+        ) {
+            $query->where('minimal_nominal', '<=', $nominal)
+                ->where('maximal_nominal', '>=', $nominal);
+        }
+
+        $configuration = $query
+            ->orderByDesc('updated_at')
+            ->orderByDesc('id')
+            ->first();
+
+        if (!$configuration && !empty($nominal)) {
+            $query = clone $baseQuery;
+
+            if (!empty($tenor) && Schema::hasColumn('salary_financing_configurations', 'tenor')) {
+                $query->where('tenor', (int) $tenor);
+            }
+
+            $configuration = $query
+                ->orderByDesc('updated_at')
+                ->orderByDesc('id')
+                ->first();
+        }
+
+        if (!$configuration && !empty($tenor)) {
+            $configuration = (clone $baseQuery)
+                ->orderByDesc('updated_at')
+                ->orderByDesc('id')
+                ->first();
+        }
+
+        if (!$configuration) {
+            return [];
+        }
+        return [
+            'biaya_admin' => (float) ($configuration->biaya_admin ?? 0),
+            'fee_tomi' => (float) ($configuration->fee_tomi ?? 0),
+            'profesional_fee_1' => (float) ($configuration->profesional_fee_1 ?? $configuration->professional_fee_1 ?? 0),
+            'profesional_fee_2' => (float) ($configuration->profesional_fee_2 ?? $configuration->professional_fee_2 ?? 0),
+        ];
     }
 
     private function excelDateToNormal($value): string
