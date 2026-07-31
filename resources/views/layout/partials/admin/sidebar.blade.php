@@ -51,7 +51,7 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                 <li>
                     <a href="javascript: void(0);">
                         <i class="dripicons-network-3"></i>
-                        <span> e-Kasbon </span>
+                        <span> TomiDana </span>
                         <span class="menu-arrow"></span>
                     </a>
 
@@ -104,7 +104,7 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                 <li>
                     <a href="{{ route('admin.salary-financing.index') }}">
                         <i class="dripicons-wallet"></i>
-                        <span> Salary Financing </span>
+                        <span> TomiGaji </span>
                     </a>
                 </li>
 

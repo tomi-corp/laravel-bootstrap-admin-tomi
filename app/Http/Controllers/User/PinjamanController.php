@@ -55,12 +55,12 @@ class PinjamanController extends Controller
 
         $returnData = [
             'angsuran_perbulan' => $angsuran_perbulan_ceil,
-            'rate_persen' => $tenor->rate.'%',
-            'asuransi_persen' => $tenor->asuransi.'%',
+            'rate_persen' => $tenor->rate . '%',
+            'asuransi_persen' => $tenor->asuransi . '%',
             'asuransi' => $biaya_asuransi,
-            'provisi_persen' => $tenor->provisi.'%',
+            'provisi_persen' => $tenor->provisi . '%',
             'provisi' => $biaya_provisi,
-            'biaya_admin_persen' => $tenor->biaya_admin.'%',
+            'biaya_admin_persen' => $tenor->biaya_admin . '%',
             'tenor' => $tenor->tenor,
             'biaya_admin' => $biaya_admin,
             'biaya_admin_tomi' => $biaya_admin_tomi,
@@ -86,6 +86,112 @@ class PinjamanController extends Controller
         }
 
         return null;
+    }
+
+    private function renderPkHtml(pinjaman $pinjaman, User $user)
+    {
+
+        Carbon::setLocale('id');
+        $waktu = Carbon::now();
+        $hari = $waktu->isoFormat('dddd');
+        $carbonSekarang = $waktu->format('d/m/Y');
+        $carbonTahun = $waktu->format('Y');
+        $bulanAngka = (int) $waktu->format('m');
+        $bulanRomawi = [
+            1 => 'I',
+            2 => 'II',
+            3 => 'III',
+            4 => 'IV',
+            5 => 'V',
+            6 => 'VI',
+            7 => 'VII',
+            8 => 'VIII',
+            9 => 'IX',
+            10 => 'X',
+            11 => 'XI',
+            12 => 'XII',
+        ];
+
+        $disk = Storage::disk('local');
+        $html = $disk->get('template/pkk.html');
+        $tenorConfig = tenor_pinjaman::where('id_perusahaan', $pinjaman->id_perusahaan)
+            ->where('tenor', $pinjaman->tenor)
+            ->first();
+        $rate = (float) data_get($tenorConfig, 'rate', $pinjaman->rate ?? 0);
+        $tenorBulan = max((int) $pinjaman->tenor, 1);
+        $totalDenganBunga = $pinjaman->nominal + ($pinjaman->nominal * ($rate / 100) * $tenorBulan);
+        $angsuranPerbulan = ceil(($totalDenganBunga / $tenorBulan) / 1000) * 1000;
+        $rateText = rtrim(rtrim(number_format($rate, 2, ',', '.'), '0'), ',') . ' %';
+
+        $htmlTabelAngsuran = '<table class="table-pinjaman">
+                <thead>
+                    <tr class="table-pinjaman__row">
+                        <th class="table-pinjaman__header">Angsuran ke -</th>
+                        <th class="table-pinjaman__header">Nilai Angsuran</th>
+                        <th class="table-pinjaman__header">Tanggal Jatuh Tempo</th>
+                    </tr>
+                </thead>
+                <tbody>';
+
+        foreach ($pinjaman->jatuh_tempo as $index => $jt) {
+            $isEven = ($index + 1) % 2 == 0;
+            $classRow = $isEven ? 'table-pinjaman__row--even' : '';
+            $nilaiAngsuran = 'Rp ' . number_format($angsuranPerbulan);
+
+            $htmlTabelAngsuran .= '
+                    <tr class="table-pinjaman__row ' . $classRow . '">
+                        <td class="table-pinjaman__cell">' . ($index + 1) . '</td>
+                        <td class="table-pinjaman__cell table-pinjaman__cell--nilai">' . $nilaiAngsuran . '</td>
+                        <td class="table-pinjaman__cell">' . Carbon::parse($jt['jatuh_tempo'])->format('d/m/Y') . '</td>
+                    </tr>';
+        }
+
+        $htmlTabelAngsuran .= '</tbody></table>';
+
+        $usia = Carbon::parse($user->dob)->age;
+        $dataKaryawan = $pinjaman->data_karyawan;
+        $perusahaan = $pinjaman->perusahaan ?: $dataKaryawan->perusahaan;
+        $bank = $dataKaryawan->bank;
+        $lender = $perusahaan?->lender;
+
+        $dataPengganti = [
+            'nomor' => pinjaman::count(),
+            'hari' => $hari,
+            'tanggal_sekarang' => $carbonSekarang,
+            'ct' => $carbonTahun,
+            'bulan_romawi' => $bulanRomawi[$bulanAngka],
+            'id_pinjaman' => $pinjaman->id_pinjaman,
+            't' => data_get($perusahaan, 'payment_date', '-'),
+            'pinjaman_jatuh_tempo' => $htmlTabelAngsuran,
+
+            'pihak_kedua' => '<b>' . $dataKaryawan->nama_karyawan . '</b>' . ',' . $usia . ' tahun, ' . 'beralamat di ' . $dataKaryawan->alamat . ' pemegang kartu tanda penduduk nomor ' . $dataKaryawan->nik . ' karyawan pada ' . data_get($perusahaan, 'nama', '-') . ' dengan NIP ' . $dataKaryawan->nip,
+            'plafond' => 'Rp  ' . number_format($pinjaman->nominal),
+            'plafond_terbilang' => ' (' . terbilang($pinjaman->nominal) . ' Rupiah)',
+            'jangka' => $pinjaman->tenor . ' bulan',
+            'rate' => $rateText,
+            'angsuran_perbulan' => 'Rp  ' . number_format($angsuranPerbulan),
+            'angsuran_perbulan_terbilang' => ' (' . terbilang($angsuranPerbulan) . ' Rupiah)',
+            'administrasi' => 'Rp  ' . number_format($pinjaman->total_biaya_admin),
+            'asuransi' => 'Rp  ' . number_format($pinjaman->jumlah_asuransi),
+            'provisi' => 'Rp  ' . number_format($pinjaman->jumlah_provisi),
+            'biaya_layanan' => 'Rp  ' . number_format($pinjaman->biaya_layanan),
+            'iuran_anggota' => 'Rp  ' . number_format($pinjaman->iuran_anggota),
+            'rekening_pencairan' => $dataKaryawan->nomor_bank,
+            'bank_pencairan' => data_get($bank, 'code_bank', '-'),
+            'atas_nama_rekening_pencairan' => $dataKaryawan->nama_rekening,
+            'jumlah_pencairan' => 'Rp  ' . number_format($pinjaman->jumlah_yang_diterima),
+            'terbilang_jumlah_pencairan' => ' (' . terbilang($pinjaman->jumlah_yang_diterima) . ' Rupiah)',
+            'bankLender' => data_get($lender, 'bank.code_bank', '-'),
+            'rekeningLender' => data_get($lender, 'no_rekening', '-'),
+            'atasNamaBankLender' => data_get($lender, 'nama_rekening', '-'),
+            'penerima_pinjaman' => strtoupper($user->nama_lengkap),
+        ];
+
+        foreach ($dataPengganti as $key => $value) {
+            $html = str_replace("{{ \$$key }}", $value, $html);
+        }
+
+        return $html;
     }
 
     // public function maximalMinimal(CekMinimalMaximalRequest $req)
@@ -158,8 +264,8 @@ class PinjamanController extends Controller
             return response()->json([
                 'status' => 200,
                 // Format angka ke format Rupiah
-                'maximal' => 'Rp  '.number_format($maksimal),
-                'minimal' => 'Rp  '.number_format($perusahaan->amount_pinjaman->minimal),
+                'maximal' => 'Rp  ' . number_format($maksimal),
+                'minimal' => 'Rp  ' . number_format($perusahaan->amount_pinjaman->minimal),
             ], 200);
         } else {
             // Jika data perusahaan tidak ditemukan
@@ -272,15 +378,15 @@ class PinjamanController extends Controller
             'rate_persen' => $simulation['rate_persen'],
             'asuransi_persen' => $simulation['asuransi_persen'],
             'provisi_persen' => $simulation['provisi_persen'],
-            'asuransi' => 'Rp  '.number_format($simulation['asuransi']),
-            'provisi' => 'Rp  '.number_format($simulation['provisi']),
+            'asuransi' => 'Rp  ' . number_format($simulation['asuransi']),
+            'provisi' => 'Rp  ' . number_format($simulation['provisi']),
             'biaya_admin_persen' => $simulation['biaya_admin_persen'],
-            'tenor' => $simulation['tenor'].' bulan',
-            'angsuran_perbulan' => 'Rp  '.number_format($simulation['angsuran_perbulan']),
-            'biaya_admin' => 'Rp  '.number_format($simulation['biaya_admin']),
-            'biaya_layanan' => 'Rp  '.number_format($simulation['biaya_layanan']),
-            'iuran_anggota' => 'Rp  '.number_format($simulation['iuran_anggota']),
-            'jumlah_diterima' => 'Rp  '.number_format($simulation['jumlah_diterima']),
+            'tenor' => $simulation['tenor'] . ' bulan',
+            'angsuran_perbulan' => 'Rp  ' . number_format($simulation['angsuran_perbulan']),
+            'biaya_admin' => 'Rp  ' . number_format($simulation['biaya_admin']),
+            'biaya_layanan' => 'Rp  ' . number_format($simulation['biaya_layanan']),
+            'iuran_anggota' => 'Rp  ' . number_format($simulation['iuran_anggota']),
+            'jumlah_diterima' => 'Rp  ' . number_format($simulation['jumlah_diterima']),
         ], 200);
         // }
     }
@@ -322,7 +428,7 @@ class PinjamanController extends Controller
             if (! ($tenor->minimal_nominal <= $req->nominal) && ! ($maksimal <= $tenor->maximal_nominal)) {
                 return response()->json([
                     'status' => 400,
-                    'message' => 'Maksimal nominal pinjaman Rp '.number_format($maksimal),
+                    'message' => 'Maksimal nominal pinjaman Rp ' . number_format($maksimal),
                 ], 400);
             } elseif (auth('api')->user()->verified_privy == 'n') {
 
@@ -345,7 +451,7 @@ class PinjamanController extends Controller
                             return response()->json([
                                 'status' => 400,
                                 'reason' => $reason->reason,
-                                'message' => $reason->reason.', Harap perbarui kembali data anda',
+                                'message' => $reason->reason . ', Harap perbarui kembali data anda',
                             ], 400);
                         } elseif ($user->resend_privy == 0 && $user->reason_privy != null) {
                             $reason = json_decode($user->reason_privy);
@@ -353,7 +459,7 @@ class PinjamanController extends Controller
                             return response()->json([
                                 'status' => 400,
                                 'reason' => $reason->reason,
-                                'message' => $reason->reason.', Harap hubungi customer service untuk merubah data anda',
+                                'message' => $reason->reason . ', Harap hubungi customer service untuk merubah data anda',
                             ], 400);
                         } else {
                             return response()->json([
@@ -450,7 +556,7 @@ class PinjamanController extends Controller
                 }
 
                 while (true) {
-                    $code = '#LOAN-'.Carbon::now()->format('Y-m-d').'-'.auth('api')->user()->id.Carbon::now()->format('s').rand(100, 999);
+                    $code = '#LOAN-' . Carbon::now()->format('Y-m-d') . '-' . auth('api')->user()->id . Carbon::now()->format('s') . rand(100, 999);
                     $pinjaman = pinjaman::where('id_pinjaman', $code)->first();
                     if (! isset($pinjaman)) {
                         break;
@@ -558,13 +664,13 @@ class PinjamanController extends Controller
                 $nomorWa = $perusahaan->karyawanSingle->whatsapp;
 
                 $mask = substr($nomorWa, 0, 4)
-                    .str_repeat('x', strlen($nomorWa) - 7)
-                    .substr($nomorWa, -3);
+                    . str_repeat('x', strlen($nomorWa) - 7)
+                    . substr($nomorWa, -3);
 
                 return response()->json([
                     'status' => 200,
                     'pinjaman' => true,
-                    'message' => 'success, harap periksa OTP yang telah dikirimkan melalui whatsapp '.$mask,
+                    'message' => 'success, harap periksa OTP yang telah dikirimkan melalui whatsapp ' . $mask,
                 ], 200);
             }
         }
@@ -656,7 +762,7 @@ class PinjamanController extends Controller
                 $random = rand(1000, 9999);
                 $usia = Carbon::parse($verif->user->dob)->age;
 
-                $fileName = $user->nik.'_'.$time.'_'.$random.'.pdf';
+                $fileName = $user->nik . '_' . $time . '_' . $random . '.pdf';
 
                 $disk = Storage::disk('local');
                 $html = $disk->get('template/pkk.html');
@@ -674,13 +780,13 @@ class PinjamanController extends Controller
                 foreach ($verif->pinjaman->jatuh_tempo as $index => $jt) {
                     $isEven = ($index + 1) % 2 == 0;
                     $classRow = $isEven ? 'table-pinjaman__row--even' : '';
-                    $nilaiAngsuran = 'Rp '.number_format($verif->pinjaman->total_angsuran_perbulan);
+                    $nilaiAngsuran = 'Rp ' . number_format($verif->pinjaman->total_angsuran_perbulan);
 
                     $htmlTabelAngsuran .= '
-                            <tr class="table-pinjaman__row '.$classRow.'">
-                                <td class="table-pinjaman__cell">'.($index + 1).'</td>
-                                <td class="table-pinjaman__cell table-pinjaman__cell--nilai">'.$nilaiAngsuran.'</td>
-                                <td class="table-pinjaman__cell">'.Carbon::parse($jt['jatuh_tempo'])->format('d/m/Y').'</td>
+                            <tr class="table-pinjaman__row ' . $classRow . '">
+                                <td class="table-pinjaman__cell">' . ($index + 1) . '</td>
+                                <td class="table-pinjaman__cell table-pinjaman__cell--nilai">' . $nilaiAngsuran . '</td>
+                                <td class="table-pinjaman__cell">' . Carbon::parse($jt['jatuh_tempo'])->format('d/m/Y') . '</td>
                             </tr>';
                 }
 
@@ -696,23 +802,23 @@ class PinjamanController extends Controller
                     't' => $verif->pinjaman->data_karyawan->perusahaan->payment_date,
                     'pinjaman_jatuh_tempo' => $htmlTabelAngsuran,
 
-                    'pihak_kedua' => '<b>'.$verif->pinjaman->data_karyawan->nama_karyawan.'</b>'.','.$usia.' tahun, '.'beralamat di '.$verif->pinjaman->data_karyawan->alamat.' pemegang kartu tanda penduduk nomor '.$verif->pinjaman->data_karyawan->nik.' karyawan pada '.$verif->pinjaman->data_karyawan->perusahaan->nama.' dengan NIP '.$verif->pinjaman->data_karyawan->nip,
-                    'plafond' => 'Rp  '.number_format($verif->pinjaman->nominal),
-                    'plafond_terbilang' => ' ('.terbilang($verif->pinjaman->nominal).' Rupiah)',
-                    'jangka' => $verif->pinjaman->tenor.' bulan',
-                    'rate' => $verif->pinjaman->rate.'%',
-                    'angsuran_perbulan' => 'Rp  '.number_format($verif->pinjaman->total_angsuran_perbulan),
-                    'angsuran_perbulan_terbilang' => ' ('.terbilang($verif->pinjaman->total_angsuran_perbulan).' Rupiah)',
-                    'administrasi' => 'Rp  '.number_format($verif->pinjaman->total_biaya_admin),
-                    'asuransi' => 'Rp  '.number_format($verif->pinjaman->jumlah_asuransi),
-                    'provisi' => 'Rp  '.number_format($verif->pinjaman->jumlah_provisi),
-                    'biaya_layanan' => 'Rp  '.number_format($verif->pinjaman->biaya_layanan),
-                    'iuran_anggota' => 'Rp  '.number_format($verif->pinjaman->iuran_anggota),
+                    'pihak_kedua' => '<b>' . $verif->pinjaman->data_karyawan->nama_karyawan . '</b>' . ',' . $usia . ' tahun, ' . 'beralamat di ' . $verif->pinjaman->data_karyawan->alamat . ' pemegang kartu tanda penduduk nomor ' . $verif->pinjaman->data_karyawan->nik . ' karyawan pada ' . $verif->pinjaman->data_karyawan->perusahaan->nama . ' dengan NIP ' . $verif->pinjaman->data_karyawan->nip,
+                    'plafond' => 'Rp  ' . number_format($verif->pinjaman->nominal),
+                    'plafond_terbilang' => ' (' . terbilang($verif->pinjaman->nominal) . ' Rupiah)',
+                    'jangka' => $verif->pinjaman->tenor . ' bulan',
+                    'rate' => $verif->pinjaman->rate . '%',
+                    'angsuran_perbulan' => 'Rp  ' . number_format($verif->pinjaman->total_angsuran_perbulan),
+                    'angsuran_perbulan_terbilang' => ' (' . terbilang($verif->pinjaman->total_angsuran_perbulan) . ' Rupiah)',
+                    'administrasi' => 'Rp  ' . number_format($verif->pinjaman->total_biaya_admin),
+                    'asuransi' => 'Rp  ' . number_format($verif->pinjaman->jumlah_asuransi),
+                    'provisi' => 'Rp  ' . number_format($verif->pinjaman->jumlah_provisi),
+                    'biaya_layanan' => 'Rp  ' . number_format($verif->pinjaman->biaya_layanan),
+                    'iuran_anggota' => 'Rp  ' . number_format($verif->pinjaman->iuran_anggota),
                     'rekening_pencairan' => $verif->pinjaman->data_karyawan->nomor_bank,
                     'bank_pencairan' => $verif->pinjaman->data_karyawan->bank->code_bank,
                     'atas_nama_rekening_pencairan' => $verif->pinjaman->data_karyawan->nama_rekening,
-                    'jumlah_pencairan' => 'Rp  '.number_format($verif->pinjaman->jumlah_yang_diterima),
-                    'terbilang_jumlah_pencairan' => ' ('.terbilang($verif->pinjaman->jumlah_yang_diterima).' Rupiah)',
+                    'jumlah_pencairan' => 'Rp  ' . number_format($verif->pinjaman->jumlah_yang_diterima),
+                    'terbilang_jumlah_pencairan' => ' (' . terbilang($verif->pinjaman->jumlah_yang_diterima) . ' Rupiah)',
                     'bankLender' => $verif->pinjaman->data_karyawan->perusahaan->lender->bank->code_bank,
                     'rekeningLender' => $verif->pinjaman->data_karyawan->perusahaan->lender->no_rekening,
                     'atasNamaBankLender' => $verif->pinjaman->data_karyawan->perusahaan->lender->nama_rekening,
@@ -727,7 +833,7 @@ class PinjamanController extends Controller
                 $pdf = Pdf::loadHTML($html)->setPaper('A4', 'portrait');
 
                 // Simpan ke file
-                $outputPdfPath = 'assets/pk/'.$fileName;
+                $outputPdfPath = 'assets/pk/' . $fileName;
                 $disk->put($outputPdfPath, $pdf->output());
 
                 // ttdPK
@@ -779,10 +885,10 @@ class PinjamanController extends Controller
                 'message' => 'Anda tidak memiliki pinjaman yang harus ditanda tangani',
             ], 200);
         } else {
-            $path = 'assets/pk/'.$pinjaman->document_name;
+            $path = 'assets/pk/' . $pinjaman->document_name;
             $pdfContent = Storage::get($path);
             $base64Pdf = base64_encode($pdfContent);
-            $document = 'data:application/pdf;base64,'.$base64Pdf;
+            $document = 'data:application/pdf;base64,' . $base64Pdf;
 
             return response()->json([
                 'status' => 200,
@@ -790,6 +896,46 @@ class PinjamanController extends Controller
                 'document' => $document,
             ], 200);
         }
+    }
+
+    public function previewPkPdf($id = null)
+    {
+        $user = User::where('id', auth('api')->user()->id)->first();
+        $query = pinjaman::where('user_id', $user->id)
+            ->with([
+                'jatuh_tempo',
+                'perusahaan.lender.bank',
+                'data_karyawan.bank',
+                'data_karyawan.perusahaan.lender.bank',
+            ]);
+
+        if ($id != null) {
+            $pinjaman = $query->where('id', $id)->first();
+        } else {
+            $pinjaman = $query->where('status', 'on_proses')
+                ->latest()
+                ->first();
+        }
+
+        if (! isset($pinjaman)) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'Pinjaman tidak tersedia',
+            ], 404);
+        }
+
+        if (! isset($pinjaman->data_karyawan)) {
+            return response()->json([
+                'status' => 422,
+                'message' => 'Data karyawan pinjaman tidak tersedia',
+            ], 422);
+        }
+
+        $html = $this->renderPkHtml($pinjaman, $user);
+        $pdf = Pdf::loadHTML($html)->setPaper('A4', 'portrait');
+        $fileName = 'PK_' . $pinjaman->id_pinjaman . '.pdf';
+
+        return $pdf->stream($fileName);
     }
 
     public function showBerkasHistory(ShowBerkasHistoryRequest $req)
@@ -802,10 +948,10 @@ class PinjamanController extends Controller
             ->first();
         if (isset($pinjaman)) {
             if ($pinjaman->document_privy == 'y') {
-                $path = 'assets/pk/'.$pinjaman->document_name;
+                $path = 'assets/pk/' . $pinjaman->document_name;
                 $pdfContent = Storage::get($path);
                 $base64Pdf = base64_encode($pdfContent);
-                $document = 'data:application/pdf;base64,'.$base64Pdf;
+                $document = 'data:application/pdf;base64,' . $base64Pdf;
 
                 return response()->json([
                     'status' => 200,
@@ -820,14 +966,14 @@ class PinjamanController extends Controller
                         'message' => 'Mohon tunggu, Document sedang proses penanda tanganan, pinjaman dapat diproses ketahap selanjutnya jika anda sudah melihat document yang sudah anda tanda tangani.',
                     ], 400);
                 } else {
-                    Storage::disk('local')->put('assets/pk/'.$pinjaman->document_name, base64_decode(Str::after($documentTTD['data']['signed_document'], 'data:application/pdf;base64,')));
+                    Storage::disk('local')->put('assets/pk/' . $pinjaman->document_name, base64_decode(Str::after($documentTTD['data']['signed_document'], 'data:application/pdf;base64,')));
                     $pinjaman->document_privy = 'y';
                     $pinjaman->save();
 
-                    $path = 'assets/pk/'.$pinjaman->document_name;
+                    $path = 'assets/pk/' . $pinjaman->document_name;
                     $pdfContent = Storage::get($path);
                     $base64Pdf = base64_encode($pdfContent);
-                    $document = 'data:application/pdf;base64,'.$base64Pdf;
+                    $document = 'data:application/pdf;base64,' . $base64Pdf;
 
                     return response()->json([
                         'status' => 200,
@@ -872,7 +1018,7 @@ class PinjamanController extends Controller
                 $pinjaman->ttd = 'y';
                 $pinjaman->status = 'pending';
                 $pinjaman->save();
-                Log::channel('privylog')->info('correct password | Timestamp :'.Carbon::now().'| privy_id : '.$user->id_privy.'| referrence_number_user : '.$user->reference_number_privy.'| referrence_number_document : '.$hasilTTD['data']['reference_number'].'| document_token : '.$hasilTTD['data']['document_token']);
+                Log::channel('privylog')->info('correct password | Timestamp :' . Carbon::now() . '| privy_id : ' . $user->id_privy . '| referrence_number_user : ' . $user->reference_number_privy . '| referrence_number_document : ' . $hasilTTD['data']['reference_number'] . '| document_token : ' . $hasilTTD['data']['document_token']);
 
                 // untuk ambil document yg sudah ditanda tanganin
                 // $documentTTD = getDocumentPK($user, $pinjaman->referrence_number, $pinjaman->document_token);

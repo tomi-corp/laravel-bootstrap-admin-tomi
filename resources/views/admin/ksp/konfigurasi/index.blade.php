@@ -103,8 +103,8 @@
                             <th>Provisi</th>
                             <th>Biaya Admin</th>
                             <th>Fee Tomi</th>
-                            <th>Profesional Fee 1</th>
-                            <th>Profesional Fee 2</th>
+                            <th>Referal 1</th>
+                            <th>Referal 2</th>
                             <th>KSP</th>
                             <th>Iuran Anggota</th>
                             <th>Biaya Layanan</th>
@@ -173,7 +173,7 @@
                 <div class="row">
                     <div class="col-md-4">
                         <div class="form-group">
-                            <label>Profesional Fee 1</label>
+                            <label>Referal 1</label>
                             <input type="number" step="0.01" class="form-control hitung-admin" id="profesional_fee_1"
                                 placeholder="0.00">
                         </div>
@@ -181,7 +181,7 @@
                     </div>
                     <div class="col-md-4">
                         <div class="form-group">
-                            <label>Profesional Fee 2</label>
+                            <label>Referal 2</label>
                             <input type="number" step="0.01" class="form-control hitung-admin" id="profesional_fee_2"
                                 placeholder="0.00">
                         </div>
@@ -296,7 +296,7 @@
                 <div class="row">
                     <div class="col-md-4">
                         <div class="form-group">
-                            <label>Profesional Fee 1</label>
+                            <label>Referal 1</label>
                             <input type="number" step="0.01" class="form-control hitung-adminEdit"
                                 id="profesional_fee_1Edit" placeholder="0.00">
                         </div>
@@ -304,7 +304,7 @@
                     </div>
                     <div class="col-md-4">
                         <div class="form-group">
-                            <label>Profesional Fee 2</label>
+                            <label>Referal 2</label>
                             <input type="number" step="0.01" class="form-control hitung-adminEdit"
                                 id="profesional_fee_2Edit" placeholder="0.00">
                         </div>

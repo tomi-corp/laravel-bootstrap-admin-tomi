@@ -89,6 +89,7 @@ Route::middleware(['LanguangeMiddleware'])->group(function () {
 
                 Route::post('/action/pinjaman', [PinjamanController::class, 'actionPinjaman']);
                 Route::post('/action/pinjaman/otp', [PinjamanController::class, 'actionPinjamanOTP']);
+                Route::get('/action/pinjaman/pk/pdf/{id?}', [PinjamanController::class, 'previewPkPdf']);
                 Route::post('/action/pinjaman/show/berkas', [PinjamanController::class, 'showberkas']);
                 Route::post('/action/pinjaman/ttd/berkas', [PinjamanController::class, 'tandaTangan']);
                 Route::post('/action/pinjaman/show/berkas/history', [PinjamanController::class, 'showBerkasHistory']);
