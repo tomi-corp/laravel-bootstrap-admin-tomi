@@ -28,5 +28,6 @@ Schedule::command('reminderPinjamanYangPending:cron')
 Schedule::command('hapuspinjaman:cron')
     ->everyTwoMinutes();
 
-Schedule::command('app:expired-kyc-cron')
-    ->daily();
+// Dinonaktifkan sementara agar KYC lama tidak otomatis terhapus.
+// Schedule::command('app:expired-kyc-cron')
+//     ->daily();

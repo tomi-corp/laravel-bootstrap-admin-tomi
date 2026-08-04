@@ -74,6 +74,9 @@ class PinjamanController extends Controller
 
     private function kycExpiredResponse(User $user)
     {
+        // Dinonaktifkan sementara agar KYC lama tetap bisa digunakan untuk pengajuan pinjaman.
+        return null;
+
         if ($user->kyc == null || $user->kyc->created_at == null) {
             return null;
         }
