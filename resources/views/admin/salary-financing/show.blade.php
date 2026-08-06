@@ -280,8 +280,10 @@ if ($sisaPlafon < 0) { $sisaPlafon=0; } @endphp <div class="container-fluid">
                                         @endphp
 
                                         @if(!$isInvoiceDisabled)
-                                        <a href="{{ route('admin.salary-financing.invoice.download', $item['id']) }}"
-                                            target="_blank" class="btn btn-sm btn-danger" title="Download Invoice">
+                                        <a href="javascript:void(0)"
+                                            class="btn btn-sm btn-danger btn-download-invoice"
+                                            data-url="{{ route('admin.salary-financing.invoice.download', $item['id']) }}"
+                                            title="Download Invoice">
                                             <i class="mdi mdi-file-pdf-box"></i> Invoice
                                         </a>
                                         @else
@@ -308,6 +310,59 @@ if ($sisaPlafon < 0) { $sisaPlafon=0; } @endphp <div class="container-fluid">
         </div>
     </div>
 
+    </div>
+
+    <div class="modal fade" id="modalDownloadInvoice" tabindex="-1" role="dialog"
+        aria-labelledby="modalDownloadInvoiceLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <form id="formDownloadInvoice" method="GET" target="_blank">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalDownloadInvoiceLabel">Pilih Kolom Invoice</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+
+                    <div class="modal-body">
+                        <input type="hidden" name="column_selection" value="1">
+
+                        @php
+                        $invoiceColumns = [
+                        'rate' => 'Rate',
+                        'asuransi' => 'Asuransi',
+                        'provinsi' => 'Provinsi',
+                        'biaya_admin' => 'Biaya Admin',
+                        'biaya_tomi' => 'Fee TOMI',
+                        'biaya_referal_1' => 'Referal 1',
+                        'biaya_referal_2' => 'Referal 2',
+                        'ksp' => 'KSP',
+                        'iuran_anggota' => 'Iuran Anggota',
+                        ];
+                        @endphp
+
+                        @foreach($invoiceColumns as $value => $label)
+                        <div class="form-check mb-2">
+                            <input class="form-check-input invoice-column-checkbox" type="checkbox" name="columns[]"
+                                value="{{ $value }}" id="salaryFinancingCol{{ \Illuminate\Support\Str::studly($value) }}"
+                                checked>
+                            <label class="form-check-label"
+                                for="salaryFinancingCol{{ \Illuminate\Support\Str::studly($value) }}">
+                                {{ $label }}
+                            </label>
+                        </div>
+                        @endforeach
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="mdi mdi-download"></i> Download PDF
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
     </div>
 
     @endsection
@@ -353,6 +408,12 @@ if ($sisaPlafon < 0) { $sisaPlafon=0; } @endphp <div class="container-fluid">
                 });
 
             }
+
+            $(document).on('click', '.btn-download-invoice', function () {
+                $('#formDownloadInvoice').attr('action', $(this).data('url'));
+                $('.invoice-column-checkbox').prop('checked', true);
+                $('#modalDownloadInvoice').modal('show');
+            });
 
         });
     </script>
