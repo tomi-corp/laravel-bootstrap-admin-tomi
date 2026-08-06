@@ -396,6 +396,105 @@ class PinjamanController extends Controller
 
     public function actionPinjaman(ActionPinjamRequest $req)
     {
+        /**
+         * ☠️═══════════════════════════════════════════════════════════════════════☠️
+         *                     ☠️ FINAL BOSS - PRODUCTION CORE ☠️
+         * ☠️═══════════════════════════════════════════════════════════════════════☠️
+         *
+         * ⚠️ BERHENTI.
+         *
+         * Jika tujuanmu membuka function ini hanya karena ingin
+         * "rapihin dikit" atau "biar lebih clean",
+         * tutup editor sekarang.
+         *
+         * =======================================================================
+         *                     ☠️ AREA DENGAN RISIKO TERTINGGI ☠️
+         * =======================================================================
+         *
+         * Function ini adalah jantung proses pengajuan pinjaman.
+         *
+         * Hampir seluruh proses bisnis melewati tempat ini.
+         *
+         * Sedikit perubahan dapat menyebabkan:
+         *
+         * ☠️ Pengajuan gagal.
+         * ☠️ OTP tidak terkirim.
+         * ☠️ Simulasi pinjaman salah.
+         * ☠️ Data pinjaman tidak tersimpan.
+         * ☠️ Jadwal jatuh tempo tidak terbentuk.
+         * ☠️ User tidak bisa mencairkan pinjaman.
+         * ☠️ Dan yang paling menakutkan...
+         *     Semua terlihat normal sampai Production digunakan pelanggan.
+         *
+         * =======================================================================
+         *                    ☠️ SEBELUM MENYENTUH FUNCTION INI ☠️
+         * =======================================================================
+         *
+         * Tanyakan pada dirimu sendiri:
+         *
+         * □ Apakah saya memahami seluruh flow bisnisnya?
+         * □ Apakah saya tahu setiap return 400 dibuat untuk kondisi apa?
+         * □ Apakah saya sudah membaca semua requirement bisnis?
+         * □ Apakah saya sudah menyiapkan rollback?
+         * □ Apakah saya sudah melakukan testing end-to-end?
+         *
+         * Jika ada satu saja jawaban "Tidak"...
+         *
+         * Jangan lanjutkan.
+         *
+         * =======================================================================
+         *                     ☠️ HUKUM LEGACY CODE ☠️
+         * =======================================================================
+         *
+         * Legacy Code bukan berarti kode ini buruk.
+         *
+         * Legacy Code berarti:
+         *
+         * - Sudah digunakan oleh ribuan transaksi.
+         * - Sudah melewati banyak perubahan requirement.
+         * - Sudah menyimpan banyak cerita yang tidak ada di dokumentasi.
+         *
+         * Jangan pernah menghapus sesuatu hanya karena
+         * "kelihatannya tidak dipakai."
+         *
+         * Production sering memiliki pendapat yang berbeda.
+         *
+         * =======================================================================
+         *                     ☠️ SATU BARIS, SERIBU DAMPAK ☠️
+         * =======================================================================
+         *
+         * Ingat...
+         *
+         * Bug di sini tidak selalu muncul hari ini.
+         * Kadang muncul minggu depan.
+         * Kadang muncul saat jam kerja.
+         * Kadang muncul pukul 02:00 pagi.
+         *
+         * Dan Production...
+         * Selalu memilih waktu yang paling tidak tepat.
+         *
+         * =======================================================================
+         *                         ☠️ LAST WARNING ☠️
+         * =======================================================================
+         *
+         * Jika setelah mengubah function ini:
+         *
+         * ☠️ Finance mulai bertanya.
+         * ☠️ Customer Service mulai menerima banyak komplain.
+         * ☠️ QA mengirim pesan "Mas, ada yang aneh."
+         * ☠️ Senior Developer berjalan ke arah mejamu.
+         *
+         * Ketahuilah...
+         *
+         * Boss Fight telah dimulai.
+         *
+         * Semoga commit-mu kecil.
+         * Semoga rollback-mu mudah.
+         * Dan semoga Production tidak pernah mengingat namamu.
+         *
+         *                        ☠️ ENTER AT YOUR OWN RISK ☠️
+         */
+
         $user = User::where('id', auth('api')->user()->id)
             ->with('kyc')
             ->first();

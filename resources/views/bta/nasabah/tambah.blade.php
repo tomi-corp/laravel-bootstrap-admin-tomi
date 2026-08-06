@@ -1469,6 +1469,92 @@
         }
 
         function validateCurrentTabSilent() {
+            /**
+             * ☠️☠️☠️☠️☠️  LEGACY CODE - BOSS FIGHT ☠️☠️☠️☠️☠️
+             *
+             * Selamat datang, Wahai Programmer Pemberani.
+             *
+             * Jika engkau berhasil menemukan function ini,
+             * berarti perjalananmu telah memasuki area yang tidak semua
+             * programmer berani datangi.
+             *
+             * ===============================================================
+             *                        ☠️ WARNING ☠️
+             * ===============================================================
+             *
+             * Ini adalah LEGACY CODE.
+             *
+             * Legacy Code bukan berarti kode ini jelek.
+             * Legacy Code berarti kode ini sudah lama hidup,
+             * sudah berkali-kali menyelamatkan production,
+             * dan telah melewati lebih banyak deploy daripada yang bisa dihitung.
+             *
+             * Jangan menilainya hanya dari tampilannya.
+             *
+             * ===============================================================
+             *                    MENGENAI FUNCTION INI
+             * ===============================================================
+             *
+             * Function ini adalah Penjaga Gerbang Wizard.
+             *
+             * Tugasnya sederhana namun sangat penting:
+             *
+             * ☠️ Membersihkan semua validasi sebelumnya.
+             * ☠️ Memeriksa field berdasarkan tab yang sedang aktif.
+             * ☠️ Memberikan pesan error pada field yang gagal.
+             * ☠️ Mengembalikan TRUE jika semua syarat terpenuhi.
+             * ☠️ Mengembalikan FALSE jika ada satu saja yang gagal.
+             *
+             * ===============================================================
+             *                  SEBELUM ENGKAU MENGUBAHNYA
+             * ===============================================================
+             *
+             * Jangan berkata:
+             *
+             *     "Ah... tinggal refactor sedikit."
+             *
+             * Kalimat tersebut telah diucapkan oleh banyak programmer
+             * sebelum dirimu.
+             *
+             * Kini mereka memahami arti sebenarnya dari Legacy Code.
+             *
+             * ===============================================================
+             *                        RULES OF ENGAGEMENT
+             * ===============================================================
+             *
+             * ☠️ Menambah field?
+             *     Tambahkan validasinya.
+             *
+             * ☠️ Menambah tab?
+             *     Tambahkan CASE baru.
+             *
+             * ☠️ Menghapus field?
+             *     Hapus validasinya juga.
+             *
+             * ☠️ Mengubah flow?
+             *     Pastikan semua tab masih bisa NEXT.
+             *
+             * ===============================================================
+             *                         FINAL WARNING
+             * ===============================================================
+             *
+             * Jika setelah mengubah function ini:
+             *
+             * ☠️ Wizard tidak bisa Next
+             * ☠️ Data gagal tersimpan
+             * ☠️ QA mulai mention namamu
+             * ☠️ Senior Developer berjalan ke arah mejamu
+             *
+             * Maka...
+             *
+             * Boss Fight telah dimulai.
+             *
+             * Semoga Git selalu menyimpan commit-mu.
+             * Semoga rollback selalu tersedia.
+             * Dan semoga Production tidak mengingat namamu.
+             *
+             *                      ☠️ GOOD LUCK ☠️
+             */
             let isValid = true;
             $('.text-danger').text('');
             $('.form-control').removeClass('is-invalid');
