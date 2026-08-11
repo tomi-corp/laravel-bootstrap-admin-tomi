@@ -1422,18 +1422,19 @@ class KspController extends Controller
 
     public function pengajuanStatistic(Request $req)
     {
-        $pengajuan = pinjaman::where('id_perusahaan', $req->id)->first();
+        $baseQuery = fn () => pinjaman::where('id_perusahaan', $req->id);
 
-        $belum_validasi =  isset($pengajuan) ? $pengajuan->where('status_otp', 'pending')->count() : 0;
-        $on_proses =  isset($pengajuan) ? $pengajuan->where('status_otp', 'success')->where('status', 'on_proses')->count() : 0;
-        $pending = isset($pengajuan) ? $pengajuan->where('status_otp', 'success')->where('status', 'pending')->count() : 0;
-        $approve = isset($pengajuan) ? $pengajuan->where('status_otp', 'success')->where('status', 'approve')->count() : 0;
-        $done = isset($pengajuan) ? $pengajuan->where('status_otp', 'success')->where('status', 'done')->count() : 0;
+        $belum_validasi = $baseQuery()->where('status_otp', 'pending')->count();
+        $on_proses = $baseQuery()->where('status_otp', 'success')->where('status', 'on_proses')->count();
+        $pending = $baseQuery()->where('status_otp', 'success')->where('status', 'pending')->count();
+        $approve = $baseQuery()->where('status_otp', 'success')->where('status', 'approve')->count();
+        $done = $baseQuery()->where('status_otp', 'success')->where('status', 'done')->count();
 
         return response()->json([
             'status' => 200,
             'belum_validasi_wa' => $belum_validasi,
             'on_proses' => $on_proses,
+            'onproses' => $on_proses,
             'pending' => $pending,
             'approve' =>  $approve,
             'done' => $done,

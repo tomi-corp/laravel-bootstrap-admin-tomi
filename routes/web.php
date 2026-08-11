@@ -31,3 +31,7 @@ Route::get('/download/aplikasi/{id}', [DownloadController::class, 'download']);
 Route::middleware('Cors')->group(function () {
     Route::post('/daftar/ekasbon', [DashboardController::class, 'registerEkasbon']);
 });
+
+Route::get('/', function () {
+    return redirect()->route('admin.login');
+});
