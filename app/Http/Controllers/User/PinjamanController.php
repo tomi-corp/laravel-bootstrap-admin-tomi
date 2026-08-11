@@ -74,6 +74,9 @@ class PinjamanController extends Controller
 
     private function kycExpiredResponse(User $user)
     {
+        // Dinonaktifkan sementara agar KYC lama tetap bisa digunakan untuk pengajuan pinjaman.
+        return null;
+
         if ($user->kyc == null || $user->kyc->created_at == null) {
             return null;
         }
@@ -610,13 +613,11 @@ class PinjamanController extends Controller
                 $pinjaman->jumlah_yang_diterima = $simulation['jumlah_diterima'];
                 $pinjaman->jumlah_asuransi = $simulation['asuransi'];
                 $pinjaman->jumlah_provisi = $simulation['provisi'];
-                // /profesional fee
-                // $pinjaman->profesional_fee_1 = $tenor->profesional_fee_1;
-                // $pinjaman->profesional_fee_2 = $tenor->profesional_fee_2;
-
-                // $pinjaman->jumlah_profesional_1 = $tenor->profesional_fee_1 / 100 *  $req->nominal;
-                // $pinjaman->jumlah_profesional_2 = $tenor->profesional_fee_2 / 100 *  $req->nominal;
-                // $pinjaman->ksp_fee = $tenor->ksp / 100 *  $req->nominal;
+                $pinjaman->profesional_fee_1 = $tenor->profesional_fee_1 ?? 0;
+                $pinjaman->profesional_fee_2 = $tenor->profesional_fee_2 ?? 0;
+                $pinjaman->jumlah_profesional_1 = $pinjaman->profesional_fee_1 / 100 * $req->nominal;
+                $pinjaman->jumlah_profesional_2 = $pinjaman->profesional_fee_2 / 100 * $req->nominal;
+                $pinjaman->ksp_fee = ($tenor->ksp ?? 0) / 100 * $req->nominal;
 
                 $pinjaman->iuran_anggota = $simulation['iuran_anggota'];
                 $pinjaman->biaya_layanan = $simulation['biaya_layanan'];
