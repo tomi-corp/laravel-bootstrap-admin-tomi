@@ -107,6 +107,16 @@ TOMI V2 adalah aplikasi web berbasis Laravel 11 yang dikembangkan untuk kebutuha
 - Gunakan `.env.example` sebagai template konfigurasi.
 - Jika menjalankan di lingkungan produksi, pastikan konfigurasi `APP_ENV`, `APP_DEBUG`, dan `APP_URL` sudah diatur dengan benar.
 
+## Kontributor
+
+Berikut kontributor yang tercatat pada repositori ini:
+
+- imamrovid9
+- [Reza Saputra](https://github.com/rezasaputra4250)
+- [Muhammad Yusvan Fadhillah](https://github.com/yusvanfadhil)
+
+Terima kasih atas kontribusi dan kerja samanya.
+
 ## Lisensi
 
 Lisensi MIT.
