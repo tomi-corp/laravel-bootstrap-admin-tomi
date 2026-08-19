@@ -100,11 +100,27 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                     </ul>
                 </li>
 
-                {{-- Salary Financing tetap tampil untuk semua role, termasuk pic dan staff --}}
+                {{-- TomiGaji --}}
                 <li>
                     <a href="{{ route('admin.salary-financing.index') }}">
                         <i class="dripicons-wallet"></i>
-                        <span> TomiGaji </span>
+                        <span>TomiGaji</span>
+                    </a>
+                </li>
+
+                {{-- TomiGawai --}}
+                <li>
+                    <a href="{{ route('admin.gadget-installment.index') }}">
+                        <i class="dripicons-device-mobile"></i>
+                        <span>TomiGawai</span>
+                    </a>
+                </li>
+
+                {{-- TomiInvoice --}}
+                <li>
+                    <a href="{{ route('admin.invoice-financing.index') }}">
+                        <i class="dripicons-document"></i>
+                        <span>TomiInvoice</span>
                     </a>
                 </li>
 
