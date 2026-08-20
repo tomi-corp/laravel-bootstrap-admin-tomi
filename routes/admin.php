@@ -207,17 +207,12 @@ Route::middleware(['AdminMiddleware'])->group(
                 Route::get('/website/invoice', [WebsiteInvoiceController::class, 'index'])
                     ->name('admin.website.invoice.index');
 
-            Route::get('salary-financing', function () {
-                return view('welcome');
-            })->name('admin.salary-financing.index');
-
-            Route::get('gadget-installment', function () {
-                return view('welcome');
-            })->name('admin.gadget-installment.index');
-
             Route::get('invoice-financing', function () {
                 return view('welcome');
             })->name('admin.invoice-financing.index');
+
+            Route::get('gadget-installment', 
+            [GadgetInstallmentController::class, 'index'])->name('admin.gadget-installment.index');
 
             }
         );
