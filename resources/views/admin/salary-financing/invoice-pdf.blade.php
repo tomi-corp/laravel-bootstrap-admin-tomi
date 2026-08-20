@@ -129,13 +129,12 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
     |
     | PENTING:
     |
-    | jumlah_pendapatan di sini hanya diperlakukan sebagai
-    | JUMLAH FASILITAS PINJAMAN.
+    | jumlah_pendapatan di sini diperlakukan sebagai
+    | JUMLAH FASILITAS PINJAMAN per item.
     |
-    | Tidak menghitung jumlah_tagihan per item.
-    |
-    | Jumlah tagihan akan dihitung SEKALI setelah grouping
-    | berdasarkan penempatan kerja.
+    | Biaya admin dan jumlah tagihan dihitung serta di-roundup
+    | per item terlebih dahulu. Setelah itu baru dijumlahkan
+    | untuk baris penempatan kerja dan total keseluruhan.
     |
     |--------------------------------------------------------------------------
     */
@@ -216,6 +215,29 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
 
     /*
     |--------------------------------------------------------------------------
+    | Biaya Admin dan Jumlah Tagihan Per Item
+    |--------------------------------------------------------------------------
+    |
+    | Biaya admin item di-roundup dulu, lalu ditambahkan dengan
+    | jumlah fasilitas item. Hasil jumlah tagihan item juga di-roundup
+    | sebelum dijumlahkan ke baris penempatan kerja.
+    |
+    |--------------------------------------------------------------------------
+    */
+
+    $biayaAdmin = roundUpToThousand(
+    $jumlahPendapatan
+    * rateToMultiplier($biayaAdminRate)
+    );
+
+    $jumlahTagihan = roundUpToThousand(
+    $jumlahPendapatan
+    + $biayaAdmin
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
     | Simpan Data
     |--------------------------------------------------------------------------
     */
@@ -246,6 +268,12 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
 
     $item['biaya_admin_persen'] =
     $biayaAdminRate;
+
+    $item['biaya_admin'] =
+    $biayaAdmin;
+
+    $item['jumlah_tagihan'] =
+    $jumlahTagihan;
 
     $item['rate'] =
     cleanRupiahValue(
@@ -299,14 +327,9 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
     | Grouping Berdasarkan Penempatan Kerja
     |--------------------------------------------------------------------------
     |
-    | PERBAIKAN UTAMA ADA DI SINI.
-    |
-    | Jangan:
-    |
-    | $group->sum('jumlah_tagihan')
-    |
-    | karena bisa menyebabkan tagihan yang sudah dihitung sebelumnya
-    | dijumlahkan kembali.
+    | Biaya admin dan jumlah tagihan sudah dihitung per item.
+    | Saat grouping, nilai tersebut dijumlahkan apa adanya agar
+    | rounding setiap item tetap ikut terbawa ke total.
     |
     |--------------------------------------------------------------------------
     */
@@ -409,6 +432,26 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
     $jumlahTagihan = roundUpToThousand(
     $jumlahPendapatan
     + $biayaAdmin
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Override Dengan Total Item
+    |--------------------------------------------------------------------------
+    |
+    | Aturan invoice: biaya admin dan tagihan di-roundup per item,
+    | lalu jumlah tagihan item tersebut dijumlahkan untuk total grup.
+    |
+    |--------------------------------------------------------------------------
+    */
+
+    $biayaAdmin = cleanRupiahValue(
+    $group->sum('biaya_admin')
+    );
+
+    $jumlahTagihan = cleanRupiahValue(
+    $group->sum('jumlah_tagihan')
     );
 
 
