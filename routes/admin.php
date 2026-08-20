@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\InvoiceFeePageController;
 use App\Http\Controllers\Admin\InvoiceFeePdfController;
 use App\Http\Controllers\Admin\SalaryFinancingController;
+use App\Http\Controllers\Admin\TomiInvoiceController;
 use App\Http\Controllers\Admin\WebsiteInvoiceController;
 use App\Http\Controllers\Admin\GadgetInstallmentController;
 use Illuminate\Support\Facades\Route;
@@ -207,9 +208,11 @@ Route::middleware(['AdminMiddleware'])->group(
                 Route::get('/website/invoice', [WebsiteInvoiceController::class, 'index'])
                     ->name('admin.website.invoice.index');
 
-            Route::get('invoice-financing', function () {
-                return view('welcome');
-            })->name('admin.invoice-financing.index');
+            Route::get('invoice-financing', [TomiInvoiceController::class, 'index'])
+                ->name('admin.invoice-financing.index');
+
+            Route::get('invoice-financing/{id}', [TomiInvoiceController::class, 'show'])
+                ->name('admin.invoice-financing.show');
 
             Route::get('gadget-installment', 
             [GadgetInstallmentController::class, 'index'])->name('admin.gadget-installment.index');
