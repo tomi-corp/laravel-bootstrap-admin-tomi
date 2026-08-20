@@ -223,7 +223,24 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
 
     $item['penempatan_kerja'] =
     $item['penempatan_kerja']
+    ?? $item['penempatan']
+    ?? $item['lokasi_kerja']
+    ?? $item['cabang']
     ?? '-';
+
+    $item['nama_perusahaan'] =
+    $item['nama_perusahaan']
+    ?? $item['company_name']
+    ?? $item['perusahaan']
+    ?? $invoice['nama_perusahaan']
+    ?? '-';
+
+    $item['tanggal_pencairan'] =
+    $item['tanggal_pencairan']
+    ?? $item['tanggal_pembayaran']
+    ?? $item['tanggal_transfer']
+    ?? $item['tanggal_pengajuan']
+    ?? null;
 
     $item['jumlah_pendapatan'] =
     $jumlahPendapatan;
@@ -446,6 +463,20 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
 
     return [
 
+    'tanggal_pencairan' =>
+    firstFilledValue(
+    $group,
+    'tanggal_pencairan',
+    null
+    ),
+
+    'nama_perusahaan' =>
+    firstFilledValue(
+    $group,
+    'nama_perusahaan',
+    '-'
+    ),
+
     'penempatan_kerja' =>
     $penempatanKerja,
 
@@ -606,6 +637,18 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
         | Buat 1 Baris Fallback |-------------------------------------------------------------------------- */
         $itemsByPenempatanKerja=collect([ [ 'penempatan_kerja'=>
         $invoice['penempatan_kerja']
+        ?? '-',
+
+        'tanggal_pencairan' =>
+        $invoice['tanggal_pencairan']
+        ?? $invoice['tanggal_pembayaran']
+        ?? $invoice['tanggal_transfer']
+        ?? $invoice['tanggal_pengajuan']
+        ?? $invoice['tanggal_bukti_transfer']
+        ?? null,
+
+        'nama_perusahaan' =>
+        $invoice['nama_perusahaan']
         ?? '-',
 
         'rate' =>
@@ -903,10 +946,23 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
 
                         <b>
 
+                            @php
+                            $tanggalPencairanInvoice = firstFilledValue(
+                            $itemsByPenempatanKerja,
+                            'tanggal_pencairan',
+                            $invoice['tanggal_pencairan']
+                            ?? $invoice['tanggal_pembayaran']
+                            ?? $invoice['tanggal_transfer']
+                            ?? $invoice['tanggal_pengajuan']
+                            ?? $invoice['tanggal_bukti_transfer']
+                            ?? null
+                            );
+                            @endphp
+
                             {{
-                            !empty($invoice['tanggal_bukti_transfer'])
+                            !empty($tanggalPencairanInvoice) && $tanggalPencairanInvoice !== '-'
                             ? \Carbon\Carbon::parse(
-                            $invoice['tanggal_bukti_transfer']
+                            $tanggalPencairanInvoice
                             )->translatedFormat('d F Y')
                             : '-'
                             }}
@@ -1116,16 +1172,20 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
 
                             <b>
 
+                                @php
+                                $tanggalPencairan = $item['tanggal_pencairan']
+                                ?? $invoice['tanggal_pencairan']
+                                ?? $invoice['tanggal_pembayaran']
+                                ?? $invoice['tanggal_transfer']
+                                ?? $invoice['tanggal_pengajuan']
+                                ?? $invoice['tanggal_bukti_transfer']
+                                ?? null;
+                                @endphp
+
                                 {{
-                                !empty(
-                                $invoice[
-                                'tanggal_bukti_transfer'
-                                ]
-                                )
+                                !empty($tanggalPencairan) && $tanggalPencairan !== '-'
                                 ? \Carbon\Carbon::parse(
-                                $invoice[
-                                'tanggal_bukti_transfer'
-                                ]
+                                $tanggalPencairan
                                 )->translatedFormat('d F Y')
                                 : '-'
                                 }}
@@ -1139,7 +1199,10 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
 
                             <b>
                                 {{
-                                $invoice[
+                                $item[
+                                'nama_perusahaan'
+                                ]
+                                ?? $invoice[
                                 'nama_perusahaan'
                                 ]
                                 ?? '-'

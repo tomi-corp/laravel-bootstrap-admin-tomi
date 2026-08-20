@@ -275,15 +275,24 @@ class SalaryFinancingController extends Controller
         $biayaAdmin = (float) $this->value($detail, [
             'jumlah_biaya_admin',
             'biaya_admin',
-            'total_dibayarkan',
             'admin_fee',
         ], $totalPinjaman * $this->rateToMultiplier($biayaAdminRate));
         $biayaAdmin = $this->roundUpToThousand($biayaAdmin);
+
+        $totalTagihan = $this->roundUpToThousand($totalPinjaman + $biayaAdmin);
 
         return [
             'id' => $this->value($detail, ['id']),
             'id_perusahaan' => $companyId,
             'nama_perusahaan' => $this->value($detail, ['nama_perusahaan', 'company_name', 'nama'], $companyName),
+            'penempatan_kerja' => $this->value($detail, ['penempatan_kerja', 'penempatan', 'lokasi_kerja', 'cabang'], '-'),
+            'tanggal_pencairan' => $this->excelDateToNormal($this->value($detail, [
+                'tanggal_pencairan',
+                'tanggal_pembayaran',
+                'tanggal_transfer',
+                'tanggal_pengajuan',
+                'tanggal_bukti_transfer',
+            ])),
             'nomor_invoice' => $this->value($detail, ['nomor_invoice', 'invoice_number', 'no_invoice']),
             'filename' => $this->value($detail, ['filename', 'file_name', 'nama_file'], '-'),
             'jumlah_peminjam' => (int) $this->value($detail, ['jumlah_peminjam', 'total_peminjam', 'total_karyawan', 'jumlah_karyawan'], 0),
@@ -298,7 +307,7 @@ class SalaryFinancingController extends Controller
             'profesional_fee_2' => $profesionalFee2Rate,
             'ksp' => (float) $this->value($detail, ['ksp'], $configuration['ksp'] ?? 0),
             'iuran_anggota' => (float) $this->value($detail, ['iuran_anggota'], $configuration['iuran_anggota'] ?? 0),
-            'total_tagihan' => $this->roundUpToThousand($totalPinjaman + $biayaAdmin),
+            'total_tagihan' => $totalTagihan,
             'created_at' => $this->value($detail, ['created_at', 'tanggal_import', 'tanggal']),
             'status' => strtolower((string) $this->value($detail, ['status', 'status_pembayaran'], 'pending')),
         ];
@@ -318,6 +327,15 @@ class SalaryFinancingController extends Controller
             'id' => $salaryFinancing['id'] ?? $id,
             'id_perusahaan' => $salaryFinancing['id_perusahaan'] ?? null,
             'nama_perusahaan' => $salaryFinancing['nama_perusahaan'] ?? '-',
+            'penempatan_kerja' => $salaryFinancing['penempatan_kerja'] ?? $salaryFinancing['penempatan'] ?? $salaryFinancing['lokasi_kerja'] ?? $salaryFinancing['cabang'] ?? '-',
+            'tanggal_pencairan' => $this->excelDateToNormal(
+                $salaryFinancing['tanggal_pencairan']
+                ?? $salaryFinancing['tanggal_pembayaran']
+                ?? $salaryFinancing['tanggal_transfer']
+                ?? $salaryFinancing['tanggal_pengajuan']
+                ?? $salaryFinancing['tanggal_bukti_transfer']
+                ?? null
+            ),
             'nomor_invoice' => $salaryFinancing['nomor_invoice'] ?? null,
             'filename' => $salaryFinancing['filename'] ?? '-',
             'jumlah_peminjam' => (int) ($result['total_data'] ?? $items->count()),
@@ -364,11 +382,18 @@ class SalaryFinancingController extends Controller
             return [
                 'no' => $index + 1,
                 'tanggal_pengajuan' => $this->excelDateToNormal($row['tanggal_pengajuan'] ?? null),
+                'tanggal_pencairan' => $this->excelDateToNormal(
+                    $row['tanggal_pencairan']
+                    ?? $row['tanggal_pembayaran']
+                    ?? $row['tanggal_transfer']
+                    ?? $row['tanggal_pengajuan']
+                    ?? null
+                ),
                 'nama' => $row['nama'] ?? '-',
                 'nik' => $row['nik'] ?? '-',
                 'nip' => $row['nip'] ?? '-',
-                'nama_perusahaan' => $row['nama_perusahaan'] ?? '-',
-                'penempatan_kerja' => $row['penempatan_kerja'] ?? '-',
+                'nama_perusahaan' => $row['nama_perusahaan'] ?? $row['company_name'] ?? $row['perusahaan'] ?? '-',
+                'penempatan_kerja' => $row['penempatan_kerja'] ?? $row['penempatan'] ?? $row['lokasi_kerja'] ?? $row['cabang'] ?? '-',
                 'jumlah_pendapatan' => $jumlahPendapatan,
                 'rate' => (float) ($row['rate'] ?? $configuration['rate'] ?? 0),
                 'asuransi' => (float) ($row['asuransi'] ?? $configuration['asuransi'] ?? 0),

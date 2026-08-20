@@ -193,12 +193,17 @@ if ($sisaPlafon < 0) { $sisaPlafon=0; } @endphp <div class="container-fluid">
                                 ?? 0;
 
                                 $biayaAdmin = $item['biaya_admin']
-                                ?? $item['total_dibayarkan']
                                 ?? ($totalPendapatan * 0.0225);
 
                                 $totalTagihan = $item['total_tagihan']
-                                ?? $item['total_fee']
+                                ?? $item['jumlah_tagihan']
+                                ?? $item['total_dibayarkan']
                                 ?? ($totalPendapatan + $biayaAdmin);
+
+                                $totalTagihanHitung = $totalPendapatan + $biayaAdmin;
+                                if ($totalTagihan <= $totalPendapatan && $totalTagihanHitung > $totalPendapatan) {
+                                    $totalTagihan = $totalTagihanHitung;
+                                }
 
                                 $tanggalImport = $item['created_at']
                                 ?? $item['tanggal']
