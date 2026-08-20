@@ -19,6 +19,6 @@ yarn-error.log
 /.vscode
 docker-compose.yml
 composer.lock
-C
 public/.htaccess
-agents.md
+*.md
+!readme.md
