@@ -128,6 +128,7 @@ class SalaryFinancingController extends Controller
                 'invoice' => $invoice,
                 'items' => $items,
                 'selectedColumns' => $selectedColumns,
+                'debugSalaryFinancing' => $request->boolean('debug'),
             ])->setPaper('legal', 'landscape');
 
             $filename = 'Invoice-Salary-Financing-' . Str::slug($invoice['nama_perusahaan'] . '-' . $invoice['id']) . '.pdf';
@@ -154,6 +155,7 @@ class SalaryFinancingController extends Controller
             'invoice' => $invoice,
             'items' => [],
             'selectedColumns' => $selectedColumns,
+            'debugSalaryFinancing' => $request->boolean('debug'),
         ])->setPaper('legal', 'landscape');
 
         $filename = 'Invoice-Salary-Financing-' . Str::slug($invoice['nama_perusahaan'] . '-' . $invoice['id']) . '.pdf';
