@@ -1,5 +1,4 @@
 @php
-
 /*
 |--------------------------------------------------------------------------
 | Helper
@@ -1033,12 +1032,14 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
                                         {{ $debugItem['tanggal_pencairan'] ?? 'NULL' }}
                                     </td>
                                     <td style="border: 1px solid #dc3545; padding: 4px; text-align: right;">
-                                        {{ number_format(cleanRupiahValue($debugItem['jumlah_pendapatan'] ?? 0), 0, ',', '.') }}
+                                        {{ number_format(cleanRupiahValue($debugItem['jumlah_pendapatan'] ?? 0), 0, ',',
+                                        '.') }}
                                     </td>
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="5" style="border: 1px solid #dc3545; padding: 4px; text-align: center;">
+                                    <td colspan="5"
+                                        style="border: 1px solid #dc3545; padding: 4px; text-align: center;">
                                         Tidak ada grouped item.
                                     </td>
                                 </tr>

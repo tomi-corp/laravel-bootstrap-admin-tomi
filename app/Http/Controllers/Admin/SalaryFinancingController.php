@@ -118,6 +118,27 @@ class SalaryFinancingController extends Controller
             config('koperasi.password')
         )->get(config('koperasi.api_url') . "/api/salary-financing-excel/{$id}");
 
+        if ($request->boolean('debug_api')) {
+            $apiJson = $response->json();
+            $apiRows = collect(data_get($apiJson, 'data', []));
+            $salaryFinancing = data_get($apiJson, 'salary_financing', []);
+
+            return response()->json([
+                'debug' => true,
+                'api_status' => $response->status(),
+                'api_successful' => $response->successful(),
+                'endpoint' => config('koperasi.api_url') . "/api/salary-financing-excel/{$id}",
+                'top_level_keys' => is_array($apiJson) ? array_keys($apiJson) : [],
+                'salary_financing_keys' => is_array($salaryFinancing) ? array_keys($salaryFinancing) : [],
+                'salary_financing' => $salaryFinancing,
+                'data_count' => $apiRows->count(),
+                'first_row_keys' => is_array($apiRows->first()) ? array_keys($apiRows->first()) : [],
+                'sample_rows' => $apiRows->take(10)->values(),
+                'mapped_first_rows' => collect($this->mapApiItems($apiRows->take(10)->values()->all(), $salaryFinancing['id_perusahaan'] ?? null)),
+                'raw_body_preview' => $response->successful() ? null : Str::limit($response->body(), 2000),
+            ]);
+        }
+
         if ($response->successful()) {
             $result = $response->json();
             $salaryFinancing = $result['salary_financing'] ?? [];
