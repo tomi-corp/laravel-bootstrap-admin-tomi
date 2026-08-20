@@ -991,65 +991,6 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
 
             <table class="main-table">
 
-                @if(!empty($debugSalaryFinancing))
-                <caption style="caption-side: top; text-align: left; margin-bottom: 10px;">
-                    <div style="border: 1px solid #dc3545; padding: 8px; color: #333; background: #fff5f5;">
-                        <b>DEBUG Salary Financing</b>
-                        <br>
-                        Invoice nama_perusahaan:
-                        <b>{{ $invoice['nama_perusahaan'] ?? 'NULL' }}</b>
-                        <br>
-                        Invoice penempatan_kerja:
-                        <b>{{ $invoice['penempatan_kerja'] ?? 'NULL' }}</b>
-                        <br>
-                        Total raw items:
-                        <b>{{ collect($items ?? [])->count() }}</b>
-                        <br>
-                        Total grouped items:
-                        <b>{{ collect($itemsByPenempatanKerja ?? [])->count() }}</b>
-
-                        <table style="width: 100%; border-collapse: collapse; margin-top: 8px;">
-                            <thead>
-                                <tr>
-                                    <th style="border: 1px solid #dc3545; padding: 4px;">No</th>
-                                    <th style="border: 1px solid #dc3545; padding: 4px;">Nama Perusahaan</th>
-                                    <th style="border: 1px solid #dc3545; padding: 4px;">Penempatan Kerja</th>
-                                    <th style="border: 1px solid #dc3545; padding: 4px;">Tanggal Pencairan</th>
-                                    <th style="border: 1px solid #dc3545; padding: 4px;">Jumlah Pendapatan</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse(collect($itemsByPenempatanKerja ?? [])->take(20) as $debugItem)
-                                <tr>
-                                    <td style="border: 1px solid #dc3545; padding: 4px;">{{ $loop->iteration }}</td>
-                                    <td style="border: 1px solid #dc3545; padding: 4px;">
-                                        {{ $debugItem['nama_perusahaan'] ?? 'NULL' }}
-                                    </td>
-                                    <td style="border: 1px solid #dc3545; padding: 4px;">
-                                        {{ $debugItem['penempatan_kerja'] ?? 'NULL' }}
-                                    </td>
-                                    <td style="border: 1px solid #dc3545; padding: 4px;">
-                                        {{ $debugItem['tanggal_pencairan'] ?? 'NULL' }}
-                                    </td>
-                                    <td style="border: 1px solid #dc3545; padding: 4px; text-align: right;">
-                                        {{ number_format(cleanRupiahValue($debugItem['jumlah_pendapatan'] ?? 0), 0, ',',
-                                        '.') }}
-                                    </td>
-                                </tr>
-                                @empty
-                                <tr>
-                                    <td colspan="5"
-                                        style="border: 1px solid #dc3545; padding: 4px; text-align: center;">
-                                        Tidak ada grouped item.
-                                    </td>
-                                </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                </caption>
-                @endif
-
                 <thead>
 
                     <tr>
