@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
 class InvoiceFeePdfController extends Controller
@@ -22,7 +23,7 @@ class InvoiceFeePdfController extends Controller
         return view('admin.invoice-fee.show', compact('result', 'id'));
     }
 
-    public function downloadPdf($id)
+    public function downloadPdf(Request $request, $id)
     {
         $response = Http::withBasicAuth(
             config('koperasi.identity'),
@@ -82,11 +83,16 @@ class InvoiceFeePdfController extends Controller
             ],
         ];
 
+        $productName = $request->query('product') === 'tomi-invoice'
+            ? 'TomiInvoice'
+            : 'TomiDana';
+
         $pdf = Pdf::loadView('admin.invoice-fee.pdf', [
             'invoice' => $invoice,
             'items' => $items,
             'summary' => $summary,
             'rekening' => $rekening,
+            'productName' => $productName,
             'totalJumlahPinjaman' => $totalJumlahPinjaman,
             'totalJumlahFee' => $totalJumlahFee,
             'totalJumlahTagihan' => $totalJumlahTagihan,
@@ -109,7 +115,7 @@ class InvoiceFeePdfController extends Controller
     }
 
 
-    public function downloadTransferRequestPdf($id)
+    public function downloadTransferRequestPdf(Request $request, $id)
     {
         $response = Http::withBasicAuth(
             config('koperasi.identity'),
@@ -169,11 +175,16 @@ class InvoiceFeePdfController extends Controller
             ],
         ];
 
+        $productName = $request->query('product') === 'tomi-invoice'
+            ? 'TomiInvoice'
+            : 'TomiDana';
+
         $pdf = Pdf::loadView('admin.invoice-fee.transfer_request_pdf', [
             'invoice' => $invoice,
             'items' => $items,
             'summary' => $summary,
             'rekening' => $rekening,
+            'productName' => $productName,
             'totalJumlahPinjaman' => $totalJumlahPinjaman,
             'totalJumlahFee' => $totalJumlahFee,
             'totalJumlahTagihan' => $totalJumlahTagihan,

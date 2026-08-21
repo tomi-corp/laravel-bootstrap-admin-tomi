@@ -4,7 +4,10 @@ use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\CostController;
 use App\Http\Controllers\Admin\DailyCheckinController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\GadgetInstallmentController;
 use App\Http\Controllers\Admin\GenerateInvoiceController;
+use App\Http\Controllers\Admin\InvoiceFeePageController;
+use App\Http\Controllers\Admin\InvoiceFeePdfController;
 use App\Http\Controllers\Admin\KspController;
 use App\Http\Controllers\Admin\LenderController;
 use App\Http\Controllers\Admin\MenuMobileController;
@@ -12,14 +15,10 @@ use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\OtaController;
 use App\Http\Controllers\Admin\PpobController;
 use App\Http\Controllers\Admin\ProfileController;
-use App\Http\Controllers\Admin\InvoiceFeePageController;
-use App\Http\Controllers\Admin\InvoiceFeePdfController;
 use App\Http\Controllers\Admin\SalaryFinancingController;
 use App\Http\Controllers\Admin\TomiInvoiceController;
 use App\Http\Controllers\Admin\WebsiteInvoiceController;
-use App\Http\Controllers\Admin\GadgetInstallmentController;
 use Illuminate\Support\Facades\Route;
-
 
 Route::get('/invoice-fee', [InvoiceFeePageController::class, 'index'])
     ->name('admin.invoice.fee.page');
@@ -44,7 +43,6 @@ Route::middleware(['LoginAdminMiddleware'])->group(
         Route::post('/login', [AuthController::class, 'loginAction'])->name('admin.login.action');
     }
 );
-
 
 Route::middleware(['AdminMiddleware'])->group(
     function () {
@@ -107,15 +105,21 @@ Route::middleware(['AdminMiddleware'])->group(
                 Route::post('/ksp/lender/approval/action', [LenderController::class, 'approvalAction'])->name('admin.lender.approval.action');
                 Route::post('/ksp/lender/update/history', [LenderController::class, 'updateHistoryLender'])->name('admin.lender.update.history');
                 // ksp => lender => invoicing
+                Route::get('/ksp/lender/invoicing/', function () {
+                    return redirect()->route('admin.lender.invoicing.index');
+                });
                 Route::get('/ksp/lender/invoicing', [LenderController::class, 'indexInvoicingLender'])->name('admin.lender.invoicing.index');
                 Route::post('/ksp/lender/invoicing/sementara/table', [LenderController::class, 'invoicingSementaraTable'])->name('admin.lender.invoicing.sementara.table');
                 Route::post('/ksp/lender/invoicing/pending/table', [LenderController::class, 'invoicingLenderPending'])->name('admin.lender.invoicing.pending.table');
                 Route::post('/ksp/lender/invoicing/done/table', [LenderController::class, 'invoicingLenderDone'])->name('admin.lender.invoicing.done.table');
                 Route::post('/ksp/lender/invoicing/pending/update', [LenderController::class, 'invoicingLenderPendingUpdate'])->name('admin.lender.invoicing.pending.update');
                 Route::get('/ksp/lender/invoicing/{id}', [LenderController::class, 'downloadInvoice'])->name('admin.lender.invoicing.download');
-                Route::post('/ksp/lender/invocing/approval/table', [LenderController::class, 'approvePendingInvoice'])->name('admin.lender.approval.invoicing.lender');
-                Route::post('/ksp/lender/invocing/approval/detail', [LenderController::class, 'approvalDetailInvocing'])->name('admin.lender.approval.invoicing.detail');
-                Route::post('/ksp/lender/invocing/approval/action', [LenderController::class, 'approvalInvoicingAction'])->name('admin.lender.approval.invoicing.action');
+                Route::post('/ksp/lender/invoicing/approval/table', [LenderController::class, 'approvePendingInvoice'])->name('admin.lender.approval.invoicing.lender');
+                Route::post('/ksp/lender/invoicing/approval/detail', [LenderController::class, 'approvalDetailInvocing'])->name('admin.lender.approval.invoicing.detail');
+                Route::post('/ksp/lender/invoicing/approval/action', [LenderController::class, 'approvalInvoicingAction'])->name('admin.lender.approval.invoicing.action');
+                Route::post('/ksp/lender/invocing/approval/table', [LenderController::class, 'approvePendingInvoice'])->name('admin.lender.approval.invocing.lender');
+                Route::post('/ksp/lender/invocing/approval/detail', [LenderController::class, 'approvalDetailInvocing'])->name('admin.lender.approval.invocing.detail');
+                Route::post('/ksp/lender/invocing/approval/action', [LenderController::class, 'approvalInvoicingAction'])->name('admin.lender.approval.invocing.action');
                 // KSP => Karyawan
                 Route::get('/ksp/list/karyawan/{id}', [KspController::class, 'listKaryawan'])->name('admin.list.karyawan');
                 Route::post('/ksp/list/karyawan/{id}/table', [KspController::class, 'listKaryawanTable'])->name('admin.list.karyawan.table');
@@ -159,7 +163,6 @@ Route::middleware(['AdminMiddleware'])->group(
                 Route::get('/daily/checkin', [DailyCheckinController::class, 'dailyIndex'])->name('admin.daily.index');
                 Route::post('/daily/checkin/table', [DailyCheckinController::class, 'dailyTable'])->name('admin.daily.table');
                 Route::post('/daily/checkin/update', [DailyCheckinController::class, 'dailyUpdate'])->name('admin.daily.update');
-
 
                 // ksp => cost
                 Route::get('/cost/ksp', [CostController::class, 'costIndex'])->name('admin.cost.index');
@@ -208,14 +211,14 @@ Route::middleware(['AdminMiddleware'])->group(
                 Route::get('/website/invoice', [WebsiteInvoiceController::class, 'index'])
                     ->name('admin.website.invoice.index');
 
-            Route::get('invoice-financing', [TomiInvoiceController::class, 'index'])
-                ->name('admin.invoice-financing.index');
+                Route::get('invoice-financing', [TomiInvoiceController::class, 'index'])
+                    ->name('admin.invoice-financing.index');
 
-            Route::get('invoice-financing/{id}', [TomiInvoiceController::class, 'show'])
-                ->name('admin.invoice-financing.show');
+                Route::get('invoice-financing/{id}', [TomiInvoiceController::class, 'show'])
+                    ->name('admin.invoice-financing.show');
 
-            Route::get('gadget-installment', 
-            [GadgetInstallmentController::class, 'index'])->name('admin.gadget-installment.index');
+                Route::get('gadget-installment',
+                    [GadgetInstallmentController::class, 'index'])->name('admin.gadget-installment.index');
 
             }
         );

@@ -12,6 +12,7 @@ use App\Http\Resources\Admin\Lender\LenderDetailResource;
 use App\Http\Resources\Admin\Lender\LenderHistoryUpdateResource;
 use App\Models\bank;
 use App\Models\configurasi_lender;
+use App\Models\disbursement;
 use App\Models\history_invoicing_lender;
 use App\Models\history_invoicing_lender_update;
 use App\Models\kecamatan;
@@ -19,16 +20,16 @@ use App\Models\kelurahan;
 use App\Models\kota;
 use App\Models\lender;
 use App\Models\lender_update;
+use App\Models\pinjaman;
 use App\Models\provinsi;
 use App\Models\rekening_pandu;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\Facades\DataTables;
-use Illuminate\Support\Facades\Response;
-use Illuminate\Database\Eloquent\Builder;
 
 class LenderController extends Controller
 {
@@ -40,16 +41,17 @@ class LenderController extends Controller
             'bank' => $bank,
             'provinsis' => $provinsis,
         ];
+
         return view('admin.ksp.lender.index', compact('data'));
     }
 
     public function addLender(AddLenderRequest $req)
     {
-        $lender = new lender();
+        $lender = new lender;
         while (true) {
-            $string = '#TomiKspLender' . '-' . Carbon::now()->format('dmY') . '-' . rand(1000, 9999);
+            $string = '#TomiKspLender'.'-'.Carbon::now()->format('dmY').'-'.rand(1000, 9999);
             $lenderlist = lender::where('id_code_lender', $string)->first();
-            if (!isset($lenderlist)) {
+            if (! isset($lenderlist)) {
                 break;
             }
         }
@@ -64,19 +66,19 @@ class LenderController extends Controller
         $lender->nomor_pks = $req->nomor_pks;
         $lender->color = $req->colorLender;
         // file pks
-        $file     = $req->file('file_pks');
-        $ext      = ".pdf";
-        $filename = "LENDER_PKS_{$string}_{$lender->nama}_" . time() . ".{$ext}";
+        $file = $req->file('file_pks');
+        $ext = '.pdf';
+        $filename = "LENDER_PKS_{$string}_{$lender->nama}_".time().".{$ext}";
         $path = $file->storeAs('pks_lender', $filename);
 
-        $imageName = time() . '_' . $req->nama_lender . '.' . $req->logoLender->extension();
+        $imageName = time().'_'.$req->nama_lender.'.'.$req->logoLender->extension();
         $req->logoLender->move(public_path('assets/images'), $imageName);
         $lender->logo = $imageName;
 
         $provinsi = provinsi::where('provinsi', $req->provinsi)->first();
         $kabupaten = kota::where('kabupaten', $req->kabupaten)->first();
         $kecamatan = kecamatan::where('kecamatan', $req->kecamatan)->first();
-        $desaaa = explode("-", $req->desa);
+        $desaaa = explode('-', $req->desa);
         $desa = kelurahan::where('desa', $desaaa[0])
             ->where('kodepos', $desaaa[1])
             ->first();
@@ -87,7 +89,7 @@ class LenderController extends Controller
         $lender->id_desa = $desa->id;
         $lender->file_pks = $filename;
         $lender->last_update_file_pks = Carbon::now()->format('Y-m-d');
-        // bank 
+        // bank
         $lender->id_bank = $req->bank;
         $lender->status = 'nonactive';
         $lender->nama_rekening = $req->an_rekening;
@@ -104,7 +106,7 @@ class LenderController extends Controller
 
     public function lenderTable()
     {
-        $lender = Lender::with(['provinsi', 'kabupaten', 'kecamatan', 'desa', 'pendingApproval', 'bank'])->get();
+        $lender = lender::with(['provinsi', 'kabupaten', 'kecamatan', 'desa', 'pendingApproval', 'bank'])->get();
         $configurasi = configurasi_lender::first();
 
         return DataTables::of($lender)
@@ -116,6 +118,7 @@ class LenderController extends Controller
                 } else {
                     $pendingApproval = '<span class="badge badge-success">Available to Edit</span>';
                 }
+
                 return $pendingApproval;
             })
 
@@ -128,14 +131,14 @@ class LenderController extends Controller
             })
 
             ->addColumn('pks', function ($row) {
-                return '<button class="btn btn-sm btn-primary mr-2" onclick="filePks(' . $row->id . ')"><i class="mdi mdi-file-document-outline"></i> </button>';
+                return '<button class="btn btn-sm btn-primary mr-2" onclick="filePks('.$row->id.')"><i class="mdi mdi-file-document-outline"></i> </button>';
             })
 
             ->addColumn('logo', function ($row) {
-                return '<button class="btn btn-sm btn-primary mr-2" onclick="imageLogo(' . $row->id . ')"><i class="mdi mdi-image"></i> </button>';
+                return '<button class="btn btn-sm btn-primary mr-2" onclick="imageLogo('.$row->id.')"><i class="mdi mdi-image"></i> </button>';
             })
 
-            ->addColumn('expired_updated', function ($row) use ($configurasi) {;
+            ->addColumn('expired_updated', function ($row) use ($configurasi) {
                 return Carbon::parse($row->updated_at)->addDays($configurasi->expired_days)->format('Y-m-d H:i:s');
             })
 
@@ -152,7 +155,7 @@ class LenderController extends Controller
             })
 
             ->addColumn('desa', function ($row) {
-                return $row->desa->desa . ' - ' . $row->desa->kodepos;
+                return $row->desa->desa.' - '.$row->desa->kodepos;
             })
 
             ->addColumn('alamat_lengkap', function ($row) {
@@ -160,26 +163,28 @@ class LenderController extends Controller
             })
 
             ->addColumn('status', function ($row) {
-                if ($row->status == "active") {
+                if ($row->status == 'active') {
                     $status = '<span class="badge badge-success">ACTIVE</span>';
-                } elseif ($row->status == "nonactive") {
+                } elseif ($row->status == 'nonactive') {
                     $status = '<span class="badge badge-warning">INACTIVE</span>';
                 }
+
                 return $status;
             })
             ->addColumn('action', function ($row) {
 
                 if (isset($row->pendingApproval)) {
                     $action = '<button class="btn btn-sm btn-primary mr-2 disabled" ><i class="mdi mdi-pencil"></i> </button>
-                    <button class="btn btn-sm btn-info mr-2" onclick="historyUpdate(' . $row->id . ')"><i class="mdi mdi-history"></i> </button>
+                    <button class="btn btn-sm btn-info mr-2" onclick="historyUpdate('.$row->id.')"><i class="mdi mdi-history"></i> </button>
                     <button class="btn btn-sm btn-danger mr-2 disabled"><i class=" mdi mdi-trash-can"></i> </button>
                     ';
                 } else {
-                    $action = '<button class="btn btn-sm btn-primary mr-2" onclick="editLender(' . $row->id . ')"><i class="mdi mdi-pencil"></i> </button>
-                    <button class="btn btn-sm btn-info mr-2" onclick="historyUpdate(' . $row->id . ')"><i class="mdi mdi-history"></i> </button>
-                    <button class="btn btn-sm btn-danger mr-2" onclick="deleteLender(' . $row->id . ')"><i class=" mdi mdi-trash-can"></i> </button>
+                    $action = '<button class="btn btn-sm btn-primary mr-2" onclick="editLender('.$row->id.')"><i class="mdi mdi-pencil"></i> </button>
+                    <button class="btn btn-sm btn-info mr-2" onclick="historyUpdate('.$row->id.')"><i class="mdi mdi-history"></i> </button>
+                    <button class="btn btn-sm btn-danger mr-2" onclick="deleteLender('.$row->id.')"><i class=" mdi mdi-trash-can"></i> </button>
                     ';
                 }
+
                 return $action;
             })
 
@@ -216,31 +221,34 @@ class LenderController extends Controller
     {
         $lender = lender::where('id', $req->id)->first();
         $disk = Storage::disk('local');
-        $file = $disk->get('pks_lender/' . $lender->file_pks);
+        $file = $disk->get('pks_lender/'.$lender->file_pks);
+
         return Response::make($file, 200, [
             'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'inline; filename="PKS Lender"'
+            'Content-Disposition' => 'inline; filename="PKS Lender"',
         ]);
     }
 
     public function imageShow(Request $req)
     {
         $lender = lender::where('id', $req->id)->first();
-        $imageUrl = asset('assets/images/' . $lender->logo);
+        $imageUrl = asset('assets/images/'.$lender->logo);
+
         return response()->json([
             'url' => $imageUrl,
-            'success' => true
+            'success' => true,
         ]);
     }
 
     public function lenderDetail(Request $req)
     {
-        $lender =  lender::where('id', $req->id)->with([
+        $lender = lender::where('id', $req->id)->with([
             'provinsi',
             'kabupaten',
             'kecamatan',
             'desa',
         ])->first();
+
         return response()->json([
             'status' => 200,
             'data' => new DetailLenderResource($lender),
@@ -262,9 +270,9 @@ class LenderController extends Controller
         $lender->nomor_pks = $req->nomor_pks;
         // file pks
         if ($req->file('file_pks') !== null) {
-            $file     = $req->file('file_pks');
-            $ext      = ".pdf";
-            $filename = "LENDER_PKS_{$lender->id_code_lender}_{$lender->nama}_" . time() . ".{$ext}";
+            $file = $req->file('file_pks');
+            $ext = '.pdf';
+            $filename = "LENDER_PKS_{$lender->id_code_lender}_{$lender->nama}_".time().".{$ext}";
             $path = $file->storeAs('pks_lender', $filename);
             $lender->file_pks = $filename;
             $lender->last_update_file_pks = Carbon::now()->format('Y-m-d');
@@ -273,7 +281,7 @@ class LenderController extends Controller
         $provinsi = provinsi::where('provinsi', $req->provinsi)->first();
         $kabupaten = kota::where('kabupaten', $req->kabupaten)->first();
         $kecamatan = kecamatan::where('kecamatan', $req->kecamatan)->first();
-        $desaaa = explode("-", $req->desa);
+        $desaaa = explode('-', $req->desa);
         $desa = kelurahan::where('desa', $desaaa[0])
             ->where('kodepos', $desaaa[1])
             ->first();
@@ -282,7 +290,7 @@ class LenderController extends Controller
         $lender->id_kabupaten = $kabupaten->id;
         $lender->id_kecamatan = $kecamatan->id;
         $lender->id_desa = $desa->id;
-        // bank 
+        // bank
         $lender->id_bank = $req->bank;
         $lender->nama_rekening = $req->an_rekening;
         $lender->no_rekening = $req->no_rekening;
@@ -294,11 +302,11 @@ class LenderController extends Controller
         // Gabungkan oldData dan newData ke dalam satu array untuk JSON
         $logData = [
             'old_data' => array_intersect_key($oldData, $changedData), // Ambil data lama hanya untuk kolom yang berubah
-            'new_data' => $changedData
+            'new_data' => $changedData,
         ];
 
         // Simpan data perubahan ke tabel sementara
-        $lender_updates = new lender_update();
+        $lender_updates = new lender_update;
         $lender_updates->lender_id = $lender->id;
         $lender_updates->new_data = json_encode($logData);
         $lender_updates->requester_id = auth('admin')->user()->id;
@@ -331,10 +339,10 @@ class LenderController extends Controller
 
         $logData = [
             'old_data' => array_intersect_key($oldData, $changedData),
-            'new_data' => $changedData
+            'new_data' => $changedData,
         ];
         // Simpan data perubahan ke tabel sementara
-        $lender_updates = new lender_update();
+        $lender_updates = new lender_update;
         $lender_updates->lender_id = $lender->id;
         $lender_updates->new_data = json_encode($logData);
         $lender_updates->requester_id = auth('admin')->user()->id;
@@ -365,51 +373,51 @@ class LenderController extends Controller
             ->with(['lender', 'requester', 'first_approver', 'second_approver'])
             ->get();
 
-
         return DataTables::of($lenderUpdate)
             ->addIndexColumn()
 
-            ->addColumn('waktu', function ($row) {;
+            ->addColumn('waktu', function ($row) {
                 return Carbon::parse($row->created_at)->format('Y-m-d H:i:s');
             })
 
             ->addColumn('requester', function ($row) {
-                return $row->requester->username;
+                return $row->requester?->username ?? '-';
             })
 
             ->addColumn('status_pertama', function ($row) {
-                if ($row->status_pertama == "pending") {
+                if ($row->status_pertama == 'pending') {
                     $badge = '<span class="badge badge-warning">PENDING</span>';
-                } elseif ($row->status_pertama == "reject") {
+                } elseif ($row->status_pertama == 'reject') {
                     $badge = '<span class="badge badge-danger">REJECT</span>';
                 } else {
                     $badge = '<span class="badge badge-success">APPROVE</span>';
                 }
+
                 return $badge;
             })
 
-
             ->addColumn('status_kedua', function ($row) {
-                if ($row->status_kedua == "pending") {
+                if ($row->status_kedua == 'pending') {
                     $badge = '<span class="badge badge-warning">PENDING</span>';
-                } elseif ($row->status_kedua == "reject") {
+                } elseif ($row->status_kedua == 'reject') {
                     $badge = '<span class="badge badge-danger">REJECT</span>';
                 } else {
                     $badge = '<span class="badge badge-success">APPROVE</span>';
                 }
+
                 return $badge;
             })
 
             ->addColumn('first_approver_id', function ($row) {
-                return $row->first_approver == null ? "-" :  $row->first_approver->username;
+                return $row->first_approver == null ? '-' : $row->first_approver->username;
             })
 
             ->addColumn('second_approver_id', function ($row) {
-                return $row->second_approver == null ? "-" :  $row->second_approver->username;
+                return $row->second_approver == null ? '-' : $row->second_approver->username;
             })
 
             ->addColumn('action', function ($row) {
-                return '<button class="btn btn-sm btn-primary mr-2" onclick="editApproval(' . $row->id . ')"><i class="mdi mdi-pencil"></i> </button>';
+                return '<button class="btn btn-sm btn-primary mr-2" onclick="editApproval('.$row->id.')"><i class="mdi mdi-pencil"></i> </button>';
             })
 
             ->rawColumns(['action', 'status_kedua', 'status_pertama'])
@@ -456,16 +464,16 @@ class LenderController extends Controller
     {
         $lender_updates = lender_update::where('id', $req->id)->first();
         // cek status pertama
-        if ($lender_updates->status_pertama == "pending" || $lender_updates->first_approver_id == null) {
+        if ($lender_updates->status_pertama == 'pending' || $lender_updates->first_approver_id == null) {
             $lender_updates->status_pertama = $req->action;
             $lender_updates->first_approver_id = auth('admin')->user()->id;
-        } elseif ($lender_updates->status_kedua == "pending" || $lender_updates->second_approver_id == null) {
+        } elseif ($lender_updates->status_kedua == 'pending' || $lender_updates->second_approver_id == null) {
             $lender_updates->status_kedua = $req->action;
             $lender_updates->second_approver_id = auth('admin')->user()->id;
         }
         $lender_updates->save();
 
-        if ($lender_updates->status_pertama == "approve" && $lender_updates->status_kedua == "approve") {
+        if ($lender_updates->status_pertama == 'approve' && $lender_updates->status_kedua == 'approve') {
             $lender = lender::where('id', $lender_updates->lender_id)->first();
             if ($lender) {
                 // $newData = json_decode($lender_updates->new_data, true);
@@ -478,7 +486,6 @@ class LenderController extends Controller
             'message' => 'Berhasil mengupdate data approval',
         ], 200);
     }
-
 
     public function updateHistoryLender(Request $req)
     {
@@ -494,35 +501,44 @@ class LenderController extends Controller
         ], 200);
     }
 
-
     public function indexInvoicingLender()
     {
         $bulanIni = Carbon::now()->isoFormat('MMMM Y');
+
         return view('admin.ksp.lender.invoicing.index', compact('bulanIni'));
     }
 
-
     public function invoicingSementaraTable()
     {
-        $lender = Lender::withWhereHas('pinjaman', function ($q) {
-            $q->withWhereHas('disbursement', function ($p) {
-                $p->whereYear('created_at', Carbon::now()->year)
-                    ->whereMonth('created_at', Carbon::now()->month);
-            })->with(['disbursement' => function ($p) {
-                $p->whereYear('created_at', Carbon::now()->year)
-                    ->whereMonth('created_at', Carbon::now()->month);
-            }]);
-        })->get();
+        $lenderTable = (new lender)->getTable();
+        $pinjamanTable = (new pinjaman)->getTable();
+        $disbursementTable = (new disbursement)->getTable();
+
+        $lender = lender::query()
+            ->join($pinjamanTable, "{$pinjamanTable}.id_lender", '=', "{$lenderTable}.id")
+            ->join($disbursementTable, function ($join) use ($pinjamanTable, $disbursementTable) {
+                $join->on("{$disbursementTable}.pinjaman_id", '=', "{$pinjamanTable}.id")
+                    ->whereYear("{$disbursementTable}.created_at", Carbon::now()->year)
+                    ->whereMonth("{$disbursementTable}.created_at", Carbon::now()->month);
+            })
+            ->select([
+                "{$lenderTable}.id",
+                "{$lenderTable}.id_code_lender",
+                "{$lenderTable}.nama",
+            ])
+            ->selectRaw("COUNT(DISTINCT {$pinjamanTable}.id) as total_pinjaman")
+            ->selectRaw("COALESCE(SUM({$pinjamanTable}.biaya_admin_pandu), 0) + COALESCE(SUM({$pinjamanTable}.biaya_layanan), 0) as revenue")
+            ->groupBy("{$lenderTable}.id", "{$lenderTable}.id_code_lender", "{$lenderTable}.nama");
 
         return DataTables::of($lender)
             ->addIndexColumn()
 
             ->addColumn('total_pinjaman', function ($row) {
-                return '<span class="badge badge-success">' . $row->pinjaman->count() . '</span>';
+                return '<span class="badge badge-success">'.$row->total_pinjaman.'</span>';
             })
 
             ->addColumn('revenue', function ($row) {
-                return "Rp  " . number_format($row->pinjaman->sum('biaya_admin_pandu') + $row->pinjaman->sum('biaya_layanan'));
+                return 'Rp  '.number_format($row->revenue);
             })
 
             ->rawColumns(['total_pinjaman'])
@@ -531,55 +547,25 @@ class LenderController extends Controller
                 'id_code_lender',
                 'nama',
                 'total_pinjaman',
-                'revenue'
+                'revenue',
             ])
             ->toJson();
     }
 
     public function invoicingLenderPending()
     {
-
-        $historyInvoicingLenderPending = history_invoicing_lender::where('status', 'belum_lunas')
-            ->with([
-                'lender' => function ($q) {
-                    $q->with(['pinjaman' => function ($sub) {
-                        $sub->whereIn('status', ['approve', 'done'])
-                            ->with('disbursement');
-                    }])
-                        ->withCount(['pinjaman as total_pinjaman' => function ($sub) {
-                            $sub->whereIn('status', ['approve', 'done']);
-                        }])
-                        ->withSum(['pinjaman as total_biaya_admin' => function ($sub) {
-                            $sub->whereIn('status', ['approve', 'done']);
-                        }], 'biaya_admin_pandu')
-                        ->withSum(['pinjaman as total_biaya_layanan' => function ($sub) {
-                            $sub->whereIn('status', ['approve', 'done']);
-                        }], 'biaya_layanan');
-                },
-                'pendingApproval'
-            ])->get()
-            ->each(function ($invoice) {
-                if ($invoice->lender && $invoice->lender->pinjaman) {
-                    $filteredPinjaman = $invoice->lender->pinjaman->filter(function ($pinjaman) use ($invoice) {
-                        return $pinjaman->disbursement &&
-                            Carbon::parse($pinjaman->disbursement->created_at)->format('Y-m') === Carbon::parse($invoice->period)->format('Y-m');
-                    });
-                    $invoice->lender->total_pinjaman = $filteredPinjaman->count();
-                    $invoice->lender->total_biaya_admin = $filteredPinjaman->sum('biaya_admin_pandu');
-                    $invoice->lender->total_biaya_layanan = $filteredPinjaman->sum('biaya_layanan');
-                    $invoice->lender->setRelation('pinjaman', $filteredPinjaman);
-                }
-            });
+        $historyInvoicingLenderPending = $this->invoiceLenderTableQuery('belum_lunas');
 
         return DataTables::of($historyInvoicingLenderPending)
             ->addIndexColumn()
 
             ->addColumn('pendingApproval', function ($row) {
-                if (isset($row->pendingApproval)) {
+                if ($row->has_pending_approval) {
                     $pendingApproval = '<span class="badge badge-warning">Locked</span>';
                 } else {
                     $pendingApproval = '<span class="badge badge-success">Available to Edit</span>';
                 }
+
                 return $pendingApproval;
             })
 
@@ -588,21 +574,19 @@ class LenderController extends Controller
             })
 
             ->addColumn('id_code_lender', function ($row) {
-                return $row->lender->id_code_lender;
+                return $row->id_code_lender;
             })
 
             ->addColumn('nama_lender', function ($row) {
-                return $row->lender->nama;
+                return $row->nama_lender;
             })
 
             ->addColumn('total_pinjaman', function ($row) {
-                return '<span class="badge badge-success">' . $row->lender->total_pinjaman . '</span>';
+                return '<span class="badge badge-success">'.$row->total_pinjaman.'</span>';
             })
 
             ->addColumn('revenue', function ($row) {
-                return "Rp  " .  number_format(
-                    $row->lender->total_biaya_admin + $row->lender->total_biaya_layanan
-                );
+                return 'Rp  '.number_format($row->revenue);
             })
 
             // ->addColumn('download', function ($row) {
@@ -614,20 +598,20 @@ class LenderController extends Controller
                 return '
                         <a href="javascript:void(0)"
                         class="btn-download-invoice"
-                        data-id="' . encryptSecure($row->id) . '">
+                        data-id="'.encryptSecure($row->id).'">
                         <i class="mdi mdi-download"></i>
                         </a>
                     ';
             })
 
-
             ->addColumn('action', function ($row) {
                 // return '<button class="btn btn-sm btn-primary mr-2" onclick="editInvocingLender(' . $row->id . ')"><i class="mdi mdi-pencil"></i> </button>';
-                if (isset($row->pendingApproval)) {
+                if ($row->has_pending_approval) {
                     $action = '<button class="btn btn-sm btn-primary mr-2 disabled" ><i class="mdi mdi-pencil"></i> </button>';
                 } else {
-                    $action = '<button class="btn btn-sm btn-primary mr-2" onclick="editInvocingLender(' . $row->id . ')"><i class="mdi mdi-pencil"></i> </button>';
+                    $action = '<button class="btn btn-sm btn-primary mr-2" onclick="editInvocingLender('.$row->id.')"><i class="mdi mdi-pencil"></i> </button>';
                 }
+
                 return $action;
             })
 
@@ -649,38 +633,7 @@ class LenderController extends Controller
 
     public function invoicingLenderDone()
     {
-        $historyInvoicingLenderPending = history_invoicing_lender::where('status', 'lunas')
-            ->with([
-                'lender' => function ($q) {
-                    $q->with(['pinjaman' => function ($sub) {
-                        $sub->whereIn('status', ['approve', 'done'])
-                            ->with('disbursement');
-                    }])
-                        ->withCount(['pinjaman as total_pinjaman' => function ($sub) {
-                            $sub->whereIn('status', ['approve', 'done']);
-                        }])
-                        ->withSum(['pinjaman as total_biaya_admin' => function ($sub) {
-                            $sub->whereIn('status', ['approve', 'done']);
-                        }], 'biaya_admin_pandu')
-                        ->withSum(['pinjaman as total_biaya_layanan' => function ($sub) {
-                            $sub->whereIn('status', ['approve', 'done']);
-                        }], 'biaya_layanan');
-                },
-                'pendingApproval'
-            ])->get()
-            ->each(function ($invoice) {
-                if ($invoice->lender && $invoice->lender->pinjaman) {
-                    $filteredPinjaman = $invoice->lender->pinjaman->filter(function ($pinjaman) use ($invoice) {
-                        return $pinjaman->disbursement &&
-                            Carbon::parse($pinjaman->disbursement->created_at)->format('Y-m') === Carbon::parse($invoice->period)->format('Y-m');
-                    });
-                    $invoice->lender->total_pinjaman = $filteredPinjaman->count();
-                    $invoice->lender->total_biaya_admin = $filteredPinjaman->sum('biaya_admin_pandu');
-                    $invoice->lender->total_biaya_layanan = $filteredPinjaman->sum('biaya_layanan');
-                    $invoice->lender->setRelation('pinjaman', $filteredPinjaman);
-                }
-            });
-
+        $historyInvoicingLenderPending = $this->invoiceLenderTableQuery('lunas');
 
         return DataTables::of($historyInvoicingLenderPending)
             ->addIndexColumn()
@@ -690,28 +643,26 @@ class LenderController extends Controller
             })
 
             ->addColumn('id_code_lender', function ($row) {
-                return $row->lender->id_code_lender;
+                return $row->id_code_lender;
             })
 
             ->addColumn('nama_lender', function ($row) {
-                return $row->lender->nama;
+                return $row->nama_lender;
             })
 
             ->addColumn('total_pinjaman', function ($row) {
-                return '<span class="badge badge-success">' . $row->lender->total_pinjaman . '</span>';
+                return '<span class="badge badge-success">'.$row->total_pinjaman.'</span>';
             })
 
             ->addColumn('revenue', function ($row) {
-                return "Rp  " .  number_format(
-                    $row->lender->total_biaya_admin + $row->lender->total_biaya_layanan
-                );
+                return 'Rp  '.number_format($row->revenue);
             })
 
             ->addColumn('download', function ($row) {
                 $url = route('admin.lender.invoicing.download', encryptSecure($row->id));
-                return '<a href="' . $url . '" target="_blank"><i class="mdi mdi-download"></i></a>';
-            })
 
+                return '<a href="'.$url.'" target="_blank"><i class="mdi mdi-download"></i></a>';
+            })
 
             ->rawColumns(['total_pinjaman', 'download', 'action', 'pendingApproval'])
             ->only([
@@ -723,11 +674,48 @@ class LenderController extends Controller
                 'nama_lender',
                 'total_pinjaman',
                 'revenue',
-                'download'
+                'download',
             ])
             ->toJson();
     }
 
+    private function invoiceLenderTableQuery(string $status): Builder
+    {
+        $invoiceTable = (new history_invoicing_lender)->getTable();
+        $lenderTable = (new lender)->getTable();
+        $pinjamanTable = (new pinjaman)->getTable();
+        $disbursementTable = (new disbursement)->getTable();
+
+        $matchingPeriodSql = "DATE_FORMAT({$disbursementTable}.created_at, '%Y-%m') = DATE_FORMAT({$invoiceTable}.period, '%Y-%m')";
+
+        return history_invoicing_lender::query()
+            ->where("{$invoiceTable}.status", $status)
+            ->leftJoin($lenderTable, "{$lenderTable}.id", '=', "{$invoiceTable}.id_lender")
+            ->select([
+                "{$invoiceTable}.*",
+                "{$lenderTable}.id_code_lender as id_code_lender",
+                "{$lenderTable}.nama as nama_lender",
+            ])
+            ->withExists(['pendingApproval as has_pending_approval'])
+            ->selectSub(function ($query) use ($invoiceTable, $pinjamanTable, $disbursementTable, $matchingPeriodSql) {
+                $query->from($pinjamanTable)
+                    ->join($disbursementTable, "{$disbursementTable}.pinjaman_id", '=', "{$pinjamanTable}.id")
+                    ->whereColumn("{$pinjamanTable}.id_lender", "{$invoiceTable}.id_lender")
+                    ->whereIn("{$pinjamanTable}.status", ['approve', 'done'])
+                    ->whereNull("{$pinjamanTable}.deleted_at")
+                    ->whereRaw($matchingPeriodSql)
+                    ->selectRaw("COUNT(DISTINCT {$pinjamanTable}.id)");
+            }, 'total_pinjaman')
+            ->selectSub(function ($query) use ($invoiceTable, $pinjamanTable, $disbursementTable, $matchingPeriodSql) {
+                $query->from($pinjamanTable)
+                    ->join($disbursementTable, "{$disbursementTable}.pinjaman_id", '=', "{$pinjamanTable}.id")
+                    ->whereColumn("{$pinjamanTable}.id_lender", "{$invoiceTable}.id_lender")
+                    ->whereIn("{$pinjamanTable}.status", ['approve', 'done'])
+                    ->whereNull("{$pinjamanTable}.deleted_at")
+                    ->whereRaw($matchingPeriodSql)
+                    ->selectRaw("COALESCE(SUM({$pinjamanTable}.biaya_admin_pandu), 0) + COALESCE(SUM({$pinjamanTable}.biaya_layanan), 0)");
+            }, 'revenue');
+    }
 
     public function downloadInvoice(Request $request, $id)
     {
@@ -753,7 +741,7 @@ class LenderController extends Controller
 
         $selectedColumns = $request->get('columns', []);
 
-        if (!is_array($selectedColumns)) {
+        if (! is_array($selectedColumns)) {
             $selectedColumns = [];
         }
 
@@ -786,7 +774,7 @@ class LenderController extends Controller
             ])
             ->first();
 
-        if (!$historyInvoicingLenderPending) {
+        if (! $historyInvoicingLenderPending) {
             abort(404, 'Data invoice tidak ditemukan.');
         }
 
@@ -868,7 +856,7 @@ class LenderController extends Controller
             ]);
 
         return $pdf->stream(
-            'invoice-lender-' . $historyInvoicingLenderPending->no_invoice . '.pdf'
+            'invoice-lender-'.$historyInvoicingLenderPending->no_invoice.'.pdf'
         );
     }
 
@@ -941,6 +929,7 @@ class LenderController extends Controller
     public function approvePendingInvoice()
     {
         $lenderUpdate = history_invoicing_lender_update::query()
+            ->select('history_invoicing_lender_updates.*')
             ->where(function ($query) {
                 $query->where('first_approver_id', '!=', auth('admin')->id())
                     ->orWhereNull('first_approver_id');
@@ -953,55 +942,54 @@ class LenderController extends Controller
                 'history_invoicing.lender',
                 'requester',
                 'first_approver',
-                'second_approver'
-            ])
-            ->get();
-
+                'second_approver',
+            ]);
 
         return DataTables::of($lenderUpdate)
             ->addIndexColumn()
 
-            ->addColumn('waktu', function ($row) {;
+            ->addColumn('waktu', function ($row) {
                 return Carbon::parse($row->created_at)->format('Y-m-d H:i:s');
             })
 
             ->addColumn('requester', function ($row) {
-                return $row->requester->username;
+                return $row->requester?->username ?? '-';
             })
 
             ->addColumn('status_pertama', function ($row) {
-                if ($row->status_pertama == "pending") {
+                if ($row->status_pertama == 'pending') {
                     $badge = '<span class="badge badge-warning">PENDING</span>';
-                } elseif ($row->status_pertama == "reject") {
+                } elseif ($row->status_pertama == 'reject') {
                     $badge = '<span class="badge badge-danger">REJECT</span>';
                 } else {
                     $badge = '<span class="badge badge-success">APPROVE</span>';
                 }
+
                 return $badge;
             })
 
-
             ->addColumn('status_kedua', function ($row) {
-                if ($row->status_kedua == "pending") {
+                if ($row->status_kedua == 'pending') {
                     $badge = '<span class="badge badge-warning">PENDING</span>';
-                } elseif ($row->status_kedua == "reject") {
+                } elseif ($row->status_kedua == 'reject') {
                     $badge = '<span class="badge badge-danger">REJECT</span>';
                 } else {
                     $badge = '<span class="badge badge-success">APPROVE</span>';
                 }
+
                 return $badge;
             })
 
             ->addColumn('first_approver_id', function ($row) {
-                return $row->first_approver == null ? "-" :  $row->first_approver->username;
+                return $row->first_approver == null ? '-' : $row->first_approver->username;
             })
 
             ->addColumn('second_approver_id', function ($row) {
-                return $row->second_approver == null ? "-" :  $row->second_approver->username;
+                return $row->second_approver == null ? '-' : $row->second_approver->username;
             })
 
             ->addColumn('action', function ($row) {
-                return '<button class="btn btn-sm btn-primary mr-2" onclick="editApproval(' . $row->id . ')"><i class="mdi mdi-pencil"></i> </button>';
+                return '<button class="btn btn-sm btn-primary mr-2" onclick="editApproval('.$row->id.')"><i class="mdi mdi-pencil"></i> </button>';
             })
 
             ->rawColumns(['action', 'status_kedua', 'status_pertama'])
@@ -1031,13 +1019,12 @@ class LenderController extends Controller
 
         $invocingLender->update_by = auth('admin')->user()->id;
 
-
         $logData = [
             'old_data' => array_intersect_key($oldData, $changedData), // Ambil data lama hanya untuk kolom yang berubah
-            'new_data' => $changedData
+            'new_data' => $changedData,
         ];
 
-        $lender_updates = new history_invoicing_lender_update();
+        $lender_updates = new history_invoicing_lender_update;
         $lender_updates->invoicing_lender_id = $invocingLender->id;
         $lender_updates->new_data = json_encode($logData);
         $lender_updates->requester_id = auth('admin')->user()->id;
@@ -1067,7 +1054,7 @@ class LenderController extends Controller
                 'history_invoicing.lender',
                 'requester',
                 'first_approver',
-                'second_approver'
+                'second_approver',
             ])
             ->first();
 
@@ -1077,21 +1064,20 @@ class LenderController extends Controller
         ], 200);
     }
 
-
     public function approvalInvoicingAction(Request $req)
     {
         $lender_updates = history_invoicing_lender_update::where('id', $req->id)->first();
         // cek status pertama
-        if ($lender_updates->status_pertama == "pending" || $lender_updates->first_approver_id == null) {
+        if ($lender_updates->status_pertama == 'pending' || $lender_updates->first_approver_id == null) {
             $lender_updates->status_pertama = $req->action;
             $lender_updates->first_approver_id = auth('admin')->user()->id;
-        } elseif ($lender_updates->status_kedua == "pending" || $lender_updates->second_approver_id == null) {
+        } elseif ($lender_updates->status_kedua == 'pending' || $lender_updates->second_approver_id == null) {
             $lender_updates->status_kedua = $req->action;
             $lender_updates->second_approver_id = auth('admin')->user()->id;
         }
         $lender_updates->save();
 
-        if ($lender_updates->status_pertama == "approve" && $lender_updates->status_kedua == "approve") {
+        if ($lender_updates->status_pertama == 'approve' && $lender_updates->status_kedua == 'approve') {
             $lender_invocing = history_invoicing_lender::where('id', $lender_updates->invoicing_lender_id)->first();
 
             if ($lender_invocing) {

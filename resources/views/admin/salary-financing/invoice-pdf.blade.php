@@ -42,7 +42,12 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
     $value; } } return $default; } function formatInvoiceColumnValue(string $column, $value): string { if
     ($column==='provinsi' ) { return ( $value===null || $value==='' || $value==='0' ) ? '-' : (string) $value; } if
     ($column==='iuran_anggota' ) { return 'Rp ' . number_format( cleanRupiahValue($value), 0, ',' , '.' ); } return
-    formatPercentValue($value); } /* |-------------------------------------------------------------------------- | Data
+    formatPercentValue($value); } function salaryInvoicePeriodMonth($items, $invoice): string { $tanggalPencairan =
+    firstFilledValue( $items, 'tanggal_pencairan', $invoice['tanggal_pencairan'] ?? $invoice['tanggal_pembayaran'] ??
+    $invoice['tanggal_transfer'] ?? $invoice['tanggal_pengajuan'] ?? $invoice['tanggal_bukti_transfer'] ??
+    $invoice['created_at'] ?? null ); if (!empty($tanggalPencairan) && $tanggalPencairan !== '-') { try { return
+    \Carbon\Carbon::parse($tanggalPencairan)->translatedFormat('F'); } catch (\Throwable $e) { } } return !empty(
+    $invoice['created_at'] ?? null ) ? \Carbon\Carbon::parse($invoice['created_at'])->translatedFormat('F') : '-'; } /* |-------------------------------------------------------------------------- | Data
     Awal |-------------------------------------------------------------------------- */ $items=$items ?? [];
     $selectedColumns=$selectedColumns ?? [ 'rate' , 'asuransi' , 'provinsi' , 'biaya_admin' , 'biaya_tomi'
     , 'biaya_referal_1' , 'biaya_referal_2' , 'ksp' , 'iuran_anggota' , ]; $invoiceColumnLabels=[ 'rate'=> 'Rate (%)',
@@ -760,6 +765,8 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
         ]);
         }
 
+        $periodeInvoice = salaryInvoicePeriodMonth($itemsByPenempatanKerja, $invoice);
+
         @endphp
 
         <!DOCTYPE html>
@@ -978,41 +985,18 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
 
                     <p>
 
-                        Berikut rincian tagihan biaya TomiGaji pada perusahaan
+                        Berikut adalah rincian tagihan biaya atas penggunaan fasilitas TomiGaji pada aplikasi platform
+                        digital Tomi yang diberikan kepada
 
                         <b>
                             {{ $invoice['nama_perusahaan'] ?? '-' }}
-                        </b>
+                        </b>,
 
-                        yang telah ditransfer pada tanggal
+                        periode
 
                         <b>
-
-                            @php
-                            $tanggalPencairanInvoice = firstFilledValue(
-                            $itemsByPenempatanKerja,
-                            'tanggal_pencairan',
-                            $invoice['tanggal_pencairan']
-                            ?? $invoice['tanggal_pembayaran']
-                            ?? $invoice['tanggal_transfer']
-                            ?? $invoice['tanggal_pengajuan']
-                            ?? $invoice['tanggal_bukti_transfer']
-                            ?? null
-                            );
-                            @endphp
-
-                            {{
-                            !empty($tanggalPencairanInvoice) && $tanggalPencairanInvoice !== '-'
-                            ? \Carbon\Carbon::parse(
-                            $tanggalPencairanInvoice
-                            )->translatedFormat('d F Y')
-                            : '-'
-                            }}
-
-                        </b>
-
-                        oleh Koperasi Simpan Pinjam Dumi Digital Teknologi,
-                        sebagai berikut:
+                            {{ $periodeInvoice }}
+                        </b>;
 
                     </p>
 

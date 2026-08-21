@@ -1,3 +1,42 @@
+@php
+function parseTransferInvoiceDateValue($value) {
+if (empty($value) || $value === '-') {
+return null;
+}
+
+try {
+return \Carbon\Carbon::parse($value);
+} catch (\Throwable $e) {
+return null;
+}
+}
+
+function transferInvoicePeriodText($items, $invoice, string $productName): string {
+$dates = collect($items)
+->map(fn($item) => parseTransferInvoiceDateValue($item['tanggal_pengajuan'] ?? null))
+->filter()
+->values();
+
+$fallbackDate = parseTransferInvoiceDateValue($invoice->created_at ?? null) ?? now();
+
+if ($dates->isEmpty()) {
+$dates = collect([$fallbackDate]);
+}
+
+if ($productName === 'TomiDana') {
+$sortedDates = $dates->sortBy(fn($date) => $date->timestamp)->values();
+$startDate = $sortedDates->first()->copy()->startOfMonth();
+$endDate = $sortedDates->last()->copy()->endOfMonth();
+
+return $startDate->format('Y-m-d') . ' - ' . $endDate->format('Y-m-d');
+}
+
+return $dates->first()->translatedFormat('F');
+}
+
+$productName = $productName ?? 'TomiDana';
+$periodeInvoice = transferInvoicePeriodText($items, $invoice, $productName);
+@endphp
 <!DOCTYPE html>
 <html lang="en">
 
@@ -133,16 +172,9 @@
         <div class="float-left">
             <p><b>Hallo, Koperasi Simpan Pinjam Dumi Digital Teknologi</b></p>
             <p>
-                Berikut rincian tagihan atas layanan pelanggan Fasilitas Pinjaman e-Kasbon pada perusahaan yang
-                telah bekerjasama dengan <b>Koperasi Simpan Pinjam Dumi Digital Teknologi</b> untuk periode
-                <b>
-                    {{ !empty($invoice->created_at) ? '6 ' .
-                    \Carbon\Carbon::parse($invoice->created_at)->translatedFormat('F Y') : '-' }}
-                    -
-                    {{ !empty($invoice->created_at) ? '23 ' .
-                    \Carbon\Carbon::parse($invoice->created_at)->translatedFormat('F Y') : '-' }},
-                </b>
-                sebagai berikut :
+                Berikut adalah rincian tagihan biaya atas penggunaan fasilitas {{ $productName }} pada aplikasi platform
+                digital Tomi yang diberikan kepada <b>{{ $invoice->nama_perusahaan ?? '-' }}</b>, periode
+                <b>{{ $periodeInvoice }}</b>;
             </p>
         </div>
     </div>

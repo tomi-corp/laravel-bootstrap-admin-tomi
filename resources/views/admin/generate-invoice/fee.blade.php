@@ -125,14 +125,20 @@
         </div>
     </div>
 
-    <div class="info-section clearfix">
-        <div class="float-left">
-            <p><b>Hallo, {{ $invoice->nama_perusahaan }}</b></p>
-            <p>Berikut rincian tagihan aplikasi layanan pelanggan digital Pinjaman Payroll TOMI pada KSPDDT pada
-                perusahaan<b> {{ $invoice->nama_perusahaan }}</b>
-                untuk periode <b>{{ date('F Y', strtotime($invoice->created_at)) }} </b></p>
+        <div class="info-section clearfix">
+            <div class="float-left">
+                <p><b>Hallo, {{ $invoice->nama_perusahaan }}</b></p>
+            <p>
+                Berikut adalah rincian tagihan biaya atas penggunaan fasilitas TomiDana pada aplikasi platform digital
+                Tomi yang diberikan kepada <b>{{ $invoice->nama_perusahaan }}</b>, periode
+                <b>
+                    {{ \Carbon\Carbon::parse($invoice->created_at)->startOfMonth()->format('Y-m-d') }}
+                    -
+                    {{ \Carbon\Carbon::parse($invoice->created_at)->endOfMonth()->format('Y-m-d') }}
+                </b>;
+            </p>
+            </div>
         </div>
-    </div>
 
     <table class="main-table">
         <thead>

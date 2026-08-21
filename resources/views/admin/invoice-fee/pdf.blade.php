@@ -18,6 +18,41 @@ $value = str_replace(',', '.', $value);
 return is_numeric($value) ? (float) $value : 0;
 }
 
+function parseInvoiceDateValue($value) {
+if (empty($value) || $value === '-') {
+return null;
+}
+
+try {
+return \Carbon\Carbon::parse($value);
+} catch (\Throwable $e) {
+return null;
+}
+}
+
+function invoiceFeePeriodText($items, $invoice, string $productName): string {
+$dates = collect($items)
+->map(fn($item) => parseInvoiceDateValue($item['tanggal_pengajuan'] ?? null))
+->filter()
+->values();
+
+$fallbackDate = parseInvoiceDateValue($invoice->created_at ?? null) ?? now();
+
+if ($dates->isEmpty()) {
+$dates = collect([$fallbackDate]);
+}
+
+if ($productName === 'TomiDana') {
+$sortedDates = $dates->sortBy(fn($date) => $date->timestamp)->values();
+$startDate = $sortedDates->first()->copy()->startOfMonth();
+$endDate = $sortedDates->last()->copy()->endOfMonth();
+
+return $startDate->format('Y-m-d') . ' - ' . $endDate->format('Y-m-d');
+}
+
+return $dates->first()->translatedFormat('F');
+}
+
 $totalJumlahPinjaman = collect($items)->sum(function ($item) {
 return cleanRupiahValue($item['jumlah_pinjaman'] ?? 0);
 });
@@ -29,6 +64,9 @@ return cleanRupiahValue($item['jumlah_tagihan'] ?? 0);
 $totalFeeTomi = collect($items)->sum(function ($item) {
 return cleanRupiahValue($item['fee_tomi'] ?? $item['fee'] ?? $item['biaya_tomi'] ?? 0);
 });
+
+$productName = $productName ?? 'TomiDana';
+$periodeInvoice = invoiceFeePeriodText($items, $invoice, $productName);
 @endphp
 <!DOCTYPE html>
 <html lang="en">
@@ -176,16 +214,9 @@ return cleanRupiahValue($item['fee_tomi'] ?? $item['fee'] ?? $item['biaya_tomi']
         <div class="float-left">
             <p><b>Halo, Koperasi Simpan Pinjam Dumi Digital Teknologi</b></p>
             <p>
-                Berikut rincian tagihan fee atas layanan pelanggan Fasilitas Pinjaman e-Kasbon pada perusahaan yang
-                telah bekerjasama dengan <b>Koperasi Simpan Pinjam Dumi Digital Teknologi</b> untuk periode<br>
-                <b>
-                    {{ !empty($invoice->created_at) ? '6 ' .
-                    \Carbon\Carbon::parse($invoice->created_at)->translatedFormat('F Y') : '-' }}
-                    -
-                    {{ !empty($invoice->created_at) ? '23 ' .
-                    \Carbon\Carbon::parse($invoice->created_at)->translatedFormat('F Y') : '-' }},
-                </b>
-                sebagai berikut :
+                Berikut adalah rincian tagihan biaya atas penggunaan fasilitas {{ $productName }} pada aplikasi platform
+                digital Tomi yang diberikan kepada <b>{{ $invoice->nama_perusahaan ?? '-' }}</b>, periode
+                <b>{{ $periodeInvoice }}</b>;
             </p>
         </div>
     </div>

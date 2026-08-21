@@ -161,7 +161,7 @@ $totalFee = $perusahaan['total_fee'] ?? 0;
                                     </td>
                                     <td class="text-center">
                                         <div class="d-flex flex-wrap justify-content-center" style="gap: 4px;">
-                                            <a href="{{ route('admin.invoice.fee.pdf', $item['id']) }}"
+                                            <a href="{{ route('admin.invoice.fee.pdf', ['id' => $item['id'], 'product' => 'tomi-invoice']) }}"
                                                 target="_blank" class="btn btn-sm btn-danger" title="Invoice Fee TOMI">
                                                 <i class="mdi mdi-file-pdf-box"></i> Invoice
                                             </a>
@@ -169,7 +169,7 @@ $totalFee = $perusahaan['total_fee'] ?? 0;
                                                 class="btn btn-sm btn-success" title="Download Excel">
                                                 <i class="mdi mdi-file-excel"></i> Excel
                                             </a>
-                                            <a href="{{ route('admin.transfer.request.pdf', $item['id']) }}"
+                                            <a href="{{ route('admin.transfer.request.pdf', ['id' => $item['id'], 'product' => 'tomi-invoice']) }}"
                                                 target="_blank" class="btn btn-sm btn-warning" title="Permintaan Transfer">
                                                 <i class="mdi mdi-cash-multiple"></i> Transfer
                                             </a>

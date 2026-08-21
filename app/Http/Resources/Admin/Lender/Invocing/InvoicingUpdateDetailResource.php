@@ -16,8 +16,8 @@ class InvoicingUpdateDetailResource extends JsonResource
     {
         return [
             'new_data' => $this->new_data,
-            'nama' => $this->history_invoicing->lender->nama,
-            'id_code_lender' =>  $this->history_invoicing->no_invoice,
+            'nama' => $this->history_invoicing?->lender?->nama ?? '-',
+            'id_code_lender' => $this->history_invoicing?->no_invoice ?? '-',
             'status_pertama' => $this->status_pertama,
             'status_kedua' => $this->status_kedua,
         ];

@@ -23,7 +23,9 @@ class history_invoicing_lender extends Model
     public function pendingApproval()
     {
         return $this->hasOne(history_invoicing_lender_update::class, 'invoicing_lender_id', 'id')
-            ->where('status_pertama', 'pending')
-            ->orWhere('status_kedua', 'pending');
+            ->where(function ($query) {
+                $query->where('status_pertama', 'pending')
+                    ->orWhere('status_kedua', 'pending');
+            });
     }
 }

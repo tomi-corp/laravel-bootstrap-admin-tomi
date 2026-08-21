@@ -339,7 +339,7 @@
             },
         }
         ],
-        "lengthMenu": [10, 50, 100, 500, 1000, 2000, 5000, 10000, 50000, 100000],
+        "lengthMenu": [10, 50, 100, 500, 1000],
         processing: true,
         responsive: true,
         serverSide: true,
@@ -398,7 +398,7 @@
             },
         }
         ],
-        "lengthMenu": [10, 50, 100, 500, 1000, 2000, 5000, 10000, 50000, 100000],
+        "lengthMenu": [10, 50, 100, 500, 1000],
         processing: true,
         responsive: true,
         serverSide: true,
@@ -434,69 +434,82 @@
     });
 
 
-    var tableSementaraDone = $('#tableInvoicingDone').DataTable({
-        dom: 'B<"clear">lfrtip',
-        buttons: [{
-            extend: 'excel',
-            className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
-            text: '<span class="mdi mdi-file-excel"><span class="pl-1">Excel</span></span>',
-            header: true,
-            title: 'List Lender',
-            exportOptions: {
-                columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
-            },
-        },
-        {
-            extend: 'copy',
-            className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
-            text: '<span class="mdi mdi-content-copy"><span class="pl-1">Copy</span></span>',
-            header: true,
-            title: 'List Perusahaan',
-            exportOptions: {
-                columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
-
-            },
-        },
-        {
-            extend: 'print',
-            className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
-            text: '<span class="mdi mdi-printer"><span class="pl-1">Print</span></span>',
-            header: true,
-            title: 'List Perusahaan',
-            exportOptions: {
-                columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
-            },
+    var tableSementaraDone = null;
+    const initTableSementaraDone = () => {
+        if (tableSementaraDone) {
+            return tableSementaraDone;
         }
-        ],
-        "lengthMenu": [10, 50, 100, 500, 1000, 2000, 5000, 10000, 50000, 100000],
-        processing: true,
-        responsive: true,
-        serverSide: true,
-        language: {
-            processing: '<i class="dripicons-loading">autorenew</i>'
-        },
-        ajax: {
-            "type": "POST",
-            "url": '{!! route('admin.lender.invoicing.done.table') !!}',
-            "data": function (xx) {
-                return $.extend(xx, dataTable);
+
+        tableSementaraDone = $('#tableInvoicingDone').DataTable({
+            dom: 'B<"clear">lfrtip',
+            buttons: [{
+                extend: 'excel',
+                className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
+                text: '<span class="mdi mdi-file-excel"><span class="pl-1">Excel</span></span>',
+                header: true,
+                title: 'List Lender',
+                exportOptions: {
+                    columns: [0, 1, 2, 3, 4, 5, 6]
+                },
             },
-        },
-        columns: [{
-            data: 'period'
-        }, {
-            data: 'no_invoice'
-        }, {
-            data: 'id_code_lender'
-        }, {
-            data: 'nama_lender'
-        }, {
-            data: 'total_pinjaman'
-        }, {
-            data: 'revenue'
-        }, {
-            data: 'download'
-        }]
+            {
+                extend: 'copy',
+                className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
+                text: '<span class="mdi mdi-content-copy"><span class="pl-1">Copy</span></span>',
+                header: true,
+                title: 'List Perusahaan',
+                exportOptions: {
+                    columns: [0, 1, 2, 3, 4, 5, 6]
+
+                },
+            },
+            {
+                extend: 'print',
+                className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
+                text: '<span class="mdi mdi-printer"><span class="pl-1">Print</span></span>',
+                header: true,
+                title: 'List Perusahaan',
+                exportOptions: {
+                    columns: [0, 1, 2, 3, 4, 5, 6]
+                },
+            }
+            ],
+            "lengthMenu": [10, 50, 100, 500, 1000],
+            processing: true,
+            responsive: true,
+            serverSide: true,
+            language: {
+                processing: '<i class="dripicons-loading">autorenew</i>'
+            },
+            ajax: {
+                "type": "POST",
+                "url": '{!! route('admin.lender.invoicing.done.table') !!}',
+                "data": function (xx) {
+                    return $.extend(xx, dataTable);
+                },
+            },
+            columns: [{
+                data: 'period'
+            }, {
+                data: 'no_invoice'
+            }, {
+                data: 'id_code_lender'
+            }, {
+                data: 'nama_lender'
+            }, {
+                data: 'total_pinjaman'
+            }, {
+                data: 'revenue'
+            }, {
+                data: 'download'
+            }]
+        });
+
+        return tableSementaraDone;
+    };
+
+    $('#nav-profile-tab').on('shown.bs.tab', function () {
+        initTableSementaraDone();
     });
 
     var tableApproval = $('#tableApprovalInvoice').DataTable({
@@ -533,7 +546,7 @@
             },
         }
         ],
-        "lengthMenu": [10, 50, 100, 500, 1000, 2000, 5000, 10000, 50000, 100000],
+        "lengthMenu": [10, 50, 100, 500, 1000],
         processing: true,
         responsive: true,
         serverSide: true,
@@ -600,7 +613,9 @@
                 tableSementara.ajax.reload();
                 tableApproval.ajax.reload();
                 tableSementaraPending.ajax.reload();
-                tableSementaraDone.ajax.reload();
+                if (tableSementaraDone) {
+                    tableSementaraDone.ajax.reload();
+                }
                 $("#modalHistoryUpdate").modal('hide');
                 $('#buttonSubmitEdit').attr("disabled", false);
                 $('#loadingTextEdit').removeClass("spinner-border");
@@ -686,7 +701,9 @@
                 tableSementara.ajax.reload();
                 tableApproval.ajax.reload();
                 tableSementaraPending.ajax.reload();
-                tableSementaraDone.ajax.reload();
+                if (tableSementaraDone) {
+                    tableSementaraDone.ajax.reload();
+                }
                 $("#modalApproveEdit").modal('hide');
                 $('#buttonSubmitApprove').attr("disabled", false);
                 $('#loadingTextApprove').removeClass("spinner-border");
@@ -696,7 +713,9 @@
                 tableSementara.ajax.reload();
                 tableApproval.ajax.reload();
                 tableSementaraPending.ajax.reload();
-                tableSementaraDone.ajax.reload();
+                if (tableSementaraDone) {
+                    tableSementaraDone.ajax.reload();
+                }
                 $("#modalApproveEdit").modal('hide');
                 $('#buttonSubmitApprove').attr("disabled", false);
                 $('#loadingTextApprove').removeClass("spinner-border");
