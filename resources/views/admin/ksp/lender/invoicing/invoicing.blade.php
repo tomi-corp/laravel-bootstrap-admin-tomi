@@ -271,7 +271,7 @@ $jumlahKolomSebelumRate++;
         th,
         td {
             padding: 5px 4px;
-            vertical-align: top;
+            vertical-align: middle;
             border-left: none;
             border-right: none;
             color: #000;
@@ -283,7 +283,8 @@ $jumlahKolomSebelumRate++;
         }
 
         th {
-            text-align: left;
+            text-align: center;
+            vertical-align: middle;
             font-size: 8.5px;
             font-weight: bold;
             background: none;
@@ -331,8 +332,13 @@ $jumlahKolomSebelumRate++;
         }
 
         .amount {
+            text-align: right;
             white-space: nowrap;
             font-size: 8.5px;
+        }
+
+        .number-cell {
+            text-align: center;
         }
 
         .summary-box {
@@ -540,7 +546,7 @@ $jumlahKolomSebelumRate++;
                             @endphp
 
                             <tr>
-                                <td>{{ $xxx }}</td>
+                                <td class="number-cell">{{ $xxx }}</td>
 
                                 @if ($showTanggalPinjaman)
                                 <td>
@@ -561,37 +567,37 @@ $jumlahKolomSebelumRate++;
                                 @endif
 
                                 @if ($showNominalPinjaman)
-                                <td>
+                                <td class="amount">
                                     Rp {{ number_format($nominalPinjaman, 0, ',', '.') }}
                                 </td>
                                 @endif
 
                                 @if ($showRate)
-                                <td>
+                                <td class="amount">
                                     Rp {{ number_format($rate, 0, ',', '.') }}
                                 </td>
                                 @endif
 
                                 @if ($showFeeTomi)
-                                <td>
+                                <td class="amount">
                                     Rp {{ number_format($feeTomi, 0, ',', '.') }}
                                 </td>
                                 @endif
 
                                 @if ($showBiayaLayanan)
-                                <td>
+                                <td class="amount">
                                     Rp {{ number_format($biayaLayanan, 0, ',', '.') }}
                                 </td>
                                 @endif
 
                                 @if ($showBiayaAdmin)
-                                <td>
+                                <td class="amount">
                                     Rp {{ number_format($biayaAdmin, 0, ',', '.') }}
                                 </td>
                                 @endif
 
                                 @if ($showTotal)
-                                <td>
+                                <td class="amount">
                                     Rp {{ number_format($subtotal, 0, ',', '.') }}
                                 </td>
                                 @endif
@@ -603,36 +609,36 @@ $jumlahKolomSebelumRate++;
                             @endforeach
 
                             <tr class="total-row">
-                                <td colspan="{{ $jumlahKolomSebelumRate }}">
+                                <td colspan="{{ $jumlahKolomSebelumRate }}" class="number-cell">
                                     <b>Total</b>
                                 </td>
 
                                 @if ($showRate)
-                                <td>
+                                <td class="amount">
                                     <b>Rp {{ number_format($totalRate, 0, ',', '.') }}</b>
                                 </td>
                                 @endif
 
                                 @if ($showFeeTomi)
-                                <td>
+                                <td class="amount">
                                     <b>Rp {{ number_format($totalFeeTomi, 0, ',', '.') }}</b>
                                 </td>
                                 @endif
 
                                 @if ($showBiayaLayanan)
-                                <td>
+                                <td class="amount">
                                     <b>Rp {{ number_format($totalBiayaLayanan, 0, ',', '.') }}</b>
                                 </td>
                                 @endif
 
                                 @if ($showBiayaAdmin)
-                                <td>
+                                <td class="amount">
                                     <b>Rp {{ number_format($totalBiayaAdmin, 0, ',', '.') }}</b>
                                 </td>
                                 @endif
 
                                 @if ($showTotal)
-                                <td>
+                                <td class="amount">
                                     <b>Rp {{ number_format($totalKeseluruhan, 0, ',', '.') }}</b>
                                 </td>
                                 @endif
