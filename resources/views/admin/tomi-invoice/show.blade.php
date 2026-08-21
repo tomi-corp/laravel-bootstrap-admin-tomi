@@ -38,6 +38,12 @@
         white-space: normal !important;
     }
 
+    .term-cell .term-amount {
+        font-weight: 700;
+        line-height: 1.45;
+        margin-bottom: 2px;
+    }
+
     .term-cell .term-line {
         line-height: 1.45;
         margin-bottom: 2px;
@@ -172,9 +178,7 @@ $totalFee = $perusahaan['total_fee'] ?? 0;
                                     @endphp
                                     <td class="term-cell">
                                         @if($term)
-                                        <div class="term-line">
-                                            <b>{{ number_format($term['term_percentage'] ?? 0, 2, ',', '.') }}%</b>
-                                            -
+                                        <div class="term-amount">
                                             Rp {{ number_format($term['term_amount'] ?? 0, 0, ',', '.') }}
                                         </div>
                                         <div class="term-line">

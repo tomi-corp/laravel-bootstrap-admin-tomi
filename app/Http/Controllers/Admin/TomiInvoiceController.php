@@ -114,6 +114,13 @@ class TomiInvoiceController extends Controller
         $pdf = Pdf::loadView('admin.tomi-invoice.term-invoice-pdf', [
             'invoice' => $termInvoice,
             'rawInvoice' => $invoice,
+            'rekening' => (object) [
+                'atas_nama' => 'PT. TOKO MIKRO INDONESIA',
+                'nomor_rekening' => '2011113338',
+                'bank' => (object) [
+                    'code_bank' => 'BRI',
+                ],
+            ],
         ])->setPaper('a4', 'portrait')
             ->setOptions([
                 'isHtml5ParserEnabled' => true,

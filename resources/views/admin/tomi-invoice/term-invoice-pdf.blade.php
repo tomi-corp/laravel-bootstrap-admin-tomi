@@ -106,6 +106,26 @@ function termInvoiceRupiah($value): string
             font-size: 10px;
             line-height: 1.5;
         }
+
+        .payment-note {
+            clear: both;
+            margin-top: 20px;
+            font-size: 10px;
+            line-height: 1.5;
+            page-break-inside: avoid;
+        }
+
+        .payment-note p {
+            margin: 4px 0 8px;
+        }
+
+        .bank-info {
+            border: 1px dashed #999;
+            display: block;
+            margin-top: 8px;
+            padding: 10px 12px;
+            width: 330px;
+        }
     </style>
 </head>
 
@@ -153,7 +173,7 @@ function termInvoiceRupiah($value): string
         <tr>
             <td>Termin</td>
             <td>:</td>
-            <td>Termin {{ $invoice['term'] ?? '-' }} ({{ number_format($invoice['term_percentage'] ?? 0, 2, ',', '.') }}%)</td>
+            <td>Termin {{ $invoice['term'] ?? '-' }}</td>
         </tr>
     </table>
 
@@ -180,7 +200,7 @@ function termInvoiceRupiah($value): string
             </tr>
             <tr>
                 <td align="center">3</td>
-                <td>Rate TomiInvoice ({{ number_format($invoice['rate'] ?? 0, 2, ',', '.') }}%)</td>
+                <td>Fee TomiInvoice</td>
                 <td class="amount">{{ termInvoiceRupiah(($invoice['term_amount'] ?? 0) * (($invoice['rate'] ?? 0) / 100)) }}</td>
             </tr>
             <tr>
@@ -198,6 +218,16 @@ function termInvoiceRupiah($value): string
     <div class="note">
         <b>Catatan:</b><br>
         Invoice ini dibuat berdasarkan data financing request invoice dan konfigurasi termin pembayaran vendor.
+    </div>
+
+    <div class="payment-note">
+        <b>Catatan Pembayaran:</b>
+        <p>Harap melakukan pembayaran ke rekening Toko Mikro berikut:</p>
+        <div class="bank-info">
+            <b>BANK {{ $rekening->bank->code_bank ?? '-' }}</b><br>
+            Atas Nama : <b>{{ $rekening->atas_nama ?? 'PT. TOKO MIKRO INDONESIA' }}</b><br>
+            No. Rekening : <b>{{ $rekening->nomor_rekening ?? '-' }}</b>
+        </div>
     </div>
 </body>
 
