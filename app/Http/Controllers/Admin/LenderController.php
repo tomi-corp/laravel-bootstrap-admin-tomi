@@ -851,7 +851,7 @@ class LenderController extends Controller
             ->setPaper('legal', 'landscape')
             ->setOptions([
                 'isHtml5ParserEnabled' => true,
-                'isRemoteEnabled' => true,
+                'isRemoteEnabled' => false,
                 'defaultFont' => 'DejaVu Sans',
             ]);
 

@@ -364,7 +364,7 @@ $jumlahKolomSebelumRate++;
 
             <div class="clearfix">
                 <div class="float-left">
-                    <img src="{{ asset('assets/images/logo.jpg') }}" alt="Logo" class="logo">
+                    <img src="{{ public_path('assets/images/logo.jpg') }}" alt="Logo" class="logo">
                 </div>
             </div>
 
@@ -374,14 +374,12 @@ $jumlahKolomSebelumRate++;
                 </p>
 
                 <p class="text-muted intro-text">
-                    Berikut rincian tagihan Fasilitas Pinjaman e-Kasbon aplikasi layanan digital TOMI kepada
-                    {{ $historyInvoicingLenderPending->lender->nama ?? '-' }} Pada Tanggal
-
-                    <b>
-                        {{ Carbon::parse($historyInvoicingLenderPending->period)->firstOfMonth()->format('Y-m-d') }}
+                    Berikut adalah rincian tagihan biaya atas penggunaan fasilitas TomiDana pada aplikasi platform
+                    digital Tomi yang diberikan kepada
+                    <b>{{ $historyInvoicingLenderPending->lender->nama ?? '-' }}</b>, periode
+                    <b>{{ Carbon::parse($historyInvoicingLenderPending->period)->firstOfMonth()->format('Y-m-d') }}
                         -
-                        {{ Carbon::parse($historyInvoicingLenderPending->period)->endOfMonth()->format('Y-m-d') }}
-                    </b>
+                        {{ Carbon::parse($historyInvoicingLenderPending->period)->endOfMonth()->format('Y-m-d') }}</b>;
 
                     <br>
 
