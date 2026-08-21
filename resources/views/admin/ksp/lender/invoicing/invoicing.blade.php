@@ -11,6 +11,10 @@ $totalBiayaAdmin = 0;
 $totalKeseluruhan = 0;
 
 $selectedColumns = $selectedColumns ?? [];
+$logoPath = public_path('assets/images/logo.jpg');
+$logoSrc = file_exists($logoPath)
+    ? 'data:image/jpeg;base64,' . base64_encode(file_get_contents($logoPath))
+    : '';
 
 /*
 |--------------------------------------------------------------------------
@@ -364,7 +368,9 @@ $jumlahKolomSebelumRate++;
 
             <div class="clearfix">
                 <div class="float-left">
-                    <img src="{{ public_path('assets/images/logo.jpg') }}" alt="Logo" class="logo">
+                    @if ($logoSrc)
+                    <img src="{{ $logoSrc }}" alt="Logo" class="logo">
+                    @endif
                 </div>
             </div>
 
