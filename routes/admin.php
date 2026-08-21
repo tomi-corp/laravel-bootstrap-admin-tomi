@@ -217,6 +217,10 @@ Route::middleware(['AdminMiddleware'])->group(
                 Route::get('invoice-financing/{id}', [TomiInvoiceController::class, 'show'])
                     ->name('admin.invoice-financing.show');
 
+                Route::get('invoice-financing/{id}/term/{term}/download', [TomiInvoiceController::class, 'downloadTermInvoice'])
+                    ->whereNumber('term')
+                    ->name('admin.invoice-financing.term.download');
+
                 Route::get('gadget-installment',
                     [GadgetInstallmentController::class, 'index'])->name('admin.gadget-installment.index');
 

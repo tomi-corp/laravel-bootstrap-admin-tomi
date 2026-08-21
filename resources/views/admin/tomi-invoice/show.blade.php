@@ -13,7 +13,7 @@
 
     #detailTable {
         width: 100% !important;
-        min-width: 1200px;
+        min-width: 1700px;
         white-space: nowrap;
     }
 
@@ -31,6 +31,20 @@
 
     .text-nowrap {
         white-space: nowrap !important;
+    }
+
+    .term-cell {
+        min-width: 220px;
+        white-space: normal !important;
+    }
+
+    .term-cell .term-line {
+        line-height: 1.45;
+        margin-bottom: 2px;
+    }
+
+    .term-cell .btn {
+        margin-top: 4px;
     }
 </style>
 @endpush
@@ -80,7 +94,7 @@ $totalFee = $perusahaan['total_fee'] ?? 0;
                     <div class="media-body">
                         <h5 class="mt-0 mb-1">Total Pinjaman</h5>
                         <h3 class="mb-1">Rp {{ number_format($totalPinjaman, 0, ',', '.') }}</h3>
-                        <p class="text-muted mb-0">Total nilai pinjaman</p>
+                        <p class="text-muted mb-0">Total nilai pembiayaan</p>
                     </div>
                 </div>
             </div>
@@ -95,7 +109,7 @@ $totalFee = $perusahaan['total_fee'] ?? 0;
                     <div class="media-body">
                         <h5 class="mt-0 mb-1">Total Dibayarkan</h5>
                         <h3 class="mb-1">Rp {{ number_format($totalDibayarkan, 0, ',', '.') }}</h3>
-                        <p class="text-muted mb-0">Total yang sudah dibayarkan</p>
+                        <p class="text-muted mb-0">Total nominal termin</p>
                     </div>
                 </div>
             </div>
@@ -110,7 +124,7 @@ $totalFee = $perusahaan['total_fee'] ?? 0;
                     <div class="media-body">
                         <h5 class="mt-0 mb-1">Fee Tomi</h5>
                         <h3 class="mb-1">Rp {{ number_format($totalFee, 0, ',', '.') }}</h3>
-                        <p class="text-muted mb-0">Total fee terakumulasi</p>
+                        <p class="text-muted mb-0">Total invoice fee</p>
                     </div>
                 </div>
             </div>
@@ -130,15 +144,17 @@ $totalFee = $perusahaan['total_fee'] ?? 0;
                             <thead class="thead-light">
                                 <tr>
                                     <th width="60">No</th>
-                                    <th>Nama Perusahaan</th>
+                                    <th>Client</th>
+                                    <th>Vendor</th>
                                     <th>Nomor Invoice</th>
-                                    <th>Nama File</th>
-                                    <th>Total Peminjam</th>
-                                    <th>Total Pinjaman</th>
-                                    <th>Total Dibayarkan</th>
-                                    <th>Fee Tomi</th>
-                                    <th>Tanggal Import</th>
-                                    <th class="text-center">Action</th>
+                                    <th>No. PO</th>
+                                    <th>Nilai Pembiayaan</th>
+                                    <th>Termin 1</th>
+                                    <th>Termin 2</th>
+                                    <th>Termin 3</th>
+                                    <th>Total Termin</th>
+                                    <th>Total Invoice Fee</th>
+                                    <th>Status</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -146,39 +162,56 @@ $totalFee = $perusahaan['total_fee'] ?? 0;
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $item['nama_perusahaan'] ?? $namaPerusahaan }}</td>
+                                    <td>{{ $item['vendor_name'] ?? '-' }}</td>
                                     <td>{{ $item['nomor_invoice'] ?? '-' }}</td>
-                                    <td title="{{ $item['filename'] ?? '-' }}">{{ $item['filename'] ?? '-' }}</td>
-                                    <td>{{ number_format($item['jumlah_peminjam'] ?? 0, 0, ',', '.') }}</td>
-                                    <td>Rp {{ number_format($item['total_pinjaman'] ?? 0, 0, ',', '.') }}</td>
-                                    <td>Rp {{ number_format($item['total_dibayarkan'] ?? 0, 0, ',', '.') }}</td>
-                                    <td>Rp {{ number_format($item['total_fee'] ?? 0, 0, ',', '.') }}</td>
-                                    <td>
-                                        @if(!empty($item['created_at']))
-                                        {{ \Carbon\Carbon::parse($item['created_at'])->format('d-m-Y H:i') }}
+                                    <td>{{ $item['purchase_order_number'] ?? '-' }}</td>
+                                    <td>Rp {{ number_format($item['approved_financing_amount'] ?? 0, 0, ',', '.') }}</td>
+                                    @for($termNumber = 1; $termNumber <= 3; $termNumber++)
+                                    @php
+                                    $term = $item['terms'][$termNumber] ?? null;
+                                    @endphp
+                                    <td class="term-cell">
+                                        @if($term)
+                                        <div class="term-line">
+                                            <b>{{ number_format($term['term_percentage'] ?? 0, 2, ',', '.') }}%</b>
+                                            -
+                                            Rp {{ number_format($term['term_amount'] ?? 0, 0, ',', '.') }}
+                                        </div>
+                                        <div class="term-line">
+                                            Fee: Rp {{ number_format($term['total_fee'] ?? 0, 0, ',', '.') }}
+                                        </div>
+                                        <div class="term-line">
+                                            Tanggal:
+                                            @if(!empty($term['finance_invoice_term_date']))
+                                            {{ \Carbon\Carbon::parse($term['finance_invoice_term_date'])->format('d-m-Y') }}
+                                            @else
+                                            -
+                                            @endif
+                                        </div>
+
+                                        @if($term['can_download'] ?? false)
+                                        <a href="{{ route('admin.invoice-financing.term.download', ['id' => $term['invoice_id'], 'term' => $term['term']]) }}"
+                                            target="_blank" class="btn btn-sm btn-danger" title="Download Invoice Termin {{ $termNumber }}">
+                                            <i class="mdi mdi-file-pdf-box"></i> Invoice
+                                        </a>
+                                        @else
+                                        <button type="button" class="btn btn-sm btn-secondary" disabled
+                                            title="Termin sebelumnya belum selesai diproses">
+                                            <i class="mdi mdi-lock"></i> Terkunci
+                                        </button>
+                                        @endif
                                         @else
                                         -
                                         @endif
                                     </td>
-                                    <td class="text-center">
-                                        <div class="d-flex flex-wrap justify-content-center" style="gap: 4px;">
-                                            <a href="{{ route('admin.invoice.fee.pdf', ['id' => $item['id'], 'product' => 'tomi-invoice']) }}"
-                                                target="_blank" class="btn btn-sm btn-danger" title="Invoice Fee TOMI">
-                                                <i class="mdi mdi-file-pdf-box"></i> Invoice
-                                            </a>
-                                            <a href="{{ route('admin.generate.invoice.download.excel', $item['id']) }}"
-                                                class="btn btn-sm btn-success" title="Download Excel">
-                                                <i class="mdi mdi-file-excel"></i> Excel
-                                            </a>
-                                            <a href="{{ route('admin.transfer.request.pdf', ['id' => $item['id'], 'product' => 'tomi-invoice']) }}"
-                                                target="_blank" class="btn btn-sm btn-warning" title="Permintaan Transfer">
-                                                <i class="mdi mdi-cash-multiple"></i> Transfer
-                                            </a>
-                                        </div>
-                                    </td>
+                                    @endfor
+                                    <td>Rp {{ number_format($item['total_dibayarkan'] ?? 0, 0, ',', '.') }}</td>
+                                    <td>Rp {{ number_format($item['total_fee'] ?? 0, 0, ',', '.') }}</td>
+                                    <td>{{ strtoupper(str_replace('_', ' ', $item['status'] ?? '-')) }}</td>
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="10" class="text-center text-muted">Belum ada data TomiInvoice.</td>
+                                    <td colspan="12" class="text-center text-muted">Belum ada data TomiInvoice.</td>
                                 </tr>
                                 @endforelse
                             </tbody>
@@ -205,7 +238,7 @@ $totalFee = $perusahaan['total_fee'] ?? 0;
                 scrollX: true,
                 autoWidth: false,
                 ordering: true,
-                order: [[8, 'desc']],
+                order: [[3, 'desc']],
                 columnDefs: [{
                     targets: '_all',
                     className: 'text-nowrap'
