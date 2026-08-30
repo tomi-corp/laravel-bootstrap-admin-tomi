@@ -26,6 +26,22 @@ return [
         'key' => env('SECRET_G_CAPTCHA', null)
     ],
 
+    'verihubs' => [
+        'app_id' => env('VERIHUBS_APP_ID'),
+        'api_key' => env('VERIHUBS_API_KEY'),
+        'base_url' => env('VERIHUBS_BASE_URL', 'https://api.verihubs.com'),
+        'otp_path' => '/v2/whatsapp/otp/send',
+        'otp_template' => env('VERIHUBS_OTP_TEMPLATE', 'otp_tomi'),
+        'lang_code' => env('VERIHUBS_LANG_CODE', 'id'),
+        'time_limit' => env('VERIHUBS_TIME_LIMIT', 60),
+    ],
+
+    'buylink' => [
+        'base_url' => env('BUYLINK_BASE_URL', 'https://mitra.buylink.id'),
+        'user_token' => env('BUYLINK_USER_TOKEN'),
+        'leader_token' => env('BUYLINK_LEADER_TOKEN'),
+    ],
+
     'postmark' => [
         'token' => env('POSTMARK_TOKEN'),
     ],

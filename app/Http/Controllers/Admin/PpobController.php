@@ -11,6 +11,25 @@ use Illuminate\Support\Facades\Http;
 
 class PpobController extends Controller
 {
+    private function buylinkUrl(string $path): string
+    {
+        return rtrim(config('services.buylink.base_url'), '/') . $path;
+    }
+
+    private function buylinkUserHeaders(): array
+    {
+        return [
+            'Authorization' => 'Bearer ' . config('services.buylink.user_token')
+        ];
+    }
+
+    private function buylinkLeaderHeaders(): array
+    {
+        return [
+            'Authorization' => 'Bearer ' . config('services.buylink.leader_token')
+        ];
+    }
+
     public function komisiIndex()
     {
         return view('admin.ppob.komisi.index');
@@ -33,12 +52,10 @@ class PpobController extends Controller
             $time2 = $time->format('Y-m-d');
         }
 
-        $url = "https://mitra.buylink.id/api/user/report/transaction/summary?start_date=" . $time1 . "&end_date=" . $time2 . "&status=sukses";
+        $url = $this->buylinkUrl("/api/user/report/transaction/summary?start_date=" . $time1 . "&end_date=" . $time2 . "&status=sukses");
         $response = Http::withoutVerifying()
             ->withOptions(["verify" => false])
-            ->withHeaders([
-                'Authorization' => 'Bearer Vxx2OfFdXfLPjW0X2fHTGkd3MBC3Ldw7Zj7yx64Z474e0df2'
-            ])
+            ->withHeaders($this->buylinkUserHeaders())
             ->get($url);
         $data = json_decode($response);
         return response()->json([
@@ -55,12 +72,10 @@ class PpobController extends Controller
     {
 
         $time = Carbon::now();
-        $url = "https://mitra.buylink.id/api/user/report/postpaid/transaction/summary?start_date=" . $time->format("Y-m-d") . "&end_date=" . $time->format("Y-m-d") . "&status=sukses";
+        $url = $this->buylinkUrl("/api/user/report/postpaid/transaction/summary?start_date=" . $time->format("Y-m-d") . "&end_date=" . $time->format("Y-m-d") . "&status=sukses");
         $response = Http::withoutVerifying()
             ->withOptions(["verify" => false])
-            ->withHeaders([
-                'Authorization' => 'Bearer Vxx2OfFdXfLPjW0X2fHTGkd3MBC3Ldw7Zj7yx64Z474e0df2'
-            ])
+            ->withHeaders($this->buylinkUserHeaders())
             ->get($url);
         $data = json_decode($response);
         return response()->json([
@@ -82,7 +97,7 @@ class PpobController extends Controller
     public function prepaidTransactionTable(Request $req)
     {
 
-        $urlBase = "https://mitra.buylink.id/api/user/report/transaction";
+        $urlBase = $this->buylinkUrl("/api/user/report/transaction");
 
         if (isset($req->filterRangePicker)) {
             $time = explode(" - ", $req->filterRangePicker);
@@ -110,9 +125,7 @@ class PpobController extends Controller
         $urlBase = $urlBase . '&page=' . $req->pageTable;
         $response = Http::withoutVerifying()
             ->withOptions(["verify" => false])
-            ->withHeaders([
-                'Authorization' => 'Bearer Vxx2OfFdXfLPjW0X2fHTGkd3MBC3Ldw7Zj7yx64Z474e0df2'
-            ])
+            ->withHeaders($this->buylinkUserHeaders())
             ->get($urlBase);
         $data = json_decode($response);
 
@@ -126,7 +139,7 @@ class PpobController extends Controller
 
     public function postpaidTransactionTable(Request $req)
     {
-        $urlBase = "https://mitra.buylink.id/api/user/report/postpaid/transaction";
+        $urlBase = $this->buylinkUrl("/api/user/report/postpaid/transaction");
         if (isset($req->filterRangePicker)) {
             $time = explode(" - ", $req->filterRangePicker);
             $time1 = Carbon::parse($time[0])->format('Y-m-d');
@@ -153,9 +166,7 @@ class PpobController extends Controller
         $urlBase = $urlBase . '&page=' . $req->pageTable;
         $response = Http::withoutVerifying()
             ->withOptions(["verify" => false])
-            ->withHeaders([
-                'Authorization' => 'Bearer Vxx2OfFdXfLPjW0X2fHTGkd3MBC3Ldw7Zj7yx64Z474e0df2'
-            ])
+            ->withHeaders($this->buylinkUserHeaders())
             ->get($urlBase);
         $data = json_decode($response);
 
@@ -174,23 +185,19 @@ class PpobController extends Controller
         $time1 = Carbon::parse($time[0])->format('Y-m-d');
         $time2 = Carbon::parse($time[1])->format('Y-m-d');
 
-        $urlPostPaid = 'https://mitra.buylink.id/api/user/leader/transaction/summary?start_date=' . $time1 . '&end_date=' . $time2 . '&type=postpaid';
-        $urlPrePaid = 'https://mitra.buylink.id/api/user/leader/transaction/summary?start_date=' . $time1 . '&end_date=' . $time2 . '&type=prepaid';
+        $urlPostPaid = $this->buylinkUrl('/api/user/leader/transaction/summary?start_date=' . $time1 . '&end_date=' . $time2 . '&type=postpaid');
+        $urlPrePaid = $this->buylinkUrl('/api/user/leader/transaction/summary?start_date=' . $time1 . '&end_date=' . $time2 . '&type=prepaid');
 
         // postpaid
         $responsePostPaid = Http::withoutVerifying()
             ->withOptions(["verify" => false])
-            ->withHeaders([
-                'Authorization' => 'Bearer QKtaGpZoL2NPLKlaPhliPV0rQU7ohHXzcEiZldUc335a0321'
-            ])
+            ->withHeaders($this->buylinkLeaderHeaders())
             ->get($urlPostPaid);
         $dataPostpaid = json_decode($responsePostPaid);
         // prepaid
         $responsePrePaid = Http::withoutVerifying()
             ->withOptions(["verify" => false])
-            ->withHeaders([
-                'Authorization' => 'Bearer QKtaGpZoL2NPLKlaPhliPV0rQU7ohHXzcEiZldUc335a0321'
-            ])
+            ->withHeaders($this->buylinkLeaderHeaders())
             ->get($urlPrePaid);
         $dataPrepaid = json_decode($responsePrePaid);
 

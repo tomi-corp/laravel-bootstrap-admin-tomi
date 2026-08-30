@@ -16,6 +16,18 @@ use Illuminate\Support\Facades\Http;
 
 class HistoryController extends Controller
 {
+    private function buylinkUrl(string $path): string
+    {
+        return rtrim(config('services.buylink.base_url'), '/') . $path;
+    }
+
+    private function buylinkUserHeaders(): array
+    {
+        return [
+            'Authorization' => 'Bearer ' . config('services.buylink.user_token')
+        ];
+    }
+
     public function history(Request $req)
     {
         $user = auth('api')->user();
@@ -35,21 +47,17 @@ class HistoryController extends Controller
             $menu = menu_mobile::where('path', 'ppob')->first();
             $phone = substr($user->nohp, 2);
             $phoneFinal = '0' . $phone;
-            $urlPPOBPrepaid = 'https://mitra.buylink.id/api/user/report/transaction?start_date=' . $time1 . '&end_date=' . $time2 . '&customer_phone=' . $phoneFinal . '&page=' . $req->page . '';
-            $urlPPOBPostPaid = 'https://mitra.buylink.id/api/user/report/postpaid/transaction?start_date=' . $time1 . '&end_date=' . $time2 . '&customer_phone=' . $phoneFinal . '&page=' . $req->page . '';
+            $urlPPOBPrepaid = $this->buylinkUrl('/api/user/report/transaction?start_date=' . $time1 . '&end_date=' . $time2 . '&customer_phone=' . $phoneFinal . '&page=' . $req->page);
+            $urlPPOBPostPaid = $this->buylinkUrl('/api/user/report/postpaid/transaction?start_date=' . $time1 . '&end_date=' . $time2 . '&customer_phone=' . $phoneFinal . '&page=' . $req->page);
             // postpaid
             $responsePrepaid = Http::withoutVerifying()
                 ->withOptions(["verify" => false])
-                ->withHeaders([
-                    'Authorization' => 'Bearer Vxx2OfFdXfLPjW0X2fHTGkd3MBC3Ldw7Zj7yx64Z474e0df2'
-                ])
+                ->withHeaders($this->buylinkUserHeaders())
                 ->get($urlPPOBPrepaid);
 
             $responsePostPaid = Http::withoutVerifying()
                 ->withOptions(["verify" => false])
-                ->withHeaders([
-                    'Authorization' => 'Bearer Vxx2OfFdXfLPjW0X2fHTGkd3MBC3Ldw7Zj7yx64Z474e0df2'
-                ])
+                ->withHeaders($this->buylinkUserHeaders())
                 ->get($urlPPOBPostPaid);    
 
 

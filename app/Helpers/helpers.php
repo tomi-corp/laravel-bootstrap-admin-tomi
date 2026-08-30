@@ -18,20 +18,20 @@ if (! function_exists('sendOTPWhatsapp')) {
     function sendOTPWhatsapp($nohp, $code)
     {
         $client = new Client(['verify' => false]);
-        $uri = 'https://api.verihubs.com/v2/whatsapp/otp/send';
+        $uri = rtrim(config('services.verihubs.base_url'), '/') . '/' . ltrim(config('services.verihubs.otp_path'), '/');
         $body = [
             "msisdn" => $nohp,
             "otp" => (string) $code,
-            "time_limit" => 60,
-            "template_name" => "otp_tomi",
-            "lang_code" => "id",
+            "time_limit" => (int) config('services.verihubs.time_limit'),
+            "template_name" => config('services.verihubs.otp_template'),
+            "lang_code" => config('services.verihubs.lang_code'),
         ];
 
         $res = $client->request('POST', $uri, [
             'body' => json_encode($body),
             'headers' => [
-                'APP-ID' => '4ac45ece-4051-4ff5-a597-bde23bcf17d3',
-                'API-Key' => 'rlelTbhhJE1xub2TeGE7psMYd+Ztxix6',
+                'APP-ID' => config('services.verihubs.app_id'),
+                'API-Key' => config('services.verihubs.api_key'),
                 'Content-Type' => 'application/json',
                 'Accept' => 'application/json'
             ]
