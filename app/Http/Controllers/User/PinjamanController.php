@@ -91,6 +91,11 @@ class PinjamanController extends Controller
         return null;
     }
 
+    private function isKaryawanTetap($karyawan): bool
+    {
+        return strtolower(trim((string) $karyawan?->status)) === 'tetap';
+    }
+
     private function renderPkHtml(pinjaman $pinjaman, User $user)
     {
 
@@ -508,12 +513,19 @@ class PinjamanController extends Controller
             }, 'amount_pinjaman', 'lender'])
             ->first();
 
-        if (! isset($perusahaan) && ! isset($perusahaan->karyawanSingle)) {
+        if (! isset($perusahaan) || ! isset($perusahaan->karyawanSingle)) {
             return response()->json([
                 'status' => 400,
                 'message' => 'Data NIP tidak ditemukan',
             ], 400);
         } else {
+            if (! $this->isKaryawanTetap($perusahaan->karyawanSingle)) {
+                return response()->json([
+                    'status' => 400,
+                    'message' => 'Mohon maaf, pengajuan pinjaman hanya dapat dilakukan oleh karyawan berstatus tetap',
+                ], 400);
+            }
+
             // $pendapatan = 70 / 100 * $perusahaan->karyawanSingle->penghasilan;
             if ($perusahaan->karyawanSingle->max_plafon > $perusahaan->amount_pinjaman->maximal) {
                 $maksimal = $perusahaan->amount_pinjaman->maximal;
@@ -1169,22 +1181,16 @@ class PinjamanController extends Controller
 
         if (isset($perusahaan) && isset($perusahaan->karyawanSingle)) {
             $hasil = true;
-            $tanggal_bergabung = Carbon::parse($perusahaan->karyawanSingle->tanggal_bergabung);
-            $tanggal_sekarang = Carbon::now();
-
-            $diff = intval($tanggal_bergabung->floatDiffInMonths($tanggal_sekarang));
 
             if ($perusahaan->karyawanSingle->status_sp != 0) {
                 return response()->json([
                     'status' => 400,
                     'message' => 'Mohon maaf, peminjaman hanya dapat dilakukan dengan karyawan berstatus bebas surat peringatan',
                 ], 400);
-            } elseif ($perusahaan->karyawanSingle->status == 'tetap') {
-                $hasil = true;
-            } elseif ($diff < 6) {
+            } elseif (! $this->isKaryawanTetap($perusahaan->karyawanSingle)) {
                 return response()->json([
                     'status' => 400,
-                    'message' => 'Mohon maaf, hanya karyawan dengan status tetap / masa kerja > 6 Bulan untuk melakukan peminjaman',
+                    'message' => 'Mohon maaf, pengajuan pinjaman hanya dapat dilakukan oleh karyawan berstatus tetap',
                 ], 400);
             } else {
                 $hasil = true;
