@@ -522,7 +522,7 @@ class PinjamanController extends Controller
             if (! $this->isKaryawanTetap($perusahaan->karyawanSingle)) {
                 return response()->json([
                     'status' => 400,
-                    'message' => 'Mohon maaf, pengajuan pinjaman hanya dapat dilakukan oleh karyawan berstatus tetap',
+                    'message' => 'Mohon maaf, pengajuan pinjaman Anda belum dapat diproses. Silakan hubungi Human Capital (HC) Perusahaan Anda untuk informasi lebih lanjut.',
                 ], 400);
             }
 
@@ -1190,7 +1190,7 @@ class PinjamanController extends Controller
             } elseif (! $this->isKaryawanTetap($perusahaan->karyawanSingle)) {
                 return response()->json([
                     'status' => 400,
-                    'message' => 'Mohon maaf, pengajuan pinjaman hanya dapat dilakukan oleh karyawan berstatus tetap',
+                    'message' => 'Mohon maaf, pengajuan pinjaman Anda belum dapat diproses. Silakan hubungi Human Capital (HC) Perusahaan Anda untuk informasi lebih lanjut.',
                 ], 400);
             } else {
                 $hasil = true;
