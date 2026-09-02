@@ -821,7 +821,7 @@ class KspController extends Controller
         $tenor->tenor = $req->tenor;
         $tenor->rate = $req->rate;
         $tenor->asuransi = $req->asuransi;
-        $tenor->provisi = $req->asuransi;
+        $tenor->provisi = $req->provisi;
         $tenor->biaya_admin = $req->biaya_admin;
         $tenor->fee_tomi = $req->fee_tomi;
         $tenor->biaya_layanan = $req->biaya_layanan;

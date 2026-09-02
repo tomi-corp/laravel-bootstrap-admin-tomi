@@ -723,7 +723,7 @@
         var tenor = $("#tenorEdit").val();
         var rate = $("#rateEdit").val();
         var asuransi = $("#asuransiEdit").val();
-        var provisi = $("#asuransiEdit").val();
+        var provisi = $("#provisiEdit").val();
         var biayaAdmin = $("#biayaadminEdit").val();
         var feeTomi = $("#feeTomiEdit").val();
 
@@ -780,9 +780,9 @@
                 $('#errMinimalNominalTenorEdit').text('');
                 $('#errMaximalNominalTenorEdit').text('');
 
-                $('#errEditProfesional_fee_1').text('');
-                $('#errEditProfesional_fee_2').text('');
-                $('#errKsp').text('');
+                $('#errEditProfesional_fee_1Edit').text('');
+                $('#errEditProfesional_fee_2Edit').text('');
+                $('#errKspEdit').text('');
 
 
             },
@@ -803,9 +803,9 @@
                 $('#errMaximalNominalTenorEdit').text('');
 
 
-                $('#errEditProfesional_fee_1').text('');
-                $('#errEditProfesional_fee_2').text('');
-                $('#errKsp').text('');
+                $('#errEditProfesional_fee_1Edit').text('');
+                $('#errEditProfesional_fee_2Edit').text('');
+                $('#errKspEdit').text('');
 
 
                 $('#buttonSubmitEdit').attr("disabled", false);
@@ -823,10 +823,10 @@
                 $('#errMinimalNominalTenorEdit').text(saveConfig.responseJSON.errors.minimal_nominal);
                 $('#errMaximalNominalTenorEdit').text(saveConfig.responseJSON.errors.maximal_nominal);
 
-                $('#errEditProfesional_fee_1').text(saveConfig.responseJSON.errors.profesional_fee_1);
-                $('#errEditProfesional_fee_2').text(saveConfig.responseJSON.errors
+                $('#errEditProfesional_fee_1Edit').text(saveConfig.responseJSON.errors.profesional_fee_1);
+                $('#errEditProfesional_fee_2Edit').text(saveConfig.responseJSON.errors
                     .profesional_fee_2);
-                $('#errKsp').text(saveConfig.responseJSON.errors.ksp);
+                $('#errKspEdit').text(saveConfig.responseJSON.errors.ksp);
 
                 $('#buttonSubmitEdit').attr("disabled", false);
                 $('#loadingTextEdit').removeClass("spinner-border");
@@ -862,27 +862,11 @@
 </script>
 
 <script>
-    // Function to format a number into Rupiah format (e.g., 100000 -> 100.000)
     function formatRupiah(angka) {
         if (angka == null || angka === '') return '';
-        var number_string = angka.toString().replace(/[^,\d]/g, '').toString(),
-            split = number_string.split(','),
-            sisa = split[0].length % 3,
-            rupiah = split[0].substr(0, sisa),
-            ribuan = split[0].substr(sisa).match(/\d{3}/gi);
-
-        if (ribuan) {
-            separator = sisa ? '.' : '';
-            rupiah += separator + ribuan.join('.');
-        }
-
-        rupiah = split[1] != undefined ? rupiah + ',' + split[1] : rupiah;
-        return rupiah;
-    }
-
-    // Function to remove Rupiah formatting and return an integer (e.g., 100.000 -> 100000)
-    function unformatRupiah(rupiah) {
-        return parseInt(rupiah.replace(/[^0-9]/g, ''), 10);
+        return angka.toString()
+            .replace(/\D/g, '')
+            .replace(/\B(?=(\d{3})+(?!\d))/g, ".");
     }
 
     $('.rupiah-input').on('keyup', function () {
@@ -935,7 +919,7 @@
 
     $('.hitung-adminEdit').on('input', function () {
         let fee1 = parseFloat($('#profesional_fee_1Edit').val()) || 0;
-        let fee2 = parseFloat($('#errEditProfesional_fee_2').val()) || 0;
+        let fee2 = parseFloat($('#profesional_fee_2Edit').val()) || 0;
         let ksp = parseFloat($('#kspEdit').val()) || 0;
         let total = fee1 + fee2 + ksp;
 
@@ -944,11 +928,6 @@
 
     const inputView = document.getElementById('maximal_pinjaman_view');
     const inputReal = document.getElementById('maximal_pinjaman');
-
-    function formatRupiah(angka) {
-        return angka.replace(/\D/g, '')
-            .replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-    }
 
     inputView.addEventListener('input', function (e) {
         let angka = e.target.value.replace(/\D/g, '');
