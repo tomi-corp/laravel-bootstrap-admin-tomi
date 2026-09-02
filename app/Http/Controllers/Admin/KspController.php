@@ -745,7 +745,9 @@ class KspController extends Controller
 
     public function konfigurasiTable(Request $req)
     {
-        $tenor = tenor_pinjaman::where('id_perusahaan', $req->id)->get();
+        $tenor = tenor_pinjaman::where('id_perusahaan', $req->id)
+            ->orderBy('tenor')
+            ->get();
         $amount_pinjaman = amount_pinjaman::where('id_perusahaan', $req->id)->first();
 
         return DataTables::of($tenor)
@@ -789,7 +791,9 @@ class KspController extends Controller
 
 
             ->addColumn('iuran_anggota', function ($row) use ($amount_pinjaman) {
-                return "Rp  " . number_format($row->tenor * $amount_pinjaman->iuran_anggota);
+                $iuranAnggota = $amount_pinjaman?->iuran_anggota ?? 0;
+
+                return "Rp  " . number_format($row->tenor * $iuranAnggota);
             })
 
             ->addColumn('biaya_layanan', function ($row) {
