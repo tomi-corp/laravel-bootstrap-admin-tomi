@@ -14,6 +14,34 @@ class AddKonfigurasiRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        $defaults = [
+            'asuransi',
+            'provisi',
+            'biaya_admin',
+            'fee_tomi',
+            'biaya_layanan',
+            'minimal_nominal',
+            'maximal_nominal',
+            'profesional_fee_1',
+            'profesional_fee_2',
+            'ksp',
+        ];
+
+        $values = [];
+
+        foreach ($defaults as $field) {
+            if ($this->input($field) === null || $this->input($field) === '') {
+                $values[$field] = 0;
+            }
+        }
+
+        if ($values !== []) {
+            $this->merge($values);
+        }
+    }
+
     /**
      * Get the validation rules that apply to the request.
      *

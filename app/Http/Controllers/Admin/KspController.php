@@ -729,14 +729,12 @@ class KspController extends Controller
 
         $list_perusahaan = ListPerusahaan::where('id', $dec)
             ->with('amount_pinjaman')
-            ->withMax('karyawan', 'max_plafon') // pakai relasi kamu
             ->first();
 
-        $perusahaan = ListPerusahaan::with('karyawanAll')->findOrFail($dec);
-
-        $max_plafon = $perusahaan->karyawanAll->max('max_plafon');
-
         if ($list_perusahaan) {
+            $max_plafon = list_karyawan::where('id_list_perusahaan', $list_perusahaan->id)
+                ->max('max_plafon') ?? 0;
+
             return view('admin.ksp.konfigurasi.index', compact('list_perusahaan', 'max_plafon'));
         } else {
             return abort(404);

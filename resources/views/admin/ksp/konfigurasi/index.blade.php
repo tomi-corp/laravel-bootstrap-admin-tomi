@@ -446,6 +446,17 @@
         "_token": "{{ csrf_token() }}",
         "id": "{{ $list_perusahaan->id }}",
     };
+
+    function optionalNumber(selector) {
+        var value = $(selector).val();
+
+        return value === undefined || value === null || value === '' ? '0' : value;
+    }
+
+    function setValidationError(selector, errors, field) {
+        $(selector).text(errors && errors[field] ? errors[field] : '');
+    }
+
     var table = $('#tableTenorPinjaman').DataTable({
         dom: 'B<"clear">lfrtip',
         buttons: [{
@@ -617,14 +628,14 @@
     buttonSubmit = () => {
         var tenor = $("#tenor").val();
         var rate = $("#rate").val();
-        var asuransi = $("#asuransi").val();
-        var provisi = $("#provisi").val();
-        var biayaAdmin = $("#biayaadmin").val();
-        var feeTomi = $("#feeTomi").val();
+        var asuransi = optionalNumber("#asuransi");
+        var provisi = optionalNumber("#provisi");
+        var biayaAdmin = optionalNumber("#biayaadmin");
+        var feeTomi = optionalNumber("#feeTomi");
         // fee
-        var profesional_fee_1 = $("#profesional_fee_1").val();
-        var profesional_fee_2 = $("#profesional_fee_2").val();
-        var ksp = $("#ksp").val();
+        var profesional_fee_1 = optionalNumber("#profesional_fee_1");
+        var profesional_fee_2 = optionalNumber("#profesional_fee_2");
+        var ksp = optionalNumber("#ksp");
 
         var biayaLayananRaw = $('#biayalayanan').attr('data-original-value');
         var minimalNominalRaw = $('#minimalNominalTenor').attr('data-original-value');
@@ -669,7 +680,7 @@
                 $('#errProvisi').text('');
                 $('#errBiayaAdmin').text('');
                 $('#errfeeTomi').text('');
-                $('#errBiayaLayanan').text(''); // Perbaikan ID: errBiayaLayanan
+                $('#errBiayalayanan').text('');
                 $('#errMinimalNominalTenor').text('');
                 $('#errMaximalNominalTenor').text('');
 
@@ -698,17 +709,20 @@
                 $('#loadingText').removeClass("spinner-border");
             },
             error: function (saveConfig) {
-                // Pastikan ID error untuk Biaya Layanan sudah benar di sini: 'errBiayaLayanan'
-                $('#errTenor').text(saveConfig.responseJSON.errors.tenor);
-                $('#errRate').text(saveConfig.responseJSON.errors.rate);
-                $('#errAsuransi').text(saveConfig.responseJSON.errors.asuransi);
-                $('#errProvisi').text(saveConfig.responseJSON.errors.provisi);
-                $('#errBiayaAdmin').text(saveConfig.responseJSON.errors.biaya_admin);
-                $('#errfeeTomi').text(saveConfig.responseJSON.errors.fee_tomi);
-                $('#errBiayaLayanan').text(saveConfig.responseJSON.errors
-                    .biaya_layanan); // Perbaikan ID
-                $('#errMinimalNominalTenor').text(saveConfig.responseJSON.errors.minimal_nominal);
-                $('#errMaximalNominalTenor').text(saveConfig.responseJSON.errors.maximal_nominal);
+                var errors = saveConfig.responseJSON ? saveConfig.responseJSON.errors : {};
+
+                setValidationError('#errTenor', errors, 'tenor');
+                setValidationError('#errRate', errors, 'rate');
+                setValidationError('#errAsuransi', errors, 'asuransi');
+                setValidationError('#errProvisi', errors, 'provisi');
+                setValidationError('#errBiayaAdmin', errors, 'biaya_admin');
+                setValidationError('#errfeeTomi', errors, 'fee_tomi');
+                setValidationError('#errBiayalayanan', errors, 'biaya_layanan');
+                setValidationError('#errMinimalNominalTenor', errors, 'minimal_nominal');
+                setValidationError('#errMaximalNominalTenor', errors, 'maximal_nominal');
+                setValidationError('#errProfesional_fee_1', errors, 'profesional_fee_1');
+                setValidationError('#errProfesional_fee_2', errors, 'profesional_fee_2');
+                setValidationError('#errKsp', errors, 'ksp');
                 $('#buttonSubmit').attr("disabled", false);
                 $('#loadingText').removeClass("spinner-border");
             }
@@ -722,15 +736,15 @@
         // 2. Ambil nilai non-Rupiah
         var tenor = $("#tenorEdit").val();
         var rate = $("#rateEdit").val();
-        var asuransi = $("#asuransiEdit").val();
-        var provisi = $("#provisiEdit").val();
-        var biayaAdmin = $("#biayaadminEdit").val();
-        var feeTomi = $("#feeTomiEdit").val();
+        var asuransi = optionalNumber("#asuransiEdit");
+        var provisi = optionalNumber("#provisiEdit");
+        var biayaAdmin = optionalNumber("#biayaadminEdit");
+        var feeTomi = optionalNumber("#feeTomiEdit");
 
 
-        var profesional_fee_1 = $("#profesional_fee_1Edit").val();
-        var profesional_fee_2 = $("#profesional_fee_2Edit").val();
-        var ksp = $("#kspEdit").val();
+        var profesional_fee_1 = optionalNumber("#profesional_fee_1Edit");
+        var profesional_fee_2 = optionalNumber("#profesional_fee_2Edit");
+        var ksp = optionalNumber("#kspEdit");
 
         // 3. Ambil nilai Rupiah RAW INTEGER dari data-original-value
         var biayaLayananRaw = $('#biayalayananEdit').attr('data-original-value');
@@ -812,21 +826,20 @@
                 $('#loadingTextEdit').removeClass("spinner-border");
             },
             error: function (saveConfig) {
-                // Tampilkan error dari backend
-                $('#errTenorEdit').text(saveConfig.responseJSON.errors.tenor);
-                $('#errRateEdit').text(saveConfig.responseJSON.errors.rate);
-                $('#errAsuransiEdit').text(saveConfig.responseJSON.errors.asuransi);
-                $('#errProvisiEdit').text(saveConfig.responseJSON.errors.provisi);
-                $('#errBiayaAdminEdit').text(saveConfig.responseJSON.errors.biaya_admin);
-                $('#errfeeTomiEdit').text(saveConfig.responseJSON.errors.fee_tomi);
-                $('#errBiayaLayananEdit').text(saveConfig.responseJSON.errors.biaya_layanan);
-                $('#errMinimalNominalTenorEdit').text(saveConfig.responseJSON.errors.minimal_nominal);
-                $('#errMaximalNominalTenorEdit').text(saveConfig.responseJSON.errors.maximal_nominal);
+                var errors = saveConfig.responseJSON ? saveConfig.responseJSON.errors : {};
 
-                $('#errEditProfesional_fee_1Edit').text(saveConfig.responseJSON.errors.profesional_fee_1);
-                $('#errEditProfesional_fee_2Edit').text(saveConfig.responseJSON.errors
-                    .profesional_fee_2);
-                $('#errKspEdit').text(saveConfig.responseJSON.errors.ksp);
+                setValidationError('#errTenorEdit', errors, 'tenor');
+                setValidationError('#errRateEdit', errors, 'rate');
+                setValidationError('#errAsuransiEdit', errors, 'asuransi');
+                setValidationError('#errProvisiEdit', errors, 'provisi');
+                setValidationError('#errBiayaAdminEdit', errors, 'biaya_admin');
+                setValidationError('#errfeeTomiEdit', errors, 'fee_tomi');
+                setValidationError('#errBiayaLayananEdit', errors, 'biaya_layanan');
+                setValidationError('#errMinimalNominalTenorEdit', errors, 'minimal_nominal');
+                setValidationError('#errMaximalNominalTenorEdit', errors, 'maximal_nominal');
+                setValidationError('#errEditProfesional_fee_1Edit', errors, 'profesional_fee_1');
+                setValidationError('#errEditProfesional_fee_2Edit', errors, 'profesional_fee_2');
+                setValidationError('#errKspEdit', errors, 'ksp');
 
                 $('#buttonSubmitEdit').attr("disabled", false);
                 $('#loadingTextEdit').removeClass("spinner-border");
