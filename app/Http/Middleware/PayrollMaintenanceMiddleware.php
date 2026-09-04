@@ -82,8 +82,10 @@ class PayrollMaintenanceMiddleware
         foreach ([-1, 0, 1] as $monthOffset) {
             $month = $today->copy()->addMonthsNoOverflow($monthOffset);
             $payrollDate = $month->copy()->day(min($paymentDate, $month->daysInMonth));
-            $startDate = $month->copy()->day(18)->startOfDay();
-            $endDate = $payrollDate->copy()->endOfMonth();
+            $startDate = $payrollDate->copy()->subDays(7)->startOfDay();
+            $endDate = $paymentDate > 25
+                ? $payrollDate->copy()->endOfMonth()
+                : $payrollDate->copy()->addDays(7)->endOfDay();
 
             if ($today->betweenIncluded($startDate, $endDate)) {
                 return true;
