@@ -1,5 +1,28 @@
 @extends('layout.app')
 @section('title', 'Koperasi Simpan Pinjam')
+
+@push('css')
+<style>
+    .lender-table-wrapper {
+        width: 100%;
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    #tablelistLender {
+        width: 100% !important;
+        min-width: 2300px;
+    }
+
+    #tablelistLender th,
+    #tablelistLender td {
+        white-space: nowrap !important;
+        vertical-align: middle;
+    }
+</style>
+@endpush
+
 @section('content')
 <div class="row">
     <div class="col-12">
@@ -48,35 +71,38 @@
                     <i class="mdi mdi-plus-circle"></i> Tambah Lender
                 </button>
 
-                <table id="tablelistLender" class="table dt-responsive table-hover mt-4 text-center justify-center"
-                    style="width:100%">
-                    <thead>
-                        <tr>
-                            <th>Pending Approval</th>
-                            <th>Last Updated</th>
-                            <th>Expired Update</th>
-                            <th>ID Lender</th>
-                            <th>Nama Lender</th>
-                            <th>PKS</th>
-                            <th>Logo</th>
-                            <th>No. perjanjian kerja sama lender x TOMI</th>
-                            <th>PIC Lender</th>
-                            <th>PIC Internal</th>
-                            <th>Email Lender</th>
-                            <th>Telepon</th>
-                            <th>Provinsi</th>
-                            <th>Kabupaten / Kota</th>
-                            <th>Kecamatan</th>
-                            <th>Desa</th>
-                            <th>Alamat Lengkap</th>
-                            <th>Nama BANK</th>
-                            <th>A.N Rekening</th>
-                            <th>No. Rekening</th>
-                            <th>Status</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                </table>
+                <div class="table-responsive lender-table-wrapper">
+                    <table id="tablelistLender"
+                        class="table dt-responsive table-hover mt-4 text-center justify-center nowrap"
+                        style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>Pending Approval</th>
+                                <th>Last Updated</th>
+                                <th>Expired Update</th>
+                                <th>ID Lender</th>
+                                <th>Nama Lender</th>
+                                <th>PKS</th>
+                                <th>Logo</th>
+                                <th>No. perjanjian kerja sama lender x TOMI</th>
+                                <th>PIC Lender</th>
+                                <th>PIC Internal</th>
+                                <th>Email Lender</th>
+                                <th>Telepon</th>
+                                <th>Provinsi</th>
+                                <th>Kabupaten / Kota</th>
+                                <th>Kecamatan</th>
+                                <th>Desa</th>
+                                <th>Alamat Lengkap</th>
+                                <th>Nama BANK</th>
+                                <th>A.N Rekening</th>
+                                <th>No. Rekening</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
             </div>
 
 
@@ -759,7 +785,13 @@
         "lengthMenu": [10, 50, 100, 500, 1000, 2000, 5000, 10000, 50000, 100000],
         processing: true,
         responsive: true,
+        scrollX: true,
+        autoWidth: false,
         serverSide: true,
+        columnDefs: [{
+            targets: '_all',
+            className: 'text-nowrap'
+        }],
         language: {
             processing: '<i class="dripicons-loading">autorenew</i>'
         },

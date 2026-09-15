@@ -47,6 +47,41 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                 </li>
                 @endif
 
+                {{-- Perusahaan dan Lender dipakai lintas produk --}}
+                <li>
+                    <a href="javascript: void(0);">
+                        <i class="dripicons-store"></i>
+                        <span> Perusahaan </span>
+                        <span class="menu-arrow"></span>
+                    </a>
+
+                    <ul class="nav-second-level" aria-expanded="false">
+                        <li>
+                            <a href="{{ route('admin.ksp.index') }}">List Perusahaan</a>
+                        </li>
+                        <li>
+                            <a href="{{ route('admin.ksp.invoicing.index') }}">List Invoice Perusahaan</a>
+                        </li>
+                    </ul>
+                </li>
+
+                <li>
+                    <a href="javascript: void(0);">
+                        <i class="dripicons-user-group"></i>
+                        <span> Lender </span>
+                        <span class="menu-arrow"></span>
+                    </a>
+
+                    <ul class="nav-second-level" aria-expanded="false">
+                        <li>
+                            <a href="{{ route('admin.lender.index') }}">List Lender</a>
+                        </li>
+                        <li>
+                            <a href="{{ route('admin.lender.invoicing.index') }}">Invoice Lender</a>
+                        </li>
+                    </ul>
+                </li>
+
                 {{-- e-Kasbon tetap tampil untuk semua role, termasuk pic dan staff --}}
                 <li>
                     <a href="javascript: void(0);">
@@ -56,38 +91,6 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                     </a>
 
                     <ul class="nav-second-level nav" aria-expanded="false">
-                        <li>
-                            <a href="javascript: void(0);" aria-expanded="false">
-                                Perusahaan
-                                <span class="menu-arrow"></span>
-                            </a>
-
-                            <ul class="nav-third-level nav" aria-expanded="false">
-                                <li>
-                                    <a href="{{ route('admin.ksp.index') }}">List Perusahaan</a>
-                                </li>
-                                <li>
-                                    <a href="{{ route('admin.ksp.invoicing.index') }}">List Invoice Perusahaan</a>
-                                </li>
-                            </ul>
-                        </li>
-
-                        <li>
-                            <a href="javascript: void(0);" aria-expanded="false">
-                                Lender
-                                <span class="menu-arrow"></span>
-                            </a>
-
-                            <ul class="nav-third-level nav" aria-expanded="false">
-                                <li>
-                                    <a href="{{ route('admin.lender.index') }}">List Lender</a>
-                                </li>
-                                <li>
-                                    <a href="{{ route('admin.lender.invoicing.index') }}">Invoice Lender</a>
-                                </li>
-                            </ul>
-                        </li>
-
                         <li>
                             <a href="{{ route('admin.cost.index') }}">Cost</a>
                         </li>

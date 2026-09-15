@@ -18,7 +18,7 @@
         </a>
 
         {{-- E-Kasbon (Dropdown) --}}
-        <div x-data="{ open: false }" class="space-y-1">
+        <div x-data="{ open: {{ request()->routeIs('partners.company.*', 'partners.configuration.*', 'partners.employees.*', 'partners.loan-applications.*') ? 'true' : 'false' }} }" class="space-y-1">
 
             <button @click="open = !open"
                 class="w-full flex items-center justify-between px-4 py-3 rounded-lg text-slate-700 hover:bg-blue-50 hover:text-blue-600">
@@ -39,19 +39,19 @@
                     Perusahaan
                 </a>
 
-                <a href="#" class="block py-2 text-sm text-slate-600 hover:text-blue-600">
+                <a href="{{ route('partners.employees.index') }}"
+                    class="block py-2 text-sm text-slate-600 hover:text-blue-600">
+                    Karyawan
+                </a>
+
+                <a href="{{ route('partners.loan-applications.index') }}"
+                    class="block py-2 text-sm text-slate-600 hover:text-blue-600">
                     Pengajuan
                 </a>
-                <a href="#" class="block py-2 text-sm text-slate-600 hover:text-blue-600">
-                    Lender
-                </a>
 
-                <a href="#" class="block py-2 text-sm text-slate-600 hover:text-blue-600">
-                    Cost
-                </a>
-
-                <a href="#" class="block py-2 text-sm text-slate-600 hover:text-blue-600">
-                    Generate Invoice
+                <a href="{{ route('partners.configuration.index') }}"
+                    class="block py-2 text-sm text-slate-600 hover:text-blue-600">
+                    Konfigurasi
                 </a>
 
             </div>

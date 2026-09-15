@@ -150,8 +150,8 @@ $totalFee = $perusahaan['total_fee'] ?? 0;
                             <thead class="thead-light">
                                 <tr>
                                     <th width="60">No</th>
-                                    <th>Client</th>
-                                    <th>Vendor</th>
+                                    <th>Mitra</th>
+                                    <th>Pelanggan Mitra</th>
                                     <th>Nomor Invoice</th>
                                     <th>No. PO</th>
                                     <th>Nilai Pembiayaan</th>
@@ -194,8 +194,10 @@ $totalFee = $perusahaan['total_fee'] ?? 0;
                                         </div>
 
                                         @if($term['can_download'] ?? false)
-                                        <a href="{{ route('admin.invoice-financing.term.download', ['id' => $term['invoice_id'], 'term' => $term['term']]) }}"
-                                            target="_blank" class="btn btn-sm btn-danger" title="Download Invoice Termin {{ $termNumber }}">
+                                        <a href="javascript:void(0)"
+                                            class="btn btn-sm btn-danger btn-download-invoice"
+                                            data-url="{{ route('admin.invoice-financing.term.download', ['id' => $term['invoice_id'], 'term' => $term['term']]) }}"
+                                            title="Download Invoice Termin {{ $termNumber }}">
                                             <i class="mdi mdi-file-pdf-box"></i> Invoice
                                         </a>
                                         @else
@@ -224,6 +226,57 @@ $totalFee = $perusahaan['total_fee'] ?? 0;
                 </div>
             </div>
         </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalDownloadInvoice" tabindex="-1" role="dialog"
+    aria-labelledby="modalDownloadInvoiceLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <form id="formDownloadInvoice" method="GET" target="_blank">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalDownloadInvoiceLabel">Pilih Kolom Invoice</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <input type="hidden" name="column_selection" value="1">
+
+                    @php
+                    $invoiceColumns = [
+                    'vendor' => 'Pelanggan Mitra',
+                    'purchase_order_number' => 'No. PO',
+                    'approved_financing_amount' => 'Nilai Pembiayaan',
+                    'term_amount' => 'Nominal Termin',
+                    'fee_tomi' => 'Fee TomiInvoice',
+                    'admin_fee' => 'Admin Fee Termin',
+                    'total_fee' => 'Total Fee',
+                    ];
+                    @endphp
+
+                    @foreach($invoiceColumns as $value => $label)
+                    <div class="form-check mb-2">
+                        <input class="form-check-input invoice-column-checkbox" type="checkbox" name="columns[]"
+                            value="{{ $value }}" id="tomiInvoiceCol{{ \Illuminate\Support\Str::studly($value) }}"
+                            checked>
+                        <label class="form-check-label"
+                            for="tomiInvoiceCol{{ \Illuminate\Support\Str::studly($value) }}">
+                            {{ $label }}
+                        </label>
+                    </div>
+                    @endforeach
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="mdi mdi-download"></i> Download PDF
+                    </button>
+                </div>
+            </div>
+        </form>
     </div>
 </div>
 @endsection
@@ -264,6 +317,12 @@ $totalFee = $perusahaan['total_fee'] ?? 0;
                 }
             });
         }
+
+        $(document).on('click', '.btn-download-invoice', function () {
+            $('#formDownloadInvoice').attr('action', $(this).data('url'));
+            $('.invoice-column-checkbox').prop('checked', true);
+            $('#modalDownloadInvoice').modal('show');
+        });
     });
 </script>
 @endpush

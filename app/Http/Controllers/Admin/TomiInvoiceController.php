@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
@@ -69,7 +70,7 @@ class TomiInvoiceController extends Controller
         return view('admin.tomi-invoice.show', compact('perusahaan'));
     }
 
-    public function downloadTermInvoice($id, $term)
+    public function downloadTermInvoice(Request $request, $id, $term)
     {
         $term = (int) $term;
 
@@ -114,6 +115,9 @@ class TomiInvoiceController extends Controller
         $pdf = Pdf::loadView('admin.tomi-invoice.term-invoice-pdf', [
             'invoice' => $termInvoice,
             'rawInvoice' => $invoice,
+            'selectedColumns' => $request->boolean('column_selection')
+                ? $request->input('columns', [])
+                : null,
             'rekening' => (object) [
                 'atas_nama' => 'PT. TOKO MIKRO INDONESIA',
                 'nomor_rekening' => '2011113338',
@@ -121,7 +125,7 @@ class TomiInvoiceController extends Controller
                     'code_bank' => 'BRI',
                 ],
             ],
-        ])->setPaper('a4', 'portrait')
+        ])->setPaper('legal', 'landscape')
             ->setOptions([
                 'isHtml5ParserEnabled' => true,
                 'isRemoteEnabled' => false,
