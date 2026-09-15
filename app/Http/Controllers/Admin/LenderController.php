@@ -123,7 +123,7 @@ class LenderController extends Controller
             })
 
             ->addColumn('bank', function ($row) {
-                return $row->bank->code_bank;
+                return $row->bank?->code_bank ?? '-';
             })
 
             ->addColumn('last_updated', function ($row) {
@@ -139,22 +139,28 @@ class LenderController extends Controller
             })
 
             ->addColumn('expired_updated', function ($row) use ($configurasi) {
-                return Carbon::parse($row->updated_at)->addDays($configurasi->expired_days)->format('Y-m-d H:i:s');
+                $expiredDays = (int) ($configurasi?->expired_days ?? 0);
+
+                return Carbon::parse($row->updated_at)->addDays($expiredDays)->format('Y-m-d H:i:s');
             })
 
             ->addColumn('provinsi', function ($row) {
-                return $row->provinsi->provinsi;
+                return $row->provinsi?->provinsi ?? '-';
             })
 
             ->addColumn('kabupaten', function ($row) {
-                return $row->kabupaten->kabupaten;
+                return $row->kabupaten?->kabupaten ?? '-';
             })
 
             ->addColumn('kecamatan', function ($row) {
-                return $row->kecamatan->kecamatan;
+                return $row->kecamatan?->kecamatan ?? '-';
             })
 
             ->addColumn('desa', function ($row) {
+                if (! $row->desa) {
+                    return '-';
+                }
+
                 return $row->desa->desa.' - '.$row->desa->kodepos;
             })
 

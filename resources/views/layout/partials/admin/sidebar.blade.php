@@ -59,9 +59,6 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                         <li>
                             <a href="{{ route('admin.ksp.index') }}">List Perusahaan</a>
                         </li>
-                        <li>
-                            <a href="{{ route('admin.ksp.invoicing.index') }}">List Invoice Perusahaan</a>
-                        </li>
                     </ul>
                 </li>
 
@@ -76,23 +73,28 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                         <li>
                             <a href="{{ route('admin.lender.index') }}">List Lender</a>
                         </li>
-                        <li>
-                            <a href="{{ route('admin.lender.invoicing.index') }}">Invoice Lender</a>
-                        </li>
                     </ul>
                 </li>
 
-                {{-- e-Kasbon tetap tampil untuk semua role, termasuk pic dan staff --}}
+                {{-- Tomi Dana tetap tampil untuk semua role, termasuk pic dan staff --}}
                 <li>
                     <a href="javascript: void(0);">
                         <i class="dripicons-network-3"></i>
-                        <span> TomiDana </span>
+                        <span> Tomi Dana </span>
                         <span class="menu-arrow"></span>
                     </a>
 
                     <ul class="nav-second-level nav" aria-expanded="false">
                         <li>
                             <a href="{{ route('admin.cost.index') }}">Cost</a>
+                        </li>
+
+                        <li>
+                            <a href="{{ route('admin.ksp.invoicing.index') }}">List Invoice Perusahaan</a>
+                        </li>
+
+                        <li>
+                            <a href="{{ route('admin.lender.invoicing.index') }}">Invoice Lender</a>
                         </li>
 
                         <li>

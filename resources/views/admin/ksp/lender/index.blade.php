@@ -30,10 +30,10 @@
             <div class="page-title-right">
                 <ol class="breadcrumb m-0">
                     <li class="breadcrumb-item"><a href="javascript: void(0);">Tomi</a></li>
-                    <li class="breadcrumb-item active">MoU Lender >< TOMI</li>
+                    <li class="breadcrumb-item active">MoU Lender x TOMI</li>
                 </ol>
             </div>
-            <h4 class="page-title">MoU Lender >< TOMI</h4>
+            <h4 class="page-title">MoU Lender x TOMI</h4>
         </div>
     </div>
 
@@ -73,7 +73,7 @@
 
                 <div class="table-responsive lender-table-wrapper">
                     <table id="tablelistLender"
-                        class="table dt-responsive table-hover mt-4 text-center justify-center nowrap"
+                        class="table table-hover mt-4 text-center justify-center nowrap"
                         style="width:100%">
                         <thead>
                             <tr>
@@ -784,7 +784,7 @@
         ],
         "lengthMenu": [10, 50, 100, 500, 1000, 2000, 5000, 10000, 50000, 100000],
         processing: true,
-        responsive: true,
+        responsive: false,
         scrollX: true,
         autoWidth: false,
         serverSide: true,
