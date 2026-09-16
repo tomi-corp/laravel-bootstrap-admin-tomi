@@ -49,34 +49,17 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
 
                 {{-- Perusahaan dan Lender dipakai lintas produk --}}
                 <li>
-                    <a href="javascript: void(0);">
+                    <a href="{{ route('admin.ksp.index') }}">
                         <i class="dripicons-store"></i>
                         <span> Perusahaan </span>
-                        <span class="menu-arrow"></span>
                     </a>
-
-                    <ul class="nav-second-level" aria-expanded="false">
-                        <li>
-                            <a href="{{ route('admin.ksp.index') }}">List Perusahaan</a>
-                        </li>
-                    </ul>
                 </li>
 
                 <li>
-                    <a href="javascript: void(0);">
+                    <a href="{{ route('admin.lender.index') }}">
                         <i class="dripicons-user-group"></i>
                         <span> Lender </span>
-                        <span class="menu-arrow"></span>
                     </a>
-
-                    <ul class="nav-second-level" aria-expanded="false">
-                        <li>
-                            <a href="{{ route('admin.lender.index') }}">List Lender</a>
-                        </li>
-                        <li>
-                            <a href="{{ route('admin.manage.pic-lender.index') }}">PIC Lender</a>
-                        </li>
-                    </ul>
                 </li>
 
                 {{-- Tomi Dana tetap tampil untuk semua role, termasuk pic dan staff --}}
@@ -180,12 +163,19 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                     </ul>
                 </li>
 
-                <li class="menu-title">Manage</li>
+                <li class="menu-title">Management</li>
 
                 <li>
                     <a href="{{ route('admin.manage.admin.index') }}">
                         <i class="dripicons-user-group"></i>
                         <span> Manage Admin </span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="{{ route('admin.manage.pic-lender.index') }}">
+                        <i class="dripicons-user-id"></i>
+                        <span> PIC Lender </span>
                     </a>
                 </li>
 
