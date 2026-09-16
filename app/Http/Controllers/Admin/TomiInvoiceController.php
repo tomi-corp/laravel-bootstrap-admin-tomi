@@ -135,7 +135,7 @@ class TomiInvoiceController extends Controller
                 'defaultFont' => 'DejaVu Sans',
             ]);
 
-        return $pdf->stream($termInvoice['nomor_invoice'].'.pdf');
+        return $pdf->stream(str_replace('/', '-', $termInvoice['nomor_invoice']).'.pdf');
     }
 
     public function uploadReferralTransferProof(Request $request, $id, $term)
@@ -449,7 +449,7 @@ class TomiInvoiceController extends Controller
                     'invoice_id' => $invoice->id,
                     'nama_perusahaan' => $invoice->client_name ?? $client['nama'],
                     'vendor_name' => $invoice->vendor_name ?? '-',
-                    'nomor_invoice' => 'INV-TOMI-'.str_pad((string) $invoice->id, 5, '0', STR_PAD_LEFT).'-T'.$term,
+                    'nomor_invoice' => $this->formatTomiInvoiceNumber($invoice, $term),
                     'purchase_order_number' => $invoice->purchase_order_number ?? '-',
                     'purchase_order_amount' => (float) ($invoice->purchase_order_amount ?? 0),
                     'approved_financing_amount' => $principal,
@@ -487,7 +487,7 @@ class TomiInvoiceController extends Controller
             'invoice_id' => $invoice->id,
             'nama_perusahaan' => $invoice->client_name ?? $client['nama'],
             'vendor_name' => $invoice->vendor_name ?? '-',
-            'nomor_invoice' => 'INV-TOMI-'.str_pad((string) $invoice->id, 5, '0', STR_PAD_LEFT),
+            'nomor_invoice' => $this->formatTomiInvoiceNumber($invoice),
             'purchase_order_number' => $invoice->purchase_order_number ?? '-',
             'purchase_order_amount' => (float) ($invoice->purchase_order_amount ?? 0),
             'approved_financing_amount' => $principal,
@@ -498,6 +498,21 @@ class TomiInvoiceController extends Controller
             'created_at' => $invoice->created_at ?? null,
             'terms' => $terms,
         ];
+    }
+
+    private function formatTomiInvoiceNumber(object $invoice, ?int $term = null): string
+    {
+        $dateColumn = $term ? "finance_invoice_term_date_{$term}" : null;
+        $dateSource = $dateColumn && ! empty($invoice->{$dateColumn})
+            ? $invoice->{$dateColumn}
+            : ($invoice->created_at ?? now());
+
+        $invoiceNumber = 'TI/'
+            .Carbon::parse($dateSource)->format('Ymd')
+            .'/'
+            .str_pad((string) $invoice->id, 4, '0', STR_PAD_LEFT);
+
+        return $term ? $invoiceNumber.'/T'.$term : $invoiceNumber;
     }
 
     private function isTermProcessComplete(object $invoice, int $term): bool

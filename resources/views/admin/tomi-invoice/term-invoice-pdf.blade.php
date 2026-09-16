@@ -1,33 +1,34 @@
 @php
 $logoPath = public_path('assets/images/logo.jpg');
 $logoSrc = file_exists($logoPath)
-    ? 'data:image/jpeg;base64,' . base64_encode(file_get_contents($logoPath))
-    : '';
+? 'data:image/jpeg;base64,' . base64_encode(file_get_contents($logoPath))
+: '';
 
 $invoiceDate = $invoice['finance_invoice_term_date'] ?? $invoice['created_at'] ?? now();
 $invoiceDateCarbon = !empty($invoiceDate) ? \Carbon\Carbon::parse($invoiceDate) : now();
 $periodText = $invoiceDateCarbon->translatedFormat('F');
 $dueDate = $invoiceDateCarbon->copy()->addDays(37)->translatedFormat('d F Y');
+$termText = 'Termin ' . ($invoice['term'] ?? '-');
 
 $invoiceColumnLabels = [
-    'vendor' => 'Pelanggan Mitra',
-    'purchase_order_number' => 'No. PO',
-    'approved_financing_amount' => 'Nilai Pembiayaan',
-    'term_amount' => 'Nominal Termin',
-    'fee_tomi' => 'Biaya TOMI',
-    'admin_fee' => 'Admin Fee',
-    'total_fee' => 'Jumlah Total Biaya',
+'vendor' => 'Pelanggan Mitra',
+'purchase_order_number' => 'No. PO',
+'approved_financing_amount' => 'Nilai Pembiayaan',
+'term_amount' => 'Nominal Termin',
+'fee_tomi' => 'Biaya TOMI',
+'admin_fee' => 'Admin Fee',
+'total_fee' => 'Jumlah Total Biaya',
 ];
 
 $defaultColumns = array_keys($invoiceColumnLabels);
 $hasColumnSelection = $selectedColumns !== null;
 $selectedColumns = collect($selectedColumns ?? $defaultColumns)
-    ->filter(fn($column) => array_key_exists($column, $invoiceColumnLabels))
-    ->values()
-    ->all();
+->filter(fn($column) => array_key_exists($column, $invoiceColumnLabels))
+->values()
+->all();
 
 if (!$hasColumnSelection) {
-    $selectedColumns = $defaultColumns;
+$selectedColumns = $defaultColumns;
 }
 
 $showColumn = fn(string $column): bool => in_array($column, $selectedColumns, true);
@@ -40,7 +41,7 @@ $totalFee = (float) ($invoice['total_fee'] ?? ($feeTomi + $adminFee));
 
 function termInvoiceRupiah($value): string
 {
-    return 'Rp ' . number_format((float) $value, 0, ',', '.');
+return 'Rp ' . number_format((float) $value, 0, ',', '.');
 }
 
 @endphp
@@ -180,6 +181,10 @@ function termInvoiceRupiah($value): string
         .bank-info td {
             padding: 2px 4px;
         }
+
+        .bank-info .bank-value {
+            white-space: nowrap;
+        }
     </style>
 </head>
 
@@ -192,7 +197,7 @@ function termInvoiceRupiah($value): string
         </div>
 
         <div class="float-right">
-            <h1 class="title">INVOICE TAGIHAN</h1>
+            <h1 class="title">INVOICE TOMIINVOICE</h1>
 
             <div class="invoice-meta">
                 <div>
@@ -211,13 +216,14 @@ function termInvoiceRupiah($value): string
             <p>
                 Berikut adalah rincian tagihan biaya atas penggunaan fasilitas TomiInvoice pada aplikasi platform
                 digital Tomi yang diberikan kepada <b>{{ $invoice['nama_perusahaan'] ?? '-' }}</b>, periode
-                <b>{{ $periodText }}</b>;
+                <b>{{ $periodText }}</b> untuk <b>{{ $termText }}</b>;
             </p>
         </div>
     </div>
 
     <p>
-        <b>{{ $invoice['nama_perusahaan'] ?? '-' }}</b>
+        <b>{{ $invoice['nama_perusahaan'] ?? '-' }}</b><br>
+        {{ $termText }}
     </p>
 
     <table class="main-table">
@@ -232,7 +238,6 @@ function termInvoiceRupiah($value): string
                 @if($showColumn('purchase_order_number'))
                 <th>No. PO</th>
                 @endif
-                <th>Termin</th>
                 @if($showColumn('approved_financing_amount'))
                 <th>Nilai Pembiayaan</th>
                 @endif
@@ -265,9 +270,9 @@ function termInvoiceRupiah($value): string
                 @if($showColumn('purchase_order_number'))
                 <td>{{ $invoice['purchase_order_number'] ?? '-' }}</td>
                 @endif
-                <td class="nowrap" align="center">Termin {{ $invoice['term'] ?? '-' }}</td>
                 @if($showColumn('approved_financing_amount'))
-                <td align="right" class="nowrap">{{ termInvoiceRupiah($invoice['approved_financing_amount'] ?? 0) }}</td>
+                <td align="right" class="nowrap">{{ termInvoiceRupiah($invoice['approved_financing_amount'] ?? 0) }}
+                </td>
                 @endif
                 @if($showColumn('term_amount'))
                 <td align="right" class="nowrap">{{ termInvoiceRupiah($termAmount) }}</td>
@@ -286,7 +291,7 @@ function termInvoiceRupiah($value): string
         <tfoot>
             <tr>
                 <td colspan="{{
-                    4
+                    3
                     + ($showColumn('vendor') ? 1 : 0)
                     + ($showColumn('purchase_order_number') ? 1 : 0)
                 }}" align="center">
@@ -345,17 +350,17 @@ function termInvoiceRupiah($value): string
                     <tr>
                         <td width="100">Bank</td>
                         <td>:</td>
-                        <td><b>BANK {{ $rekening->bank->code_bank ?? 'BRI' }}</b></td>
+                        <td class="bank-value"><b>BANK {{ $rekening->bank->code_bank ?? 'BRI' }}</b></td>
                     </tr>
                     <tr>
                         <td width="100">No. Rekening</td>
                         <td>:</td>
-                        <td><b>{{ $rekening->nomor_rekening ?? '-' }}</b></td>
+                        <td class="bank-value"><b>{{ $rekening->nomor_rekening ?? '-' }}</b></td>
                     </tr>
                     <tr>
                         <td width="100">Atas Nama</td>
                         <td>:</td>
-                        <td><b>{{ $rekening->atas_nama ?? 'PT TOKO MIKRO INDONESIA' }}</b></td>
+                        <td class="bank-value"><b>{{ $rekening->atas_nama ?? 'PT TOKO MIKRO INDONESIA' }}</b></td>
                     </tr>
                 </table>
             </div>
