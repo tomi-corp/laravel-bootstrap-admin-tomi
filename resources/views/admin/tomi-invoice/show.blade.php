@@ -215,29 +215,28 @@ $referralRecapRows = $details
         <div class="col-12">
             <div class="card">
                 <div class="card-body">
-                    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
-                        <h4 class="header-title mb-2 mb-md-0" id="tableTitle">Daftar Invoice</h4>
-                        <ul class="nav nav-tabs invoice-mode-menu" role="tablist" aria-label="Menu detail TomiInvoice">
-                            <li class="nav-item">
-                                <a href="#" class="nav-link active invoice-mode-btn" data-mode="invoice" role="tab"
-                                    aria-selected="true">
-                                    <i class="mdi mdi-table"></i> Invoice
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="#" class="nav-link invoice-mode-btn" data-mode="upload-referral" role="tab"
-                                    aria-selected="false">
-                                    <i class="mdi mdi-upload"></i> Upload Bukti Transfer Referal
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="#" class="nav-link invoice-mode-btn" data-mode="recap-referral" role="tab"
-                                    aria-selected="false">
-                                    <i class="mdi mdi-file-chart"></i> Rekap Referal
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
+                    <h4 class="header-title mb-2" id="tableTitle">Daftar Invoice</h4>
+
+                    <ul class="nav nav-tabs invoice-mode-menu mb-3" role="tablist" aria-label="Menu detail TomiInvoice">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link active invoice-mode-btn" data-mode="invoice" role="tab"
+                                aria-selected="true">
+                                <i class="mdi mdi-table"></i> Invoice
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link invoice-mode-btn" data-mode="upload-referral" role="tab"
+                                aria-selected="false">
+                                <i class="mdi mdi-upload"></i> Upload Bukti Transfer Referal
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link invoice-mode-btn" data-mode="recap-referral" role="tab"
+                                aria-selected="false">
+                                <i class="mdi mdi-file-chart"></i> Rekap Referal
+                            </a>
+                        </li>
+                    </ul>
 
                     <div class="table-responsive tomi-invoice-table-wrapper">
                         <table id="detailTable" class="table table-bordered table-striped table-hover mb-0 nowrap">
