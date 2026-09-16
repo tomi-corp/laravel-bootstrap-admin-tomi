@@ -73,6 +73,9 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                         <li>
                             <a href="{{ route('admin.lender.index') }}">List Lender</a>
                         </li>
+                        <li>
+                            <a href="{{ route('admin.manage.pic-lender.index') }}">PIC Lender</a>
+                        </li>
                     </ul>
                 </li>
 

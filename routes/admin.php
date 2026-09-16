@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\LenderController;
 use App\Http\Controllers\Admin\MenuMobileController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\OtaController;
+use App\Http\Controllers\Admin\PicLenderAdminController;
 use App\Http\Controllers\Admin\PpobController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\SalaryFinancingController;
@@ -198,6 +199,14 @@ Route::middleware(['AdminMiddleware'])->group(
                 Route::post('/manage/admin/add', [AuthController::class, 'manageAdminAdd'])->name('admin.manage.admin.add');
                 Route::post('/manage/admin/delete', [AuthController::class, 'manageAdminDelete'])->name('admin.manage.admin.delete');
                 Route::post('/manage/admin/audit/table', [AuthController::class, 'manageAuditTable'])->name('admin.manage.admin.audit.table');
+
+                // manage pic lender
+                Route::get('/manage/pic-lender', [PicLenderAdminController::class, 'index'])->name('admin.manage.pic-lender.index');
+                Route::post('/manage/pic-lender/table', [PicLenderAdminController::class, 'table'])->name('admin.manage.pic-lender.table');
+                Route::post('/manage/pic-lender/add', [PicLenderAdminController::class, 'store'])->name('admin.manage.pic-lender.add');
+                Route::post('/manage/pic-lender/detail', [PicLenderAdminController::class, 'detail'])->name('admin.manage.pic-lender.detail');
+                Route::post('/manage/pic-lender/update', [PicLenderAdminController::class, 'update'])->name('admin.manage.pic-lender.update');
+                Route::post('/manage/pic-lender/delete', [PicLenderAdminController::class, 'destroy'])->name('admin.manage.pic-lender.delete');
 
                 // salary financing
                 Route::get('/salary-financing', [SalaryFinancingController::class, 'index'])->name('admin.salary-financing.index');
