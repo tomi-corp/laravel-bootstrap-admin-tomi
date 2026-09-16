@@ -13,7 +13,7 @@
 
     #detailTable {
         width: 100% !important;
-        min-width: 1700px;
+        min-width: 1850px;
         white-space: nowrap;
     }
 
@@ -52,6 +52,34 @@
     .term-cell .btn {
         margin-top: 4px;
     }
+
+    .invoice-mode-menu .btn {
+        min-width: 150px;
+    }
+
+    .referral-upload-action {
+        display: none;
+    }
+
+    body.invoice-mode-upload-referral .invoice-download-action {
+        display: none;
+    }
+
+    body.invoice-mode-upload-referral .referral-upload-action {
+        display: inline-block;
+    }
+
+    .referral-recap-row {
+        display: none;
+    }
+
+    body.invoice-mode-recap-referral .invoice-detail-row {
+        display: none;
+    }
+
+    body.invoice-mode-recap-referral .referral-recap-row {
+        display: table-row;
+    }
 </style>
 @endpush
 
@@ -62,6 +90,51 @@ $totalInvoice = $perusahaan['total_invoice'] ?? 0;
 $totalPinjaman = $perusahaan['total_pinjaman'] ?? 0;
 $totalDibayarkan = $perusahaan['total_dibayarkan'] ?? 0;
 $totalFee = $perusahaan['total_fee'] ?? 0;
+$details = collect($perusahaan['details'] ?? []);
+$totalReferralTerms = $details->sum(fn($item) => collect($item['terms'] ?? [])->count());
+$totalReferralUploaded = $details->sum(fn($item) => collect($item['terms'] ?? [])->filter(fn($term) => !empty($term['referral_transfer_proof']))->count());
+$totalReferralPending = max(0, $totalReferralTerms - $totalReferralUploaded);
+$referralRecapRows = $details
+    ->flatMap(function ($item) use ($namaPerusahaan) {
+        return collect($item['terms'] ?? [])->map(function ($term) use ($item, $namaPerusahaan) {
+            $periodSource = $term['finance_invoice_term_date'] ?? $term['created_at'] ?? $item['created_at'] ?? null;
+            $periode = $periodSource ? \Carbon\Carbon::parse($periodSource)->format('F Y') : '-';
+
+            return [
+                'nama_perusahaan' => $item['nama_perusahaan'] ?? $namaPerusahaan,
+                'vendor_name' => $item['vendor_name'] ?? '-',
+                'term' => $term['term'] ?? '-',
+                'periode' => $periode,
+                'period_key' => $periodSource ? \Carbon\Carbon::parse($periodSource)->format('Y-m') : '-',
+                'total_referal' => $term['total_fee'] ?? 0,
+                'referral_transfer_date' => $term['referral_transfer_date'] ?? null,
+                'referral_transfer_proof' => $term['referral_transfer_proof'] ?? null,
+            ];
+        });
+    })
+    ->groupBy(fn($row) => $row['period_key'].'|'.$row['periode'].'|'.$row['nama_perusahaan'])
+    ->map(function ($rows) {
+        return [
+            'nama_perusahaan' => $rows->first()['nama_perusahaan'],
+            'periode' => $rows->first()['periode'],
+            'period_key' => $rows->first()['period_key'],
+            'terms' => collect([1, 2, 3])->mapWithKeys(function ($termNumber) use ($rows) {
+                $termRows = $rows->where('term', $termNumber);
+
+                return [
+                    $termNumber => [
+                        'total_referal' => $termRows->sum('total_referal'),
+                        'uploaded' => $termRows->filter(fn($row) => !empty($row['referral_transfer_proof']))->count(),
+                        'total' => $termRows->count(),
+                    ],
+                ];
+            }),
+            'total_referal' => $rows->sum('total_referal'),
+            'uploaded' => $rows->filter(fn($row) => !empty($row['referral_transfer_proof']))->count(),
+            'total_terms' => $rows->count(),
+        ];
+    })
+    ->values();
 @endphp
 
 <div class="container-fluid">
@@ -141,31 +214,109 @@ $totalFee = $perusahaan['total_fee'] ?? 0;
         <div class="col-12">
             <div class="card">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h4 class="header-title mb-0">Daftar Invoice</h4>
+                    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+                        <h4 class="header-title mb-2 mb-md-0" id="tableTitle">Daftar Invoice</h4>
+                        <div class="btn-group invoice-mode-menu" role="group" aria-label="Menu detail TomiInvoice">
+                            <button type="button" class="btn btn-primary btn-sm invoice-mode-btn active"
+                                data-mode="invoice">
+                                <i class="mdi mdi-table"></i> Invoice
+                            </button>
+                            <button type="button" class="btn btn-outline-primary btn-sm invoice-mode-btn"
+                                data-mode="upload-referral">
+                                <i class="mdi mdi-upload"></i> Upload Bukti Transfer Referal
+                            </button>
+                            <button type="button" class="btn btn-outline-primary btn-sm invoice-mode-btn"
+                                data-mode="recap-referral">
+                                <i class="mdi mdi-file-chart"></i> Rekap Referal
+                            </button>
+                        </div>
                     </div>
 
                     <div class="table-responsive tomi-invoice-table-wrapper">
                         <table id="detailTable" class="table table-bordered table-striped table-hover mb-0 nowrap">
                             <thead class="thead-light">
                                 <tr>
-                                    <th width="60">No</th>
-                                    <th>Mitra</th>
-                                    <th>Pelanggan Mitra</th>
-                                    <th>Nomor Invoice</th>
-                                    <th>No. PO</th>
-                                    <th>Nilai Pembiayaan</th>
-                                    <th>Termin 1</th>
-                                    <th>Termin 2</th>
-                                    <th>Termin 3</th>
-                                    <th>Total Termin</th>
-                                    <th>Total Invoice Fee</th>
-                                    <th>Status</th>
+                                    <th width="60" data-invoice-label="No" data-recap-label="No">No</th>
+                                    <th data-invoice-label="Mitra" data-recap-label="Periode">Mitra</th>
+                                    <th data-invoice-label="Pelanggan Mitra" data-recap-label="Mitra">Pelanggan Mitra</th>
+                                    <th data-invoice-label="Nomor Invoice" data-recap-label="-">Nomor Invoice</th>
+                                    <th data-invoice-label="No. PO" data-recap-label="Termin 1">No. PO</th>
+                                    <th data-invoice-label="Nilai Pembiayaan" data-recap-label="Termin 2">Nilai Pembiayaan</th>
+                                    <th data-invoice-label="Termin 1" data-recap-label="Termin 3">Termin 1</th>
+                                    <th data-invoice-label="Termin 2" data-recap-label="Total Referal">Termin 2</th>
+                                    <th data-invoice-label="Termin 3" data-recap-label="Status Bukti">Termin 3</th>
+                                    <th data-invoice-label="Total Termin" data-recap-label="Sudah Upload">Total Termin</th>
+                                    <th data-invoice-label="Total Invoice Fee" data-recap-label="Belum Upload">Total Invoice Fee</th>
+                                    <th data-invoice-label="Status" data-recap-label="Status">Status</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse($perusahaan['details'] ?? [] as $item)
-                                <tr>
+                                @foreach($referralRecapRows as $recap)
+                                <tr class="referral-recap-row">
+                                    <td>{{ $loop->iteration }}</td>
+                                    <td>{{ $recap['periode'] }}</td>
+                                    <td>{{ $recap['nama_perusahaan'] }}</td>
+                                    <td></td>
+                                    @for($recapTermNumber = 1; $recapTermNumber <= 3; $recapTermNumber++)
+                                    @php
+                                        $recapTerm = $recap['terms']->get($recapTermNumber);
+                                    @endphp
+                                    <td>
+                                        @if(($recapTerm['total'] ?? 0) > 0)
+                                            <div class="font-weight-bold">
+                                                Rp {{ number_format($recapTerm['total_referal'] ?? 0, 0, ',', '.') }}
+                                            </div>
+                                            @if(($recapTerm['uploaded'] ?? 0) === ($recapTerm['total'] ?? 0))
+                                                <span class="badge badge-success">SUDAH UPLOAD</span>
+                                            @else
+                                                <span class="badge badge-warning">BELUM UPLOAD</span>
+                                            @endif
+                                            <a href="{{ route('admin.invoice-financing.referral-recap.download', ['id' => $perusahaan['id'], 'period' => $recap['period_key'], 'term' => $recapTermNumber]) }}"
+                                                class="btn btn-sm btn-info mt-1" target="_blank">
+                                                <i class="mdi mdi-download"></i> Download Rekap
+                                            </a>
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
+                                    @endfor
+                                    <td>Rp {{ number_format($recap['total_referal'], 0, ',', '.') }}</td>
+                                    <td>
+                                        @if($recap['uploaded'] === $recap['total_terms'])
+                                            <span class="badge badge-success">LENGKAP</span>
+                                        @else
+                                            <span class="badge badge-warning">BELUM LENGKAP</span>
+                                        @endif
+                                    </td>
+                                    <td>{{ number_format($recap['uploaded'], 0, ',', '.') }}</td>
+                                    <td>{{ number_format(max(0, $recap['total_terms'] - $recap['uploaded']), 0, ',', '.') }}</td>
+                                    <td>
+                                        @if($recap['uploaded'] === $recap['total_terms'])
+                                            <span class="badge badge-success">LENGKAP</span>
+                                        @else
+                                            <span class="badge badge-warning">BELUM LENGKAP</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                                @endforeach
+
+                                <tr class="referral-recap-row">
+                                    <td></td>
+                                    <td><strong>Total Semua Periode</strong></td>
+                                    <td><strong>Semua Mitra</strong></td>
+                                    <td><strong>Semua Pelanggan</strong></td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td><strong>Rp {{ number_format($totalFee, 0, ',', '.') }}</strong></td>
+                                    <td>-</td>
+                                    <td><strong>{{ number_format($totalReferralUploaded, 0, ',', '.') }}</strong></td>
+                                    <td><strong>{{ number_format($totalReferralPending, 0, ',', '.') }}</strong></td>
+                                    <td>-</td>
+                                </tr>
+
+                                @forelse($details as $item)
+                                <tr class="invoice-detail-row">
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $item['nama_perusahaan'] ?? $namaPerusahaan }}</td>
                                     <td>{{ $item['vendor_name'] ?? '-' }}</td>
@@ -195,17 +346,40 @@ $totalFee = $perusahaan['total_fee'] ?? 0;
 
                                         @if($term['can_download'] ?? false)
                                         <a href="javascript:void(0)"
-                                            class="btn btn-sm btn-danger btn-download-invoice"
+                                            class="btn btn-sm btn-danger btn-download-invoice invoice-download-action"
                                             data-url="{{ route('admin.invoice-financing.term.download', ['id' => $term['invoice_id'], 'term' => $term['term']]) }}"
                                             title="Download Invoice Termin {{ $termNumber }}">
                                             <i class="mdi mdi-file-pdf-box"></i> Invoice
                                         </a>
+                                        <button type="button" class="btn btn-sm btn-primary btn-upload-referral referral-upload-action"
+                                            data-id="{{ $term['invoice_id'] }}"
+                                            data-term="{{ $term['term'] }}"
+                                            data-invoice="{{ $term['nomor_invoice'] ?? '-' }}">
+                                            <i class="mdi mdi-upload"></i> Upload
+                                        </button>
                                         @else
-                                        <button type="button" class="btn btn-sm btn-secondary" disabled
+                                        <button type="button" class="btn btn-sm btn-secondary invoice-download-action" disabled
                                             title="Termin sebelumnya belum selesai diproses">
                                             <i class="mdi mdi-lock"></i> Terkunci
                                         </button>
+                                        <button type="button" class="btn btn-sm btn-primary btn-upload-referral referral-upload-action"
+                                            data-id="{{ $term['invoice_id'] }}"
+                                            data-term="{{ $term['term'] }}"
+                                            data-invoice="{{ $term['nomor_invoice'] ?? '-' }}">
+                                            <i class="mdi mdi-upload"></i> Upload
+                                        </button>
                                         @endif
+
+                                        <div class="referral-upload-action mt-1">
+                                            @if(!empty($term['referral_transfer_proof']))
+                                                <span class="badge badge-success">SUDAH UPLOAD</span>
+                                                <small class="text-muted d-block">
+                                                    {{ !empty($term['referral_transfer_date']) ? \Carbon\Carbon::parse($term['referral_transfer_date'])->format('d-m-Y') : '-' }}
+                                                </small>
+                                            @else
+                                                <span class="badge badge-warning">BELUM UPLOAD</span>
+                                            @endif
+                                        </div>
                                         @else
                                         -
                                         @endif
@@ -226,6 +400,49 @@ $totalFee = $perusahaan['total_fee'] ?? 0;
                 </div>
             </div>
         </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalUploadReferral" tabindex="-1" role="dialog"
+    aria-labelledby="modalUploadReferralLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <form id="formUploadReferral" enctype="multipart/form-data">
+            @csrf
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalUploadReferralLabel">Upload Bukti Transfer Referal</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <p class="text-muted mb-3" id="uploadReferralInvoiceText"></p>
+
+                    <div class="form-group">
+                        <label>Tanggal Transfer</label>
+                        <input type="date" class="form-control" name="referral_transfer_date"
+                            id="referral_transfer_date">
+                        <small class="text-danger" id="errReferralTransferDate"></small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Bukti Transfer</label>
+                        <input type="file" class="form-control" name="referral_transfer_proof"
+                            id="referral_transfer_proof" accept=".jpg,.jpeg,.png,.pdf">
+                        <small class="text-muted d-block">Format: JPG, PNG, atau PDF. Maksimal 5 MB.</small>
+                        <small class="text-danger" id="errReferralTransferProof"></small>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary" id="buttonUploadReferral">
+                        Upload <div id="loadingUploadReferral"></div>
+                    </button>
+                </div>
+            </div>
+        </form>
     </div>
 </div>
 
@@ -284,12 +501,15 @@ $totalFee = $perusahaan['total_fee'] ?? 0;
 @push('js')
 <script>
     $(document).ready(function () {
+        let detailDataTable = null;
+        let uploadReferralUrl = '';
+
         if ($('#detailTable').length) {
             if ($.fn.DataTable.isDataTable('#detailTable')) {
                 $('#detailTable').DataTable().destroy();
             }
 
-            $('#detailTable').DataTable({
+            detailDataTable = $('#detailTable').DataTable({
                 processing: true,
                 pageLength: 10,
                 scrollX: true,
@@ -318,10 +538,102 @@ $totalFee = $perusahaan['total_fee'] ?? 0;
             });
         }
 
+        const setInvoiceMode = (mode) => {
+            $('.invoice-mode-btn')
+                .removeClass('btn-primary active')
+                .addClass('btn-outline-primary');
+
+            $(`.invoice-mode-btn[data-mode="${mode}"]`)
+                .removeClass('btn-outline-primary')
+                .addClass('btn-primary active');
+
+            $('body').toggleClass('invoice-mode-upload-referral', mode === 'upload-referral');
+            $('body').toggleClass('invoice-mode-recap-referral', mode === 'recap-referral');
+
+            if (mode === 'invoice') {
+                $('#tableTitle').text('Daftar Invoice');
+            } else if (mode === 'upload-referral') {
+                $('#tableTitle').text('Upload Bukti Transfer Referal');
+            } else {
+                $('#tableTitle').text('Rekap Referal');
+            }
+
+            $('#detailTable thead th').each(function () {
+                const label = mode === 'recap-referral' ? $(this).data('recap-label') : $(this).data('invoice-label');
+
+                if (label) {
+                    $(this).text(label);
+                }
+            });
+
+            if (detailDataTable) {
+                detailDataTable.columns.adjust();
+            }
+        };
+
+        $(document).on('click', '.invoice-mode-btn', function () {
+            setInvoiceMode($(this).data('mode'));
+        });
+
         $(document).on('click', '.btn-download-invoice', function () {
             $('#formDownloadInvoice').attr('action', $(this).data('url'));
             $('.invoice-column-checkbox').prop('checked', true);
             $('#modalDownloadInvoice').modal('show');
+        });
+
+        $(document).on('click', '.btn-upload-referral', function () {
+            const invoiceId = $(this).data('id');
+            const term = $(this).data('term');
+            const invoiceNumber = $(this).data('invoice');
+
+            uploadReferralUrl = "{{ route('admin.invoice-financing.referral-transfer-proof.upload', ['id' => '__ID__', 'term' => '__TERM__']) }}"
+                .replace('__ID__', invoiceId)
+                .replace('__TERM__', term);
+
+            $('#formUploadReferral')[0].reset();
+            $('#errReferralTransferDate').text('');
+            $('#errReferralTransferProof').text('');
+            $('#uploadReferralInvoiceText').text(`Invoice: ${invoiceNumber} | Termin ${term}`);
+            $('#modalUploadReferral').modal('show');
+        });
+
+        $('#formUploadReferral').on('submit', function (event) {
+            event.preventDefault();
+
+            const formData = new FormData(this);
+
+            $('#errReferralTransferDate').text('');
+            $('#errReferralTransferProof').text('');
+
+            $.ajax({
+                url: uploadReferralUrl,
+                data: formData,
+                type: 'POST',
+                dataType: 'json',
+                processData: false,
+                contentType: false,
+                beforeSend: function () {
+                    $('#buttonUploadReferral').attr('disabled', true);
+                    $('#loadingUploadReferral').addClass('spinner-border');
+                },
+                success: function (response) {
+                    toastr.success(response.message);
+                    $('#modalUploadReferral').modal('hide');
+                    window.location.reload();
+                },
+                error: function (err) {
+                    $('#buttonUploadReferral').attr('disabled', false);
+                    $('#loadingUploadReferral').removeClass('spinner-border');
+
+                    if (err.responseJSON && err.responseJSON.errors) {
+                        $('#errReferralTransferDate').text(err.responseJSON.errors.referral_transfer_date);
+                        $('#errReferralTransferProof').text(err.responseJSON.errors.referral_transfer_proof);
+                        return;
+                    }
+
+                    toastr.error(err.responseJSON?.message || 'Bukti transfer referal gagal diupload.');
+                }
+            });
         });
     });
 </script>

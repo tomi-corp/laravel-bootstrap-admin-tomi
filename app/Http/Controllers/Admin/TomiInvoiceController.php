@@ -4,9 +4,12 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class TomiInvoiceController extends Controller
 {
@@ -23,7 +26,7 @@ class TomiInvoiceController extends Controller
         $perusahaans = $query
             ->orderByDesc('id')
             ->get()
-            ->map(fn($client) => $this->mapClient($client));
+            ->map(fn ($client) => $this->mapClient($client));
 
         $invoiceSummary = $this->getInvoiceSummary();
 
@@ -54,7 +57,7 @@ class TomiInvoiceController extends Controller
             ->where('id', $id)
             ->first();
 
-        if (!$company) {
+        if (! $company) {
             abort(404, 'Data tidak ditemukan');
         }
 
@@ -74,14 +77,14 @@ class TomiInvoiceController extends Controller
     {
         $term = (int) $term;
 
-        if (!in_array($term, [1, 2, 3], true)) {
+        if (! in_array($term, [1, 2, 3], true)) {
             abort(404, 'Termin tidak valid.');
         }
 
         if (
-            !Schema::hasTable('financing_request_invoices')
-            || !Schema::hasTable('clients')
-            || !Schema::hasTable('vendors')
+            ! Schema::hasTable('financing_request_invoices')
+            || ! Schema::hasTable('clients')
+            || ! Schema::hasTable('vendors')
         ) {
             abort(404, 'Data invoice tidak tersedia.');
         }
@@ -90,7 +93,7 @@ class TomiInvoiceController extends Controller
             ->where('financing_request_invoices.id', $id)
             ->first();
 
-        if (!$invoice) {
+        if (! $invoice) {
             abort(404, 'Data invoice tidak ditemukan.');
         }
 
@@ -104,11 +107,11 @@ class TomiInvoiceController extends Controller
         $termInvoice = $this->mapInvoiceTerms($invoice, $client)
             ->firstWhere('term', $term);
 
-        if (!$termInvoice) {
+        if (! $termInvoice) {
             abort(404, 'Data termin tidak ditemukan.');
         }
 
-        if (!$this->canDownloadTerm($invoice, $term)) {
+        if (! $this->canDownloadTerm($invoice, $term)) {
             abort(403, 'Termin sebelumnya belum selesai diproses.');
         }
 
@@ -132,7 +135,142 @@ class TomiInvoiceController extends Controller
                 'defaultFont' => 'DejaVu Sans',
             ]);
 
-        return $pdf->stream($termInvoice['nomor_invoice'] . '.pdf');
+        return $pdf->stream($termInvoice['nomor_invoice'].'.pdf');
+    }
+
+    public function uploadReferralTransferProof(Request $request, $id, $term)
+    {
+        $term = (int) $term;
+
+        if (! in_array($term, [1, 2, 3], true)) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'Termin tidak valid.',
+            ], 404);
+        }
+
+        $dateColumn = "referral_transfer_date_{$term}";
+        $proofColumn = "referral_transfer_proof_{$term}";
+
+        if (
+            ! Schema::hasTable('financing_request_invoices')
+            || ! Schema::hasColumn('financing_request_invoices', $dateColumn)
+            || ! Schema::hasColumn('financing_request_invoices', $proofColumn)
+        ) {
+            return response()->json([
+                'status' => 400,
+                'message' => 'Kolom bukti transfer referal per termin belum tersedia. Jalankan migration terlebih dahulu.',
+            ], 400);
+        }
+
+        $request->validate([
+            'referral_transfer_date' => 'required|date',
+            'referral_transfer_proof' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+        ]);
+
+        $invoice = DB::table('financing_request_invoices')
+            ->where('id', $id)
+            ->first();
+
+        if (! $invoice) {
+            return response()->json([
+                'status' => 404,
+                'message' => 'Data invoice tidak ditemukan.',
+            ], 404);
+        }
+
+        $file = $request->file('referral_transfer_proof');
+        $filename = 'referral-transfer-'.$id.'-term-'.$term.'-'.time().'-'.Str::random(8).'.'.$file->getClientOriginalExtension();
+        $path = $file->storeAs('tomi-invoice/referral-transfer', $filename);
+
+        if (! empty($invoice->{$proofColumn})) {
+            Storage::delete($invoice->{$proofColumn});
+        }
+
+        DB::table('financing_request_invoices')
+            ->where('id', $id)
+            ->update([
+                $dateColumn => $request->referral_transfer_date,
+                $proofColumn => $path,
+                'updated_at' => now(),
+            ]);
+
+        return response()->json([
+            'status' => 200,
+            'message' => "Bukti transfer referal termin {$term} berhasil diupload.",
+        ], 200);
+    }
+
+    public function downloadReferralRecap($id, $period, $term)
+    {
+        $term = (int) $term;
+
+        if (! in_array($term, [1, 2, 3], true)) {
+            abort(404, 'Termin tidak valid.');
+        }
+
+        if (! preg_match('/^\d{4}-\d{2}$/', (string) $period)) {
+            abort(404, 'Periode tidak valid.');
+        }
+
+        $company = $this->clientQuery()
+            ->where('id', $id)
+            ->first();
+
+        if (! $company) {
+            abort(404, 'Data perusahaan tidak ditemukan.');
+        }
+
+        $perusahaan = $this->mapClient($company);
+        $details = $this->getInvoiceDetails($perusahaan);
+
+        $items = $details
+            ->map(function (array $invoice) use ($term, $period) {
+                $termData = collect($invoice['terms'] ?? [])->get($term);
+
+                if (! $termData) {
+                    return null;
+                }
+
+                $periodSource = $termData['finance_invoice_term_date']
+                    ?? $termData['created_at']
+                    ?? $invoice['created_at']
+                    ?? null;
+
+                if (! $periodSource || Carbon::parse($periodSource)->format('Y-m') !== $period) {
+                    return null;
+                }
+
+                return [
+                    'nama_perusahaan' => $invoice['nama_perusahaan'] ?? $perusahaan['nama'],
+                    'vendor_name' => $invoice['vendor_name'] ?? '-',
+                    'nomor_invoice' => $termData['nomor_invoice'] ?? $invoice['nomor_invoice'] ?? '-',
+                    'purchase_order_number' => $invoice['purchase_order_number'] ?? '-',
+                    'term' => $term,
+                    'periode' => Carbon::parse($periodSource)->format('F Y'),
+                    'total_referal' => $termData['total_fee'] ?? 0,
+                    'referral_transfer_date' => $termData['referral_transfer_date'] ?? null,
+                    'referral_transfer_proof' => $termData['referral_transfer_proof'] ?? null,
+                ];
+            })
+            ->filter()
+            ->values();
+
+        $pdf = Pdf::loadView('admin.tomi-invoice.referral-recap-pdf', [
+            'perusahaan' => $perusahaan,
+            'items' => $items,
+            'term' => $term,
+            'period' => $period,
+            'periodLabel' => Carbon::createFromFormat('Y-m', $period)->format('F Y'),
+            'totalReferal' => $items->sum('total_referal'),
+        ])->setPaper('a4', 'landscape')
+            ->setOptions([
+                'isHtml5ParserEnabled' => true,
+                'isRemoteEnabled' => false,
+                'defaultFont' => 'DejaVu Sans',
+            ]);
+
+        return $pdf->stream('rekap-referal-'.$perusahaan['nama'].'-'.$period.'-termin-'.$term.'.pdf');
     }
 
     private function value(object $row, array $keys, mixed $default = null): mixed
@@ -192,9 +330,9 @@ class TomiInvoiceController extends Controller
     private function getInvoiceSummary()
     {
         if (
-            !Schema::hasTable('financing_request_invoices')
-            || !Schema::hasTable('clients')
-            || !Schema::hasTable('vendors')
+            ! Schema::hasTable('financing_request_invoices')
+            || ! Schema::hasTable('clients')
+            || ! Schema::hasTable('vendors')
         ) {
             return collect();
         }
@@ -220,7 +358,7 @@ class TomiInvoiceController extends Controller
             )
             ->groupBy('financing_request_invoices.client_id')
             ->get()
-            ->mapWithKeys(fn($item) => [
+            ->mapWithKeys(fn ($item) => [
                 (int) $item->client_id => [
                     'total_invoice' => (int) $item->total_invoice,
                     'total_pinjaman' => (float) $item->total_pinjaman,
@@ -233,9 +371,9 @@ class TomiInvoiceController extends Controller
     private function getInvoiceDetails(array $client)
     {
         if (
-            !Schema::hasTable('financing_request_invoices')
-            || !Schema::hasTable('clients')
-            || !Schema::hasTable('vendors')
+            ! Schema::hasTable('financing_request_invoices')
+            || ! Schema::hasTable('clients')
+            || ! Schema::hasTable('vendors')
         ) {
             return collect();
         }
@@ -245,7 +383,7 @@ class TomiInvoiceController extends Controller
             ->orderByDesc('financing_request_invoices.created_at')
             ->orderByDesc('financing_request_invoices.id')
             ->get()
-            ->map(fn($invoice) => $this->mapInvoiceDetail($invoice, $client));
+            ->map(fn ($invoice) => $this->mapInvoiceDetail($invoice, $client));
     }
 
     private function financingInvoiceBaseQuery()
@@ -284,7 +422,7 @@ class TomiInvoiceController extends Controller
             3 => (float) ($invoice->term_3_percentage ?? 0),
         ];
 
-        $activeTermCount = collect($percentages)->filter(fn($percentage) => $percentage > 0)->count() ?: 1;
+        $activeTermCount = collect($percentages)->filter(fn ($percentage) => $percentage > 0)->count() ?: 1;
 
         return collect([1, 2, 3])
             ->map(function (int $term) use ($invoice, $client, $principal, $clientRate, $adminFee, $percentages, $activeTermCount) {
@@ -292,6 +430,8 @@ class TomiInvoiceController extends Controller
                 $amountColumn = "finance_invoice_term_amount_{$term}";
                 $dateColumn = "finance_invoice_term_date_{$term}";
                 $fileColumn = "finance_invoice_term_file_{$term}";
+                $referralTransferDateColumn = "referral_transfer_date_{$term}";
+                $referralTransferProofColumn = "referral_transfer_proof_{$term}";
 
                 $termAmount = $invoice->{$amountColumn} !== null
                     ? (float) $invoice->{$amountColumn}
@@ -305,11 +445,11 @@ class TomiInvoiceController extends Controller
                 $termFee = ($termAmount * ($clientRate / 100)) + $termAdminFee;
 
                 return [
-                    'id' => $invoice->id . '-' . $term,
+                    'id' => $invoice->id.'-'.$term,
                     'invoice_id' => $invoice->id,
                     'nama_perusahaan' => $invoice->client_name ?? $client['nama'],
                     'vendor_name' => $invoice->vendor_name ?? '-',
-                    'nomor_invoice' => 'INV-TOMI-' . str_pad((string) $invoice->id, 5, '0', STR_PAD_LEFT) . '-T' . $term,
+                    'nomor_invoice' => 'INV-TOMI-'.str_pad((string) $invoice->id, 5, '0', STR_PAD_LEFT).'-T'.$term,
                     'purchase_order_number' => $invoice->purchase_order_number ?? '-',
                     'purchase_order_amount' => (float) ($invoice->purchase_order_amount ?? 0),
                     'approved_financing_amount' => $principal,
@@ -323,6 +463,8 @@ class TomiInvoiceController extends Controller
                     'admin_fee' => $termAdminFee,
                     'finance_invoice_term_date' => $invoice->{$dateColumn} ?? null,
                     'finance_invoice_term_file' => $invoice->{$fileColumn} ?? null,
+                    'referral_transfer_date' => $invoice->{$referralTransferDateColumn} ?? null,
+                    'referral_transfer_proof' => $invoice->{$referralTransferProofColumn} ?? null,
                     'is_process_complete' => $this->isTermProcessComplete($invoice, $term),
                     'can_download' => $this->canDownloadTerm($invoice, $term),
                     'status' => $invoice->status ?? '-',
@@ -345,7 +487,7 @@ class TomiInvoiceController extends Controller
             'invoice_id' => $invoice->id,
             'nama_perusahaan' => $invoice->client_name ?? $client['nama'],
             'vendor_name' => $invoice->vendor_name ?? '-',
-            'nomor_invoice' => 'INV-TOMI-' . str_pad((string) $invoice->id, 5, '0', STR_PAD_LEFT),
+            'nomor_invoice' => 'INV-TOMI-'.str_pad((string) $invoice->id, 5, '0', STR_PAD_LEFT),
             'purchase_order_number' => $invoice->purchase_order_number ?? '-',
             'purchase_order_amount' => (float) ($invoice->purchase_order_amount ?? 0),
             'approved_financing_amount' => $principal,
@@ -363,7 +505,7 @@ class TomiInvoiceController extends Controller
         $dateColumn = "finance_invoice_term_date_{$term}";
         $fileColumn = "finance_invoice_term_file_{$term}";
 
-        return !empty($invoice->{$dateColumn}) || !empty($invoice->{$fileColumn});
+        return ! empty($invoice->{$dateColumn}) || ! empty($invoice->{$fileColumn});
     }
 
     private function canDownloadTerm(object $invoice, int $term): bool

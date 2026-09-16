@@ -226,6 +226,14 @@ Route::middleware(['AdminMiddleware'])->group(
                 Route::get('invoice-financing/{id}', [TomiInvoiceController::class, 'show'])
                     ->name('admin.invoice-financing.show');
 
+                Route::post('invoice-financing/{id}/term/{term}/referral-transfer-proof', [TomiInvoiceController::class, 'uploadReferralTransferProof'])
+                    ->whereNumber('term')
+                    ->name('admin.invoice-financing.referral-transfer-proof.upload');
+
+                Route::get('invoice-financing/{id}/referral-recap/{period}/term/{term}/download', [TomiInvoiceController::class, 'downloadReferralRecap'])
+                    ->whereNumber('term')
+                    ->name('admin.invoice-financing.referral-recap.download');
+
                 Route::get('invoice-financing/{id}/term/{term}/download', [TomiInvoiceController::class, 'downloadTermInvoice'])
                     ->whereNumber('term')
                     ->name('admin.invoice-financing.term.download');
