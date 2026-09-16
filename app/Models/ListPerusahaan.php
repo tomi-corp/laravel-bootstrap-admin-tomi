@@ -3,13 +3,40 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ListPerusahaan extends Model
 {
-
     use SoftDeletes;
+
+    protected $fillable = [
+        'unique_code',
+        'id_lender',
+        'id_code_perusahaan',
+        'pic_perusahaan',
+        'pic_internal',
+        'nama',
+        'logo',
+        'email_perusahaan',
+        'id_provinsi',
+        'id_kabupaten',
+        'id_kecamatan',
+        'id_desa',
+        'alamat_lengkap',
+        'bank',
+        'no_rekening',
+        'atas_nama_rekening',
+        'nama_direktur_utama',
+        'telp',
+        'nomor_pks',
+        'payment_date',
+        'h_min_jatuh_tempo',
+        'status',
+        'active_profesional_fee',
+        'active_set_pinjaman',
+        'active_tanggal',
+        'max_plafon',
+    ];
 
     public function karyawan()
     {
@@ -45,12 +72,12 @@ class ListPerusahaan extends Model
     {
         $adminType = auth('admin')->user()?->type;
 
-        if ($adminType === "admin") {
+        if ($adminType === 'admin') {
             return $this->hasMany(list_karyawan::class, 'id_list_perusahaan', 'id')
                 ->where('approve_satu', 'pending');
         }
 
-        if ($adminType === "master") {
+        if ($adminType === 'master') {
             return $this->hasMany(list_karyawan::class, 'id_list_perusahaan', 'id')
                 ->where('approve_dua', 'pending');
         }
@@ -61,7 +88,6 @@ class ListPerusahaan extends Model
                     ->orWhere('approve_dua', 'pending');
             });
     }
-
 
     public function provinsi()
     {
@@ -77,6 +103,7 @@ class ListPerusahaan extends Model
     {
         return $this->hasOne(kecamatan::class, 'id', 'id_kecamatan');
     }
+
     public function desa()
     {
         return $this->hasOne(kelurahan::class, 'id', 'id_desa');
