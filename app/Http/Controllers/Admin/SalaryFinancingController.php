@@ -13,14 +13,19 @@ use Illuminate\Support\Str;
 
 class SalaryFinancingController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $admin = auth()->guard('admin')->user();
         $query = DB::table('list_perusahaans')
             ->orderByDesc('id');
+        $lenderId = $request->integer('lender_id');
 
         if ($admin->role === 'pic' || $admin->type === 'pic') {
             $query->where('id', $admin->company_id);
+        }
+
+        if ($lenderId) {
+            $this->applyCompanyLenderFilter($query, $lenderId);
         }
 
         $perusahaans = $query
@@ -51,21 +56,28 @@ class SalaryFinancingController extends Controller
             'provinsis' => $provinsis,
             'totalPengajuan' => collect($perusahaans)->sum('total_pengajuan'),
             'totalOutstanding' => collect($perusahaans)->sum('outstanding'),
+            'selectedLender' => $lenderId ? $this->findLender($lenderId) : null,
         ]);
     }
 
-    public function companies()
+    public function companies(Request $request)
     {
         $admin = auth()->guard('admin')->user();
         $query = DB::table('list_perusahaans')
             ->orderByDesc('id');
+        $lenderId = $request->integer('lender_id');
 
         if ($admin->role === 'pic' || $admin->type === 'pic') {
             $query->where('id', $admin->company_id);
         }
 
+        if ($lenderId) {
+            $this->applyCompanyLenderFilter($query, $lenderId);
+        }
+
         return view('admin.salary-financing.companies', [
             'perusahaans' => $query->get()->map(fn($company) => $this->mapCompany($company)),
+            'selectedLender' => $lenderId ? $this->findLender($lenderId) : null,
         ]);
     }
 
@@ -230,6 +242,7 @@ class SalaryFinancingController extends Controller
                 $status = in_array($rawStatus, ['inactive', 'non_active', 'nonactive', '0'], true) ? 'nonactive' : 'active';
 
                 return [
+                    'id' => $this->value($lender, ['id']),
                     'kode' => $this->value($lender, ['id_code_lender', 'kode_lender', 'code'], '-'),
                     'nama' => $this->value($lender, ['nama', 'name', 'nama_lender'], '-'),
                     'pic_lender' => $this->value($lender, ['pic_lender', 'pic', 'person_in_charge'], '-'),
@@ -239,6 +252,42 @@ class SalaryFinancingController extends Controller
                     'status' => $status,
                 ];
             });
+    }
+
+    private function findLender(int $id): ?array
+    {
+        if (!Schema::hasTable('lenders')) {
+            return null;
+        }
+
+        $query = DB::table('lenders')->where('id', $id);
+
+        if (Schema::hasColumn('lenders', 'deleted_at')) {
+            $query->whereNull('deleted_at');
+        }
+
+        $lender = $query->first();
+
+        if (!$lender) {
+            return null;
+        }
+
+        return [
+            'id' => $this->value($lender, ['id']),
+            'kode' => $this->value($lender, ['id_code_lender', 'kode_lender', 'code'], '-'),
+            'nama' => $this->value($lender, ['nama', 'name', 'nama_lender'], '-'),
+        ];
+    }
+
+    private function applyCompanyLenderFilter($query, int $lenderId): void
+    {
+        foreach (['id_lender', 'lender_id'] as $column) {
+            if (Schema::hasColumn('list_perusahaans', $column)) {
+                $query->where($column, $lenderId);
+
+                return;
+            }
+        }
     }
 
     private function getSalaryFinancingDetails(int|string $companyId, string $companyName)

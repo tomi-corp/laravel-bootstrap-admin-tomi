@@ -15,6 +15,14 @@ $totalPerusahaan = count($perusahaans ?? []);
                 </ol>
             </div>
             <h4 class="page-title">Salary Financing</h4>
+            @if(!empty($selectedLender))
+                <p class="text-muted mb-0">
+                    Lender: <strong>{{ $selectedLender['nama'] }}</strong>
+                    @if($selectedLender['kode'] !== '-')
+                        ({{ $selectedLender['kode'] }})
+                    @endif
+                </p>
+            @endif
         </div>
     </div>
 </div>

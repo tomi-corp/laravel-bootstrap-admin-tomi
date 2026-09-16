@@ -15,6 +15,14 @@
         <div class="card">
             <div class="card-body">
                 <h4 class="header-title mb-3">Perusahaan Terdaftar</h4>
+                @if(!empty($selectedLender))
+                    <p class="text-muted mb-3">
+                        Lender: <strong>{{ $selectedLender['nama'] }}</strong>
+                        @if($selectedLender['kode'] !== '-')
+                            ({{ $selectedLender['kode'] }})
+                        @endif
+                    </p>
+                @endif
                 <table class="table table-bordered table-hover dt-responsive nowrap" id="invoiceCompanyTable" style="width: 100%;">
                     <thead>
                         <tr>
@@ -47,7 +55,7 @@
                                 </span>
                             </td>
                             <td class="text-center">
-                                <a href="{{ route('admin.invoice-financing.show', $perusahaan['id']) }}" class="btn btn-sm btn-outline-info">
+                                <a href="{{ route('admin.invoice-financing.index', request()->filled('lender_id') ? ['lender_id' => request('lender_id')] : []) }}" class="btn btn-sm btn-outline-info">
                                     <i class="fas fa-eye"></i> Detail
                                 </a>
                             </td>

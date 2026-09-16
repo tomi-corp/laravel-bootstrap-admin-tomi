@@ -93,23 +93,10 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
 
                 {{-- TomiGaji --}}
                 <li>
-                    <a href="javascript: void(0);">
+                    <a href="{{ route('admin.salary-financing.lenders') }}">
                         <i class="dripicons-wallet"></i>
                         <span>TomiGaji</span>
-                        <span class="menu-arrow"></span>
                     </a>
-
-                    <ul class="nav-second-level nav" aria-expanded="false">
-                        <li>
-                            <a href="{{ route('admin.salary-financing.index') }}">Dashboard</a>
-                        </li>
-                        <li>
-                            <a href="{{ route('admin.salary-financing.companies') }}">Perusahaan</a>
-                        </li>
-                        <li>
-                            <a href="{{ route('admin.salary-financing.lenders') }}">Lender</a>
-                        </li>
-                    </ul>
                 </li>
 
                 {{-- TomiGawai --}}
@@ -122,23 +109,10 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
 
                 {{-- TomiInvoice --}}
                 <li>
-                    <a href="javascript: void(0);">
+                    <a href="{{ route('admin.invoice-financing.lenders') }}">
                         <i class="dripicons-document"></i>
                         <span>TomiInvoice</span>
-                        <span class="menu-arrow"></span>
                     </a>
-
-                    <ul class="nav-second-level nav" aria-expanded="false">
-                        <li>
-                            <a href="{{ route('admin.invoice-financing.index') }}">Dashboard</a>
-                        </li>
-                        <li>
-                            <a href="{{ route('admin.invoice-financing.companies') }}">Perusahaan</a>
-                        </li>
-                        <li>
-                            <a href="{{ route('admin.invoice-financing.lenders') }}">Lender</a>
-                        </li>
-                    </ul>
                 </li>
 
                 {{-- Menu di bawah ini hanya tampil selain pic dan staff --}}

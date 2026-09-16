@@ -26,6 +26,7 @@
                             <th>Telepon</th>
                             <th>No. PKS</th>
                             <th>Status</th>
+                            <th class="text-center">Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -43,10 +44,15 @@
                                     {{ strtoupper($lender['status']) }}
                                 </span>
                             </td>
+                            <td class="text-center">
+                                <a href="{{ route('admin.invoice-financing.companies', ['lender_id' => $lender['id']]) }}" class="btn btn-sm btn-outline-info">
+                                    <i class="fas fa-eye"></i> Detail
+                                </a>
+                            </td>
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="8" class="text-center text-muted">Belum ada lender terdaftar.</td>
+                            <td colspan="9" class="text-center text-muted">Belum ada lender terdaftar.</td>
                         </tr>
                         @endforelse
                     </tbody>

@@ -20,6 +20,14 @@
                 </ol>
             </div>
             <h4 class="page-title">TomiInvoice</h4>
+            @if(!empty($selectedLender))
+                <p class="text-muted mb-0">
+                    Lender: <strong>{{ $selectedLender['nama'] }}</strong>
+                    @if($selectedLender['kode'] !== '-')
+                        ({{ $selectedLender['kode'] }})
+                    @endif
+                </p>
+            @endif
         </div>
     </div>
 </div>

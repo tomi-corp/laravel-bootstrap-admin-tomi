@@ -13,14 +13,19 @@ use Illuminate\Support\Str;
 
 class TomiInvoiceController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $admin = auth()->guard('admin')->user();
 
         $query = $this->clientQuery();
+        $lenderId = $request->integer('lender_id');
 
         if ($admin->role === 'pic' || $admin->type === 'pic') {
             $query->where('id', $admin->company_id);
+        }
+
+        if ($lenderId) {
+            $this->applyClientLenderFilter($query, $lenderId);
         }
 
         $perusahaans = $query
@@ -28,7 +33,7 @@ class TomiInvoiceController extends Controller
             ->get()
             ->map(fn ($client) => $this->mapClient($client));
 
-        $invoiceSummary = $this->getInvoiceSummary();
+        $invoiceSummary = $this->getInvoiceSummary($lenderId);
 
         $perusahaans = $perusahaans->map(function (array $perusahaan) use ($invoiceSummary) {
             $summary = $invoiceSummary->get((int) $perusahaan['id'], [
@@ -48,21 +53,28 @@ class TomiInvoiceController extends Controller
             'totalPinjaman' => $perusahaans->sum('total_pinjaman'),
             'totalDibayarkan' => $perusahaans->sum('total_dibayarkan'),
             'totalFee' => $perusahaans->sum('total_fee'),
+            'selectedLender' => $lenderId ? $this->findLender($lenderId) : null,
         ]);
     }
 
-    public function companies()
+    public function companies(Request $request)
     {
         $admin = auth()->guard('admin')->user();
         $query = $this->clientQuery()
             ->orderByDesc('id');
+        $lenderId = $request->integer('lender_id');
 
         if ($admin->role === 'pic' || $admin->type === 'pic') {
             $query->where('id', $admin->company_id);
         }
 
+        if ($lenderId) {
+            $this->applyClientLenderFilter($query, $lenderId);
+        }
+
         return view('admin.tomi-invoice.companies', [
             'perusahaans' => $query->get()->map(fn ($client) => $this->mapClient($client)),
+            'selectedLender' => $lenderId ? $this->findLender($lenderId) : null,
         ]);
     }
 
@@ -369,6 +381,7 @@ class TomiInvoiceController extends Controller
                 $status = in_array($rawStatus, ['inactive', 'non_active', 'nonactive', '0'], true) ? 'nonactive' : 'active';
 
                 return [
+                    'id' => $this->value($lender, ['id']),
                     'kode' => $this->value($lender, ['id_code_lender', 'kode_lender', 'code'], '-'),
                     'nama' => $this->value($lender, ['nama', 'name', 'nama_lender'], '-'),
                     'pic_lender' => $this->value($lender, ['pic_lender', 'pic', 'person_in_charge'], '-'),
@@ -380,7 +393,66 @@ class TomiInvoiceController extends Controller
             });
     }
 
-    private function getInvoiceSummary()
+    private function findLender(int $id): ?array
+    {
+        if (! Schema::hasTable('lenders')) {
+            return null;
+        }
+
+        $query = DB::table('lenders')->where('id', $id);
+
+        if (Schema::hasColumn('lenders', 'deleted_at')) {
+            $query->whereNull('deleted_at');
+        }
+
+        $lender = $query->first();
+
+        if (! $lender) {
+            return null;
+        }
+
+        return [
+            'id' => $this->value($lender, ['id']),
+            'kode' => $this->value($lender, ['id_code_lender', 'kode_lender', 'code'], '-'),
+            'nama' => $this->value($lender, ['nama', 'name', 'nama_lender'], '-'),
+        ];
+    }
+
+    private function applyClientLenderFilter($query, int $lenderId): void
+    {
+        $clientTable = Schema::hasTable('clients') ? 'clients' : 'list_perusahaans';
+
+        foreach (['id_lender', 'lender_id'] as $column) {
+            if (Schema::hasColumn($clientTable, $column)) {
+                $query->where($column, $lenderId);
+
+                return;
+            }
+        }
+
+        if (! Schema::hasTable('financing_request_invoices')) {
+            return;
+        }
+
+        foreach (['id_lender', 'lender_id'] as $column) {
+            if (Schema::hasColumn('financing_request_invoices', $column)) {
+                $query->whereExists(function ($subQuery) use ($clientTable, $column, $lenderId) {
+                    $subQuery->select(DB::raw(1))
+                        ->from('financing_request_invoices')
+                        ->whereColumn('financing_request_invoices.client_id', "{$clientTable}.id")
+                        ->where("financing_request_invoices.{$column}", $lenderId);
+
+                    if (Schema::hasColumn('financing_request_invoices', 'deleted_at')) {
+                        $subQuery->whereNull('financing_request_invoices.deleted_at');
+                    }
+                });
+
+                return;
+            }
+        }
+    }
+
+    private function getInvoiceSummary(?int $lenderId = null)
     {
         if (
             ! Schema::hasTable('financing_request_invoices')
@@ -390,7 +462,19 @@ class TomiInvoiceController extends Controller
             return collect();
         }
 
-        return $this->financingInvoiceBaseQuery()
+        $query = $this->financingInvoiceBaseQuery();
+
+        if ($lenderId) {
+            foreach (['id_lender', 'lender_id'] as $column) {
+                if (Schema::hasColumn('financing_request_invoices', $column)) {
+                    $query->where("financing_request_invoices.{$column}", $lenderId);
+
+                    break;
+                }
+            }
+        }
+
+        return $query
             ->select(
                 'financing_request_invoices.client_id',
                 DB::raw('COUNT(*) as total_invoice'),
