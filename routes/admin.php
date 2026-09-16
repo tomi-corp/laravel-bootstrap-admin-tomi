@@ -211,6 +211,10 @@ Route::middleware(['AdminMiddleware'])->group(
                 // salary financing
                 Route::get('/salary-financing', [SalaryFinancingController::class, 'index'])->name('admin.salary-financing.index');
 
+                Route::get('/salary-financing/companies', [SalaryFinancingController::class, 'companies'])->name('admin.salary-financing.companies');
+
+                Route::get('/salary-financing/lenders', [SalaryFinancingController::class, 'lenders'])->name('admin.salary-financing.lenders');
+
                 Route::get('/salary-financing/invoice/{id}/download', [SalaryFinancingController::class, 'downloadInvoice'])->name('admin.salary-financing.invoice.download');
 
                 Route::get('/salary-financing/{id}', [SalaryFinancingController::class, 'show'])->name('admin.salary-financing.show');
@@ -222,6 +226,12 @@ Route::middleware(['AdminMiddleware'])->group(
 
                 Route::get('invoice-financing', [TomiInvoiceController::class, 'index'])
                     ->name('admin.invoice-financing.index');
+
+                Route::get('invoice-financing/companies', [TomiInvoiceController::class, 'companies'])
+                    ->name('admin.invoice-financing.companies');
+
+                Route::get('invoice-financing/lenders', [TomiInvoiceController::class, 'lenders'])
+                    ->name('admin.invoice-financing.lenders');
 
                 Route::get('invoice-financing/{id}', [TomiInvoiceController::class, 'show'])
                     ->name('admin.invoice-financing.show');

@@ -54,6 +54,28 @@ class SalaryFinancingController extends Controller
         ]);
     }
 
+    public function companies()
+    {
+        $admin = auth()->guard('admin')->user();
+        $query = DB::table('list_perusahaans')
+            ->orderByDesc('id');
+
+        if ($admin->role === 'pic' || $admin->type === 'pic') {
+            $query->where('id', $admin->company_id);
+        }
+
+        return view('admin.salary-financing.companies', [
+            'perusahaans' => $query->get()->map(fn($company) => $this->mapCompany($company)),
+        ]);
+    }
+
+    public function lenders()
+    {
+        return view('admin.salary-financing.lenders', [
+            'lenders' => $this->registeredLenders(),
+        ]);
+    }
+
     private function value(object $row, array $keys, mixed $default = null): mixed
     {
         foreach ($keys as $key) {
@@ -186,6 +208,37 @@ class SalaryFinancingController extends Controller
             'total_pengajuan' => (int) $this->value($company, ['total_pengajuan', 'total_submission', 'submission_count'], 0),
             'outstanding' => (float) $this->value($company, ['outstanding', 'outstanding_amount', 'total_outstanding'], 0),
         ];
+    }
+
+    private function registeredLenders()
+    {
+        if (!Schema::hasTable('lenders')) {
+            return collect();
+        }
+
+        $query = DB::table('lenders');
+
+        if (Schema::hasColumn('lenders', 'deleted_at')) {
+            $query->whereNull('deleted_at');
+        }
+
+        return $query
+            ->orderByDesc('id')
+            ->get()
+            ->map(function (object $lender) {
+                $rawStatus = strtolower((string) $this->value($lender, ['status'], 'active'));
+                $status = in_array($rawStatus, ['inactive', 'non_active', 'nonactive', '0'], true) ? 'nonactive' : 'active';
+
+                return [
+                    'kode' => $this->value($lender, ['id_code_lender', 'kode_lender', 'code'], '-'),
+                    'nama' => $this->value($lender, ['nama', 'name', 'nama_lender'], '-'),
+                    'pic_lender' => $this->value($lender, ['pic_lender', 'pic', 'person_in_charge'], '-'),
+                    'email' => $this->value($lender, ['email_lender', 'email'], '-'),
+                    'telp' => $this->value($lender, ['telp', 'telepon', 'phone'], '-'),
+                    'nomor_pks' => $this->value($lender, ['nomor_pks', 'no_pks', 'pks_number'], '-'),
+                    'status' => $status,
+                ];
+            });
     }
 
     private function getSalaryFinancingDetails(int|string $companyId, string $companyName)

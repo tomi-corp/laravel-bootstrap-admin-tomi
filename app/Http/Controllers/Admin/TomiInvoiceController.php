@@ -51,6 +51,28 @@ class TomiInvoiceController extends Controller
         ]);
     }
 
+    public function companies()
+    {
+        $admin = auth()->guard('admin')->user();
+        $query = $this->clientQuery()
+            ->orderByDesc('id');
+
+        if ($admin->role === 'pic' || $admin->type === 'pic') {
+            $query->where('id', $admin->company_id);
+        }
+
+        return view('admin.tomi-invoice.companies', [
+            'perusahaans' => $query->get()->map(fn ($client) => $this->mapClient($client)),
+        ]);
+    }
+
+    public function lenders()
+    {
+        return view('admin.tomi-invoice.lenders', [
+            'lenders' => $this->registeredLenders(),
+        ]);
+    }
+
     public function show($id)
     {
         $company = $this->clientQuery()
@@ -325,6 +347,37 @@ class TomiInvoiceController extends Controller
             'rate' => (float) $this->value($client, ['rate'], 0),
             'admin_fee' => (float) $this->value($client, ['admin_fee'], 0),
         ];
+    }
+
+    private function registeredLenders()
+    {
+        if (! Schema::hasTable('lenders')) {
+            return collect();
+        }
+
+        $query = DB::table('lenders');
+
+        if (Schema::hasColumn('lenders', 'deleted_at')) {
+            $query->whereNull('deleted_at');
+        }
+
+        return $query
+            ->orderByDesc('id')
+            ->get()
+            ->map(function (object $lender) {
+                $rawStatus = strtolower((string) $this->value($lender, ['status'], 'active'));
+                $status = in_array($rawStatus, ['inactive', 'non_active', 'nonactive', '0'], true) ? 'nonactive' : 'active';
+
+                return [
+                    'kode' => $this->value($lender, ['id_code_lender', 'kode_lender', 'code'], '-'),
+                    'nama' => $this->value($lender, ['nama', 'name', 'nama_lender'], '-'),
+                    'pic_lender' => $this->value($lender, ['pic_lender', 'pic', 'person_in_charge'], '-'),
+                    'email' => $this->value($lender, ['email_lender', 'email'], '-'),
+                    'telp' => $this->value($lender, ['telp', 'telepon', 'phone'], '-'),
+                    'nomor_pks' => $this->value($lender, ['nomor_pks', 'no_pks', 'pks_number'], '-'),
+                    'status' => $status,
+                ];
+            });
     }
 
     private function getInvoiceSummary()
