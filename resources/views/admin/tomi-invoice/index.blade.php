@@ -1,5 +1,14 @@
 @extends('layout.app')
 @section('title', 'TomiInvoice')
+
+@push('css')
+<style>
+    #tomiInvoiceTable .btn {
+        width: 100%;
+    }
+</style>
+@endpush
+
 @section('content')
 <div class="row">
     <div class="col-12">
@@ -120,7 +129,7 @@
                             <td class="text-center">
                                 <a href="{{ route('admin.invoice-financing.show', $perusahaan['id']) }}"
                                     class="btn btn-sm btn-outline-info" title="Show">
-                                    <i class="fas fa-eye"></i>
+                                    <i class="fas fa-eye"></i> Detail
                                 </a>
                             </td>
                         </tr>

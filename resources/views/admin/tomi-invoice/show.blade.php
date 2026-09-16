@@ -53,21 +53,41 @@
         margin-top: 4px;
     }
 
+    .recap-term-cell {
+        min-width: 230px;
+        white-space: normal !important;
+    }
+
+    #detailTable .btn,
+    #detailTable .badge {
+        display: block;
+        width: 100%;
+    }
+
+    #detailTable .badge {
+        padding: 6px 8px;
+        white-space: normal;
+    }
+
     .invoice-mode-menu .nav-link {
         min-width: 150px;
         text-align: center;
     }
 
     .referral-upload-action {
-        display: none;
+        display: none !important;
+    }
+
+    .invoice-download-action {
+        display: block !important;
     }
 
     body.invoice-mode-upload-referral .invoice-download-action {
-        display: none;
+        display: none !important;
     }
 
     body.invoice-mode-upload-referral .referral-upload-action {
-        display: inline-block;
+        display: block !important;
     }
 
     .referral-recap-row {
@@ -245,15 +265,15 @@ $referralRecapRows = $details
                                     <th width="60" data-invoice-label="No" data-recap-label="No">No</th>
                                     <th data-invoice-label="Mitra" data-recap-label="Periode">Mitra</th>
                                     <th data-invoice-label="Pelanggan Mitra" data-recap-label="Mitra">Pelanggan Mitra</th>
-                                    <th data-invoice-label="Nomor Invoice" data-recap-label="-">Nomor Invoice</th>
-                                    <th data-invoice-label="No. PO" data-recap-label="Termin 1">No. PO</th>
-                                    <th data-invoice-label="Nilai Pembiayaan" data-recap-label="Termin 2">Nilai Pembiayaan</th>
-                                    <th data-invoice-label="Termin 1" data-recap-label="Termin 3">Termin 1</th>
-                                    <th data-invoice-label="Termin 2" data-recap-label="Total Referal">Termin 2</th>
-                                    <th data-invoice-label="Termin 3" data-recap-label="Status Bukti">Termin 3</th>
-                                    <th data-invoice-label="Total Termin" data-recap-label="Sudah Upload">Total Termin</th>
-                                    <th data-invoice-label="Total Invoice Fee" data-recap-label="Belum Upload">Total Invoice Fee</th>
-                                    <th data-invoice-label="Status" data-recap-label="Status">Status</th>
+                                    <th data-invoice-label="Nomor Invoice" data-recap-label="Termin 1">Nomor Invoice</th>
+                                    <th data-invoice-label="No. PO" data-recap-label="Termin 2">No. PO</th>
+                                    <th data-invoice-label="Nilai Pembiayaan" data-recap-label="Termin 3">Nilai Pembiayaan</th>
+                                    <th data-invoice-label="Termin 1" data-recap-label="Total Referal">Termin 1</th>
+                                    <th data-invoice-label="Termin 2" data-recap-label="Status Bukti">Termin 2</th>
+                                    <th data-invoice-label="Termin 3" data-recap-label="Sudah Upload">Termin 3</th>
+                                    <th data-invoice-label="Total Termin" data-recap-label="Belum Upload">Total Termin</th>
+                                    <th data-invoice-label="Total Invoice Fee" data-recap-label="Status">Total Invoice Fee</th>
+                                    <th data-invoice-label="Status" data-recap-label="">Status</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -262,23 +282,19 @@ $referralRecapRows = $details
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $recap['periode'] }}</td>
                                     <td>{{ $recap['nama_perusahaan'] }}</td>
-                                    <td></td>
                                     @for($recapTermNumber = 1; $recapTermNumber <= 3; $recapTermNumber++)
                                     @php
                                         $recapTerm = $recap['terms']->get($recapTermNumber);
                                     @endphp
-                                    <td>
+                                    <td class="recap-term-cell">
                                         @if(($recapTerm['total'] ?? 0) > 0)
-                                            <div class="font-weight-bold">
-                                                Rp {{ number_format($recapTerm['total_referal'] ?? 0, 0, ',', '.') }}
-                                            </div>
                                             @if(($recapTerm['uploaded'] ?? 0) === ($recapTerm['total'] ?? 0))
                                                 <span class="badge badge-success">SUDAH UPLOAD</span>
                                             @else
                                                 <span class="badge badge-warning">BELUM UPLOAD</span>
                                             @endif
                                             <a href="{{ route('admin.invoice-financing.referral-recap.download', ['id' => $perusahaan['id'], 'period' => $recap['period_key'], 'term' => $recapTermNumber]) }}"
-                                                class="btn btn-sm btn-info mt-1" target="_blank">
+                                                class="btn btn-sm btn-info mt-1" target="_blank" title="Download Rekap Termin {{ $recapTermNumber }}">
                                                 <i class="mdi mdi-download"></i> Download Rekap
                                             </a>
                                         @else
@@ -303,6 +319,7 @@ $referralRecapRows = $details
                                             <span class="badge badge-warning">BELUM LENGKAP</span>
                                         @endif
                                     </td>
+                                    <td></td>
                                 </tr>
                                 @endforeach
 
@@ -310,7 +327,6 @@ $referralRecapRows = $details
                                     <td></td>
                                     <td><strong>Total Semua Periode</strong></td>
                                     <td><strong>Semua Mitra</strong></td>
-                                    <td><strong>Semua Pelanggan</strong></td>
                                     <td>-</td>
                                     <td>-</td>
                                     <td>-</td>
@@ -319,6 +335,7 @@ $referralRecapRows = $details
                                     <td><strong>{{ number_format($totalReferralUploaded, 0, ',', '.') }}</strong></td>
                                     <td><strong>{{ number_format($totalReferralPending, 0, ',', '.') }}</strong></td>
                                     <td>-</td>
+                                    <td></td>
                                 </tr>
 
                                 @forelse($details as $item)
@@ -393,7 +410,11 @@ $referralRecapRows = $details
                                     @endfor
                                     <td>Rp {{ number_format($item['total_dibayarkan'] ?? 0, 0, ',', '.') }}</td>
                                     <td>Rp {{ number_format($item['total_fee'] ?? 0, 0, ',', '.') }}</td>
-                                    <td>{{ strtoupper(str_replace('_', ' ', $item['status'] ?? '-')) }}</td>
+                                    <td>
+                                        <span class="badge badge-secondary">
+                                            {{ strtoupper(str_replace('_', ' ', $item['status'] ?? '-')) }}
+                                        </span>
+                                    </td>
                                 </tr>
                                 @empty
                                 <tr>
@@ -566,14 +587,14 @@ $referralRecapRows = $details
 
             $('#detailTable thead th').each(function () {
                 const label = mode === 'recap-referral' ? $(this).data('recap-label') : $(this).data('invoice-label');
-
-                if (label) {
-                    $(this).text(label);
-                }
+                $(this).text(label || '');
             });
 
             if (detailDataTable) {
                 detailDataTable.columns.adjust();
+                setTimeout(() => {
+                    detailDataTable.columns.adjust().draw(false);
+                }, 50);
             }
         };
 
