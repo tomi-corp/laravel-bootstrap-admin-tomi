@@ -53,8 +53,9 @@
         margin-top: 4px;
     }
 
-    .invoice-mode-menu .btn {
+    .invoice-mode-menu .nav-link {
         min-width: 150px;
+        text-align: center;
     }
 
     .referral-upload-action {
@@ -216,20 +217,26 @@ $referralRecapRows = $details
                 <div class="card-body">
                     <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
                         <h4 class="header-title mb-2 mb-md-0" id="tableTitle">Daftar Invoice</h4>
-                        <div class="btn-group invoice-mode-menu" role="group" aria-label="Menu detail TomiInvoice">
-                            <button type="button" class="btn btn-primary btn-sm invoice-mode-btn active"
-                                data-mode="invoice">
-                                <i class="mdi mdi-table"></i> Invoice
-                            </button>
-                            <button type="button" class="btn btn-outline-primary btn-sm invoice-mode-btn"
-                                data-mode="upload-referral">
-                                <i class="mdi mdi-upload"></i> Upload Bukti Transfer Referal
-                            </button>
-                            <button type="button" class="btn btn-outline-primary btn-sm invoice-mode-btn"
-                                data-mode="recap-referral">
-                                <i class="mdi mdi-file-chart"></i> Rekap Referal
-                            </button>
-                        </div>
+                        <ul class="nav nav-tabs invoice-mode-menu" role="tablist" aria-label="Menu detail TomiInvoice">
+                            <li class="nav-item">
+                                <a href="#" class="nav-link active invoice-mode-btn" data-mode="invoice" role="tab"
+                                    aria-selected="true">
+                                    <i class="mdi mdi-table"></i> Invoice
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link invoice-mode-btn" data-mode="upload-referral" role="tab"
+                                    aria-selected="false">
+                                    <i class="mdi mdi-upload"></i> Upload Bukti Transfer Referal
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link invoice-mode-btn" data-mode="recap-referral" role="tab"
+                                    aria-selected="false">
+                                    <i class="mdi mdi-file-chart"></i> Rekap Referal
+                                </a>
+                            </li>
+                        </ul>
                     </div>
 
                     <div class="table-responsive tomi-invoice-table-wrapper">
@@ -540,12 +547,12 @@ $referralRecapRows = $details
 
         const setInvoiceMode = (mode) => {
             $('.invoice-mode-btn')
-                .removeClass('btn-primary active')
-                .addClass('btn-outline-primary');
+                .removeClass('active')
+                .attr('aria-selected', 'false');
 
             $(`.invoice-mode-btn[data-mode="${mode}"]`)
-                .removeClass('btn-outline-primary')
-                .addClass('btn-primary active');
+                .addClass('active')
+                .attr('aria-selected', 'true');
 
             $('body').toggleClass('invoice-mode-upload-referral', mode === 'upload-referral');
             $('body').toggleClass('invoice-mode-recap-referral', mode === 'recap-referral');
@@ -571,7 +578,8 @@ $referralRecapRows = $details
             }
         };
 
-        $(document).on('click', '.invoice-mode-btn', function () {
+        $(document).on('click', '.invoice-mode-btn', function (event) {
+            event.preventDefault();
             setInvoiceMode($(this).data('mode'));
         });
 
