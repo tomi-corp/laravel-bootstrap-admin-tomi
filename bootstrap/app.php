@@ -16,7 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 ->prefix('backoffice')
                 ->group(base_path('routes/admin.php'));
             Route::middleware('web')
-                ->prefix('backoffice/internal')
+                ->prefix('internal')
                 ->group(base_path('routes/internal.php'));
             Route::middleware('web')
                 ->group(base_path('routes/web.php'));

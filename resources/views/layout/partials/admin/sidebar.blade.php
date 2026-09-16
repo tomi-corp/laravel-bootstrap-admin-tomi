@@ -62,20 +62,6 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                     </a>
                 </li>
 
-                <li>
-                    <a href="javascript: void(0);">
-                        <i class="dripicons-briefcase"></i>
-                        <span> Internal </span>
-                        <span class="menu-arrow"></span>
-                    </a>
-
-                    <ul class="nav-second-level nav" aria-expanded="false">
-                        <li>
-                            <a href="{{ route('internal.companies.index') }}">Perusahaan</a>
-                        </li>
-                    </ul>
-                </li>
-
                 {{-- Tomi Dana tetap tampil untuk semua role, termasuk pic dan staff --}}
                 <li>
                     <a href="javascript: void(0);">

@@ -52,8 +52,8 @@ class CompanyController extends Controller
                 return '<span class="badge '.$class.'">'.strtoupper($company->status).'</span>';
             })
             ->addColumn('action', function (ListPerusahaan $company) {
-                return '<button type="button" class="btn btn-sm btn-primary mr-1" onclick="editCompany('.$company->id.')"><i class="mdi mdi-pencil"></i></button>'
-                    .'<button type="button" class="btn btn-sm btn-danger" onclick="deleteCompany('.$company->id.')"><i class="mdi mdi-trash-can"></i></button>';
+                return '<button type="button" class="btn btn-sm btn-primary mr-1" onclick="editCompany('.$company->id.')"><i class="fa-solid fa-pen"></i></button>'
+                    .'<button type="button" class="btn btn-sm btn-danger" onclick="deleteCompany('.$company->id.')"><i class="fa-solid fa-trash-can"></i></button>';
             })
             ->filterColumn('lender_name', fn ($query, $keyword) => $query->whereHas('lender', fn ($q) => $q->where('nama', 'like', "%{$keyword}%")))
             ->filterColumn('province_name', fn ($query, $keyword) => $query->whereHas('provinsi', fn ($q) => $q->where('provinsi', 'like', "%{$keyword}%")))

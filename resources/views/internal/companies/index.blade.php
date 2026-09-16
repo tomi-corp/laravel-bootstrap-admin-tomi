@@ -38,7 +38,7 @@
         <div class="card">
             <div class="card-body">
                 <button type="button" class="btn btn-sm btn-primary float-right mb-3" onclick="openCreateModal()">
-                    <i class="mdi mdi-plus-circle"></i> Tambah Perusahaan
+                    <i class="fa-solid fa-circle-plus"></i> Tambah Perusahaan
                 </button>
 
                 <table id="companiesTable" class="table dt-responsive table-hover text-center" style="width:100%">
@@ -243,9 +243,9 @@
     var table = $('#companiesTable').DataTable({
         dom: 'B<"clear">lfrtip',
         buttons: [
-            { extend: 'excel', className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1', text: '<span class="mdi mdi-file-excel"><span class="pl-1">Excel</span></span>' },
-            { extend: 'copy', className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1', text: '<span class="mdi mdi-content-copy"><span class="pl-1">Copy</span></span>' },
-            { extend: 'print', className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1', text: '<span class="mdi mdi-printer"><span class="pl-1">Print</span></span>' }
+            { extend: 'excel', className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1', text: '<i class="fa-solid fa-file-excel"></i><span class="pl-1">Excel</span>' },
+            { extend: 'copy', className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1', text: '<i class="fa-solid fa-copy"></i><span class="pl-1">Copy</span>' },
+            { extend: 'print', className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1', text: '<i class="fa-solid fa-print"></i><span class="pl-1">Print</span>' }
         ],
         processing: true,
         serverSide: true,
@@ -331,18 +331,31 @@
     }
 
     function deleteCompany(id) {
-        if (!confirm('Hapus perusahaan internal ini?')) {
-            return;
-        }
-
-        $.ajax({
-            url: '{{ route('internal.companies.destroy', ':id') }}'.replace(':id', id),
-            type: 'DELETE',
-            data: { _token: '{{ csrf_token() }}' },
-            success: function (response) {
-                toastr.success(response.message);
-                table.ajax.reload();
+        Swal.fire({
+            title: 'Hapus perusahaan?',
+            text: 'Data perusahaan internal akan dihapus.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Hapus',
+            cancelButtonText: 'Batal',
+            confirmButtonColor: '#dc3545'
+        }).then(function (result) {
+            if (!result.isConfirmed) {
+                return;
             }
+
+            $.ajax({
+                url: '{{ route('internal.companies.destroy', ':id') }}'.replace(':id', id),
+                type: 'DELETE',
+                data: { _token: '{{ csrf_token() }}' },
+                success: function (response) {
+                    toastr.success(response.message);
+                    table.ajax.reload();
+                },
+                error: function () {
+                    toastr.error('Gagal menghapus data perusahaan internal');
+                }
+            });
         });
     }
 
