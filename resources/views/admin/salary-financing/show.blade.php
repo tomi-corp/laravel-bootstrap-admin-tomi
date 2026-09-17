@@ -49,6 +49,28 @@
     .text-nowrap {
         white-space: nowrap !important;
     }
+
+    .salary-summary-card .media {
+        min-height: 82px;
+    }
+
+    .salary-summary-icon {
+        width: 56px;
+        height: 56px;
+        min-width: 56px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .salary-summary-icon i {
+        display: block;
+        line-height: 1;
+    }
+
+    .salary-summary-card h3 {
+        line-height: 1.25;
+    }
 </style>
 @endpush
 
@@ -80,10 +102,10 @@ if ($sisaPlafon < 0) { $sisaPlafon=0; } @endphp <div class="container-fluid">
 
         {{-- Max Plafon --}}
         <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
-            <div class="card-box h-100">
+            <div class="card-box salary-summary-card h-100">
                 <div class="media align-items-center">
-                    <div class="avatar-md bg-primary rounded-circle mr-3">
-                        <i class="fas fa-bank avatar-title font-24 text-white"></i>
+                    <div class="salary-summary-icon bg-primary rounded-circle mr-3">
+                        <i class="fas fa-bank font-24 text-white"></i>
                     </div>
 
                     <div class="media-body">
@@ -101,10 +123,10 @@ if ($sisaPlafon < 0) { $sisaPlafon=0; } @endphp <div class="container-fluid">
 
         {{-- Plafon Terpakai --}}
         <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
-            <div class="card-box h-100">
+            <div class="card-box salary-summary-card h-100">
                 <div class="media align-items-center">
-                    <div class="avatar-md bg-warning rounded-circle mr-3">
-                        <i class="fas fa-money-bill-wave avatar-title font-24 text-white"></i>
+                    <div class="salary-summary-icon bg-warning rounded-circle mr-3">
+                        <i class="fas fa-money-bill-wave font-24 text-white"></i>
                     </div>
 
                     <div class="media-body">
@@ -122,10 +144,10 @@ if ($sisaPlafon < 0) { $sisaPlafon=0; } @endphp <div class="container-fluid">
 
         {{-- Sisa Plafon --}}
         <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
-            <div class="card-box h-100">
+            <div class="card-box salary-summary-card h-100">
                 <div class="media align-items-center">
-                    <div class="avatar-md bg-success rounded-circle mr-3">
-                        <i class="fas fa-wallet avatar-title font-24 text-white"></i>
+                    <div class="salary-summary-icon bg-success rounded-circle mr-3">
+                        <i class="fas fa-wallet font-24 text-white"></i>
                     </div>
 
                     <div class="media-body">
