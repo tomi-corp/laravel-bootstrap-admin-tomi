@@ -16,7 +16,7 @@ class SalaryFinancingController extends Controller
     public function index(Request $request)
     {
         $admin = auth()->guard('admin')->user();
-        $query = DB::table('list_perusahaans')
+        $query = $this->companyQuery()
             ->orderByDesc('id');
         $lenderId = $request->integer('lender_id');
 
@@ -63,7 +63,7 @@ class SalaryFinancingController extends Controller
     public function companies(Request $request)
     {
         $admin = auth()->guard('admin')->user();
-        $query = DB::table('list_perusahaans')
+        $query = $this->companyQuery()
             ->orderByDesc('id');
         $lenderId = $request->integer('lender_id');
 
@@ -101,9 +101,20 @@ class SalaryFinancingController extends Controller
         return $default;
     }
 
+    private function companyQuery()
+    {
+        $query = DB::table('list_perusahaans');
+
+        if (Schema::hasColumn('list_perusahaans', 'deleted_at')) {
+            $query->whereNull('deleted_at');
+        }
+
+        return $query;
+    }
+
     public function show($id)
     {
-        $company = DB::table('list_perusahaans')
+        $company = $this->companyQuery()
             ->where('id', $id)
             ->first();
 

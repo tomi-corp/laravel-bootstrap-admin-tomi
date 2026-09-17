@@ -332,7 +332,13 @@ class TomiInvoiceController extends Controller
             return $query;
         }
 
-        return DB::table('list_perusahaans');
+        $query = DB::table('list_perusahaans');
+
+        if (Schema::hasColumn('list_perusahaans', 'deleted_at')) {
+            $query->whereNull('deleted_at');
+        }
+
+        return $query;
     }
 
     private function mapClient(object $client): array

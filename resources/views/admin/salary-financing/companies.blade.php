@@ -23,7 +23,8 @@
                         @endif
                     </p>
                 @endif
-                <table class="table table-bordered table-hover dt-responsive nowrap" id="salaryCompanyTable" style="width: 100%;">
+                <div class="table-responsive">
+                <table class="table table-bordered table-hover nowrap" id="salaryCompanyTable" style="width: 100%;">
                     <thead>
                         <tr>
                             <th>No</th>
@@ -51,7 +52,7 @@
                                 </span>
                             </td>
                             <td class="text-center">
-                                <a href="{{ route('admin.salary-financing.index', request()->filled('lender_id') ? ['lender_id' => request('lender_id')] : []) }}" class="btn btn-sm btn-outline-info">
+                                <a href="{{ route('admin.salary-financing.show', $perusahaan['id']) }}" class="btn btn-sm btn-outline-info">
                                     <i class="fas fa-eye"></i> Detail
                                 </a>
                             </td>
@@ -63,6 +64,7 @@
                         @endforelse
                     </tbody>
                 </table>
+                </div>
             </div>
         </div>
     </div>
@@ -72,7 +74,8 @@
 @push('js')
 <script>
     $('#salaryCompanyTable').DataTable({
-        responsive: true,
+        scrollX: true,
+        responsive: false,
         pageLength: 10
     });
 </script>

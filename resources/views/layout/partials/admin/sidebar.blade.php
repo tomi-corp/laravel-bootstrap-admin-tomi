@@ -17,7 +17,7 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
 
                 <li>
                     <a href="{{ route('admin.dashboard.index') }}">
-                        <i class="dripicons-align-center"></i>
+                        <i class="fa-solid fa-gauge-high"></i>
                         <span> Dashboard </span>
                     </a>
                 </li>
@@ -28,7 +28,7 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                 @if (!$limitedProductRole)
                 <li>
                     <a href="javascript: void(0);">
-                        <i class="dripicons-document"></i>
+                        <i class="fa-solid fa-receipt"></i>
                         <span> PPOB </span>
                         <span class="menu-arrow"></span>
                     </a>
@@ -49,23 +49,37 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
 
                 {{-- Perusahaan dan Lender dipakai lintas produk --}}
                 <li>
+                    <a href="{{ route('admin.lender.index') }}">
+                        <i class="fa-solid fa-users-line"></i>
+                        <span> Lender </span>
+                    </a>
+                </li>
+
+                <li>
                     <a href="{{ route('admin.ksp.index') }}">
-                        <i class="dripicons-store"></i>
+                        <i class="fa-solid fa-building"></i>
                         <span> Perusahaan </span>
                     </a>
                 </li>
 
                 <li>
-                    <a href="{{ route('admin.lender.index') }}">
-                        <i class="dripicons-user-group"></i>
-                        <span> Lender </span>
+                    <a href="javascript: void(0);">
+                        <i class="fa-solid fa-handshake-angle"></i>
+                        <span> Refferal </span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="javascript: void(0);">
+                        <i class="fa-solid fa-puzzle-piece"></i>
+                        <span> Fitur </span>
                     </a>
                 </li>
 
                 {{-- Tomi Dana tetap tampil untuk semua role, termasuk pic dan staff --}}
                 <li>
                     <a href="javascript: void(0);">
-                        <i class="dripicons-network-3"></i>
+                        <i class="fa-solid fa-network-wired"></i>
                         <span> Tomi Dana </span>
                         <span class="menu-arrow"></span>
                     </a>
@@ -93,26 +107,46 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
 
                 {{-- TomiGaji --}}
                 <li>
-                    <a href="{{ route('admin.salary-financing.lenders') }}">
-                        <i class="dripicons-wallet"></i>
+                    <a href="javascript: void(0);">
+                        <i class="fa-solid fa-wallet"></i>
                         <span>TomiGaji</span>
+                        <span class="menu-arrow"></span>
                     </a>
+
+                    <ul class="nav-second-level" aria-expanded="false">
+                        <li>
+                            <a href="{{ route('admin.salary-financing.lenders') }}">Lender</a>
+                        </li>
+                        <li>
+                            <a href="{{ route('admin.salary-financing.companies') }}">Perusahaan</a>
+                        </li>
+                    </ul>
                 </li>
 
                 {{-- TomiGawai --}}
                 <li>
                     <a href="{{ route('admin.gadget-installment.index') }}">
-                        <i class="dripicons-device-mobile"></i>
+                        <i class="fa-solid fa-mobile-screen-button"></i>
                         <span>TomiGawai</span>
                     </a>
                 </li>
 
                 {{-- TomiInvoice --}}
                 <li>
-                    <a href="{{ route('admin.invoice-financing.lenders') }}">
-                        <i class="dripicons-document"></i>
+                    <a href="javascript: void(0);">
+                        <i class="fa-solid fa-file-invoice-dollar"></i>
                         <span>TomiInvoice</span>
+                        <span class="menu-arrow"></span>
                     </a>
+
+                    <ul class="nav-second-level" aria-expanded="false">
+                        <li>
+                            <a href="{{ route('admin.invoice-financing.lenders') }}">Lender</a>
+                        </li>
+                        <li>
+                            <a href="{{ route('admin.invoice-financing.companies') }}">Perusahaan</a>
+                        </li>
+                    </ul>
                 </li>
 
                 {{-- Menu di bawah ini hanya tampil selain pic dan staff --}}
@@ -136,7 +170,7 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
 
                 <li>
                     <a href="{{ route('admin.daily.index') }}">
-                        <i class="dripicons-brightness-low"></i>
+                        <i class="fa-solid fa-calendar-check"></i>
                         <span> Daily Checkin </span>
                     </a>
                 </li>
@@ -145,7 +179,7 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
 
                 <li>
                     <a href="javascript: void(0);">
-                        <i class="dripicons-view-apps"></i>
+                        <i class="fa-solid fa-table-cells-large"></i>
                         <span> Mobile </span>
                         <span class="menu-arrow"></span>
                     </a>
@@ -167,14 +201,14 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
 
                 <li>
                     <a href="{{ route('admin.manage.admin.index') }}">
-                        <i class="dripicons-user-group"></i>
+                        <i class="fa-solid fa-user-gear"></i>
                         <span> Manage Admin </span>
                     </a>
                 </li>
 
                 <li>
                     <a href="{{ route('admin.manage.pic-lender.index') }}">
-                        <i class="dripicons-user-id"></i>
+                        <i class="fa-solid fa-id-card"></i>
                         <span> PIC Lender </span>
                     </a>
                 </li>
@@ -185,7 +219,7 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
 
                 <li>
                     <a href="javascript: void(0);">
-                        <i class="dripicons-web"></i>
+                        <i class="fa-solid fa-globe"></i>
                         <span> Layanan Website </span>
                         <span class="menu-arrow"></span>
                     </a>

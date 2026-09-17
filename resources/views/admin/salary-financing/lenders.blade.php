@@ -15,7 +15,8 @@
         <div class="card">
             <div class="card-body">
                 <h4 class="header-title mb-3">Lender Terdaftar</h4>
-                <table class="table table-bordered table-hover dt-responsive nowrap" id="salaryLenderTable" style="width: 100%;">
+                <div class="table-responsive">
+                <table class="table table-bordered table-hover nowrap" id="salaryLenderTable" style="width: 100%;">
                     <thead>
                         <tr>
                             <th>No</th>
@@ -57,6 +58,7 @@
                         @endforelse
                     </tbody>
                 </table>
+                </div>
             </div>
         </div>
     </div>
@@ -66,7 +68,8 @@
 @push('js')
 <script>
     $('#salaryLenderTable').DataTable({
-        responsive: true,
+        scrollX: true,
+        responsive: false,
         pageLength: 10
     });
 </script>
