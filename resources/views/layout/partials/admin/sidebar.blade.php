@@ -63,7 +63,7 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                 </li>
 
                 <li>
-                    <a href="javascript: void(0);">
+                    <a href="{{ route('admin.referral.index') }}">
                         <i class="fa-solid fa-handshake-angle"></i>
                         <span> Refferal </span>
                     </a>

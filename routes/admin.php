@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\OtaController;
 use App\Http\Controllers\Admin\PicLenderAdminController;
 use App\Http\Controllers\Admin\PpobController;
 use App\Http\Controllers\Admin\ProfileController;
+use App\Http\Controllers\Admin\ReferralController;
 use App\Http\Controllers\Admin\SalaryFinancingController;
 use App\Http\Controllers\Admin\TomiInvoiceController;
 use App\Http\Controllers\Admin\WebsiteInvoiceController;
@@ -208,6 +209,14 @@ Route::middleware(['AdminMiddleware'])->group(
                 Route::post('/manage/pic-lender/detail', [PicLenderAdminController::class, 'detail'])->name('admin.manage.pic-lender.detail');
                 Route::post('/manage/pic-lender/update', [PicLenderAdminController::class, 'update'])->name('admin.manage.pic-lender.update');
                 Route::post('/manage/pic-lender/delete', [PicLenderAdminController::class, 'destroy'])->name('admin.manage.pic-lender.delete');
+
+                // referral
+                Route::get('/referral', [ReferralController::class, 'index'])->name('admin.referral.index');
+                Route::post('/referral/table', [ReferralController::class, 'table'])->name('admin.referral.table');
+                Route::post('/referral/add', [ReferralController::class, 'store'])->name('admin.referral.add');
+                Route::post('/referral/detail', [ReferralController::class, 'detail'])->name('admin.referral.detail');
+                Route::post('/referral/update', [ReferralController::class, 'update'])->name('admin.referral.update');
+                Route::post('/referral/delete', [ReferralController::class, 'destroy'])->name('admin.referral.delete');
 
                 // salary financing
                 Route::get('/salary-financing', [SalaryFinancingController::class, 'index'])->name('admin.salary-financing.index');
