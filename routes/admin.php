@@ -217,6 +217,9 @@ Route::middleware(['AdminMiddleware'])->group(
                 Route::post('/referral/detail', [ReferralController::class, 'detail'])->name('admin.referral.detail');
                 Route::post('/referral/update', [ReferralController::class, 'update'])->name('admin.referral.update');
                 Route::post('/referral/delete', [ReferralController::class, 'destroy'])->name('admin.referral.delete');
+                Route::post('/referral/cities', [ReferralController::class, 'cities'])->name('admin.referral.cities');
+                Route::post('/referral/districts', [ReferralController::class, 'districts'])->name('admin.referral.districts');
+                Route::post('/referral/villages', [ReferralController::class, 'villages'])->name('admin.referral.villages');
 
                 // salary financing
                 Route::get('/salary-financing', [SalaryFinancingController::class, 'index'])->name('admin.salary-financing.index');

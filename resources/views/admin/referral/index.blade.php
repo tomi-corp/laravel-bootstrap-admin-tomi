@@ -147,29 +147,40 @@
                     <div class="col-md-6">
                         <div class="form-group">
                             <label>Kelurahan/Desa</label>
-                            <input class="form-control" id="village" type="text">
-                            <small id="errVillage" class="text-danger"></small>
+                            <select class="form-control" id="village_id">
+                                <option value="">Pilih Kelurahan/Desa</option>
+                            </select>
+                            <small id="errVillageId" class="text-danger"></small>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
                             <label>Kecamatan</label>
-                            <input class="form-control" id="district" type="text">
-                            <small id="errDistrict" class="text-danger"></small>
+                            <select class="form-control" id="district_id">
+                                <option value="">Pilih Kecamatan</option>
+                            </select>
+                            <small id="errDistrictId" class="text-danger"></small>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
                             <label>Kota/Kabupaten</label>
-                            <input class="form-control" id="city" type="text">
-                            <small id="errCity" class="text-danger"></small>
+                            <select class="form-control" id="city_id">
+                                <option value="">Pilih Kota/Kabupaten</option>
+                            </select>
+                            <small id="errCityId" class="text-danger"></small>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
                             <label>Provinsi</label>
-                            <input class="form-control" id="province" type="text">
-                            <small id="errProvince" class="text-danger"></small>
+                            <select class="form-control" id="province_id">
+                                <option value="">Pilih Provinsi</option>
+                                @foreach ($provinces as $province)
+                                    <option value="{{ $province->id }}">{{ $province->provinsi }}</option>
+                                @endforeach
+                            </select>
+                            <small id="errProvinceId" class="text-danger"></small>
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -182,14 +193,28 @@
                     <div class="col-md-6">
                         <div class="form-group">
                             <label>Agama</label>
-                            <input class="form-control" id="religion" type="text">
+                            <select class="form-control" id="religion">
+                                <option value="">Pilih Agama</option>
+                                <option value="islam">Islam</option>
+                                <option value="christian">Kristen</option>
+                                <option value="catholic">Katolik</option>
+                                <option value="hindu">Hindu</option>
+                                <option value="buddhist">Buddha</option>
+                                <option value="confucian">Konghucu</option>
+                            </select>
                             <small id="errReligion" class="text-danger"></small>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
                             <label>Status Perkawinan</label>
-                            <input class="form-control" id="marital_status" type="text">
+                            <select class="form-control" id="marital_status">
+                                <option value="">Pilih Status Perkawinan</option>
+                                <option value="single">Belum Kawin</option>
+                                <option value="married">Kawin</option>
+                                <option value="divorced">Cerai Hidup</option>
+                                <option value="widowed">Cerai Mati</option>
+                            </select>
                             <small id="errMaritalStatus" class="text-danger"></small>
                         </div>
                     </div>
@@ -314,7 +339,7 @@
 
     const fields = [
         'national_id_number', 'name', 'birth_place', 'birth_date', 'gender', 'blood_type',
-        'address', 'rt', 'rw', 'village', 'district', 'city', 'province', 'postal_code',
+        'address', 'rt', 'rw', 'province_id', 'city_id', 'district_id', 'village_id', 'postal_code',
         'religion', 'marital_status', 'occupation', 'nationality', 'phone_number', 'email',
         'bank_id', 'bank_account_number', 'bank_account_name', 'is_active', 'notes'
     ];
@@ -329,10 +354,10 @@
         address: '#errAddress',
         rt: '#errRt',
         rw: '#errRw',
-        village: '#errVillage',
-        district: '#errDistrict',
-        city: '#errCity',
-        province: '#errProvince',
+        province_id: '#errProvinceId',
+        city_id: '#errCityId',
+        district_id: '#errDistrictId',
+        village_id: '#errVillageId',
         postal_code: '#errPostalCode',
         religion: '#errReligion',
         marital_status: '#errMaritalStatus',
@@ -356,6 +381,9 @@
     const resetForm = () => {
         $('#referral_id').val('');
         fields.forEach((field) => $(`#${field}`).val(field === 'nationality' ? 'WNI' : ''));
+        resetRegionSelect('#city_id', 'Pilih Kota/Kabupaten');
+        resetRegionSelect('#district_id', 'Pilih Kecamatan');
+        resetRegionSelect('#village_id', 'Pilih Kelurahan/Desa');
         $('#is_active').val('1');
         $('#id_card_file').val('');
         $('#bank_book_file').val('');
@@ -364,6 +392,68 @@
         $('#formTitle').text('Tambah Referral');
         $('#buttonSubmit').html('Save <div id="loadingText"></div>');
         clearErrors();
+    };
+
+    const resetRegionSelect = (selector, placeholder) => {
+        $(selector).html(`<option value="">${placeholder}</option>`);
+    };
+
+    const fillRegionSelect = (selector, rows, valueKey, textKey, placeholder, selectedValue = '') => {
+        resetRegionSelect(selector, placeholder);
+
+        rows.forEach((row) => {
+            const suffix = row.kodepos ? ` ${row.kodepos}` : '';
+            $(selector).append($('<option>', {
+                value: row[valueKey],
+                text: `${row[textKey]}${suffix}`,
+            }));
+        });
+
+        if (selectedValue) {
+            $(selector).val(String(selectedValue));
+        }
+    };
+
+    const loadCities = (provinceId, selectedValue = '') => {
+        resetRegionSelect('#city_id', 'Pilih Kota/Kabupaten');
+        resetRegionSelect('#district_id', 'Pilih Kecamatan');
+        resetRegionSelect('#village_id', 'Pilih Kelurahan/Desa');
+
+        if (!provinceId) {
+            return $.Deferred().resolve().promise();
+        }
+
+        return $.post('{!! route('admin.referral.cities') !!}', {
+            _token: csrfToken,
+            province_id: provinceId,
+        }).done((rows) => fillRegionSelect('#city_id', rows, 'id', 'kabupaten', 'Pilih Kota/Kabupaten', selectedValue));
+    };
+
+    const loadDistricts = (cityId, selectedValue = '') => {
+        resetRegionSelect('#district_id', 'Pilih Kecamatan');
+        resetRegionSelect('#village_id', 'Pilih Kelurahan/Desa');
+
+        if (!cityId) {
+            return $.Deferred().resolve().promise();
+        }
+
+        return $.post('{!! route('admin.referral.districts') !!}', {
+            _token: csrfToken,
+            city_id: cityId,
+        }).done((rows) => fillRegionSelect('#district_id', rows, 'id', 'kecamatan', 'Pilih Kecamatan', selectedValue));
+    };
+
+    const loadVillages = (districtId, selectedValue = '') => {
+        resetRegionSelect('#village_id', 'Pilih Kelurahan/Desa');
+
+        if (!districtId) {
+            return $.Deferred().resolve().promise();
+        }
+
+        return $.post('{!! route('admin.referral.villages') !!}', {
+            _token: csrfToken,
+            district_id: districtId,
+        }).done((rows) => fillRegionSelect('#village_id', rows, 'id', 'desa', 'Pilih Kelurahan/Desa', selectedValue));
     };
 
     window.openAddModal = () => {
@@ -436,6 +526,18 @@
         return formData;
     };
 
+    $('#province_id').on('change', function () {
+        loadCities(this.value);
+    });
+
+    $('#city_id').on('change', function () {
+        loadDistricts(this.value);
+    });
+
+    $('#district_id').on('change', function () {
+        loadVillages(this.value);
+    });
+
     $('#buttonSubmit').on('click', function () {
         clearErrors();
 
@@ -491,6 +593,9 @@
                 const referral = response.data;
                 $('#referral_id').val(referral.id);
                 fields.forEach((field) => $(`#${field}`).val(referral[field] ?? ''));
+                fillRegionSelect('#city_id', response.cities || [], 'id', 'kabupaten', 'Pilih Kota/Kabupaten', referral.city_id);
+                fillRegionSelect('#district_id', response.districts || [], 'id', 'kecamatan', 'Pilih Kecamatan', referral.district_id);
+                fillRegionSelect('#village_id', response.villages || [], 'id', 'desa', 'Pilih Kelurahan/Desa', referral.village_id);
                 $('#is_active').val(referral.is_active ? '1' : '0');
                 $('#formTitle').text('Edit Referral');
                 $('#buttonSubmit').html('Update <div id="loadingText"></div>');

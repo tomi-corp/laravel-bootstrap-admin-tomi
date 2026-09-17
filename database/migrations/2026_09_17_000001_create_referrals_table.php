@@ -23,13 +23,13 @@ return new class extends Migration
             $table->text('address')->nullable()->comment('Alamat lengkap sesuai KTP');
             $table->string('rt', 3)->nullable()->comment('Nomor RT');
             $table->string('rw', 3)->nullable()->comment('Nomor RW');
-            $table->string('village', 100)->nullable()->comment('Kelurahan atau desa');
-            $table->string('district', 100)->nullable()->comment('Kecamatan');
-            $table->string('city', 100)->nullable()->comment('Kabupaten atau kota');
-            $table->string('province', 100)->nullable()->comment('Provinsi');
+            $table->integer('province_id')->nullable()->index('idx_referrals_province_id')->comment('Referensi provinsi');
+            $table->integer('city_id')->nullable()->index('idx_referrals_city_id')->comment('Referensi kabupaten atau kota');
+            $table->integer('district_id')->nullable()->index('idx_referrals_district_id')->comment('Referensi kecamatan');
+            $table->integer('village_id')->nullable()->index('idx_referrals_village_id')->comment('Referensi kelurahan atau desa');
             $table->string('postal_code', 10)->nullable()->comment('Kode pos');
-            $table->string('religion', 50)->nullable()->comment('Agama sesuai KTP');
-            $table->string('marital_status', 50)->nullable()->comment('Status perkawinan sesuai KTP');
+            $table->enum('religion', ['islam', 'christian', 'catholic', 'hindu', 'buddhist', 'confucian'])->nullable()->comment('Agama sesuai KTP');
+            $table->enum('marital_status', ['single', 'married', 'divorced', 'widowed'])->nullable()->comment('Status perkawinan');
             $table->string('occupation', 100)->nullable()->comment('Pekerjaan sesuai KTP');
             $table->string('nationality', 50)->default('WNI')->comment('Kewarganegaraan');
             $table->string('id_card_file')->nullable()->comment('File atau foto KTP');
@@ -54,6 +54,40 @@ return new class extends Migration
                     ->cascadeOnUpdate();
             });
         }
+
+        Schema::table('referrals', function (Blueprint $table) {
+            if (Schema::hasTable('wilayah_provinsi_net')) {
+                $table->foreign('province_id', 'fk_referrals_province')
+                    ->references('id')
+                    ->on('wilayah_provinsi_net')
+                    ->nullOnDelete()
+                    ->cascadeOnUpdate();
+            }
+
+            if (Schema::hasTable('wilayah_kabupaten_net')) {
+                $table->foreign('city_id', 'fk_referrals_city')
+                    ->references('id')
+                    ->on('wilayah_kabupaten_net')
+                    ->nullOnDelete()
+                    ->cascadeOnUpdate();
+            }
+
+            if (Schema::hasTable('wilayah_kecamatan_net')) {
+                $table->foreign('district_id', 'fk_referrals_district')
+                    ->references('id')
+                    ->on('wilayah_kecamatan_net')
+                    ->nullOnDelete()
+                    ->cascadeOnUpdate();
+            }
+
+            if (Schema::hasTable('wilayah_desa_net')) {
+                $table->foreign('village_id', 'fk_referrals_village')
+                    ->references('id')
+                    ->on('wilayah_desa_net')
+                    ->nullOnDelete()
+                    ->cascadeOnUpdate();
+            }
+        });
     }
 
     public function down(): void

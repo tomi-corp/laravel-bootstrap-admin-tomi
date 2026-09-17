@@ -6,6 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Referral\StoreReferralRequest;
 use App\Http\Requests\Admin\Referral\UpdateReferralRequest;
 use App\Models\bank;
+use App\Models\kecamatan;
+use App\Models\kelurahan;
+use App\Models\kota;
+use App\Models\provinsi;
 use App\Models\Referral;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -18,13 +22,14 @@ class ReferralController extends Controller
     public function index()
     {
         $banks = bank::orderBy('code_bank')->get();
+        $provinces = provinsi::orderBy('provinsi')->get(['id', 'provinsi']);
 
-        return view('admin.referral.index', compact('banks'));
+        return view('admin.referral.index', compact('banks', 'provinces'));
     }
 
     public function table()
     {
-        $referrals = Referral::with('bank')->orderByDesc('id');
+        $referrals = Referral::with(['bank', 'province', 'city', 'district', 'village'])->orderByDesc('id');
 
         return DataTables::eloquent($referrals)
             ->addIndexColumn()
@@ -89,9 +94,33 @@ class ReferralController extends Controller
         return response()->json([
             'status' => 200,
             'data' => $referral,
+            'cities' => $referral->province ? kota::where('provinsi', $referral->province->provinsi)->orderBy('kabupaten')->get(['id', 'kabupaten']) : [],
+            'districts' => $referral->city ? kecamatan::where('kabupaten', $referral->city->kabupaten)->orderBy('kecamatan')->get(['id', 'kecamatan']) : [],
+            'villages' => $referral->district ? kelurahan::where('kecamatan', $referral->district->kecamatan)->orderBy('desa')->get(['id', 'desa', 'kodepos']) : [],
             'id_card_url' => $referral->id_card_file ? Storage::disk('public')->url($referral->id_card_file) : null,
             'bank_book_url' => $referral->bank_book_file ? Storage::disk('public')->url($referral->bank_book_file) : null,
         ]);
+    }
+
+    public function cities(Request $request): JsonResponse
+    {
+        $province = provinsi::findOrFail($request->integer('province_id'));
+
+        return response()->json(kota::where('provinsi', $province->provinsi)->orderBy('kabupaten')->get(['id', 'kabupaten']));
+    }
+
+    public function districts(Request $request): JsonResponse
+    {
+        $city = kota::findOrFail($request->integer('city_id'));
+
+        return response()->json(kecamatan::where('kabupaten', $city->kabupaten)->orderBy('kecamatan')->get(['id', 'kecamatan']));
+    }
+
+    public function villages(Request $request): JsonResponse
+    {
+        $district = kecamatan::findOrFail($request->integer('district_id'));
+
+        return response()->json(kelurahan::where('kecamatan', $district->kecamatan)->orderBy('desa')->get(['id', 'desa', 'kodepos']));
     }
 
     public function update(UpdateReferralRequest $request): JsonResponse
@@ -143,10 +172,10 @@ class ReferralController extends Controller
             'address' => $request->address,
             'rt' => $request->rt,
             'rw' => $request->rw,
-            'village' => $request->village,
-            'district' => $request->district,
-            'city' => $request->city,
-            'province' => $request->province,
+            'province_id' => $request->province_id,
+            'city_id' => $request->city_id,
+            'district_id' => $request->district_id,
+            'village_id' => $request->village_id,
             'postal_code' => $request->postal_code,
             'religion' => $request->religion,
             'marital_status' => $request->marital_status,
