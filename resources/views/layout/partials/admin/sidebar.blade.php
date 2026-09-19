@@ -56,7 +56,7 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                 </li>
 
                 <li>
-                    <a href="{{ route('admin.ksp.index') }}">
+                    <a href="{{ route('admin.companies.index') }}">
                         <i class="fa-solid fa-building"></i>
                         <span> Perusahaan </span>
                     </a>

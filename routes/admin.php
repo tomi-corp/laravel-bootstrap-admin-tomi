@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AuthController;
+use App\Http\Controllers\Admin\CompanyController;
 use App\Http\Controllers\Admin\CostController;
 use App\Http\Controllers\Admin\DailyCheckinController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -60,6 +61,14 @@ Route::middleware(['AdminMiddleware'])->group(
                 Route::post('/profile/enableTwoFactor', [ProfileController::class, 'enableTwoFactor'])->name('admin.profile.enableTwoFactor');
 
                 Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('admin.dashboard.index');
+
+                Route::post('/companies/table', [CompanyController::class, 'table'])->name('admin.companies.table');
+                Route::get('/companies/cities', [CompanyController::class, 'cities'])->name('admin.companies.cities');
+                Route::get('/companies/districts', [CompanyController::class, 'districts'])->name('admin.companies.districts');
+                Route::get('/companies/villages', [CompanyController::class, 'villages'])->name('admin.companies.villages');
+                Route::resource('companies', CompanyController::class)
+                    ->except(['create', 'edit'])
+                    ->names('admin.companies');
 
                 // ppob
                 Route::get('/ppob', [PpobController::class, 'index'])->name('admin.ppob.index');
