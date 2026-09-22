@@ -8,6 +8,13 @@
             'development' => false,
         ],
         [
+            'label' => 'List Perusahaan',
+            'icon' => 'fa-solid fa-building',
+            'route' => 'lender.companies.index',
+            'active' => request()->routeIs('lender.companies.*'),
+            'development' => false,
+        ],
+        [
             'label' => 'TomiDana',
             'icon' => 'fa-solid fa-hand-holding-dollar',
             'active' => request()->routeIs('lender.tomi-dana.*'),
