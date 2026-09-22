@@ -28,4 +28,18 @@ class DashboardController extends Controller
             'data' => new DashboardSummaryResource($this->dashboardService->summary()),
         ]);
     }
+
+    public function disbursement(): View
+    {
+        return view('lender.tomi-dana.disbursement', [
+            'summary' => $this->dashboardService->summary(),
+        ]);
+    }
+
+    public function repayment(): View
+    {
+        return view('lender.tomi-dana.repayment', [
+            'summary' => $this->dashboardService->summary(),
+        ]);
+    }
 }

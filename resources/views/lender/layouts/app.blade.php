@@ -7,13 +7,13 @@
     @include('lender.layouts.partials.head-assets')
     @stack('styles')
 </head>
-<body class="bg-primary-50 text-primary-950 antialiased">
+<body class="bg-primary-200 text-primary-950 antialiased">
     @include('lender.layouts.partials.sidebar')
 
-    <div class="min-h-screen lg:pl-64">
+    <div class="min-h-screen bg-primary-200 lg:pl-64" style="background-color: #7DCEFF;">
         @include('lender.layouts.partials.topbar')
 
-        <main class="min-h-[calc(100vh-8rem)]">
+        <main class="min-h-[calc(100vh-8rem)] bg-primary-200 text-primary-950" style="background-color: #7DCEFF;">
             @yield('content')
         </main>
 

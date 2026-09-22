@@ -9,32 +9,32 @@
         <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
                 <h1 class="text-2xl font-semibold tracking-normal text-primary-950">Dashboard Lender</h1>
-                <p class="mt-1 text-sm text-primary-600">Pantau ringkasan data dan status operasional lender.</p>
+                <p class="mt-1 text-sm text-primary-800">Pantau ringkasan data dan status operasional lender.</p>
             </div>
-            <div class="inline-flex items-center gap-2 rounded-md border border-primary-100 bg-primary-50 px-3 py-2 text-sm text-primary-700 shadow-sm">
+            <div class="inline-flex items-center gap-2 rounded-md border border-primary-200 bg-white px-3 py-2 text-sm text-primary-800 shadow-sm">
                 <i class="fa-regular fa-calendar"></i>
                 <span>{{ now()->translatedFormat('d F Y') }}</span>
             </div>
         </div>
 
         <section class="grid gap-4 md:grid-cols-3">
-            <div class="rounded-lg border border-primary-100 bg-primary-100 p-5 shadow-sm shadow-primary-100/50">
+            <div class="rounded-lg border border-primary-100 bg-white p-5 shadow-sm shadow-primary-950/10">
                 <div class="flex items-center justify-between">
-                    <p class="text-sm font-medium text-primary-600">Total Lender</p>
-                    <i class="fa-solid fa-building-columns text-primary-500"></i>
+                    <p class="text-sm font-medium text-primary-700">Total Lender</p>
+                    <i class="fa-solid fa-building-columns text-primary"></i>
                 </div>
                 <p class="mt-4 text-3xl font-semibold text-primary-950">{{ number_format($summary['total_lenders']) }}</p>
             </div>
-            <div class="rounded-lg border border-primary-100 bg-primary-100 p-5 shadow-sm shadow-primary-100/50">
+            <div class="rounded-lg border border-primary-100 bg-white p-5 shadow-sm shadow-primary-950/10">
                 <div class="flex items-center justify-between">
-                    <p class="text-sm font-medium text-primary-600">Lender Aktif</p>
-                    <i class="fa-solid fa-circle-check text-primary-600"></i>
+                    <p class="text-sm font-medium text-primary-700">Lender Aktif</p>
+                    <i class="fa-solid fa-circle-check text-primary"></i>
                 </div>
                 <p class="mt-4 text-3xl font-semibold text-primary-950">{{ number_format($summary['active_lenders']) }}</p>
             </div>
-            <div class="rounded-lg border border-primary-100 bg-primary-100 p-5 shadow-sm shadow-primary-100/50">
+            <div class="rounded-lg border border-primary-100 bg-white p-5 shadow-sm shadow-primary-950/10">
                 <div class="flex items-center justify-between">
-                    <p class="text-sm font-medium text-primary-600">Lender Nonaktif</p>
+                    <p class="text-sm font-medium text-primary-700">Lender Nonaktif</p>
                     <i class="fa-solid fa-circle-pause text-primary-300"></i>
                 </div>
                 <p class="mt-4 text-3xl font-semibold text-primary-950">{{ number_format($summary['inactive_lenders']) }}</p>
@@ -42,50 +42,50 @@
         </section>
 
         <section class="mt-6 grid gap-4 lg:grid-cols-3">
-            <div class="rounded-lg border border-primary-100 bg-primary-100 p-5 shadow-sm shadow-primary-100/50 lg:col-span-2">
+            <div class="rounded-lg border border-primary-100 bg-white p-5 shadow-sm shadow-primary-950/10 lg:col-span-2">
                 <div class="mb-4 flex items-center justify-between">
                     <div>
                         <h2 class="text-base font-semibold text-primary-950">Komposisi Status Lender</h2>
-                        <p class="mt-1 text-sm text-primary-600">Perbandingan lender aktif dan nonaktif.</p>
+                        <p class="mt-1 text-sm text-primary-700">Perbandingan lender aktif dan nonaktif.</p>
                     </div>
-                    <i class="fa-solid fa-chart-pie text-primary-400"></i>
+                    <i class="fa-solid fa-chart-pie text-primary"></i>
                 </div>
                 <div class="h-80">
                     <canvas id="lenderStatusChart"></canvas>
                 </div>
             </div>
 
-            <div class="rounded-lg border border-primary-100 bg-primary-100 p-5 shadow-sm shadow-primary-100/50">
+            <div class="rounded-lg border border-primary-100 bg-white p-5 shadow-sm shadow-primary-950/10">
                 <div class="mb-4 flex items-center justify-between">
                     <h2 class="text-base font-semibold text-primary-950">Aksi Cepat</h2>
-                    <i class="fa-solid fa-bolt text-primary-400"></i>
+                    <i class="fa-solid fa-bolt text-primary"></i>
                 </div>
                 <div class="space-y-3">
-                    <a href="{{ route('lender.dashboard.summary') }}" class="flex items-center justify-between rounded-md border border-primary-100 px-4 py-3 text-sm font-medium text-primary-700 transition hover:border-primary-200 hover:bg-primary-50">
+                    <a href="{{ route('lender.dashboard.summary') }}" class="flex items-center justify-between rounded-md border border-primary-100 px-4 py-3 text-sm font-medium text-primary-700 transition hover:bg-primary-50">
                         <span class="flex items-center gap-3">
-                            <i class="fa-solid fa-code text-primary-400"></i>
+                            <i class="fa-solid fa-code text-primary"></i>
                             API Summary
                         </span>
-                        <i class="fa-solid fa-chevron-right text-xs text-primary-400"></i>
+                        <i class="fa-solid fa-chevron-right text-xs text-primary"></i>
                     </a>
-                    <button type="button" id="refreshDashboard" class="flex w-full items-center justify-between rounded-md border border-primary-100 px-4 py-3 text-sm font-medium text-primary-700 transition hover:border-primary-200 hover:bg-primary-50">
+                    <button type="button" id="refreshDashboard" class="flex w-full items-center justify-between rounded-md border border-primary-100 px-4 py-3 text-sm font-medium text-primary-700 transition hover:bg-primary-50">
                         <span class="flex items-center gap-3">
-                            <i class="fa-solid fa-rotate text-primary-400"></i>
+                            <i class="fa-solid fa-rotate text-primary"></i>
                             Refresh Data
                         </span>
-                        <i class="fa-solid fa-chevron-right text-xs text-primary-400"></i>
+                        <i class="fa-solid fa-chevron-right text-xs text-primary"></i>
                     </button>
                 </div>
             </div>
         </section>
 
-        <section class="mt-6 rounded-lg border border-primary-100 bg-primary-100 p-5 shadow-sm shadow-primary-100/50">
+        <section class="mt-6 rounded-lg border border-primary-100 bg-white p-5 text-primary-950 shadow-sm shadow-primary-950/10">
             <div class="mb-4 flex items-center justify-between">
                 <div>
                     <h2 class="text-base font-semibold text-primary-950">Ringkasan Data</h2>
-                    <p class="mt-1 text-sm text-primary-600">Data agregat modul lender saat ini.</p>
+                    <p class="mt-1 text-sm text-primary-700">Data agregat modul lender saat ini.</p>
                 </div>
-                <i class="fa-solid fa-table text-primary-400"></i>
+                <i class="fa-solid fa-table text-primary"></i>
             </div>
             <table id="lenderSummaryTable" class="display nowrap w-full">
                 <thead>
