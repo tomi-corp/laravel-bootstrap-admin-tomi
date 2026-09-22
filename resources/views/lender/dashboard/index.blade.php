@@ -17,6 +17,14 @@
             </div>
         </div>
 
+        <section class="mb-6 overflow-hidden rounded-lg border border-primary-100 bg-white shadow-sm shadow-primary-950/10">
+            <img
+                src="{{ asset('lender/banners/dashboard-tomi-gaji.png') }}"
+                alt="Banner TOMI Gaji"
+                class="block aspect-[2048/768] w-full object-cover"
+            >
+        </section>
+
         <section class="grid gap-4 md:grid-cols-3">
             <div class="rounded-lg border border-primary-100 bg-white p-5 shadow-sm shadow-primary-950/10">
                 <div class="flex items-center justify-between">

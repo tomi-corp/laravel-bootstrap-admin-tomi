@@ -21,7 +21,8 @@ Route::name('lender.')->group(function () {
     Route::middleware('LenderMiddleware')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-        Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+        Route::redirect('/', '/lender/dashboard');
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
         Route::get('/summary', [DashboardController::class, 'summary'])->name('dashboard.summary');
         Route::get('/tomi-dana/disbursement', [DashboardController::class, 'disbursement'])->name('tomi-dana.disbursement');
         Route::get('/tomi-dana/repayment', [DashboardController::class, 'repayment'])->name('tomi-dana.repayment');
