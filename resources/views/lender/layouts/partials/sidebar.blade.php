@@ -17,19 +17,25 @@
         [
             'label' => 'TomiDana',
             'icon' => 'fa-solid fa-hand-holding-dollar',
-            'active' => request()->routeIs('lender.tomi-dana.*'),
+            'active' => request()->routeIs('lender.tomi-dana.*') || request()->routeIs('lender.loans.*') || request()->routeIs('lender.disbursements.*') || request()->routeIs('lender.repayments.*'),
             'children' => [
+                [
+                    'label' => 'Pinjaman',
+                    'icon' => 'fa-solid fa-file-contract',
+                    'route' => 'lender.loans.index',
+                    'active' => request()->routeIs('lender.loans.*'),
+                ],
                 [
                     'label' => 'Disbursement',
                     'icon' => 'fa-solid fa-money-bill-transfer',
-                    'route' => 'lender.tomi-dana.disbursement',
-                    'active' => request()->routeIs('lender.tomi-dana.disbursement'),
+                    'route' => 'lender.disbursements.index',
+                    'active' => request()->routeIs('lender.disbursements.*'),
                 ],
                 [
                     'label' => 'Repayment',
                     'icon' => 'fa-solid fa-rotate-left',
-                    'route' => 'lender.tomi-dana.repayment',
-                    'active' => request()->routeIs('lender.tomi-dana.repayment'),
+                    'route' => 'lender.repayments.index',
+                    'active' => request()->routeIs('lender.repayments.*'),
                 ],
             ],
         ],
