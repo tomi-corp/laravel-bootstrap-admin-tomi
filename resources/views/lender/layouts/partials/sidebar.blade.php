@@ -26,13 +26,13 @@
                     'active' => request()->routeIs('lender.loans.*'),
                 ],
                 [
-                    'label' => 'Disbursement',
+                    'label' => 'Pencairan Dana',
                     'icon' => 'fa-solid fa-money-bill-transfer',
                     'route' => 'lender.disbursements.index',
                     'active' => request()->routeIs('lender.disbursements.*'),
                 ],
                 [
-                    'label' => 'Repayment',
+                    'label' => 'Pengembalian Dana',
                     'icon' => 'fa-solid fa-rotate-left',
                     'route' => 'lender.repayments.index',
                     'active' => request()->routeIs('lender.repayments.*'),
@@ -63,6 +63,26 @@
         [
             'label' => 'TomiInvoice',
             'icon' => 'fa-solid fa-file-invoice-dollar',
+            'development' => true,
+        ],
+        [
+            'label' => 'TomiHaji',
+            'icon' => 'fa-solid fa-kaaba',
+            'development' => true,
+        ],
+        [
+            'label' => 'TomiUmroh',
+            'icon' => 'fa-solid fa-mosque',
+            'development' => true,
+        ],
+        [
+            'label' => 'TomiMoto',
+            'icon' => 'fa-solid fa-motorcycle',
+            'development' => true,
+        ],
+        [
+            'label' => 'TomiAuto',
+            'icon' => 'fa-solid fa-car-side',
             'development' => true,
         ],
         [
