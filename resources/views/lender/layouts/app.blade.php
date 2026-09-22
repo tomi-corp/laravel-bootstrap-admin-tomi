@@ -5,15 +5,117 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title', 'Lender')</title>
     @include('lender.layouts.partials.head-assets')
+    <style>
+        .lender-content {
+            background-color: #38B4F8;
+            color: #ffffff;
+        }
+
+        .lender-content .bg-white,
+        .lender-content input,
+        .lender-content select,
+        .lender-content textarea,
+        .lender-content table {
+            color: #062B49;
+        }
+
+        .select2-container {
+            width: 100% !important;
+            max-width: 100%;
+        }
+
+        .select2-container--default .select2-selection--single {
+            min-height: 42px;
+            border: 1px solid #DFF1FF;
+            border-radius: 0.375rem;
+            background-color: #ffffff;
+            color: #062B49;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 40px;
+            padding-left: 0.75rem;
+            padding-right: 2.25rem;
+            color: #062B49;
+            font-size: 0.875rem;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__placeholder {
+            color: #0878C4;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 40px;
+            right: 0.5rem;
+        }
+
+        .select2-container--default.select2-container--focus .select2-selection--single,
+        .select2-container--default.select2-container--open .select2-selection--single {
+            border-color: #0B8FE8;
+            box-shadow: 0 0 0 2px rgba(11, 143, 232, 0.18);
+            outline: none;
+        }
+
+        .select2-dropdown {
+            border: 1px solid #B9E4FF;
+            border-radius: 0.375rem;
+            color: #062B49;
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
+        .select2-results__option {
+            white-space: normal;
+            word-break: break-word;
+        }
+
+        .select2-container--default .select2-results__option--highlighted.select2-results__option--selectable {
+            background-color: #0B8FE8;
+            color: #ffffff;
+        }
+
+        .select2-container--default .select2-results__option--selected {
+            background-color: #DFF1FF;
+            color: #062B49;
+        }
+
+        body.lender-sidebar-collapsed #lenderSidebar {
+            width: 5rem !important;
+        }
+
+        body.lender-sidebar-collapsed #lenderShell {
+            padding-left: 5rem !important;
+        }
+
+        body.lender-sidebar-collapsed #lenderSidebar .sidebar-label,
+        body.lender-sidebar-collapsed #lenderSidebar .sidebar-submenu {
+            display: none !important;
+        }
+
+        body.lender-sidebar-collapsed #lenderSidebar nav {
+            padding-left: 0.75rem;
+            padding-right: 0.75rem;
+        }
+
+        body.lender-sidebar-collapsed #lenderSidebar a,
+        body.lender-sidebar-collapsed #lenderSidebar button {
+            justify-content: center;
+        }
+
+        body.lender-sidebar-collapsed #lenderSidebar i {
+            margin-left: 0;
+            margin-right: 0;
+        }
+    </style>
     @stack('styles')
 </head>
-<body class="bg-primary-200 text-primary-950 antialiased">
+<body class="bg-primary-400 text-primary-950 antialiased">
     @include('lender.layouts.partials.sidebar')
 
-    <div class="min-h-screen bg-primary-200 lg:pl-64" style="background-color: #7DCEFF;">
+    <div id="lenderShell" class="min-h-screen bg-primary-400 transition-all lg:pl-64" style="background-color: #38B4F8;">
         @include('lender.layouts.partials.topbar')
 
-        <main class="min-h-[calc(100vh-8rem)] bg-primary-200 text-primary-950" style="background-color: #7DCEFF;">
+        <main class="lender-content min-h-[calc(100vh-8rem)] bg-primary-400 text-white">
             @yield('content')
         </main>
 
@@ -33,6 +135,11 @@
         };
 
         sidebarToggle?.addEventListener('click', function () {
+            if (window.innerWidth >= 1024) {
+                document.body.classList.toggle('lender-sidebar-collapsed');
+                return;
+            }
+
             sidebar.classList.toggle('-translate-x-full');
             sidebarBackdrop.classList.toggle('hidden');
         });

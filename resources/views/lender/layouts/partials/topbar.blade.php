@@ -4,15 +4,11 @@
             <button
                 type="button"
                 id="sidebarToggle"
-                class="inline-flex h-10 w-10 items-center justify-center rounded-md border border-white/30 text-white lg:hidden"
+                class="inline-flex h-10 w-10 items-center justify-center rounded-md border border-white/30 text-white transition hover:bg-white/15"
                 aria-label="Toggle sidebar"
             >
                 <i class="fa-solid fa-bars"></i>
             </button>
-            <div>
-                <p class="text-sm font-semibold text-white">@yield('page-title', 'Lender')</p>
-                <p class="hidden text-xs text-white/80 sm:block">@yield('page-subtitle', 'Portal operasional lender')</p>
-            </div>
         </div>
 
         <div class="flex items-center gap-2">
@@ -35,3 +31,4 @@
         </div>
     </div>
 </header>
+

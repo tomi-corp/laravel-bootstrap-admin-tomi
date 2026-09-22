@@ -145,7 +145,12 @@
         const districtUrl = @json(route('lender.companies.districts'));
         const villageUrl = @json(route('lender.companies.villages'));
 
-        $('.js-select2').select2({ width: '100%' });
+        $('.js-select2').each(function () {
+            $(this).select2({
+                width: '100%',
+                dropdownParent: $(this).closest('form'),
+            });
+        });
 
         function resetSelect(selector, placeholder) {
             $(selector).empty().append(new Option(placeholder, '')).trigger('change');
@@ -201,3 +206,4 @@
         });
     </script>
 @endpush
+
