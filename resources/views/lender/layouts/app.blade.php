@@ -7,7 +7,7 @@
     @include('lender.layouts.partials.head-assets')
     @stack('styles')
 </head>
-<body class="bg-slate-50 text-slate-900 antialiased">
+<body class="bg-primary-50 text-primary-950 antialiased">
     @include('lender.layouts.partials.sidebar')
 
     <div class="min-h-screen lg:pl-64">
