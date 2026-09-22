@@ -1,0 +1,27 @@
+<script src="https://cdn.tailwindcss.com"></script>
+<link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+>
+<link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/toastr@2.1.4/build/toastr.min.css"
+>
+<link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/sweetalert2@11.12.4/dist/sweetalert2.min.css"
+>
+<link
+    rel="stylesheet"
+    href="https://cdn.datatables.net/2.0.8/css/dataTables.dataTables.min.css"
+>
+<link
+    rel="stylesheet"
+    href="https://cdn.datatables.net/responsive/3.0.2/css/responsive.dataTables.min.css"
+>
+<link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css"
+>
