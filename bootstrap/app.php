@@ -75,6 +75,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'BtaGuestMiddleware' =>  \App\Http\Middleware\BtaGuestMiddleware::class,
             'SellerMiddleware' =>  \App\Http\Middleware\SellerMiddleware::class,
             'SellerGuestMiddleware' =>  \App\Http\Middleware\SellerGuestMiddleware::class,
+            'LenderMiddleware' =>  \App\Modules\Lender\Middleware\LenderMiddleware::class,
+            'LenderGuestMiddleware' =>  \App\Modules\Lender\Middleware\LenderGuestMiddleware::class,
             'Cors' => \App\Http\Middleware\CorsMiddleware::class,
             'bta.type' => \App\Http\Middleware\BtaRoleMiddleware::class,
 

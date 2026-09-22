@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class ksp_admin extends Model
+class ksp_admin extends Authenticatable
 {
     protected $table = 'ksp_admins';
 

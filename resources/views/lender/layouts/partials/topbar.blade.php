@@ -24,10 +24,20 @@
                     <i class="fa-regular fa-user"></i>
                 </div>
                 <div>
-                    <p class="text-sm font-medium leading-none text-white">Lender</p>
-                    <p class="mt-1 text-xs leading-none text-white/80">User</p>
+                    <p class="text-sm font-medium leading-none text-white">{{ auth('lender')->user()?->username ?? 'Lender' }}</p>
+                    <p class="mt-1 text-xs leading-none text-white/80">Lender</p>
                 </div>
             </div>
+            <form action="{{ route('lender.logout') }}" method="POST">
+                @csrf
+                <button
+                    type="submit"
+                    class="inline-flex h-10 w-10 items-center justify-center rounded-md border border-white/30 text-white transition hover:bg-white/15"
+                    title="Logout"
+                >
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
+            </form>
         </div>
     </div>
 </header>

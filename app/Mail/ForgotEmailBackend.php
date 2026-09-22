@@ -41,7 +41,7 @@ class ForgotEmailBackend extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'admin.mail.forgot',
+            view: $this->data['view'] ?? 'admin.mail.forgot',
         );
     }
 

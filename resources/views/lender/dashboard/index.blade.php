@@ -61,19 +61,19 @@
                     <i class="fa-solid fa-bolt text-primary"></i>
                 </div>
                 <div class="space-y-3">
-                    <a href="{{ route('lender.dashboard.summary') }}" class="flex items-center justify-between rounded-md border border-primary-100 px-4 py-3 text-sm font-medium text-primary-700 transition hover:bg-primary-50">
+                    <a href="{{ route('lender.dashboard.summary') }}" class="flex items-center justify-between rounded-md bg-primary px-4 py-3 text-sm font-medium text-white transition hover:bg-primary-600">
                         <span class="flex items-center gap-3">
-                            <i class="fa-solid fa-code text-primary"></i>
+                            <i class="fa-solid fa-code text-white"></i>
                             API Summary
                         </span>
-                        <i class="fa-solid fa-chevron-right text-xs text-primary"></i>
+                        <i class="fa-solid fa-chevron-right text-xs text-white/80"></i>
                     </a>
-                    <button type="button" id="refreshDashboard" class="flex w-full items-center justify-between rounded-md border border-primary-100 px-4 py-3 text-sm font-medium text-primary-700 transition hover:bg-primary-50">
+                    <button type="button" id="refreshDashboard" class="flex w-full items-center justify-between rounded-md bg-primary px-4 py-3 text-sm font-medium text-white transition hover:bg-primary-600">
                         <span class="flex items-center gap-3">
-                            <i class="fa-solid fa-rotate text-primary"></i>
+                            <i class="fa-solid fa-rotate text-white"></i>
                             Refresh Data
                         </span>
-                        <i class="fa-solid fa-chevron-right text-xs text-primary"></i>
+                        <i class="fa-solid fa-chevron-right text-xs text-white/80"></i>
                     </button>
                 </div>
             </div>

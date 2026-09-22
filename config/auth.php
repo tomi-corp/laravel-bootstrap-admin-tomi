@@ -48,6 +48,10 @@ return [
             'driver' => 'session',
             'provider' => 'admins',
         ],
+        'lender' => [
+            'driver' => 'session',
+            'provider' => 'lender_admins',
+        ],
         'superadmin' => [
             'driver' => 'session',
             'provider' => 'admins',
@@ -91,6 +95,10 @@ return [
         'admins' => [
             'driver' => 'eloquent',
             'model' => env('AUTH_MODEL', App\Models\Admin::class),
+        ],
+        'lender_admins' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\ksp_admin::class,
         ],
         'btas' => [
             'driver' => 'eloquent',
