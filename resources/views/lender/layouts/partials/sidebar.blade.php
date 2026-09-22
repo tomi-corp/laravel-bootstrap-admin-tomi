@@ -95,10 +95,10 @@
 
 <aside
     id="lenderSidebar"
-    class="fixed inset-y-0 left-0 z-40 w-64 -translate-x-full border-r border-primary bg-primary transition-all lg:translate-x-0"
+    class="fixed inset-y-0 left-0 z-40 flex w-64 -translate-x-full flex-col border-r border-primary bg-primary transition-all lg:translate-x-0"
     style="background-color: #0B8FE8; border-color: #0B8FE8;"
 >
-    <div class="flex h-16 items-center gap-3 border-b border-white/20 px-5">
+    <div class="flex h-16 shrink-0 items-center gap-3 border-b border-white/20 px-5">
         <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-white/20 text-white shadow-sm shadow-primary-950/20">
             <i class="fa-solid fa-building-columns"></i>
         </div>
@@ -108,7 +108,7 @@
         </div>
     </div>
 
-    <nav class="space-y-1 px-3 py-4">
+    <nav class="min-h-0 flex-1 space-y-1 overflow-y-auto overscroll-contain px-3 py-4">
         @foreach ($menus as $menu)
             @if (isset($menu['children']))
                 @php

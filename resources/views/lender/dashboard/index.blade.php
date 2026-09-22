@@ -4,7 +4,33 @@
 @section('page-title', 'Dashboard Lender')
 @section('page-subtitle', 'Ringkasan performa dan status lender')
 
+@push('styles')
+    <style>
+        .dashboard-banner-track {
+            transform: translateX(calc(var(--banner-index, 0) * -100%));
+        }
+    </style>
+@endpush
+
 @section('content')
+    @php
+        $banners = [
+            ['src' => 'lender/banners/tomi-gaji.png', 'alt' => 'Banner TOMI Gaji'],
+            ['src' => 'lender/banners/tomi-invoice.png', 'alt' => 'Banner TOMI Invoice'],
+            ['src' => 'lender/banners/tomi-house.png', 'alt' => 'Banner TOMI House'],
+            ['src' => 'lender/banners/tomi-moto.png', 'alt' => 'Banner TOMI Moto'],
+            ['src' => 'lender/banners/tomi-auto.png', 'alt' => 'Banner TOMI Auto'],
+            ['src' => 'lender/banners/tomi-haji.png', 'alt' => 'Banner TOMI Haji'],
+            ['src' => 'lender/banners/tomi-umroh.png', 'alt' => 'Banner TOMI Umroh'],
+            ['src' => 'lender/banners/tomiin.png', 'alt' => 'Banner TomiiN'],
+            ['src' => 'lender/banners/tomi-emas.png', 'alt' => 'Banner TOMI Emas'],
+            ['src' => 'lender/banners/tomi-gawai.png', 'alt' => 'Banner TOMI Gawai'],
+            ['src' => 'lender/banners/tomi-dana.png', 'alt' => 'Banner TOMI Dana'],
+            ['src' => 'lender/banners/tomi-dana-plus.png', 'alt' => 'Banner TOMI Dana Plus'],
+            ['src' => 'lender/banners/tomi-simpan-pinjam.png', 'alt' => 'Banner TOMI Simpan Pinjam'],
+        ];
+    @endphp
+
     <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
@@ -18,11 +44,46 @@
         </div>
 
         <section class="mb-6 overflow-hidden rounded-lg border border-primary-100 bg-white shadow-sm shadow-primary-950/10">
-            <img
-                src="{{ asset('lender/banners/dashboard-tomi-gaji.png') }}"
-                alt="Banner TOMI Gaji"
-                class="block aspect-[2048/768] w-full object-cover"
-            >
+            <div id="dashboardBannerCarousel" class="relative" style="--banner-index: 0;">
+                <div class="dashboard-banner-track flex transition-transform duration-500 ease-in-out">
+                    @foreach ($banners as $banner)
+                        <div class="min-w-full">
+                            <img
+                                src="{{ asset($banner['src']) }}"
+                                alt="{{ $banner['alt'] }}"
+                                class="block aspect-[2048/768] w-full object-cover"
+                            >
+                        </div>
+                    @endforeach
+                </div>
+
+                <button
+                    type="button"
+                    class="js-banner-prev absolute left-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-primary shadow-sm transition hover:bg-white"
+                    aria-label="Banner sebelumnya"
+                >
+                    <i class="fa-solid fa-chevron-left"></i>
+                </button>
+                <button
+                    type="button"
+                    class="js-banner-next absolute right-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-primary shadow-sm transition hover:bg-white"
+                    aria-label="Banner berikutnya"
+                >
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+
+                <div class="absolute bottom-3 left-0 right-0 flex justify-center gap-2">
+                    @foreach ($banners as $index => $banner)
+                        <button
+                            type="button"
+                            class="js-banner-dot h-2.5 w-2.5 rounded-full bg-white/70 transition data-[active=true]:w-6 data-[active=true]:bg-primary"
+                            data-index="{{ $index }}"
+                            data-active="{{ $index === 0 ? 'true' : 'false' }}"
+                            aria-label="Banner {{ $index + 1 }}"
+                        ></button>
+                    @endforeach
+                </div>
+            </div>
         </section>
 
         <section class="grid gap-4 md:grid-cols-3">
@@ -159,6 +220,30 @@
 
         $('#refreshDashboard').on('click', function () {
             AppToast.info('Data dashboard sudah diperbarui.');
+        });
+
+        const bannerCarousel = $('#dashboardBannerCarousel');
+        const bannerDots = $('.js-banner-dot');
+        const totalBanners = {{ count($banners) }};
+        let bannerIndex = 0;
+
+        function setBanner(index) {
+            bannerIndex = (index + totalBanners) % totalBanners;
+            bannerCarousel[0].style.setProperty('--banner-index', bannerIndex);
+            bannerDots.attr('data-active', 'false');
+            bannerDots.eq(bannerIndex).attr('data-active', 'true');
+        }
+
+        $('.js-banner-prev').on('click', function () {
+            setBanner(bannerIndex - 1);
+        });
+
+        $('.js-banner-next').on('click', function () {
+            setBanner(bannerIndex + 1);
+        });
+
+        bannerDots.on('click', function () {
+            setBanner(Number($(this).data('index')));
         });
     </script>
 @endpush
