@@ -114,6 +114,23 @@
         width: 100%;
     }
 
+    input[type="file"]::file-selector-button {
+        margin-right: 0.75rem;
+        border: 0;
+        border-radius: 0.375rem;
+        background-color: var(--lender-blue);
+        color: #ffffff;
+        cursor: pointer;
+        font-size: 0.875rem;
+        font-weight: 500;
+        padding: 0.375rem 0.75rem;
+        transition: background-color 150ms ease;
+    }
+
+    input[type="file"]::file-selector-button:hover {
+        background-color: var(--lender-blue-hover);
+    }
+
     [id*="flasher"],
     [class*="flasher"],
     .fl-wrapper,

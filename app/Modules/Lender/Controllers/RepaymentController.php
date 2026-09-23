@@ -12,6 +12,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class RepaymentController extends Controller
@@ -25,11 +26,30 @@ class RepaymentController extends Controller
                     $query->where('id_lender', $lenderId)
                         ->with(['data_karyawan', 'perusahaan', 'disbursement', 'jatuh_tempoSesuaiInvoice', 'user']);
                 },
+                'perusahaan',
                 'repayment.admin',
             ])
             ->whereHas('pinjaman', fn ($query) => $query->where('id_lender', $lenderId))
             ->latest()
-            ->get();
+            ->get()
+            ->sort(function ($first, $second) {
+                $firstStatusOrder = $first->status === 'lunas' ? 1 : 0;
+                $secondStatusOrder = $second->status === 'lunas' ? 1 : 0;
+
+                if ($firstStatusOrder !== $secondStatusOrder) {
+                    return $firstStatusOrder <=> $secondStatusOrder;
+                }
+
+                $firstPeriod = Carbon::parse($first->period ?? $first->created_at)->timestamp;
+                $secondPeriod = Carbon::parse($second->period ?? $second->created_at)->timestamp;
+
+                if ($firstPeriod !== $secondPeriod) {
+                    return $secondPeriod <=> $firstPeriod;
+                }
+
+                return $second->id <=> $first->id;
+            })
+            ->values();
 
         $invoiceDownloadIds = history_invoicing_lender::query()
             ->where('id_lender', $lenderId)
@@ -39,14 +59,27 @@ class RepaymentController extends Controller
             ->get()
             ->keyBy(fn ($invoice) => Carbon::parse($invoice->period)->format('Y-m'));
 
+        $invoiceDownloadAvailability = $invoices->mapWithKeys(fn ($invoice) => [
+            $invoice->id => $this->isInCompanyDueWindow($invoice),
+        ]);
+
         return view('lender.repayments.index', [
             'invoices' => $invoices,
             'invoiceDownloadIds' => $invoiceDownloadIds,
+            'invoiceDownloadAvailability' => $invoiceDownloadAvailability,
         ]);
     }
 
     public function downloadInvoice(Request $request, int $invoice): mixed
     {
+        $companyInvoice = invoicing_pinjaman::query()
+            ->whereKey($request->integer('company_invoice'))
+            ->whereHas('pinjaman', fn ($query) => $query->where('id_lender', auth('lender')->user()?->id_lender))
+            ->with('perusahaan')
+            ->firstOrFail();
+
+        abort_unless($this->isInCompanyDueWindow($companyInvoice), 403, 'Invoice hanya bisa didownload pada periode H-jatuh tempo perusahaan.');
+
         $historyInvoicingLenderPending = history_invoicing_lender::query()
             ->whereKey($invoice)
             ->where('id_lender', auth('lender')->user()?->id_lender)
@@ -107,6 +140,39 @@ class RepaymentController extends Controller
             ->stream('invoice-lender-'.$historyInvoicingLenderPending->no_invoice.'.pdf');
     }
 
+    public function uploadProof(Request $request, int $invoice): RedirectResponse
+    {
+        $lenderId = auth('lender')->user()?->id_lender;
+
+        $invoice = invoicing_pinjaman::query()
+            ->whereKey($invoice)
+            ->whereHas('pinjaman', fn ($query) => $query->where('id_lender', $lenderId))
+            ->with('perusahaan')
+            ->firstOrFail();
+
+        abort_unless($this->isInCompanyDueWindow($invoice), 403, 'Upload bukti hanya bisa dilakukan pada periode H-jatuh tempo perusahaan.');
+
+        $data = $request->validate([
+            'tanggal_pembayaran' => ['nullable', 'date'],
+            'payment_proof_file' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'],
+        ]);
+
+        $repayment = Repayment::query()->where('id_invoicing', $invoice->id)->first();
+        $file = $request->file('payment_proof_file');
+        $fileName = Str::slug($invoice->no_invoice ?? 'invoice-'.$invoice->id).'-'.now()->format('YmdHis').'.'.$file->getClientOriginalExtension();
+        $data['amount_total'] = $repayment?->amount_total ?? 0;
+        $data['payment_proof_file'] = $file->storeAs('assets/repayments', $fileName, 'local');
+        $data['payment_proof_date'] = now()->toDateString();
+        $data['tanggal_pembayaran'] = $data['tanggal_pembayaran'] ?? now();
+
+        Repayment::query()->updateOrCreate(
+            ['id_invoicing' => $invoice->id],
+            $this->withAdmin($data)
+        );
+
+        return redirect()->route('lender.repayments.index')->with('success', 'Bukti pembayaran berhasil diupload.');
+    }
+
     public function create(): View
     {
         return view('lender.repayments.create', $this->formData(new Repayment));
@@ -158,5 +224,21 @@ class RepaymentController extends Controller
         $data['ksp_admin_id'] = auth('lender')->id();
 
         return $data;
+    }
+
+    private function isInCompanyDueWindow(invoicing_pinjaman $invoice): bool
+    {
+        $company = $invoice->perusahaan;
+
+        if (! $company || blank($invoice->period) || blank($company->payment_date)) {
+            return false;
+        }
+
+        $period = Carbon::parse($invoice->period);
+        $paymentDay = min((int) $company->payment_date, $period->daysInMonth);
+        $dueDate = $period->copy()->day($paymentDay)->startOfDay();
+        $availableFrom = $dueDate->copy()->subDays((int) ($company->h_min_jatuh_tempo ?? 0));
+
+        return now()->startOfDay()->betweenIncluded($availableFrom, $dueDate);
     }
 }

@@ -25,6 +25,7 @@
                 <thead>
                     <tr>
                         <th>Invoice</th>
+                        <th>Perusahaan</th>
                         <th>Periode</th>
                         <th>Status</th>
                         <th>Total Loan</th>
@@ -33,6 +34,7 @@
                         <th>Total Repayment</th>
                         <th>Tanggal Pembayaran</th>
                         <th>File Bukti</th>
+                        <th>Upload Bukti</th>
                         <th>Download Invoice</th>
                     </tr>
                 </thead>
@@ -42,6 +44,7 @@
                             $repayment = $invoice->repayment;
                             $periodKey = $invoice->period ? \Carbon\Carbon::parse($invoice->period)->format('Y-m') : null;
                             $downloadInvoice = $periodKey ? $invoiceDownloadIds->get($periodKey) : null;
+                            $isInDueWindow = (bool) ($invoiceDownloadAvailability[$invoice->id] ?? false);
                             $loans = ($invoice->pinjaman ?? collect())->filter(function ($loan) use ($periodKey) {
                                 return ! $periodKey
                                     || ! $loan->jatuh_tempoSesuaiInvoice
@@ -50,6 +53,7 @@
                         @endphp
                         <tr>
                             <td>{{ $invoice->no_invoice ?? '#'.$invoice->id }}</td>
+                            <td>{{ $invoice->perusahaan?->nama ?? $loans->first()?->perusahaan?->nama ?? '-' }}</td>
                             <td>{{ $invoice->period ? \Carbon\Carbon::parse($invoice->period)->format('F Y') : '-' }}</td>
                             <td>
                                 @if ($invoice->status === 'lunas')
@@ -70,11 +74,29 @@
                             <td>{{ $repayment?->tanggal_pembayaran ? \Carbon\Carbon::parse($repayment->tanggal_pembayaran)->format('d/m/Y H:i') : '-' }}</td>
                             <td>{{ $repayment?->payment_proof_file ?? '-' }}</td>
                             <td>
-                                @if ($downloadInvoice)
-                                    <a href="{{ route('lender.repayments.invoice.download', $downloadInvoice->id) }}" target="_blank" class="lender-btn lender-btn-primary lender-btn-sm">
+                                @if ($isInDueWindow)
+                                    <button type="button" class="js-open-proof-modal lender-btn lender-btn-primary lender-btn-sm" data-target="#proofModal{{ $invoice->id }}">
+                                        <i class="fa-solid fa-upload"></i>
+                                        Upload
+                                    </button>
+                                @else
+                                    <button type="button" class="lender-btn lender-btn-sm cursor-not-allowed bg-slate-100 text-slate-400" disabled title="Upload hanya aktif pada periode H-jatuh tempo perusahaan">
+                                        <i class="fa-solid fa-upload"></i>
+                                        Belum H-jatuh tempo
+                                    </button>
+                                @endif
+                            </td>
+                            <td>
+                                @if ($downloadInvoice && $isInDueWindow)
+                                    <a href="{{ route('lender.repayments.invoice.download', ['invoice' => $downloadInvoice->id, 'company_invoice' => $invoice->id]) }}" target="_blank" class="lender-btn lender-btn-primary lender-btn-sm">
                                         <i class="fa-solid fa-download"></i>
                                         Download
                                     </a>
+                                @elseif ($downloadInvoice)
+                                    <button type="button" class="lender-btn lender-btn-sm cursor-not-allowed bg-slate-100 text-slate-400" disabled title="Invoice hanya bisa didownload pada periode H-jatuh tempo perusahaan">
+                                        <i class="fa-solid fa-download"></i>
+                                        Belum H-jatuh tempo
+                                    </button>
                                 @else
                                     <span class="text-slate-400">Belum tersedia</span>
                                 @endif
@@ -87,6 +109,7 @@
 
         @foreach ($invoices as $invoice)
             @php
+                $repayment = $invoice->repayment;
                 $periodKey = $invoice->period ? \Carbon\Carbon::parse($invoice->period)->format('Y-m') : null;
                 $loans = ($invoice->pinjaman ?? collect())->filter(function ($loan) use ($periodKey) {
                     return ! $periodKey
@@ -94,6 +117,60 @@
                         || \Carbon\Carbon::parse($loan->jatuh_tempoSesuaiInvoice->jatuh_tempo)->format('Y-m') === $periodKey;
                 })->values();
             @endphp
+            <div id="proofModal{{ $invoice->id }}" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/60 px-4 py-6">
+                <div class="w-full max-w-xl rounded-lg bg-white text-primary-950 shadow-xl">
+                    <div class="flex items-start justify-between border-b border-primary-100 px-5 py-4">
+                        <div>
+                            <h2 class="text-lg font-semibold">Upload Bukti Pembayaran</h2>
+                            <p class="mt-1 text-sm text-slate-500">{{ $invoice->no_invoice ?? '#'.$invoice->id }}</p>
+                        </div>
+                        <button type="button" class="js-close-proof-modal rounded-md px-2 py-1 text-slate-500 hover:bg-slate-100" data-target="#proofModal{{ $invoice->id }}">Tutup</button>
+                    </div>
+
+                    <form action="{{ route('lender.repayments.invoice.proof', $invoice->id) }}" method="POST" enctype="multipart/form-data" class="px-5 py-4">
+                        @csrf
+                        <dl class="mb-4 grid gap-3 rounded-md border border-primary-100 bg-primary-50/60 p-3 text-sm">
+                            <div>
+                                <dt class="text-xs font-medium uppercase text-primary-700">Perusahaan</dt>
+                                <dd class="mt-1 font-medium text-primary-950">{{ $invoice->perusahaan?->nama ?? $loans->first()?->perusahaan?->nama ?? '-' }}</dd>
+                            </div>
+                            <div>
+                                <dt class="text-xs font-medium uppercase text-primary-700">Periode</dt>
+                                <dd class="mt-1 font-medium text-primary-950">{{ $invoice->period ? \Carbon\Carbon::parse($invoice->period)->format('F Y') : '-' }}</dd>
+                            </div>
+                            <div>
+                                <dt class="text-xs font-medium uppercase text-primary-700">Status</dt>
+                                <dd class="mt-1 font-medium text-primary-950">{{ str_replace('_', ' ', $invoice->status ?? 'belum lunas') }}</dd>
+                            </div>
+                            <div>
+                                <dt class="text-xs font-medium uppercase text-primary-700">Total Pinjaman</dt>
+                                <dd class="mt-1 font-medium text-primary-950">{{ $loans->count() }}</dd>
+                            </div>
+                        </dl>
+
+                        <div class="grid gap-4">
+                            <div>
+                                <label class="mb-1 block text-sm font-medium text-primary-800">Tanggal Pembayaran</label>
+                                <input type="datetime-local" name="tanggal_pembayaran" value="{{ old('tanggal_pembayaran', $repayment?->tanggal_pembayaran ? \Carbon\Carbon::parse($repayment->tanggal_pembayaran)->format('Y-m-d\TH:i') : now()->format('Y-m-d\TH:i')) }}" class="w-full rounded-md border border-primary-100 px-3 py-2 text-primary-950 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20">
+                            </div>
+                            <div>
+                                <label class="mb-1 block text-sm font-medium text-primary-800">File Bukti</label>
+                                <input type="file" name="payment_proof_file" accept=".jpg,.jpeg,.png,.pdf" class="w-full rounded-md border border-primary-100 px-3 py-2 text-primary-950 file:mr-3 file:rounded-md file:border-0 file:bg-primary file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-white focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" required>
+                            </div>
+                        </div>
+
+                        @if ($repayment?->payment_proof_file)
+                            <p class="mt-3 text-sm text-slate-500">File saat ini: {{ $repayment->payment_proof_file }}</p>
+                        @endif
+
+                        <div class="mt-5 flex justify-end gap-2">
+                            <button type="button" class="js-close-proof-modal lender-btn lender-btn-soft lender-btn-md" data-target="#proofModal{{ $invoice->id }}">Batal</button>
+                            <button type="submit" class="lender-btn lender-btn-primary lender-btn-md">Simpan Bukti</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
             <div id="loansModal{{ $invoice->id }}" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/60 px-4 py-6">
                 <div class="flex max-h-[85vh] w-full max-w-4xl flex-col rounded-lg bg-white text-primary-950 shadow-xl">
                     <div class="flex items-start justify-between border-b border-primary-100 px-5 py-4">
@@ -152,6 +229,7 @@
             scrollY: '420px',
             scrollCollapse: true,
             autoWidth: false,
+            order: [],
             pageLength: 10,
             lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'Semua']],
             language: {
@@ -170,7 +248,19 @@
             $(target).removeClass('hidden').addClass('flex');
         });
 
+        $(document).on('click', '.js-open-proof-modal', function () {
+            const target = $(this).data('target');
+
+            $(target).removeClass('hidden').addClass('flex');
+        });
+
         $(document).on('click', '.js-close-loans-modal', function () {
+            const target = $(this).data('target');
+
+            $(target).addClass('hidden').removeClass('flex');
+        });
+
+        $(document).on('click', '.js-close-proof-modal', function () {
             const target = $(this).data('target');
 
             $(target).addClass('hidden').removeClass('flex');
@@ -182,9 +272,16 @@
             }
         });
 
+        $(document).on('click', '[id^="proofModal"]', function (event) {
+            if (event.target === this) {
+                $(this).addClass('hidden').removeClass('flex');
+            }
+        });
+
         $(document).on('keydown', function (event) {
             if (event.key === 'Escape') {
                 $('[id^="loansModal"].flex').addClass('hidden').removeClass('flex');
+                $('[id^="proofModal"].flex').addClass('hidden').removeClass('flex');
             }
         });
     </script>

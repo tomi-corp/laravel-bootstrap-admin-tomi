@@ -44,6 +44,8 @@ Route::name('lender.')->group(function () {
             ->names('repayments');
         Route::get('/repayment/invoice/{invoice}/download', [RepaymentController::class, 'downloadInvoice'])
             ->name('repayments.invoice.download');
+        Route::post('/repayment/invoice/{invoice}/proof', [RepaymentController::class, 'uploadProof'])
+            ->name('repayments.invoice.proof');
         Route::get('/list-perusahaan/cities', [CompanyController::class, 'cities'])->name('companies.cities');
         Route::get('/list-perusahaan/districts', [CompanyController::class, 'districts'])->name('companies.districts');
         Route::get('/list-perusahaan/villages', [CompanyController::class, 'villages'])->name('companies.villages');
