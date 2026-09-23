@@ -148,12 +148,28 @@
             },
         });
 
-        $('.js-open-disbursement-modal').on('click', function () {
-            $($(this).data('target')).removeClass('hidden').addClass('flex');
+        $(document).on('click', '.js-open-disbursement-modal', function () {
+            const target = $(this).data('target');
+
+            $(target).removeClass('hidden').addClass('flex');
         });
 
-        $('.js-close-disbursement-modal').on('click', function () {
-            $($(this).data('target')).addClass('hidden').removeClass('flex');
+        $(document).on('click', '.js-close-disbursement-modal', function () {
+            const target = $(this).data('target');
+
+            $(target).addClass('hidden').removeClass('flex');
+        });
+
+        $(document).on('click', '[id^="disbursementModal"]', function (event) {
+            if (event.target === this) {
+                $(this).addClass('hidden').removeClass('flex');
+            }
+        });
+
+        $(document).on('keydown', function (event) {
+            if (event.key === 'Escape') {
+                $('[id^="disbursementModal"].flex').addClass('hidden').removeClass('flex');
+            }
         });
     </script>
 @endpush
