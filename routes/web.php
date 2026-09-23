@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Guest\CallbackController;
 use App\Http\Controllers\Guest\DownloadController;
 use App\Http\Controllers\Guest\VerifEmailController;
+use App\Http\Controllers\Server\DocumentController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/confirmation/{code}', [VerifEmailController::class, 'verifEmail'])->name('verif.email');
@@ -22,6 +23,10 @@ Route::post('/callback/register/privy', [CallbackController::class, 'privyRegist
 // show document
 Route::get('/preview', [AuthController::class, 'preview'])
     ->name('preview.file')
+    ->middleware('SignedDocumentMiddleware');
+
+Route::get('/preview/pk', [DocumentController::class, 'pk'])
+    ->name('preview.pk')
     ->middleware('SignedDocumentMiddleware');
 
 Route::redirect('/', '/backoffice/login');

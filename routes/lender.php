@@ -3,13 +3,14 @@
 use App\Modules\Lender\Controllers\DashboardController;
 use App\Modules\Lender\Controllers\CompanyController;
 use App\Modules\Lender\Controllers\AuthController;
-use App\Modules\Lender\Controllers\DisbursementCrudController;
+use App\Modules\Lender\Controllers\DisbursementController;
 use App\Modules\Lender\Controllers\LoanController;
-use App\Modules\Lender\Controllers\RepaymentCrudController;
+use App\Modules\Lender\Controllers\RepaymentController;
 use Illuminate\Support\Facades\Route;
 
 Route::name('lender.')->group(function () {
     Route::middleware('LenderGuestMiddleware')->group(function () {
+        Route::redirect('/', '/lender/login');
         Route::get('/login', [AuthController::class, 'login'])->name('login');
         Route::post('/login', [AuthController::class, 'authenticate'])->name('login.action');
         Route::get('/forgot-password', [AuthController::class, 'forgot'])->name('forgot');
@@ -21,7 +22,6 @@ Route::name('lender.')->group(function () {
     Route::middleware('LenderMiddleware')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-        Route::redirect('/', '/lender/dashboard');
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
         Route::get('/summary', [DashboardController::class, 'summary'])->name('dashboard.summary');
         Route::get('/tomi-dana/disbursement', [DashboardController::class, 'disbursement'])->name('tomi-dana.disbursement');
@@ -31,12 +31,12 @@ Route::name('lender.')->group(function () {
                 'pinjaman' => 'loan',
             ])
             ->names('loans');
-        Route::resource('disbursement', DisbursementCrudController::class)
+        Route::resource('disbursement', DisbursementController::class)
             ->parameters([
                 'disbursement' => 'disbursement',
             ])
             ->names('disbursements');
-        Route::resource('repayment', RepaymentCrudController::class)
+        Route::resource('repayment', RepaymentController::class)
             ->parameters([
                 'repayment' => 'repayment',
             ])

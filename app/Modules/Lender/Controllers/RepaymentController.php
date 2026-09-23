@@ -9,7 +9,7 @@ use App\Modules\Lender\Requests\RepaymentRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
-class RepaymentCrudController extends Controller
+class RepaymentController extends Controller
 {
     public function index(): View
     {

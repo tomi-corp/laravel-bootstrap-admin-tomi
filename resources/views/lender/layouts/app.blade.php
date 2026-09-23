@@ -106,6 +106,10 @@
             margin-left: 0;
             margin-right: 0;
         }
+
+        #toast-container {
+            z-index: 2147483647 !important;
+        }
     </style>
     @stack('styles')
 </head>

@@ -30,5 +30,34 @@
                 @endforeach
             </dl>
         </section>
+        <section class="mt-5 rounded-lg border border-primary-100 bg-white p-5 text-primary-950 shadow-sm shadow-primary-950/10">
+            <h2 class="mb-4 text-lg font-semibold">Dokumen Pinjaman</h2>
+            <div class="grid gap-3 md:grid-cols-3">
+                @foreach ([
+                    'pk' => ['label' => 'PK', 'file' => $disbursement->loan?->document_name],
+                    'ktp' => ['label' => 'KTP', 'file' => $disbursement->loan?->kyc?->ktp],
+                    'selfie' => ['label' => 'Selfie', 'file' => $disbursement->loan?->kyc?->selfie],
+                ] as $key => $document)
+                    @php
+                        $url = '';
+
+                        if ($document['file']) {
+                            $url = $key === 'pk'
+                                ? URL::temporarySignedRoute('preview.pk', now()->addMinutes(10), ['document' => $document['file']])
+                                : secureFile($document['file']);
+                        }
+                    @endphp
+                    <div class="rounded-md border border-primary-100 bg-primary-50/50 p-3">
+                        <div class="text-sm font-medium text-primary-800">{{ $document['label'] }}</div>
+                        @if ($url)
+                            <a href="{{ $url }}" target="_blank" class="mt-2 inline-flex rounded-md bg-[#0B8FE8] px-3 py-1.5 text-sm font-medium text-white hover:bg-[#0878C4]">Lihat</a>
+                            <div class="mt-2 break-all text-xs text-slate-500">{{ $document['file'] }}</div>
+                        @else
+                            <div class="mt-2 text-sm text-slate-500">Belum ada file</div>
+                        @endif
+                    </div>
+                @endforeach
+            </div>
+        </section>
     </div>
 @endsection
