@@ -1,4 +1,4 @@
-<header class="sticky top-0 z-20 border-b border-primary bg-primary" style="background-color: #0B8FE8; border-color: #0B8FE8;">
+<header class="sticky top-0 z-20 border-b border-primary bg-primary" style="background-color: var(--lender-blue); border-color: var(--lender-blue);">
     <div class="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
         <div class="flex items-center gap-3">
             <button

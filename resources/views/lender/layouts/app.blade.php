@@ -7,7 +7,7 @@
     @include('lender.layouts.partials.head-assets')
     <style>
         .lender-content {
-            background-color: #38B4F8;
+            background-color: var(--lender-blue-page);
             color: #ffffff;
         }
 
@@ -36,12 +36,12 @@
             line-height: 40px;
             padding-left: 0.75rem;
             padding-right: 2.25rem;
-            color: #062B49;
+            color: var(--lender-blue-text);
             font-size: 0.875rem;
         }
 
         .select2-container--default .select2-selection--single .select2-selection__placeholder {
-            color: #0878C4;
+            color: var(--lender-blue-hover);
         }
 
         .select2-container--default .select2-selection--single .select2-selection__arrow {
@@ -51,7 +51,7 @@
 
         .select2-container--default.select2-container--focus .select2-selection--single,
         .select2-container--default.select2-container--open .select2-selection--single {
-            border-color: #0B8FE8;
+            border-color: var(--lender-blue);
             box-shadow: 0 0 0 2px rgba(11, 143, 232, 0.18);
             outline: none;
         }
@@ -70,7 +70,7 @@
         }
 
         .select2-container--default .select2-results__option--highlighted.select2-results__option--selectable {
-            background-color: #0B8FE8;
+            background-color: var(--lender-blue);
             color: #ffffff;
         }
 
@@ -113,10 +113,10 @@
     </style>
     @stack('styles')
 </head>
-<body class="bg-primary-400 text-primary-950 antialiased">
+<body class="relative min-h-screen bg-primary-400 text-primary-950 antialiased">
     @include('lender.layouts.partials.sidebar')
 
-    <div id="lenderShell" class="min-h-screen bg-primary-400 transition-all lg:pl-64" style="background-color: #38B4F8;">
+    <div id="lenderShell" class="min-h-screen bg-primary-400 transition-all lg:pl-64" style="background-color: var(--lender-blue-page);">
         @include('lender.layouts.partials.topbar')
 
         <main class="lender-content min-h-[calc(100vh-8rem)] bg-primary-400 text-white">

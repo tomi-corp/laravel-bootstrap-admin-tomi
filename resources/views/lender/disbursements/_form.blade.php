@@ -78,7 +78,7 @@
                 @endphp
                 <div class="rounded-md border border-primary-100 bg-primary-50/50 p-3">
                     <div class="text-sm font-medium text-primary-800">{{ $label }}</div>
-                    <a id="{{ $key }}_link" href="{{ $storedUrl }}" target="_blank" class="{{ $storedUrl ? '' : 'hidden' }} mt-2 inline-flex rounded-md bg-[#0B8FE8] px-3 py-1.5 text-sm font-medium text-white hover:bg-[#0878C4]">Lihat</a>
+                    <a id="{{ $key }}_link" href="{{ $storedUrl }}" target="_blank" class="{{ $storedUrl ? '' : 'hidden' }} lender-btn lender-btn-primary lender-btn-sm mt-2">Lihat</a>
                     <span id="{{ $key }}_empty" class="{{ $storedUrl ? 'hidden' : '' }} mt-2 block text-sm text-slate-500">Belum ada file</span>
                 </div>
             @endforeach
@@ -87,8 +87,8 @@
     </div>
 </div>
 <div class="mt-5 flex items-center gap-2">
-    <button type="submit" class="rounded-md bg-[#0B8FE8] px-4 py-2 text-sm font-medium text-white hover:bg-[#0878C4]">Simpan</button>
-    <a href="{{ route('lender.disbursements.index') }}" class="rounded-md bg-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-300">Batal</a>
+    <button type="submit" class="lender-btn lender-btn-primary lender-btn-md">Simpan</button>
+    <a href="{{ route('lender.disbursements.index') }}" class="lender-btn lender-btn-soft lender-btn-md">Batal</a>
 </div>
 
 @push('scripts')

@@ -50,7 +50,7 @@
                     <div class="rounded-md border border-primary-100 bg-primary-50/50 p-3">
                         <div class="text-sm font-medium text-primary-800">{{ $document['label'] }}</div>
                         @if ($url)
-                            <a href="{{ $url }}" target="_blank" class="mt-2 inline-flex rounded-md bg-[#0B8FE8] px-3 py-1.5 text-sm font-medium text-white hover:bg-[#0878C4]">Lihat</a>
+                            <a href="{{ $url }}" target="_blank" class="lender-btn lender-btn-primary lender-btn-sm mt-2">Lihat</a>
                             <div class="mt-2 break-all text-xs text-slate-500">{{ $document['file'] }}</div>
                         @else
                             <div class="mt-2 text-sm text-slate-500">Belum ada file</div>

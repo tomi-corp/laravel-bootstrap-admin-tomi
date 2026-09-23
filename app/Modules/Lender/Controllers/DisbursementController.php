@@ -20,7 +20,7 @@ class DisbursementController extends Controller
         return view('lender.disbursements.index', [
             'loans' => $this->undisbursedLoanQuery()
                 ->with(['user', 'company', 'employee.bank', 'kyc'])
-                ->get(['id', 'user_id', 'id_perusahaan', 'id_karyawan', 'id_pinjaman', 'nominal', 'tenor', 'jumlah_yang_diterima', 'document_name', 'id_kyc', 'status']),
+                ->get(['id', 'user_id', 'id_perusahaan', 'id_karyawan', 'id_lender', 'id_pinjaman', 'nominal', 'tenor', 'jumlah_yang_diterima', 'document_name', 'id_kyc', 'status']),
         ]);
     }
 
@@ -76,7 +76,7 @@ class DisbursementController extends Controller
 
         return [
             'disbursement' => $disbursement,
-            'loans' => $loanQuery->get(['id', 'id_pinjaman', 'nominal', 'document_name', 'id_kyc']),
+            'loans' => $loanQuery->get(['id', 'id_lender', 'id_pinjaman', 'nominal', 'document_name', 'id_kyc']),
             'banks' => bank::query()->orderBy('code_bank')->get(['id', 'code_bank', 'description']),
         ];
     }
@@ -90,7 +90,10 @@ class DisbursementController extends Controller
 
     private function withSystemData(array $data, DisbursementRequest $request): array
     {
-        $loan = Loan::query()->with('employee')->findOrFail($data['pinjaman_id']);
+        $loan = Loan::query()
+            ->where('id_lender', auth('lender')->user()?->id_lender)
+            ->with('employee')
+            ->findOrFail($data['pinjaman_id']);
 
         $data['bank_id'] = $loan->employee?->id_nama_bank;
         $data['dana_yang_dicairkan'] = $loan->jumlah_yang_diterima ?? $loan->nominal;
@@ -109,6 +112,7 @@ class DisbursementController extends Controller
     private function undisbursedLoanQuery(?Disbursement $disbursement = null): Builder
     {
         return Loan::query()
+            ->where('id_lender', auth('lender')->user()?->id_lender)
             ->whereNotIn('id', Disbursement::query()
                 ->when($disbursement?->exists, fn ($query) => $query->whereKeyNot($disbursement->id))
                 ->select('pinjaman_id')

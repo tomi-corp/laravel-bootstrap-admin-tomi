@@ -9,8 +9,9 @@ use App\Modules\Lender\Controllers\RepaymentController;
 use Illuminate\Support\Facades\Route;
 
 Route::name('lender.')->group(function () {
+    Route::redirect('/', '/lender/login');
+
     Route::middleware('LenderGuestMiddleware')->group(function () {
-        Route::redirect('/', '/lender/login');
         Route::get('/login', [AuthController::class, 'login'])->name('login');
         Route::post('/login', [AuthController::class, 'authenticate'])->name('login.action');
         Route::get('/forgot-password', [AuthController::class, 'forgot'])->name('forgot');

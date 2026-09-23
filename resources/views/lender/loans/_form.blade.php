@@ -102,8 +102,8 @@
     </div>
 </div>
 <div class="mt-5 flex items-center gap-2">
-    <button type="submit" class="rounded-md bg-[#0B8FE8] px-4 py-2 text-sm font-medium text-white hover:bg-[#0878C4]">Simpan</button>
-    <a href="{{ route('lender.loans.index') }}" class="rounded-md bg-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-300">Batal</a>
+    <button type="submit" class="lender-btn lender-btn-primary lender-btn-md">Simpan</button>
+    <a href="{{ route('lender.loans.index') }}" class="lender-btn lender-btn-soft lender-btn-md">Batal</a>
 </div>
 
 @push('scripts')

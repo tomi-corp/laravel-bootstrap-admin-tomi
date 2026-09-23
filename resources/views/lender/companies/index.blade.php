@@ -24,7 +24,7 @@
                 <h1 class="text-2xl font-semibold tracking-normal">List Perusahaan</h1>
                 <p class="mt-1 text-sm text-white/90">Kelola perusahaan yang terhubung dengan lender.</p>
             </div>
-            <a href="{{ route('lender.companies.create') }}" class="inline-flex items-center gap-2 rounded-md bg-[#0B8FE8] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#0878C4]">
+            <a href="{{ route('lender.companies.create') }}" class="lender-btn lender-btn-primary lender-btn-md shadow-sm">
                 <i class="fa-solid fa-plus"></i>
                 Tambah Perusahaan
             </a>
@@ -57,7 +57,7 @@
                                 </td>
                                 <td>
                                     <div class="flex items-center gap-2">
-                                        <a href="{{ route('lender.companies.show', $company) }}" class="rounded-md bg-[#0B8FE8] px-3 py-1.5 text-sm font-medium text-white hover:bg-[#0878C4]">
+                                        <a href="{{ route('lender.companies.show', $company) }}" class="lender-btn lender-btn-primary lender-btn-sm">
                                             Detail
                                         </a>
                                         <a href="{{ route('lender.companies.edit', $company) }}" class="rounded-md bg-yellow-500 px-3 py-1.5 text-sm font-medium text-white hover:bg-yellow-600">

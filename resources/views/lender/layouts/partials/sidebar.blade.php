@@ -20,12 +20,6 @@
             'active' => request()->routeIs('lender.tomi-dana.*') || request()->routeIs('lender.loans.*') || request()->routeIs('lender.disbursements.*') || request()->routeIs('lender.repayments.*'),
             'children' => [
                 [
-                    'label' => 'Pinjaman',
-                    'icon' => 'fa-solid fa-file-contract',
-                    'route' => 'lender.loans.index',
-                    'active' => request()->routeIs('lender.loans.*'),
-                ],
-                [
                     'label' => 'Pencairan Dana',
                     'icon' => 'fa-solid fa-money-bill-transfer',
                     'route' => 'lender.disbursements.index',
@@ -95,8 +89,8 @@
 
 <aside
     id="lenderSidebar"
-    class="fixed inset-y-0 left-0 z-40 flex w-64 -translate-x-full flex-col border-r border-primary bg-primary transition-all lg:translate-x-0"
-    style="background-color: #0B8FE8; border-color: #0B8FE8;"
+    class="fixed inset-y-0 left-0 z-40 flex w-64 -translate-x-full flex-col border-r border-primary bg-primary transition-all lg:absolute lg:inset-y-auto lg:bottom-0 lg:top-0 lg:min-h-full lg:translate-x-0"
+    style="background-color: var(--lender-blue); border-color: var(--lender-blue);"
 >
     <div class="flex h-16 shrink-0 items-center gap-3 border-b border-white/20 px-5">
         <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-white/20 text-white shadow-sm shadow-primary-950/20">
@@ -108,7 +102,7 @@
         </div>
     </div>
 
-    <nav class="min-h-0 flex-1 space-y-1 overflow-y-auto overscroll-contain px-3 py-4">
+    <nav class="min-h-0 flex-1 space-y-1 overflow-y-auto overscroll-contain px-3 py-4 lg:overflow-visible">
         @foreach ($menus as $menu)
             @if (isset($menu['children']))
                 @php
@@ -169,7 +163,7 @@
                 icon: 'info',
                 title: 'Sedang dalam pengembangan',
                 text: `${$(this).data('menu-label')} belum tersedia saat ini.`,
-                confirmButtonColor: '#0B8FE8',
+                confirmButtonColor: getComputedStyle(document.documentElement).getPropertyValue('--lender-blue').trim(),
                 confirmButtonText: 'Mengerti',
             });
         });

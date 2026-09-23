@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Modules\Lender\Resources\DashboardSummaryResource;
 use App\Modules\Lender\Services\DashboardService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
@@ -36,10 +37,8 @@ class DashboardController extends Controller
         ]);
     }
 
-    public function repayment(): View
+    public function repayment(): RedirectResponse
     {
-        return view('lender.tomi-dana.repayment', [
-            'summary' => $this->dashboardService->summary(),
-        ]);
+        return redirect()->route('lender.repayments.index');
     }
 }

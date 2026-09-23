@@ -131,10 +131,10 @@
 </div>
 
 <div class="mt-6 flex items-center justify-end gap-2">
-    <a href="{{ route('lender.companies.index') }}" class="rounded-md bg-primary-100 px-4 py-2 text-sm font-medium text-primary-700 hover:bg-primary-200">
+    <a href="{{ route('lender.companies.index') }}" class="lender-btn lender-btn-soft lender-btn-md">
         Batal
     </a>
-    <button type="submit" class="rounded-md bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-600">
+    <button type="submit" class="lender-btn lender-btn-primary lender-btn-md">
         Simpan
     </button>
 </div>

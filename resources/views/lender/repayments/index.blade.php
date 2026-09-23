@@ -26,6 +26,7 @@
                     <tr>
                         <th>Invoice</th>
                         <th>Periode</th>
+                        <th>Status</th>
                         <th>Total Loan</th>
                         <th>Loan</th>
                         <th>Admin</th>
@@ -36,33 +37,41 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($repayments as $repayment)
+                    @foreach ($invoices as $invoice)
                         @php
-                            $periodKey = $repayment->invoice?->period ? \Carbon\Carbon::parse($repayment->invoice->period)->format('Y-m') : null;
+                            $repayment = $invoice->repayment;
+                            $periodKey = $invoice->period ? \Carbon\Carbon::parse($invoice->period)->format('Y-m') : null;
                             $downloadInvoice = $periodKey ? $invoiceDownloadIds->get($periodKey) : null;
-                            $loans = ($repayment->invoice?->pinjaman ?? collect())->filter(function ($loan) use ($periodKey) {
+                            $loans = ($invoice->pinjaman ?? collect())->filter(function ($loan) use ($periodKey) {
                                 return ! $periodKey
                                     || ! $loan->jatuh_tempoSesuaiInvoice
                                     || \Carbon\Carbon::parse($loan->jatuh_tempoSesuaiInvoice->jatuh_tempo)->format('Y-m') === $periodKey;
                             })->values();
                         @endphp
                         <tr>
-                            <td>{{ $repayment->invoice?->no_invoice ?? '#'.$repayment->id_invoicing }}</td>
-                            <td>{{ $repayment->invoice?->period ? \Carbon\Carbon::parse($repayment->invoice->period)->format('F Y') : '-' }}</td>
+                            <td>{{ $invoice->no_invoice ?? '#'.$invoice->id }}</td>
+                            <td>{{ $invoice->period ? \Carbon\Carbon::parse($invoice->period)->format('F Y') : '-' }}</td>
+                            <td>
+                                @if ($invoice->status === 'lunas')
+                                    <span class="rounded-md bg-green-100 px-2.5 py-1 text-xs font-medium text-green-700">Lunas</span>
+                                @else
+                                    <span class="rounded-md bg-yellow-100 px-2.5 py-1 text-xs font-medium text-yellow-700">{{ str_replace('_', ' ', $invoice->status ?? 'belum lunas') }}</span>
+                                @endif
+                            </td>
                             <td>{{ $loans->count() }}</td>
                             <td>
-                                <button type="button" class="js-open-loans-modal inline-flex items-center gap-2 rounded-md bg-slate-100 px-3 py-1.5 text-sm font-medium text-primary-800 hover:bg-slate-200" data-target="#loansModal{{ $repayment->id }}">
+                                <button type="button" class="js-open-loans-modal inline-flex items-center gap-2 rounded-md bg-slate-100 px-3 py-1.5 text-sm font-medium text-primary-800 hover:bg-slate-200" data-target="#loansModal{{ $invoice->id }}">
                                     <i class="fa-solid fa-list"></i>
                                     Lihat Pinjaman
                                 </button>
                             </td>
-                            <td>{{ $repayment->admin?->nama ?? '-' }}</td>
-                            <td>Rp {{ number_format($repayment->amount_total, 0, ',', '.') }}</td>
-                            <td>{{ $repayment->tanggal_pembayaran ? \Carbon\Carbon::parse($repayment->tanggal_pembayaran)->format('d/m/Y H:i') : '-' }}</td>
-                            <td>{{ $repayment->payment_proof_file ?? '-' }}</td>
+                            <td>{{ $repayment?->admin?->nama ?? '-' }}</td>
+                            <td>{{ $repayment ? 'Rp '.number_format($repayment->amount_total, 0, ',', '.') : '-' }}</td>
+                            <td>{{ $repayment?->tanggal_pembayaran ? \Carbon\Carbon::parse($repayment->tanggal_pembayaran)->format('d/m/Y H:i') : '-' }}</td>
+                            <td>{{ $repayment?->payment_proof_file ?? '-' }}</td>
                             <td>
                                 @if ($downloadInvoice)
-                                    <a href="{{ route('lender.repayments.invoice.download', $downloadInvoice->id) }}" target="_blank" class="inline-flex items-center gap-2 rounded-md bg-[#0B8FE8] px-3 py-1.5 text-sm font-medium text-white hover:bg-[#0878C4]">
+                                    <a href="{{ route('lender.repayments.invoice.download', $downloadInvoice->id) }}" target="_blank" class="lender-btn lender-btn-primary lender-btn-sm">
                                         <i class="fa-solid fa-download"></i>
                                         Download
                                     </a>
@@ -76,23 +85,23 @@
             </table>
         </section>
 
-        @foreach ($repayments as $repayment)
+        @foreach ($invoices as $invoice)
             @php
-                $periodKey = $repayment->invoice?->period ? \Carbon\Carbon::parse($repayment->invoice->period)->format('Y-m') : null;
-                $loans = ($repayment->invoice?->pinjaman ?? collect())->filter(function ($loan) use ($periodKey) {
+                $periodKey = $invoice->period ? \Carbon\Carbon::parse($invoice->period)->format('Y-m') : null;
+                $loans = ($invoice->pinjaman ?? collect())->filter(function ($loan) use ($periodKey) {
                     return ! $periodKey
                         || ! $loan->jatuh_tempoSesuaiInvoice
                         || \Carbon\Carbon::parse($loan->jatuh_tempoSesuaiInvoice->jatuh_tempo)->format('Y-m') === $periodKey;
                 })->values();
             @endphp
-            <div id="loansModal{{ $repayment->id }}" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/60 px-4 py-6">
+            <div id="loansModal{{ $invoice->id }}" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/60 px-4 py-6">
                 <div class="flex max-h-[85vh] w-full max-w-4xl flex-col rounded-lg bg-white text-primary-950 shadow-xl">
                     <div class="flex items-start justify-between border-b border-primary-100 px-5 py-4">
                         <div>
                             <h2 class="text-lg font-semibold">Daftar Pinjaman</h2>
-                            <p class="mt-1 text-sm text-slate-500">{{ $repayment->invoice?->no_invoice ?? '#'.$repayment->id_invoicing }}</p>
+                            <p class="mt-1 text-sm text-slate-500">{{ $invoice->no_invoice ?? '#'.$invoice->id }}</p>
                         </div>
-                        <button type="button" class="js-close-loans-modal rounded-md px-2 py-1 text-slate-500 hover:bg-slate-100" data-target="#loansModal{{ $repayment->id }}">Tutup</button>
+                        <button type="button" class="js-close-loans-modal rounded-md px-2 py-1 text-slate-500 hover:bg-slate-100" data-target="#loansModal{{ $invoice->id }}">Tutup</button>
                     </div>
 
                     <div class="overflow-y-auto px-5 py-4">

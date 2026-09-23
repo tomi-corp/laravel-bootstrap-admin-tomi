@@ -63,7 +63,7 @@
                             </td>
                             <td>
                                 <div class="flex items-center gap-2">
-                                    <button type="button" class="js-open-disbursement-modal rounded-md bg-[#0B8FE8] px-3 py-1.5 text-sm font-medium text-white hover:bg-[#0878C4]" data-target="#disbursementModal{{ $loan->id }}">Cairkan</button>
+                                    <button type="button" class="js-open-disbursement-modal lender-btn lender-btn-primary lender-btn-sm" data-target="#disbursementModal{{ $loan->id }}">Cairkan</button>
                                 </div>
                             </td>
                         </tr>
@@ -113,13 +113,13 @@
                             </div>
                             <div>
                                 <label class="mb-1 block text-sm font-medium text-primary-800">Bukti Transfer</label>
-                                <input type="file" name="transfer_proof" accept=".jpg,.jpeg,.png,.pdf" class="w-full rounded-md border border-primary-100 px-3 py-2 text-primary-950 file:mr-3 file:rounded-md file:border-0 file:bg-[#0B8FE8] file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-white focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" required>
+                                <input type="file" name="transfer_proof" accept=".jpg,.jpeg,.png,.pdf" class="w-full rounded-md border border-primary-100 px-3 py-2 text-primary-950 file:mr-3 file:rounded-md file:border-0 file:bg-primary file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-white focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" required>
                             </div>
                         </div>
 
                         <div class="mt-5 flex justify-end gap-2">
                             <button type="button" class="js-close-disbursement-modal rounded-md bg-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-300" data-target="#disbursementModal{{ $loan->id }}">Batal</button>
-                            <button type="submit" class="rounded-md bg-[#0B8FE8] px-4 py-2 text-sm font-medium text-white hover:bg-[#0878C4]">Simpan Pencairan</button>
+                            <button type="submit" class="lender-btn lender-btn-primary lender-btn-md">Simpan Pencairan</button>
                         </div>
                     </form>
                 </div>

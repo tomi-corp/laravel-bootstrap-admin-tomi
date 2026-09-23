@@ -7,16 +7,16 @@
     @include('lender.layouts.partials.head-assets')
     <style>
         .auth-primary-button {
-            background-color: #0B8FE8 !important;
+            background-color: var(--lender-blue) !important;
             color: #ffffff !important;
         }
 
         .auth-primary-button:hover {
-            background-color: #0878C4 !important;
+            background-color: var(--lender-blue-hover) !important;
         }
     </style>
 </head>
-<body class="min-h-screen bg-primary text-primary-950 antialiased" style="background-color: #0B8FE8;">
+<body class="min-h-screen bg-primary text-primary-950 antialiased" style="background-color: var(--lender-blue);">
     <main class="flex min-h-screen items-center justify-center px-4 py-10">
         @yield('content')
     </main>

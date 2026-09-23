@@ -19,28 +19,28 @@ class RepaymentController extends Controller
     public function index(): View
     {
         $lenderId = auth('lender')->user()?->id_lender;
-        $repayments = Repayment::query()
+        $invoices = invoicing_pinjaman::query()
             ->with([
-                'invoice.pinjaman' => function ($query) use ($lenderId) {
+                'pinjaman' => function ($query) use ($lenderId) {
                     $query->where('id_lender', $lenderId)
                         ->with(['data_karyawan', 'perusahaan', 'disbursement', 'jatuh_tempoSesuaiInvoice', 'user']);
                 },
-                'admin',
+                'repayment.admin',
             ])
-            ->whereHas('invoice.pinjaman', fn ($query) => $query->where('id_lender', $lenderId))
+            ->whereHas('pinjaman', fn ($query) => $query->where('id_lender', $lenderId))
             ->latest()
             ->get();
 
         $invoiceDownloadIds = history_invoicing_lender::query()
             ->where('id_lender', $lenderId)
-            ->whereIn('period', $repayments->pluck('invoice.period')->filter()->map(
+            ->whereIn('period', $invoices->pluck('period')->filter()->map(
                 fn ($period) => Carbon::parse($period)->firstOfMonth()->toDateString()
             )->unique())
             ->get()
             ->keyBy(fn ($invoice) => Carbon::parse($invoice->period)->format('Y-m'));
 
         return view('lender.repayments.index', [
-            'repayments' => $repayments,
+            'invoices' => $invoices,
             'invoiceDownloadIds' => $invoiceDownloadIds,
         ]);
     }
