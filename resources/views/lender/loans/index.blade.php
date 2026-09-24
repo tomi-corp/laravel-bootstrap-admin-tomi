@@ -18,13 +18,13 @@
                 <h1 class="text-2xl font-semibold tracking-normal">Pinjaman</h1>
                 <p class="mt-1 text-sm text-white/90">Kelola data dari tabel pinjamen.</p>
             </div>
-            <a href="{{ route('lender.loans.create') }}" class="lender-btn lender-btn-primary lender-btn-md shadow-sm">
+            <a href="{{ route('lender.loans.create') }}" class="lender-btn bg-sky-500 text-white shadow-sm hover:bg-sky-600 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-sky-200 lender-btn-md shadow-sm">
                 <i class="fa-solid fa-plus"></i>
                 Tambah Pinjaman
             </a>
         </div>
 
-        <section class="rounded-lg border border-primary-100 bg-white p-5 text-primary-950 shadow-sm shadow-primary-950/10">
+        <section class="rounded-lg border border-sky-100 bg-white p-5 text-slate-950 shadow-sm shadow-slate-950/10">
             <table id="loansTable" class="display nowrap w-full min-w-[1200px]">
                 <thead>
                     <tr>
@@ -47,10 +47,10 @@
                             <td>{{ $loan->lender?->nama ?? '-' }}</td>
                             <td>Rp {{ number_format($loan->nominal, 0, ',', '.') }}</td>
                             <td>{{ $loan->tenor }} bulan</td>
-                            <td><span class="rounded-full bg-primary-100 px-2 py-1 text-xs font-medium text-primary-700">{{ str_replace('_', ' ', $loan->status) }}</span></td>
+                            <td><span class="rounded-full bg-sky-100 px-2 py-1 text-xs font-medium text-sky-700">{{ str_replace('_', ' ', $loan->status) }}</span></td>
                             <td>
                                 <div class="flex items-center gap-2">
-                                    <a href="{{ route('lender.loans.show', $loan) }}" class="lender-btn lender-btn-primary lender-btn-sm">Detail</a>
+                                    <a href="{{ route('lender.loans.show', $loan) }}" class="lender-btn bg-sky-500 text-white shadow-sm hover:bg-sky-600 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-sky-200 lender-btn-sm">Detail</a>
                                     <a href="{{ route('lender.loans.edit', $loan) }}" class="rounded-md bg-yellow-500 px-3 py-1.5 text-sm font-medium text-white hover:bg-yellow-600">Edit</a>
                                     <form action="{{ route('lender.loans.destroy', $loan) }}" method="POST" class="js-delete-row" data-title="Hapus pinjaman?">
                                         @csrf
@@ -95,9 +95,7 @@
                 title: $(this).data('title'),
                 text: 'Data akan dihapus dari daftar.',
                 showCancelButton: true,
-                confirmButtonColor: '#0B8FE8',
-                cancelButtonColor: '#64748b',
-                confirmButtonText: 'Ya, hapus',
+                                                confirmButtonText: 'Ya, hapus',
                 cancelButtonText: 'Batal',
             }).then((result) => result.isConfirmed && form.submit());
         });

@@ -11,7 +11,7 @@
             </div>
             <a href="{{ route('lender.loans.edit', $loan) }}" class="rounded-md bg-yellow-500 px-4 py-2 text-sm font-medium text-white hover:bg-yellow-600">Edit</a>
         </div>
-        <section class="rounded-lg border border-primary-100 bg-white p-5 text-primary-950 shadow-sm shadow-primary-950/10">
+        <section class="rounded-lg border border-sky-100 bg-white p-5 text-slate-950 shadow-sm shadow-slate-950/10">
             <dl class="grid gap-4 md:grid-cols-2">
                 @foreach ([
                     'ID Pinjaman' => $loan->id_pinjaman,
@@ -31,8 +31,8 @@
                     'Catatan' => $loan->note ?? '-',
                 ] as $label => $value)
                     <div>
-                        <dt class="text-sm font-medium text-primary-700">{{ $label }}</dt>
-                        <dd class="mt-1 text-sm text-primary-950">{{ $value }}</dd>
+                        <dt class="text-sm font-medium text-sky-700">{{ $label }}</dt>
+                        <dd class="mt-1 text-sm text-slate-950">{{ $value }}</dd>
                     </div>
                 @endforeach
             </dl>

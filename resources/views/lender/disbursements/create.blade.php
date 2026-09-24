@@ -8,7 +8,7 @@
             <h1 class="text-2xl font-semibold tracking-normal">Tambah Disbursement</h1>
             <p class="mt-1 text-sm text-white/90">Lengkapi data pencairan dana.</p>
         </div>
-        <form action="{{ route('lender.disbursements.store') }}" method="POST" class="rounded-lg border border-primary-100 bg-white p-5 shadow-sm shadow-primary-950/10">
+        <form action="{{ route('lender.disbursements.store') }}" method="POST" class="rounded-lg border border-sky-100 bg-white p-5 shadow-sm shadow-slate-950/10">
             @include('lender.disbursements._form')
         </form>
     </div>

@@ -5,18 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title', 'Login Lender')</title>
     @include('lender.layouts.partials.head-assets')
-    <style>
-        .auth-primary-button {
-            background-color: var(--lender-blue) !important;
-            color: #ffffff !important;
-        }
-
-        .auth-primary-button:hover {
-            background-color: var(--lender-blue-hover) !important;
-        }
-    </style>
 </head>
-<body class="min-h-screen bg-primary text-primary-950 antialiased" style="background-color: var(--lender-blue);">
+<body class="min-h-screen bg-sky-500 text-slate-950 antialiased">
     <main class="flex min-h-screen items-center justify-center px-4 py-10">
         @yield('content')
     </main>

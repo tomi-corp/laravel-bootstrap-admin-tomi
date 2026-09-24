@@ -18,13 +18,13 @@
                 <h1 class="text-2xl font-semibold tracking-normal">Konfigurasi TomiDana</h1>
                 <p class="mt-1 text-sm text-white/90">Kelola tenor, rate, biaya, dan nominal pinjaman.</p>
             </div>
-            <a href="{{ route('lender.configurations.create') }}" class="lender-btn lender-btn-primary lender-btn-md shadow-sm">
+            <a href="{{ route('lender.configurations.create') }}" class="lender-btn bg-sky-500 text-white shadow-sm hover:bg-sky-600 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-sky-200 lender-btn-md shadow-sm">
                 <i class="fa-solid fa-plus"></i>
                 Tambah Konfigurasi
             </a>
         </div>
 
-        <section class="rounded-lg border border-primary-100 bg-white p-5 text-primary-950 shadow-sm shadow-primary-950/10">
+        <section class="rounded-lg border border-sky-100 bg-white p-5 text-slate-950 shadow-sm shadow-slate-950/10">
             <table id="configurationsTable" class="display nowrap w-full min-w-[1400px]">
                 <thead>
                     <tr>
@@ -112,9 +112,7 @@
                 title: 'Hapus konfigurasi?',
                 text: 'Data konfigurasi tenor akan dihapus.',
                 showCancelButton: true,
-                confirmButtonColor: '#0B8FE8',
-                cancelButtonColor: '#64748b',
-                confirmButtonText: 'Ya, hapus',
+                                                confirmButtonText: 'Ya, hapus',
                 cancelButtonText: 'Batal',
             }).then((result) => {
                 if (result.isConfirmed) {

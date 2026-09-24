@@ -3,11 +3,11 @@
 @section('title', 'Login Lender')
 
 @section('content')
-    <section class="w-full max-w-md rounded-lg bg-white p-6 shadow-xl shadow-primary-950/20">
+    <section class="w-full max-w-md rounded-lg bg-white p-6 shadow-xl shadow-slate-950/20">
         <div class="mb-6 text-center">
             <img src="{{ asset('assets/images/logo.jpg') }}" alt="TOMI" class="mx-auto mb-4 h-14 w-auto">
-            <h1 class="text-2xl font-semibold text-primary-950">Login Lender</h1>
-            <p class="mt-1 text-sm text-primary-700">Masuk ke portal lender TOMI.</p>
+            <h1 class="text-2xl font-semibold text-slate-950">Login Lender</h1>
+            <p class="mt-1 text-sm text-sky-700">Masuk ke portal lender TOMI.</p>
         </div>
 
         @if (session('error'))
@@ -19,12 +19,12 @@
         <form action="{{ route('lender.login.action') }}" method="POST" class="space-y-4">
             @csrf
             <div>
-                <label class="mb-1 block text-sm font-medium text-primary-800">Username atau Email</label>
+                <label class="mb-1 block text-sm font-medium text-sky-800">Username atau Email</label>
                 <input
                     type="text"
                     name="identity"
                     value="{{ old('identity') }}"
-                    class="w-full rounded-md border border-primary-100 px-3 py-2 text-primary-950 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    class="w-full rounded-md border border-sky-100 px-3 py-2 text-slate-950 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500/20"
                     required
                     autofocus
                 >
@@ -32,28 +32,28 @@
             </div>
 
             <div>
-                <label class="mb-1 block text-sm font-medium text-primary-800">Password</label>
+                <label class="mb-1 block text-sm font-medium text-sky-800">Password</label>
                 <input
                     type="password"
                     name="password"
-                    class="w-full rounded-md border border-primary-100 px-3 py-2 text-primary-950 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    class="w-full rounded-md border border-sky-100 px-3 py-2 text-slate-950 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500/20"
                     required
                 >
                 @error('password') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
             </div>
 
             <div class="flex items-center justify-between gap-3">
-                <label class="flex items-center gap-2 text-sm text-primary-800">
-                    <input type="checkbox" name="remember" class="rounded border-primary-200 text-primary focus:ring-primary">
+                <label class="flex items-center gap-2 text-sm text-sky-800">
+                    <input type="checkbox" name="remember" class="rounded border-sky-200 text-sky-500 focus:ring-sky-500">
                     Ingat saya
                 </label>
 
-                <a href="{{ route('lender.forgot') }}" class="text-sm font-medium text-primary-700 hover:text-primary-900">
+                <a href="{{ route('lender.forgot') }}" class="text-sm font-medium text-sky-700 hover:text-sky-900">
                     Lupa password?
                 </a>
             </div>
 
-            <button type="submit" class="auth-primary-button flex w-full items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-semibold">
+            <button type="submit" class="flex bg-sky-500 text-white hover:bg-sky-600 w-full items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-semibold">
                 <i class="fa-solid fa-right-to-bracket"></i>
                 Masuk
             </button>

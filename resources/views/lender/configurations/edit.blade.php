@@ -9,7 +9,7 @@
             <p class="mt-1 text-sm text-white/90">{{ $tenor->company?->nama ?? 'Konfigurasi tenor' }}</p>
         </div>
 
-        <form action="{{ route('lender.configurations.update', $tenor) }}" method="POST" class="rounded-lg border border-primary-100 bg-white p-5 shadow-sm shadow-primary-950/10">
+        <form action="{{ route('lender.configurations.update', $tenor) }}" method="POST" class="rounded-lg border border-sky-100 bg-white p-5 shadow-sm shadow-slate-950/10">
             @method('PUT')
             @include('lender.configurations._form')
         </form>

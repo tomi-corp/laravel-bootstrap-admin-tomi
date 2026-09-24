@@ -20,7 +20,7 @@
             </div>
         </div>
 
-        <section class="rounded-lg border border-primary-100 bg-white p-5 text-primary-950 shadow-sm shadow-primary-950/10">
+        <section class="rounded-lg border border-sky-100 bg-white p-5 text-slate-950 shadow-sm shadow-slate-950/10">
             <table id="repaymentsTable" class="display nowrap w-full min-w-[1200px]">
                 <thead>
                     <tr>
@@ -64,7 +64,7 @@
                             </td>
                             <td>{{ $loans->count() }}</td>
                             <td>
-                                <button type="button" class="js-open-loans-modal inline-flex items-center gap-2 rounded-md bg-slate-100 px-3 py-1.5 text-sm font-medium text-primary-800 hover:bg-slate-200" data-target="#loansModal{{ $invoice->id }}">
+                                <button type="button" class="js-open-loans-modal inline-flex items-center gap-2 rounded-md bg-slate-100 px-3 py-1.5 text-sm font-medium text-sky-800 hover:bg-slate-200" data-target="#loansModal{{ $invoice->id }}">
                                     <i class="fa-solid fa-list"></i>
                                     Lihat Pinjaman
                                 </button>
@@ -75,7 +75,7 @@
                             <td>{{ $repayment?->payment_proof_file ?? '-' }}</td>
                             <td>
                                 @if ($isInDueWindow)
-                                    <button type="button" class="js-open-proof-modal lender-btn lender-btn-primary lender-btn-sm" data-target="#proofModal{{ $invoice->id }}">
+                                    <button type="button" class="js-open-proof-modal lender-btn bg-sky-500 text-white shadow-sm hover:bg-sky-600 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-sky-200 lender-btn-sm" data-target="#proofModal{{ $invoice->id }}">
                                         <i class="fa-solid fa-upload"></i>
                                         Upload
                                     </button>
@@ -88,7 +88,7 @@
                             </td>
                             <td>
                                 @if ($downloadInvoice && $isInDueWindow)
-                                    <a href="{{ route('lender.repayments.invoice.download', ['invoice' => $downloadInvoice->id, 'company_invoice' => $invoice->id]) }}" target="_blank" class="lender-btn lender-btn-primary lender-btn-sm">
+                                    <a href="{{ route('lender.repayments.invoice.download', ['invoice' => $downloadInvoice->id, 'company_invoice' => $invoice->id]) }}" target="_blank" class="lender-btn bg-sky-500 text-white shadow-sm hover:bg-sky-600 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-sky-200 lender-btn-sm">
                                         <i class="fa-solid fa-download"></i>
                                         Download
                                     </a>
@@ -118,8 +118,8 @@
                 })->values();
             @endphp
             <div id="proofModal{{ $invoice->id }}" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/60 px-4 py-6">
-                <div class="w-full max-w-xl rounded-lg bg-white text-primary-950 shadow-xl">
-                    <div class="flex items-start justify-between border-b border-primary-100 px-5 py-4">
+                <div class="w-full max-w-xl rounded-lg bg-white text-slate-950 shadow-xl">
+                    <div class="flex items-start justify-between border-b border-sky-100 px-5 py-4">
                         <div>
                             <h2 class="text-lg font-semibold">Upload Bukti Pembayaran</h2>
                             <p class="mt-1 text-sm text-slate-500">{{ $invoice->no_invoice ?? '#'.$invoice->id }}</p>
@@ -129,33 +129,33 @@
 
                     <form action="{{ route('lender.repayments.invoice.proof', $invoice->id) }}" method="POST" enctype="multipart/form-data" class="px-5 py-4">
                         @csrf
-                        <dl class="mb-4 grid gap-3 rounded-md border border-primary-100 bg-primary-50/60 p-3 text-sm">
+                        <dl class="mb-4 grid gap-3 rounded-md border border-sky-100 bg-sky-50/60 p-3 text-sm">
                             <div>
-                                <dt class="text-xs font-medium uppercase text-primary-700">Perusahaan</dt>
-                                <dd class="mt-1 font-medium text-primary-950">{{ $invoice->perusahaan?->nama ?? $loans->first()?->perusahaan?->nama ?? '-' }}</dd>
+                                <dt class="text-xs font-medium uppercase text-sky-700">Perusahaan</dt>
+                                <dd class="mt-1 font-medium text-slate-950">{{ $invoice->perusahaan?->nama ?? $loans->first()?->perusahaan?->nama ?? '-' }}</dd>
                             </div>
                             <div>
-                                <dt class="text-xs font-medium uppercase text-primary-700">Periode</dt>
-                                <dd class="mt-1 font-medium text-primary-950">{{ $invoice->period ? \Carbon\Carbon::parse($invoice->period)->format('F Y') : '-' }}</dd>
+                                <dt class="text-xs font-medium uppercase text-sky-700">Periode</dt>
+                                <dd class="mt-1 font-medium text-slate-950">{{ $invoice->period ? \Carbon\Carbon::parse($invoice->period)->format('F Y') : '-' }}</dd>
                             </div>
                             <div>
-                                <dt class="text-xs font-medium uppercase text-primary-700">Status</dt>
-                                <dd class="mt-1 font-medium text-primary-950">{{ str_replace('_', ' ', $invoice->status ?? 'belum lunas') }}</dd>
+                                <dt class="text-xs font-medium uppercase text-sky-700">Status</dt>
+                                <dd class="mt-1 font-medium text-slate-950">{{ str_replace('_', ' ', $invoice->status ?? 'belum lunas') }}</dd>
                             </div>
                             <div>
-                                <dt class="text-xs font-medium uppercase text-primary-700">Total Pinjaman</dt>
-                                <dd class="mt-1 font-medium text-primary-950">{{ $loans->count() }}</dd>
+                                <dt class="text-xs font-medium uppercase text-sky-700">Total Pinjaman</dt>
+                                <dd class="mt-1 font-medium text-slate-950">{{ $loans->count() }}</dd>
                             </div>
                         </dl>
 
                         <div class="grid gap-4">
                             <div>
-                                <label class="mb-1 block text-sm font-medium text-primary-800">Tanggal Pembayaran</label>
-                                <input type="datetime-local" name="tanggal_pembayaran" value="{{ old('tanggal_pembayaran', $repayment?->tanggal_pembayaran ? \Carbon\Carbon::parse($repayment->tanggal_pembayaran)->format('Y-m-d\TH:i') : now()->format('Y-m-d\TH:i')) }}" class="w-full rounded-md border border-primary-100 px-3 py-2 text-primary-950 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20">
+                                <label class="mb-1 block text-sm font-medium text-sky-800">Tanggal Pembayaran</label>
+                                <input type="datetime-local" name="tanggal_pembayaran" value="{{ old('tanggal_pembayaran', $repayment?->tanggal_pembayaran ? \Carbon\Carbon::parse($repayment->tanggal_pembayaran)->format('Y-m-d\TH:i') : now()->format('Y-m-d\TH:i')) }}" class="w-full rounded-md border border-sky-100 px-3 py-2 text-slate-950 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500/20">
                             </div>
                             <div>
-                                <label class="mb-1 block text-sm font-medium text-primary-800">File Bukti</label>
-                                <input type="file" name="payment_proof_file" accept=".jpg,.jpeg,.png,.pdf" class="w-full rounded-md border border-primary-100 px-3 py-2 text-primary-950 file:mr-3 file:rounded-md file:border-0 file:bg-primary file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-white focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" required>
+                                <label class="mb-1 block text-sm font-medium text-sky-800">File Bukti</label>
+                                <input type="file" name="payment_proof_file" accept=".jpg,.jpeg,.png,.pdf" class="w-full rounded-md border border-sky-100 px-3 py-2 text-slate-950 file:mr-3 file:rounded-md file:border-0 file:bg-sky-500 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-white focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500/20" required>
                             </div>
                         </div>
 
@@ -165,15 +165,15 @@
 
                         <div class="mt-5 flex justify-end gap-2">
                             <button type="button" class="js-close-proof-modal lender-btn lender-btn-soft lender-btn-md" data-target="#proofModal{{ $invoice->id }}">Batal</button>
-                            <button type="submit" class="lender-btn lender-btn-primary lender-btn-md">Simpan Bukti</button>
+                            <button type="submit" class="lender-btn bg-sky-500 text-white shadow-sm hover:bg-sky-600 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-sky-200 lender-btn-md">Simpan Bukti</button>
                         </div>
                     </form>
                 </div>
             </div>
 
             <div id="loansModal{{ $invoice->id }}" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/60 px-4 py-6">
-                <div class="flex max-h-[85vh] w-full max-w-4xl flex-col rounded-lg bg-white text-primary-950 shadow-xl">
-                    <div class="flex items-start justify-between border-b border-primary-100 px-5 py-4">
+                <div class="flex max-h-[85vh] w-full max-w-4xl flex-col rounded-lg bg-white text-slate-950 shadow-xl">
+                    <div class="flex items-start justify-between border-b border-sky-100 px-5 py-4">
                         <div>
                             <h2 class="text-lg font-semibold">Daftar Pinjaman</h2>
                             <p class="mt-1 text-sm text-slate-500">{{ $invoice->no_invoice ?? '#'.$invoice->id }}</p>
@@ -186,7 +186,7 @@
                             <div class="overflow-x-auto">
                                 <table class="w-full min-w-[760px] border-collapse text-sm">
                                     <thead>
-                                        <tr class="border-b border-primary-100 bg-primary-50 text-left">
+                                        <tr class="border-b border-sky-100 bg-sky-50 text-left">
                                             <th class="px-3 py-2">ID Pinjaman</th>
                                             <th class="px-3 py-2">Nama</th>
                                             <th class="px-3 py-2">Perusahaan</th>
@@ -197,7 +197,7 @@
                                     </thead>
                                     <tbody>
                                         @foreach ($loans as $loan)
-                                            <tr class="border-b border-primary-100">
+                                            <tr class="border-b border-sky-100">
                                                 <td class="px-3 py-2 font-medium">{{ $loan->id_pinjaman ?? '#'.$loan->id }}</td>
                                                 <td class="px-3 py-2">{{ $loan->data_karyawan?->nama_karyawan ?? $loan->user?->name ?? '-' }}</td>
                                                 <td class="px-3 py-2">{{ $loan->perusahaan?->nama ?? '-' }}</td>
@@ -210,7 +210,7 @@
                                 </table>
                             </div>
                         @else
-                            <div class="rounded-md border border-primary-100 bg-primary-50/60 p-4 text-sm text-slate-500">
+                            <div class="rounded-md border border-sky-100 bg-sky-50/60 p-4 text-sm text-slate-500">
                                 Tidak ada pinjaman pada invoice ini.
                             </div>
                         @endif

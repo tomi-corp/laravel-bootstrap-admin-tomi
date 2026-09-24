@@ -11,7 +11,7 @@
             </div>
             <a href="{{ route('lender.disbursements.edit', $disbursement) }}" class="rounded-md bg-yellow-500 px-4 py-2 text-sm font-medium text-white hover:bg-yellow-600">Edit</a>
         </div>
-        <section class="rounded-lg border border-primary-100 bg-white p-5 text-primary-950 shadow-sm shadow-primary-950/10">
+        <section class="rounded-lg border border-sky-100 bg-white p-5 text-slate-950 shadow-sm shadow-slate-950/10">
             <dl class="grid gap-4 md:grid-cols-2">
                 @foreach ([
                     'ID Pinjaman' => $disbursement->loan?->id_pinjaman ?? '#'.$disbursement->pinjaman_id,
@@ -24,13 +24,13 @@
                     'Bukti Transfer' => $disbursement->transfer_proof ?? '-',
                 ] as $label => $value)
                     <div>
-                        <dt class="text-sm font-medium text-primary-700">{{ $label }}</dt>
-                        <dd class="mt-1 text-sm text-primary-950">{{ $value }}</dd>
+                        <dt class="text-sm font-medium text-sky-700">{{ $label }}</dt>
+                        <dd class="mt-1 text-sm text-slate-950">{{ $value }}</dd>
                     </div>
                 @endforeach
             </dl>
         </section>
-        <section class="mt-5 rounded-lg border border-primary-100 bg-white p-5 text-primary-950 shadow-sm shadow-primary-950/10">
+        <section class="mt-5 rounded-lg border border-sky-100 bg-white p-5 text-slate-950 shadow-sm shadow-slate-950/10">
             <h2 class="mb-4 text-lg font-semibold">Dokumen Pinjaman</h2>
             <div class="grid gap-3 md:grid-cols-3">
                 @foreach ([
@@ -47,10 +47,10 @@
                                 : secureFile($document['file']);
                         }
                     @endphp
-                    <div class="rounded-md border border-primary-100 bg-primary-50/50 p-3">
-                        <div class="text-sm font-medium text-primary-800">{{ $document['label'] }}</div>
+                    <div class="rounded-md border border-sky-100 bg-sky-50/50 p-3">
+                        <div class="text-sm font-medium text-sky-800">{{ $document['label'] }}</div>
                         @if ($url)
-                            <a href="{{ $url }}" target="_blank" class="lender-btn lender-btn-primary lender-btn-sm mt-2">Lihat</a>
+                            <a href="{{ $url }}" target="_blank" class="lender-btn bg-sky-500 text-white shadow-sm hover:bg-sky-600 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-sky-200 lender-btn-sm mt-2">Lihat</a>
                             <div class="mt-2 break-all text-xs text-slate-500">{{ $document['file'] }}</div>
                         @else
                             <div class="mt-2 text-sm text-slate-500">Belum ada file</div>

@@ -8,7 +8,7 @@
             <h1 class="text-2xl font-semibold tracking-normal">Tambah Pinjaman</h1>
             <p class="mt-1 text-sm text-white/90">Lengkapi data pinjaman.</p>
         </div>
-        <form action="{{ route('lender.loans.store') }}" method="POST" class="rounded-lg border border-primary-100 bg-white p-5 shadow-sm shadow-primary-950/10">
+        <form action="{{ route('lender.loans.store') }}" method="POST" class="rounded-lg border border-sky-100 bg-white p-5 shadow-sm shadow-slate-950/10">
             @include('lender.loans._form')
         </form>
     </div>

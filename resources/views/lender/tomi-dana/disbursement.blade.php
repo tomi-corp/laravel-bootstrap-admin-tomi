@@ -12,17 +12,17 @@
         </div>
 
         <section class="grid gap-4 md:grid-cols-3">
-            <div class="rounded-lg border border-primary-100 bg-white p-5 shadow-sm">
-                <p class="text-sm font-medium text-primary-700">Total Lender</p>
-                <p class="mt-4 text-3xl font-semibold text-primary-950">{{ number_format($summary['total_lenders']) }}</p>
+            <div class="rounded-lg border border-sky-100 bg-white p-5 shadow-sm">
+                <p class="text-sm font-medium text-sky-700">Total Lender</p>
+                <p class="mt-4 text-3xl font-semibold text-slate-950">{{ number_format($summary['total_lenders']) }}</p>
             </div>
-            <div class="rounded-lg border border-primary-100 bg-white p-5 shadow-sm">
-                <p class="text-sm font-medium text-primary-700">Dalam Proses</p>
-                <p class="mt-4 text-3xl font-semibold text-primary-950">0</p>
+            <div class="rounded-lg border border-sky-100 bg-white p-5 shadow-sm">
+                <p class="text-sm font-medium text-sky-700">Dalam Proses</p>
+                <p class="mt-4 text-3xl font-semibold text-slate-950">0</p>
             </div>
-            <div class="rounded-lg border border-primary-100 bg-white p-5 shadow-sm">
-                <p class="text-sm font-medium text-primary-700">Selesai</p>
-                <p class="mt-4 text-3xl font-semibold text-primary-950">0</p>
+            <div class="rounded-lg border border-sky-100 bg-white p-5 shadow-sm">
+                <p class="text-sm font-medium text-sky-700">Selesai</p>
+                <p class="mt-4 text-3xl font-semibold text-slate-950">0</p>
             </div>
         </section>
     </div>

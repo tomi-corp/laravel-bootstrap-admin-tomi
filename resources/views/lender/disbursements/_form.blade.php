@@ -1,7 +1,7 @@
 @csrf
 <div class="grid gap-4 md:grid-cols-2">
     <div>
-        <label class="mb-1 block text-sm font-medium text-primary-800">Pinjaman</label>
+        <label class="mb-1 block text-sm font-medium text-sky-800">Pinjaman</label>
         <select name="pinjaman_id" class="js-select2 w-full" required>
             <option value="">Pilih pinjaman</option>
             @foreach ($loans as $loan)
@@ -23,7 +23,7 @@
         @error('pinjaman_id') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
     </div>
     <div>
-        <label class="mb-1 block text-sm font-medium text-primary-800">Bank</label>
+        <label class="mb-1 block text-sm font-medium text-sky-800">Bank</label>
         <select name="bank_id" class="js-select2 w-full" required>
             <option value="">Pilih bank</option>
             @foreach ($banks as $bank)
@@ -33,32 +33,32 @@
         @error('bank_id') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
     </div>
     <div>
-        <label class="mb-1 block text-sm font-medium text-primary-800">Dana yang Dicairkan</label>
-        <input type="number" step="any" name="dana_yang_dicairkan" value="{{ old('dana_yang_dicairkan', $disbursement->dana_yang_dicairkan) }}" class="w-full rounded-md border border-primary-100 px-3 py-2 text-primary-950 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" required>
+        <label class="mb-1 block text-sm font-medium text-sky-800">Dana yang Dicairkan</label>
+        <input type="number" step="any" name="dana_yang_dicairkan" value="{{ old('dana_yang_dicairkan', $disbursement->dana_yang_dicairkan) }}" class="w-full rounded-md border border-sky-100 px-3 py-2 text-slate-950 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500/20" required>
         @error('dana_yang_dicairkan') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
     </div>
     <div>
-        <label class="mb-1 block text-sm font-medium text-primary-800">Atas Nama</label>
-        <input name="atas_nama" value="{{ old('atas_nama', $disbursement->atas_nama) }}" class="w-full rounded-md border border-primary-100 px-3 py-2 text-primary-950 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" required>
+        <label class="mb-1 block text-sm font-medium text-sky-800">Atas Nama</label>
+        <input name="atas_nama" value="{{ old('atas_nama', $disbursement->atas_nama) }}" class="w-full rounded-md border border-sky-100 px-3 py-2 text-slate-950 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500/20" required>
         @error('atas_nama') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
     </div>
     <div>
-        <label class="mb-1 block text-sm font-medium text-primary-800">Nomor Rekening</label>
-        <input name="nomor_rekening" value="{{ old('nomor_rekening', $disbursement->nomor_rekening) }}" class="w-full rounded-md border border-primary-100 px-3 py-2 text-primary-950 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" required>
+        <label class="mb-1 block text-sm font-medium text-sky-800">Nomor Rekening</label>
+        <input name="nomor_rekening" value="{{ old('nomor_rekening', $disbursement->nomor_rekening) }}" class="w-full rounded-md border border-sky-100 px-3 py-2 text-slate-950 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500/20" required>
         @error('nomor_rekening') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
     </div>
     <div>
-        <label class="mb-1 block text-sm font-medium text-primary-800">Tanggal Transfer</label>
-        <input type="date" name="transfer_date" value="{{ old('transfer_date', $disbursement->transfer_date) }}" class="w-full rounded-md border border-primary-100 px-3 py-2 text-primary-950 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20">
+        <label class="mb-1 block text-sm font-medium text-sky-800">Tanggal Transfer</label>
+        <input type="date" name="transfer_date" value="{{ old('transfer_date', $disbursement->transfer_date) }}" class="w-full rounded-md border border-sky-100 px-3 py-2 text-slate-950 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500/20">
         @error('transfer_date') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
     </div>
     <div class="md:col-span-2">
-        <label class="mb-1 block text-sm font-medium text-primary-800">Bukti Transfer</label>
-        <input name="transfer_proof" value="{{ old('transfer_proof', $disbursement->transfer_proof) }}" class="w-full rounded-md border border-primary-100 px-3 py-2 text-primary-950 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="Path file bukti transfer">
+        <label class="mb-1 block text-sm font-medium text-sky-800">Bukti Transfer</label>
+        <input name="transfer_proof" value="{{ old('transfer_proof', $disbursement->transfer_proof) }}" class="w-full rounded-md border border-sky-100 px-3 py-2 text-slate-950 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500/20" placeholder="Path file bukti transfer">
         @error('transfer_proof') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
     </div>
     <div class="md:col-span-2">
-        <label class="mb-2 block text-sm font-medium text-primary-800">Dokumen Pinjaman</label>
+        <label class="mb-2 block text-sm font-medium text-sky-800">Dokumen Pinjaman</label>
         <div class="grid gap-3 md:grid-cols-3">
             @foreach (['pk' => 'PK', 'ktp' => 'KTP', 'selfie' => 'Selfie'] as $key => $label)
                 @php
@@ -76,9 +76,9 @@
                             : secureFile($storedFile);
                     }
                 @endphp
-                <div class="rounded-md border border-primary-100 bg-primary-50/50 p-3">
-                    <div class="text-sm font-medium text-primary-800">{{ $label }}</div>
-                    <a id="{{ $key }}_link" href="{{ $storedUrl }}" target="_blank" class="{{ $storedUrl ? '' : 'hidden' }} lender-btn lender-btn-primary lender-btn-sm mt-2">Lihat</a>
+                <div class="rounded-md border border-sky-100 bg-sky-50/50 p-3">
+                    <div class="text-sm font-medium text-sky-800">{{ $label }}</div>
+                    <a id="{{ $key }}_link" href="{{ $storedUrl }}" target="_blank" class="{{ $storedUrl ? '' : 'hidden' }} lender-btn bg-sky-500 text-white shadow-sm hover:bg-sky-600 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-sky-200 lender-btn-sm mt-2">Lihat</a>
                     <span id="{{ $key }}_empty" class="{{ $storedUrl ? 'hidden' : '' }} mt-2 block text-sm text-slate-500">Belum ada file</span>
                 </div>
             @endforeach
@@ -87,7 +87,7 @@
     </div>
 </div>
 <div class="mt-5 flex items-center gap-2">
-    <button type="submit" class="lender-btn lender-btn-primary lender-btn-md">Simpan</button>
+    <button type="submit" class="lender-btn bg-sky-500 text-white shadow-sm hover:bg-sky-600 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-sky-200 lender-btn-md">Simpan</button>
     <a href="{{ route('lender.disbursements.index') }}" class="lender-btn lender-btn-soft lender-btn-md">Batal</a>
 </div>
 

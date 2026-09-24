@@ -2,8 +2,8 @@
 
 <div class="grid gap-4 md:grid-cols-2">
     <div class="md:col-span-2">
-        <label class="mb-1 block text-sm font-medium text-primary-800">Perusahaan</label>
-        <select name="id_perusahaan" class="js-select2 w-full rounded-md border border-primary-100 px-3 py-2 text-primary-950" required>
+        <label class="mb-1 block text-sm font-medium text-sky-800">Perusahaan</label>
+        <select name="id_perusahaan" class="js-select2 w-full rounded-md border border-sky-100 px-3 py-2 text-slate-950" required>
             <option value="">Pilih perusahaan</option>
             @foreach ($companies as $company)
                 <option value="{{ $company->id }}" @selected((string) old('id_perusahaan', $tenor->id_perusahaan) === (string) $company->id)>
@@ -29,14 +29,14 @@
         ['ksp', 'KSP', 'number', '0.01', '0'],
     ] as [$field, $label, $type, $step, $min])
         <div>
-            <label class="mb-1 block text-sm font-medium text-primary-800">{{ $label }}</label>
+            <label class="mb-1 block text-sm font-medium text-sky-800">{{ $label }}</label>
             <input
                 type="{{ $type }}"
                 name="{{ $field }}"
                 step="{{ $step }}"
                 min="{{ $min }}"
                 value="{{ old($field, $tenor->{$field}) }}"
-                class="w-full rounded-md border border-primary-100 px-3 py-2 text-primary-950"
+                class="w-full rounded-md border border-sky-100 px-3 py-2 text-slate-950"
                 @if (! in_array($field, ['biaya_layanan', 'minimal_nominal', 'maximal_nominal'], true)) required @endif
             >
             @error($field) <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
@@ -48,7 +48,7 @@
     <a href="{{ route('lender.configurations.index') }}" class="lender-btn lender-btn-soft lender-btn-md">
         Batal
     </a>
-    <button type="submit" class="lender-btn lender-btn-primary lender-btn-md">
+    <button type="submit" class="lender-btn bg-sky-500 text-white shadow-sm hover:bg-sky-600 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-sky-200 lender-btn-md">
         Simpan
     </button>
 </div>
