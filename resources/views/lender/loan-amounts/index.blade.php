@@ -16,15 +16,15 @@
         <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
                 <h1 class="text-2xl font-semibold tracking-normal">Nominal Pinjaman</h1>
-                <p class="mt-1 text-sm text-white/90">Kelola minimal, maksimal, iuran, dan persentase pinjaman.</p>
+                <p class="mt-1 text-sm text-slate-600">Kelola minimal, maksimal, iuran, dan persentase pinjaman.</p>
             </div>
-            <a href="{{ route('lender.loan-amounts.create') }}" class="lender-btn bg-sky-500 text-white shadow-sm hover:bg-sky-600 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-sky-200 lender-btn-md shadow-sm">
+            <a href="{{ route('lender.loan-amounts.create') }}" class="lender-btn bg-black text-white shadow-sm hover:bg-slate-800 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-slate-300 lender-btn-md shadow-sm">
                 <i class="fa-solid fa-plus"></i>
                 Tambah Nominal
             </a>
         </div>
 
-        <section class="rounded-lg border border-sky-100 bg-white p-5 text-slate-950 shadow-sm shadow-slate-950/10">
+        <section class="rounded-lg border border-slate-200 bg-white p-5 text-slate-950 shadow-sm shadow-slate-950/10">
             <table id="loanAmountsTable" class="display nowrap w-full min-w-[1000px]">
                 <thead>
                     <tr>

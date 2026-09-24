@@ -101,7 +101,7 @@
 
 <aside
     id="lenderSidebar"
-    class="fixed inset-y-0 left-0 z-40 flex w-64 -translate-x-full flex-col border-r border-sky-500 bg-sky-500 transition-all lg:translate-x-0"
+    class="fixed inset-y-0 left-0 z-40 flex w-64 -translate-x-full flex-col border-r border-black bg-black transition-all lg:translate-x-0"
 >
     <div class="flex h-14 shrink-0 items-center gap-3 border-b border-white/20 px-4">
         <div class="flex h-9 w-9 items-center justify-center rounded-md bg-white/20 text-white shadow-sm shadow-slate-950/20">
@@ -136,7 +136,7 @@
                         @foreach ($menu['children'] as $child)
                             <a
                                 href="{{ route($child['route']) }}"
-                                class="flex items-center gap-3 rounded-md px-3 py-1.5 text-xs font-medium transition {{ $child['active'] ? 'bg-white/25 text-white shadow-sm shadow-slate-950/10' : 'text-white/90 hover:bg-white/15 hover:text-white' }}"
+                                class="flex items-center gap-3 rounded-md px-3 py-1.5 text-xs font-medium transition {{ $child['active'] ? 'bg-white/25 text-white shadow-sm shadow-slate-950/10' : 'text-slate-600 hover:bg-white/15 hover:text-white' }}"
                             >
                                 <i class="{{ $child['icon'] }} w-4 text-center"></i>
                                 <span class="sidebar-label">{{ $child['label'] }}</span>

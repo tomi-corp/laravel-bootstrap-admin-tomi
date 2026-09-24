@@ -73,13 +73,13 @@
     </style>
     @stack('styles')
 </head>
-<body class="relative min-h-screen bg-sky-400 text-slate-950 antialiased">
+<body class="relative min-h-screen bg-slate-50 text-slate-950 antialiased">
     @include('lender.layouts.partials.sidebar')
 
-    <div id="lenderShell" class="min-h-screen bg-sky-400 transition-all lg:pl-64">
+    <div id="lenderShell" class="min-h-screen bg-slate-50 transition-all lg:pl-64">
         @include('lender.layouts.partials.topbar')
 
-        <main class="lender-content min-h-[calc(100vh-8rem)] bg-sky-400 text-white">
+        <main class="lender-content min-h-[calc(100vh-8rem)] bg-slate-50 text-slate-950">
             @yield('content')
         </main>
 

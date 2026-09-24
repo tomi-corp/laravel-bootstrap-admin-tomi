@@ -16,11 +16,11 @@
         <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
                 <h1 class="text-2xl font-semibold tracking-normal">Disbursement</h1>
-                <p class="mt-1 text-sm text-white/90">Pinjaman yang belum dicairkan.</p>
+                <p class="mt-1 text-sm text-slate-600">Pinjaman yang belum dicairkan.</p>
             </div>
         </div>
 
-        <section class="rounded-lg border border-sky-100 bg-white p-5 text-slate-950 shadow-sm shadow-slate-950/10">
+        <section class="rounded-lg border border-slate-200 bg-white p-5 text-slate-950 shadow-sm shadow-slate-950/10">
             <table id="disbursementsTable" class="display nowrap w-full min-w-[1100px]">
                 <thead>
                     <tr>
@@ -54,7 +54,7 @@
                                 <div class="flex items-center gap-2">
                                     @foreach ([['PK', $pkUrl], ['KTP', $ktpUrl], ['Selfie', $selfieUrl]] as [$label, $url])
                                         @if ($url)
-                                            <a href="{{ $url }}" target="_blank" class="rounded-md bg-slate-100 px-2.5 py-1 text-xs font-medium text-sky-800 hover:bg-slate-200">{{ $label }}</a>
+                                            <a href="{{ $url }}" target="_blank" class="rounded-md bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-900 hover:bg-slate-200">{{ $label }}</a>
                                         @else
                                             <span class="rounded-md bg-slate-50 px-2.5 py-1 text-xs text-slate-400">{{ $label }}</span>
                                         @endif
@@ -63,7 +63,7 @@
                             </td>
                             <td>
                                 <div class="flex items-center gap-2">
-                                    <button type="button" class="js-open-disbursement-modal lender-btn bg-sky-500 text-white shadow-sm hover:bg-sky-600 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-sky-200 lender-btn-sm" data-target="#disbursementModal{{ $loan->id }}">Cairkan</button>
+                                    <button type="button" class="js-open-disbursement-modal lender-btn bg-black text-white shadow-sm hover:bg-slate-800 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-slate-300 lender-btn-sm" data-target="#disbursementModal{{ $loan->id }}">Cairkan</button>
                                 </div>
                             </td>
                         </tr>
@@ -81,7 +81,7 @@
             @endphp
             <div id="disbursementModal{{ $loan->id }}" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/60 px-4 py-6">
                 <div class="w-full max-w-2xl rounded-lg bg-white text-slate-950 shadow-xl">
-                    <div class="flex items-start justify-between border-b border-sky-100 px-5 py-4">
+                    <div class="flex items-start justify-between border-b border-slate-200 px-5 py-4">
                         <div>
                             <h2 class="text-lg font-semibold">Cairkan Pinjaman</h2>
                             <p class="mt-1 text-sm text-slate-500">{{ $loan->id_pinjaman }}</p>
@@ -99,8 +99,8 @@
                                 'Nomor Rekening' => $accountNumber,
                                 'Dana Dicairkan' => 'Rp '.number_format($disbursementAmount, 0, ',', '.'),
                             ] as $label => $value)
-                                <div class="rounded-md border border-sky-100 bg-sky-50/50 p-3">
-                                    <dt class="text-xs font-medium uppercase text-sky-700">{{ $label }}</dt>
+                                <div class="rounded-md border border-slate-200 bg-slate-50/50 p-3">
+                                    <dt class="text-xs font-medium uppercase text-slate-700">{{ $label }}</dt>
                                     <dd class="mt-1 text-sm font-medium text-slate-950">{{ $value }}</dd>
                                 </div>
                             @endforeach
@@ -108,18 +108,18 @@
 
                         <div class="mt-4 grid gap-4 md:grid-cols-2">
                             <div>
-                                <label class="mb-1 block text-sm font-medium text-sky-800">Tanggal Transfer</label>
-                                <input type="date" name="transfer_date" value="{{ now()->toDateString() }}" class="w-full rounded-md border border-sky-100 px-3 py-2 text-slate-950 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500/20">
+                                <label class="mb-1 block text-sm font-medium text-slate-900">Tanggal Transfer</label>
+                                <input type="date" name="transfer_date" value="{{ now()->toDateString() }}" class="w-full rounded-md border border-slate-200 px-3 py-2 text-slate-950 focus:border-black focus:outline-none focus:ring-2 focus:ring-black/20">
                             </div>
                             <div>
-                                <label class="mb-1 block text-sm font-medium text-sky-800">Bukti Transfer</label>
-                                <input type="file" name="transfer_proof" accept=".jpg,.jpeg,.png,.pdf" class="w-full rounded-md border border-sky-100 px-3 py-2 text-slate-950 file:mr-3 file:rounded-md file:border-0 file:bg-sky-500 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-white focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500/20" required>
+                                <label class="mb-1 block text-sm font-medium text-slate-900">Bukti Transfer</label>
+                                <input type="file" name="transfer_proof" accept=".jpg,.jpeg,.png,.pdf" class="w-full rounded-md border border-slate-200 px-3 py-2 text-slate-950 file:mr-3 file:rounded-md file:border-0 file:bg-black file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-white focus:border-black focus:outline-none focus:ring-2 focus:ring-black/20" required>
                             </div>
                         </div>
 
                         <div class="mt-5 flex justify-end gap-2">
                             <button type="button" class="js-close-disbursement-modal rounded-md bg-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-300" data-target="#disbursementModal{{ $loan->id }}">Batal</button>
-                            <button type="submit" class="lender-btn bg-sky-500 text-white shadow-sm hover:bg-sky-600 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-sky-200 lender-btn-md">Simpan Pencairan</button>
+                            <button type="submit" class="lender-btn bg-black text-white shadow-sm hover:bg-slate-800 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-slate-300 lender-btn-md">Simpan Pencairan</button>
                         </div>
                     </form>
                 </div>

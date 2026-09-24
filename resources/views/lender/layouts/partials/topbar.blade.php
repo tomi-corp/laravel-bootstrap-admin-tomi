@@ -1,4 +1,4 @@
-<header class="sticky top-0 z-20 border-b border-sky-500 bg-sky-500">
+<header class="sticky top-0 z-20 border-b border-black bg-black">
     <div class="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
         <div class="flex items-center gap-3">
             <button
@@ -39,21 +39,21 @@
 
                 <div
                     id="lenderUserMenu"
-                    class="absolute right-0 top-full z-30 mt-2 hidden w-56 overflow-hidden rounded-md border border-sky-100 bg-white py-1 text-slate-950 shadow-lg shadow-slate-950/20"
+                    class="absolute right-0 top-full z-30 mt-2 hidden w-56 overflow-hidden rounded-md border border-slate-200 bg-white py-1 text-slate-950 shadow-lg shadow-slate-950/20"
                 >
-                    <button type="button" class="js-lender-profile-action flex w-full items-center gap-3 px-4 py-2 text-left text-sm hover:bg-sky-50" data-title="Ubah Profile">
-                        <i class="fa-regular fa-user w-4 text-center text-sky-700"></i>
+                    <button type="button" class="js-lender-profile-action flex w-full items-center gap-3 px-4 py-2 text-left text-sm hover:bg-slate-50" data-title="Ubah Profile">
+                        <i class="fa-regular fa-user w-4 text-center text-slate-700"></i>
                         Ubah Profile
                     </button>
-                    <button type="button" class="js-lender-profile-action flex w-full items-center gap-3 px-4 py-2 text-left text-sm hover:bg-sky-50" data-title="Ubah Password">
-                        <i class="fa-solid fa-key w-4 text-center text-sky-700"></i>
+                    <button type="button" class="js-lender-profile-action flex w-full items-center gap-3 px-4 py-2 text-left text-sm hover:bg-slate-50" data-title="Ubah Password">
+                        <i class="fa-solid fa-key w-4 text-center text-slate-700"></i>
                         Ubah Password
                     </button>
-                    <button type="button" class="js-lender-profile-action flex w-full items-center gap-3 px-4 py-2 text-left text-sm hover:bg-sky-50" data-title="Ubah Email">
-                        <i class="fa-regular fa-envelope w-4 text-center text-sky-700"></i>
+                    <button type="button" class="js-lender-profile-action flex w-full items-center gap-3 px-4 py-2 text-left text-sm hover:bg-slate-50" data-title="Ubah Email">
+                        <i class="fa-regular fa-envelope w-4 text-center text-slate-700"></i>
                         Ubah Email
                     </button>
-                    <div class="my-1 border-t border-sky-100"></div>
+                    <div class="my-1 border-t border-slate-200"></div>
                     <form action="{{ route('lender.logout') }}" method="POST">
                         @csrf
                         <button type="submit" class="flex w-full items-center gap-3 px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50">

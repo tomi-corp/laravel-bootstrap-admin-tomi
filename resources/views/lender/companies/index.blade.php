@@ -18,15 +18,15 @@
         <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
                 <h1 class="text-2xl font-semibold tracking-normal">List Perusahaan</h1>
-                <p class="mt-1 text-sm text-white/90">Kelola perusahaan yang terhubung dengan lender.</p>
+                <p class="mt-1 text-sm text-slate-600">Kelola perusahaan yang terhubung dengan lender.</p>
             </div>
-            <a href="{{ route('lender.companies.create') }}" class="lender-btn bg-sky-500 text-white shadow-sm hover:bg-sky-600 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-sky-200 lender-btn-md shadow-sm">
+            <a href="{{ route('lender.companies.create') }}" class="lender-btn bg-black text-white shadow-sm hover:bg-slate-800 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-slate-300 lender-btn-md shadow-sm">
                 <i class="fa-solid fa-plus"></i>
                 Tambah Perusahaan
             </a>
         </div>
 
-        <section class="rounded-lg border border-sky-100 bg-white p-5 text-slate-950 shadow-sm shadow-slate-950/10">
+        <section class="rounded-lg border border-slate-200 bg-white p-5 text-slate-950 shadow-sm shadow-slate-950/10">
             <div>
                 <table id="companiesTable" class="display nowrap w-full min-w-[1100px]">
                     <thead>
@@ -47,13 +47,13 @@
                                 <td>{{ $company->email_perusahaan ?? '-' }}</td>
                                 <td>{{ optional($company->lender)->nama ?? '-' }}</td>
                                 <td>
-                                    <span class="rounded-full px-2 py-1 text-xs font-medium {{ $company->status === 'active' ? 'bg-sky-100 text-sky-700' : 'bg-gray-100 text-gray-700' }}">
+                                    <span class="rounded-full px-2 py-1 text-xs font-medium {{ $company->status === 'active' ? 'bg-slate-100 text-slate-700' : 'bg-gray-100 text-gray-700' }}">
                                         {{ $company->status === 'active' ? 'Aktif' : 'Nonaktif' }}
                                     </span>
                                 </td>
                                 <td>
                                     <div class="flex items-center gap-2">
-                                        <a href="{{ route('lender.companies.show', $company) }}" class="lender-btn bg-sky-500 text-white shadow-sm hover:bg-sky-600 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-sky-200 lender-btn-sm">
+                                        <a href="{{ route('lender.companies.show', $company) }}" class="lender-btn bg-black text-white shadow-sm hover:bg-slate-800 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-slate-300 lender-btn-sm">
                                             Detail
                                         </a>
                                         <a href="{{ route('lender.companies.edit', $company) }}" class="rounded-md bg-yellow-500 px-3 py-1.5 text-sm font-medium text-white hover:bg-yellow-600">

@@ -6,7 +6,7 @@
     <title>@yield('title', 'Login Lender')</title>
     @include('lender.layouts.partials.head-assets')
 </head>
-<body class="min-h-screen bg-sky-500 text-slate-950 antialiased">
+<body class="min-h-screen bg-black text-slate-950 antialiased">
     <main class="flex min-h-screen items-center justify-center px-4 py-10">
         @yield('content')
     </main>
