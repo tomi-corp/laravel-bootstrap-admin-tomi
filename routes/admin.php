@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\InvoiceFeePageController;
 use App\Http\Controllers\Admin\InvoiceFeePdfController;
 use App\Http\Controllers\Admin\KspController;
 use App\Http\Controllers\Admin\LenderController;
+use App\Http\Controllers\Admin\LenderOfficerController;
 use App\Http\Controllers\Admin\MenuMobileController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\OtaController;
@@ -116,6 +117,10 @@ Route::middleware(['AdminMiddleware'])->group(
                 Route::post('/ksp/lender/approval/detail', [LenderController::class, 'approvalDetail'])->name('admin.lender.approval.detail');
                 Route::post('/ksp/lender/approval/action', [LenderController::class, 'approvalAction'])->name('admin.lender.approval.action');
                 Route::post('/ksp/lender/update/history', [LenderController::class, 'updateHistoryLender'])->name('admin.lender.update.history');
+                Route::post('/ksp/lender-officers/cities', [LenderOfficerController::class, 'cities'])->name('admin.lender-officers.cities');
+                Route::post('/ksp/lender-officers/districts', [LenderOfficerController::class, 'districts'])->name('admin.lender-officers.districts');
+                Route::post('/ksp/lender-officers/villages', [LenderOfficerController::class, 'villages'])->name('admin.lender-officers.villages');
+                Route::resource('/ksp/lender-officers', LenderOfficerController::class)->names('admin.lender-officers');
                 // ksp => lender => invoicing
                 Route::get('/ksp/lender/invoicing/', function () {
                     return redirect()->route('admin.lender.invoicing.index');
