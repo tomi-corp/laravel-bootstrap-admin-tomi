@@ -13,7 +13,6 @@
             'route' => 'lender.companies.index',
             'active' => request()->routeIs('lender.companies.*'),
             'development' => false,
-            'hidden' => true,
         ],
         [
             'label' => 'TomiDana',
@@ -109,15 +108,15 @@
 
 <aside
     id="lenderSidebar"
-    class="fixed inset-y-0 left-0 z-40 flex w-64 -translate-x-full flex-col border-r border-black bg-black transition-all lg:translate-x-0"
+    class="fixed inset-y-0 left-0 z-40 flex w-64 -translate-x-full flex-col border-r border-slate-800 bg-slate-900 transition-all lg:translate-x-0"
 >
-    <div class="flex h-14 shrink-0 items-center gap-3 border-b border-white/20 px-4">
-        <div class="flex h-9 w-9 items-center justify-center rounded-md bg-white/20 text-white shadow-sm shadow-slate-950/20">
+    <div class="flex h-14 shrink-0 items-center gap-3 border-b border-white/10 px-4">
+        <div class="flex h-9 w-9 items-center justify-center rounded-md bg-white text-slate-900 shadow-sm shadow-slate-950/20">
             <i class="fa-solid fa-building-columns"></i>
         </div>
         <div class="sidebar-label">
             <p class="text-sm font-semibold text-white">TOMI Lender</p>
-            <p class="text-xs text-white/80">Portal Pendanaan</p>
+            <p class="text-xs text-slate-300">Portal Pendanaan</p>
         </div>
     </div>
 
@@ -132,7 +131,7 @@
                 <div>
                     <button
                         type="button"
-                        class="js-submenu-toggle flex w-full items-center justify-between rounded-md px-3 py-1.5 text-sm font-medium text-white transition hover:bg-white/15"
+                        class="js-submenu-toggle flex w-full items-center justify-between rounded-md px-3 py-1.5 text-sm font-medium text-white transition hover:bg-white/10"
                         data-target="{{ $submenuId }}"
                         aria-expanded="{{ $menu['active'] ? 'true' : 'false' }}"
                     >
@@ -140,13 +139,13 @@
                             <i class="{{ $menu['icon'] }} w-5 text-center"></i>
                             <span class="sidebar-label">{{ $menu['label'] }}</span>
                         </span>
-                        <i class="sidebar-label fa-solid fa-chevron-down text-xs text-white/80 transition-transform {{ $menu['active'] ? 'rotate-180' : '' }}"></i>
+                        <i class="sidebar-label fa-solid fa-chevron-down text-xs text-slate-300 transition-transform {{ $menu['active'] ? 'rotate-180' : '' }}"></i>
                     </button>
                     <div id="{{ $submenuId }}" class="sidebar-submenu {{ $menu['active'] ? '' : 'hidden' }} mt-0.5 space-y-0.5 pl-7">
                         @foreach ($menu['children'] as $child)
                             <a
                                 href="{{ route($child['route']) }}"
-                                class="flex items-center gap-3 rounded-md px-3 py-1.5 text-xs font-medium transition {{ $child['active'] ? 'bg-white/25 text-white shadow-sm shadow-slate-950/10' : 'text-slate-600 hover:bg-white/15 hover:text-white' }}"
+                                class="flex items-center gap-3 rounded-md px-3 py-1.5 text-xs font-medium transition {{ $child['active'] ? 'bg-white text-slate-900 shadow-sm shadow-slate-950/10' : 'text-slate-200 hover:bg-white/10 hover:text-white' }}"
                             >
                                 <i class="{{ $child['icon'] }} w-4 text-center"></i>
                                 <span class="sidebar-label">{{ $child['label'] }}</span>
@@ -157,7 +156,7 @@
             @else
                 <a
                     href="{{ ($menu['development'] ?? false) ? '#' : route($menu['route']) }}"
-                    class="{{ ($menu['development'] ?? false) ? 'js-development-menu' : '' }} flex items-center gap-3 rounded-md px-3 py-1.5 text-sm font-medium transition {{ ($menu['active'] ?? false) ? 'bg-white/25 text-white shadow-sm shadow-slate-950/10' : 'text-white hover:bg-white/15 hover:text-white' }}"
+                    class="{{ ($menu['development'] ?? false) ? 'js-development-menu' : '' }} flex items-center gap-3 rounded-md px-3 py-1.5 text-sm font-medium transition {{ ($menu['active'] ?? false) ? 'bg-white text-slate-900 shadow-sm shadow-slate-950/10' : 'text-white hover:bg-white/10 hover:text-white' }}"
                     data-menu-label="{{ $menu['label'] }}{{ $menu['suffix'] ?? '' }}"
                 >
                     <i class="{{ $menu['icon'] }} w-5 text-center"></i>

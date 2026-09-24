@@ -16,12 +16,24 @@
         <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
                 <h1 class="text-2xl font-semibold tracking-normal">Konfigurasi TomiDana</h1>
-                <p class="mt-1 text-sm text-slate-600">Kelola tenor, rate, biaya, dan nominal pinjaman.</p>
+                <p class="mt-1 text-sm text-slate-600">
+                    @if ($selectedCompany)
+                        {{ $selectedCompany->nama }} - kelola tenor, rate, biaya, dan nominal pinjaman.
+                    @else
+                        Kelola tenor, rate, biaya, dan nominal pinjaman.
+                    @endif
+                </p>
             </div>
-            <a href="{{ route('lender.configurations.create') }}" class="lender-btn bg-black text-white shadow-sm hover:bg-slate-800 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-slate-300 lender-btn-md shadow-sm">
-                <i class="fa-solid fa-plus"></i>
-                Tambah Konfigurasi
-            </a>
+            <div class="flex flex-wrap gap-2">
+                <a href="{{ route('lender.configurations.index') }}" class="lender-btn border border-slate-300 bg-white text-slate-700 shadow-sm hover:bg-slate-50 lender-btn-md">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    Perusahaan
+                </a>
+                <a href="{{ route('lender.configurations.create', $selectedCompany ? ['company_id' => $selectedCompany->id] : []) }}" class="lender-btn bg-black text-white shadow-sm hover:bg-slate-800 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-slate-300 lender-btn-md shadow-sm">
+                    <i class="fa-solid fa-plus"></i>
+                    Tambah Konfigurasi
+                </a>
+            </div>
         </div>
 
         <section class="rounded-lg border border-slate-200 bg-white p-5 text-slate-950 shadow-sm shadow-slate-950/10">

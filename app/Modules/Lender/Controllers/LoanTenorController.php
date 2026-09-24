@@ -7,26 +7,40 @@ use App\Modules\Lender\Models\Company;
 use App\Modules\Lender\Models\LoanTenor;
 use App\Modules\Lender\Requests\LoanTenorRequest;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class LoanTenorController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
+        $selectedCompany = $this->selectedCompany($request);
+
+        if (! $selectedCompany) {
+            return view('lender.configurations.companies', [
+                'companies' => $this->companiesWithTenorCount(),
+            ]);
+        }
+
         return view('lender.configurations.index', [
             'tenors' => LoanTenor::query()
                 ->with('company:id,nama,id_lender')
                 ->whereHas('company', fn ($query) => $query->where('id_lender', $this->lenderId()))
+                ->where('id_perusahaan', $selectedCompany->id)
                 ->orderBy('id_perusahaan')
                 ->orderBy('tenor')
                 ->get(),
+            'selectedCompany' => $selectedCompany,
         ]);
     }
 
-    public function create(): View
+    public function create(Request $request): View
     {
+        $selectedCompany = $this->selectedCompany($request);
+
         return view('lender.configurations.create', [
             'tenor' => new LoanTenor([
+                'id_perusahaan' => $selectedCompany?->id,
                 'asuransi' => 0,
                 'provisi' => 0,
                 'biaya_admin' => 0,
@@ -44,7 +58,7 @@ class LoanTenorController extends Controller
         LoanTenor::query()->create($request->validated());
 
         return redirect()
-            ->route('lender.configurations.index')
+            ->route('lender.configurations.index', ['company_id' => $request->validated('id_perusahaan')])
             ->with('success', 'Konfigurasi tenor berhasil ditambahkan.');
     }
 
@@ -64,24 +78,45 @@ class LoanTenorController extends Controller
         $configuration->update($request->validated());
 
         return redirect()
-            ->route('lender.configurations.index')
+            ->route('lender.configurations.index', ['company_id' => $request->validated('id_perusahaan')])
             ->with('success', 'Konfigurasi tenor berhasil diperbarui.');
     }
 
     public function destroy(LoanTenor $configuration): RedirectResponse
     {
         $this->authorizeConfiguration($configuration);
+        $companyId = $configuration->id_perusahaan;
         $configuration->delete();
 
         return redirect()
-            ->route('lender.configurations.index')
+            ->route('lender.configurations.index', ['company_id' => $companyId])
             ->with('success', 'Konfigurasi tenor berhasil dihapus.');
+    }
+
+    private function selectedCompany(Request $request): ?Company
+    {
+        if (! $request->filled('company_id')) {
+            return null;
+        }
+
+        return Company::query()
+            ->where('id_lender', $this->lenderId())
+            ->findOrFail($request->integer('company_id'));
     }
 
     private function companies()
     {
         return Company::query()
             ->where('id_lender', $this->lenderId())
+            ->orderBy('nama')
+            ->get(['id', 'nama', 'id_lender']);
+    }
+
+    private function companiesWithTenorCount()
+    {
+        return Company::query()
+            ->where('id_lender', $this->lenderId())
+            ->withCount('loanTenors')
             ->orderBy('nama')
             ->get(['id', 'nama', 'id_lender']);
     }

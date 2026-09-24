@@ -1,10 +1,10 @@
-<header class="sticky top-0 z-20 border-b border-black bg-black">
+<header class="sticky top-0 z-20 border-b border-slate-800 bg-slate-900">
     <div class="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
         <div class="flex items-center gap-3">
             <button
                 type="button"
                 id="sidebarToggle"
-                class="inline-flex h-10 w-10 items-center justify-center rounded-md border border-white/30 text-white transition hover:bg-white/15"
+                class="inline-flex h-10 w-10 items-center justify-center rounded-md border border-white/20 text-white transition hover:bg-white/10"
                 aria-label="Toggle sidebar"
             >
                 <i class="fa-solid fa-bars"></i>
@@ -14,7 +14,7 @@
         <div class="flex items-center gap-2">
             <button
                 type="button"
-                class="inline-flex h-10 w-10 items-center justify-center rounded-md border border-white/30 text-white transition hover:bg-white/15"
+                class="inline-flex h-10 w-10 items-center justify-center rounded-md border border-white/20 text-white transition hover:bg-white/10"
                 title="Notifikasi"
             >
                 <i class="fa-regular fa-bell"></i>
@@ -23,18 +23,18 @@
                 <button
                     type="button"
                     id="lenderUserMenuButton"
-                    class="hidden items-center gap-3 rounded-md border border-white/30 px-3 py-2 text-left transition hover:bg-white/15 sm:flex"
+                    class="hidden items-center gap-3 rounded-md border border-white/30 px-3 py-2 text-left transition hover:bg-white/10 sm:flex"
                     aria-expanded="false"
                     aria-haspopup="true"
                 >
-                    <div class="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-white">
+                    <div class="flex h-8 w-8 items-center justify-center rounded-full bg-white text-slate-900">
                         <i class="fa-regular fa-user"></i>
                     </div>
                     <div>
                         <p class="text-sm font-medium leading-none text-white">{{ auth('lender')->user()?->username ?? 'Lender' }}</p>
-                        <p class="mt-1 text-xs leading-none text-white/80">Lender</p>
+                        <p class="mt-1 text-xs leading-none text-slate-300">Lender</p>
                     </div>
-                    <i class="fa-solid fa-chevron-down text-xs text-white/80"></i>
+                    <i class="fa-solid fa-chevron-down text-xs text-slate-300"></i>
                 </button>
 
                 <div
