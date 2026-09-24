@@ -4,6 +4,7 @@ use App\Modules\Lender\Controllers\DashboardController;
 use App\Modules\Lender\Controllers\CompanyController;
 use App\Modules\Lender\Controllers\AuthController;
 use App\Modules\Lender\Controllers\DisbursementController;
+use App\Modules\Lender\Controllers\LoanAmountController;
 use App\Modules\Lender\Controllers\LoanTenorController;
 use App\Modules\Lender\Controllers\LoanController;
 use App\Modules\Lender\Controllers\RepaymentController;
@@ -33,6 +34,12 @@ Route::name('lender.')->group(function () {
                 'konfigurasi' => 'configuration',
             ])
             ->names('configurations')
+            ->except(['show']);
+        Route::resource('tomi-dana/nominal-pinjaman', LoanAmountController::class)
+            ->parameters([
+                'nominal-pinjaman' => 'loanAmount',
+            ])
+            ->names('loan-amounts')
             ->except(['show']);
         Route::resource('pinjaman', LoanController::class)
             ->parameters([

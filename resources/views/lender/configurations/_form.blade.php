@@ -45,7 +45,7 @@
 </div>
 
 <div class="mt-6 flex items-center justify-end gap-2">
-    <a href="{{ route('lender.configurations.index') }}" class="lender-btn lender-btn-soft lender-btn-md">
+    <a href="{{ route('lender.configurations.index') }}" class="lender-btn bg-sky-50 text-slate-950 hover:bg-sky-100 lender-btn-md">
         Batal
     </a>
     <button type="submit" class="lender-btn bg-sky-500 text-white shadow-sm hover:bg-sky-600 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-sky-200 lender-btn-md">
