@@ -13,6 +13,7 @@
             'route' => 'lender.companies.index',
             'active' => request()->routeIs('lender.companies.*'),
             'development' => false,
+            'hidden' => true,
         ],
         [
             'label' => 'TomiDana',
@@ -50,6 +51,7 @@
             'suffix' => '+',
             'icon' => 'fa-solid fa-circle-plus',
             'development' => true,
+            'hidden' => true,
         ],
         [
             'label' => 'TomiGawai',
@@ -60,6 +62,7 @@
             'label' => 'TomiEmas',
             'icon' => 'fa-solid fa-coins',
             'development' => true,
+            'hidden' => true,
         ],
         [
             'label' => 'TomiGaji',
@@ -75,26 +78,31 @@
             'label' => 'TomiHaji',
             'icon' => 'fa-solid fa-kaaba',
             'development' => true,
+            'hidden' => true,
         ],
         [
             'label' => 'TomiUmroh',
             'icon' => 'fa-solid fa-mosque',
             'development' => true,
+            'hidden' => true,
         ],
         [
             'label' => 'TomiMoto',
             'icon' => 'fa-solid fa-motorcycle',
             'development' => true,
+            'hidden' => true,
         ],
         [
             'label' => 'TomiAuto',
             'icon' => 'fa-solid fa-car-side',
             'development' => true,
+            'hidden' => true,
         ],
         [
             'label' => 'PPOB',
             'icon' => 'fa-solid fa-receipt',
             'development' => true,
+            'hidden' => true,
         ],
     ];
 @endphp
@@ -115,6 +123,8 @@
 
     <nav class="min-h-0 flex-1 space-y-0.5 overflow-visible px-2 py-2">
         @foreach ($menus as $menu)
+            @continue($menu['hidden'] ?? false)
+
             @if (isset($menu['children']))
                 @php
                     $submenuId = 'submenu-'.\Illuminate\Support\Str::slug($menu['label']);
