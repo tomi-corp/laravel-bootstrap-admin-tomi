@@ -17,8 +17,14 @@
         [
             'label' => 'TomiDana',
             'icon' => 'fa-solid fa-hand-holding-dollar',
-            'active' => request()->routeIs('lender.tomi-dana.*') || request()->routeIs('lender.loans.*') || request()->routeIs('lender.disbursements.*') || request()->routeIs('lender.repayments.*'),
+            'active' => request()->routeIs('lender.tomi-dana.*') || request()->routeIs('lender.loans.*') || request()->routeIs('lender.disbursements.*') || request()->routeIs('lender.repayments.*') || request()->routeIs('lender.configurations.*'),
             'children' => [
+                [
+                    'label' => 'Konfigurasi',
+                    'icon' => 'fa-solid fa-sliders',
+                    'route' => 'lender.configurations.index',
+                    'active' => request()->routeIs('lender.configurations.*'),
+                ],
                 [
                     'label' => 'Pencairan Dana',
                     'icon' => 'fa-solid fa-money-bill-transfer',
@@ -89,11 +95,11 @@
 
 <aside
     id="lenderSidebar"
-    class="fixed inset-y-0 left-0 z-40 flex w-64 -translate-x-full flex-col border-r border-primary bg-primary transition-all lg:absolute lg:inset-y-auto lg:bottom-0 lg:top-0 lg:min-h-full lg:translate-x-0"
+    class="fixed inset-y-0 left-0 z-40 flex w-64 -translate-x-full flex-col border-r border-primary bg-primary transition-all lg:translate-x-0"
     style="background-color: var(--lender-blue); border-color: var(--lender-blue);"
 >
-    <div class="flex h-16 shrink-0 items-center gap-3 border-b border-white/20 px-5">
-        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-white/20 text-white shadow-sm shadow-primary-950/20">
+    <div class="flex h-14 shrink-0 items-center gap-3 border-b border-white/20 px-4">
+        <div class="flex h-9 w-9 items-center justify-center rounded-md bg-white/20 text-white shadow-sm shadow-primary-950/20">
             <i class="fa-solid fa-building-columns"></i>
         </div>
         <div class="sidebar-label">
@@ -102,7 +108,7 @@
         </div>
     </div>
 
-    <nav class="min-h-0 flex-1 space-y-1 overflow-y-auto overscroll-contain px-3 py-4 lg:overflow-visible">
+    <nav class="min-h-0 flex-1 space-y-0.5 overflow-visible px-2 py-2">
         @foreach ($menus as $menu)
             @if (isset($menu['children']))
                 @php
@@ -111,7 +117,7 @@
                 <div>
                     <button
                         type="button"
-                        class="js-submenu-toggle flex w-full items-center justify-between rounded-md px-3 py-2 text-sm font-medium text-white transition hover:bg-white/15"
+                        class="js-submenu-toggle flex w-full items-center justify-between rounded-md px-3 py-1.5 text-sm font-medium text-white transition hover:bg-white/15"
                         data-target="{{ $submenuId }}"
                         aria-expanded="{{ $menu['active'] ? 'true' : 'false' }}"
                     >
@@ -121,11 +127,11 @@
                         </span>
                         <i class="sidebar-label fa-solid fa-chevron-down text-xs text-white/80 transition-transform {{ $menu['active'] ? 'rotate-180' : '' }}"></i>
                     </button>
-                    <div id="{{ $submenuId }}" class="sidebar-submenu {{ $menu['active'] ? '' : 'hidden' }} mt-1 space-y-1 pl-8">
+                    <div id="{{ $submenuId }}" class="sidebar-submenu {{ $menu['active'] ? '' : 'hidden' }} mt-0.5 space-y-0.5 pl-7">
                         @foreach ($menu['children'] as $child)
                             <a
                                 href="{{ route($child['route']) }}"
-                                class="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition {{ $child['active'] ? 'bg-white/25 text-white shadow-sm shadow-primary-950/10' : 'text-white/90 hover:bg-white/15 hover:text-white' }}"
+                                class="flex items-center gap-3 rounded-md px-3 py-1.5 text-xs font-medium transition {{ $child['active'] ? 'bg-white/25 text-white shadow-sm shadow-primary-950/10' : 'text-white/90 hover:bg-white/15 hover:text-white' }}"
                             >
                                 <i class="{{ $child['icon'] }} w-4 text-center"></i>
                                 <span class="sidebar-label">{{ $child['label'] }}</span>
@@ -136,7 +142,7 @@
             @else
                 <a
                     href="{{ ($menu['development'] ?? false) ? '#' : route($menu['route']) }}"
-                    class="{{ ($menu['development'] ?? false) ? 'js-development-menu' : '' }} flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition {{ ($menu['active'] ?? false) ? 'bg-white/25 text-white shadow-sm shadow-primary-950/10' : 'text-white hover:bg-white/15 hover:text-white' }}"
+                    class="{{ ($menu['development'] ?? false) ? 'js-development-menu' : '' }} flex items-center gap-3 rounded-md px-3 py-1.5 text-sm font-medium transition {{ ($menu['active'] ?? false) ? 'bg-white/25 text-white shadow-sm shadow-primary-950/10' : 'text-white hover:bg-white/15 hover:text-white' }}"
                     data-menu-label="{{ $menu['label'] }}{{ $menu['suffix'] ?? '' }}"
                 >
                     <i class="{{ $menu['icon'] }} w-5 text-center"></i>

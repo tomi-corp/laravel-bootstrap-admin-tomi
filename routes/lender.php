@@ -4,6 +4,7 @@ use App\Modules\Lender\Controllers\DashboardController;
 use App\Modules\Lender\Controllers\CompanyController;
 use App\Modules\Lender\Controllers\AuthController;
 use App\Modules\Lender\Controllers\DisbursementController;
+use App\Modules\Lender\Controllers\LoanTenorController;
 use App\Modules\Lender\Controllers\LoanController;
 use App\Modules\Lender\Controllers\RepaymentController;
 use Illuminate\Support\Facades\Route;
@@ -27,6 +28,12 @@ Route::name('lender.')->group(function () {
         Route::get('/summary', [DashboardController::class, 'summary'])->name('dashboard.summary');
         Route::get('/tomi-dana/disbursement', [DashboardController::class, 'disbursement'])->name('tomi-dana.disbursement');
         Route::get('/tomi-dana/repayment', [DashboardController::class, 'repayment'])->name('tomi-dana.repayment');
+        Route::resource('tomi-dana/konfigurasi', LoanTenorController::class)
+            ->parameters([
+                'konfigurasi' => 'configuration',
+            ])
+            ->names('configurations')
+            ->except(['show']);
         Route::resource('pinjaman', LoanController::class)
             ->parameters([
                 'pinjaman' => 'loan',

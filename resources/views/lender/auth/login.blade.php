@@ -5,9 +5,7 @@
 @section('content')
     <section class="w-full max-w-md rounded-lg bg-white p-6 shadow-xl shadow-primary-950/20">
         <div class="mb-6 text-center">
-            <div class="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-white">
-                <i class="fa-solid fa-building-columns"></i>
-            </div>
+            <img src="{{ asset('assets/images/logo.jpg') }}" alt="TOMI" class="mx-auto mb-4 h-14 w-auto">
             <h1 class="text-2xl font-semibold text-primary-950">Login Lender</h1>
             <p class="mt-1 text-sm text-primary-700">Masuk ke portal lender TOMI.</p>
         </div>
@@ -44,19 +42,21 @@
                 @error('password') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
             </div>
 
-            <label class="flex items-center gap-2 text-sm text-primary-800">
-                <input type="checkbox" name="remember" class="rounded border-primary-200 text-primary focus:ring-primary">
-                Ingat saya
-            </label>
+            <div class="flex items-center justify-between gap-3">
+                <label class="flex items-center gap-2 text-sm text-primary-800">
+                    <input type="checkbox" name="remember" class="rounded border-primary-200 text-primary focus:ring-primary">
+                    Ingat saya
+                </label>
+
+                <a href="{{ route('lender.forgot') }}" class="text-sm font-medium text-primary-700 hover:text-primary-900">
+                    Lupa password?
+                </a>
+            </div>
 
             <button type="submit" class="auth-primary-button flex w-full items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-semibold">
                 <i class="fa-solid fa-right-to-bracket"></i>
                 Masuk
             </button>
-
-            <a href="{{ route('lender.forgot') }}" class="block text-center text-sm font-medium text-primary-700 hover:text-primary-900">
-                Lupa password?
-            </a>
         </form>
     </section>
 @endsection
