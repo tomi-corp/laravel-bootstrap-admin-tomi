@@ -4,6 +4,7 @@ use App\Modules\Lender\Controllers\DashboardController;
 use App\Modules\Lender\Controllers\CompanyController;
 use App\Modules\Lender\Controllers\AuthController;
 use App\Modules\Lender\Controllers\DisbursementController;
+use App\Modules\Lender\Controllers\EmployeeController;
 use App\Modules\Lender\Controllers\LoanAmountController;
 use App\Modules\Lender\Controllers\LoanTenorController;
 use App\Modules\Lender\Controllers\LoanController;
@@ -41,6 +42,11 @@ Route::name('lender.')->group(function () {
             ])
             ->names('loan-amounts')
             ->except(['show']);
+        Route::resource('tomi-dana/karyawan', EmployeeController::class)
+            ->parameters([
+                'karyawan' => 'employee',
+            ])
+            ->names('employees');
         Route::resource('pinjaman', LoanController::class)
             ->parameters([
                 'pinjaman' => 'loan',

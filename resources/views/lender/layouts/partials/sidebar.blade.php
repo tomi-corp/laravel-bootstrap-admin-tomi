@@ -17,7 +17,7 @@
         [
             'label' => 'TomiDana',
             'icon' => 'fa-solid fa-hand-holding-dollar',
-            'active' => request()->routeIs('lender.tomi-dana.*') || request()->routeIs('lender.loans.*') || request()->routeIs('lender.disbursements.*') || request()->routeIs('lender.repayments.*') || request()->routeIs('lender.configurations.*') || request()->routeIs('lender.loan-amounts.*'),
+            'active' => request()->routeIs('lender.tomi-dana.*') || request()->routeIs('lender.loans.*') || request()->routeIs('lender.disbursements.*') || request()->routeIs('lender.repayments.*') || request()->routeIs('lender.configurations.*') || request()->routeIs('lender.loan-amounts.*') || request()->routeIs('lender.employees.*'),
             'children' => [
                 [
                     'label' => 'Konfigurasi',
@@ -30,6 +30,12 @@
                     'icon' => 'fa-solid fa-money-bill-wave',
                     'route' => 'lender.loan-amounts.index',
                     'active' => request()->routeIs('lender.loan-amounts.*'),
+                ],
+                [
+                    'label' => 'Karyawan',
+                    'icon' => 'fa-solid fa-users',
+                    'route' => 'lender.employees.index',
+                    'active' => request()->routeIs('lender.employees.*'),
                 ],
                 [
                     'label' => 'Pencairan Dana',

@@ -19,4 +19,9 @@ class Company extends ListPerusahaan
     {
         return $this->hasOne(LoanAmount::class, 'id_perusahaan');
     }
+
+    public function employees(): HasMany
+    {
+        return $this->hasMany(Employee::class, 'id_list_perusahaan');
+    }
 }
