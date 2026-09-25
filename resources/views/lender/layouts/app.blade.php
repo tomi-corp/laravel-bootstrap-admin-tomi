@@ -40,11 +40,11 @@
         }
 
         body.lender-sidebar-collapsed #lenderSidebar {
-            width: 5rem !important;
+            width: 5.5rem !important;
         }
 
         body.lender-sidebar-collapsed #lenderShell {
-            padding-left: 5rem !important;
+            padding-left: 5.5rem !important;
         }
 
         body.lender-sidebar-collapsed #lenderSidebar .sidebar-label,
@@ -76,7 +76,7 @@
 <body class="relative min-h-screen bg-slate-50 text-slate-950 antialiased">
     @include('lender.layouts.partials.sidebar')
 
-    <div id="lenderShell" class="min-h-screen bg-slate-50 transition-all lg:pl-64">
+    <div id="lenderShell" class="min-h-screen bg-slate-50 transition-all lg:pl-72">
         @include('lender.layouts.partials.topbar')
 
         <main class="lender-content min-h-[calc(100vh-8rem)] bg-slate-50 text-slate-950">
