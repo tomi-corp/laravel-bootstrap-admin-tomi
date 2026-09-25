@@ -19,7 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 ->prefix('internal')
                 ->group(base_path('routes/internal.php'));
             Route::middleware('web')
-                ->prefix('perusahaan')
+                ->prefix('company')
                 ->group(base_path('routes/company.php'));
             Route::middleware('web')
                 ->prefix('lender')
