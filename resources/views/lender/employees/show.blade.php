@@ -13,7 +13,7 @@
                 <a href="{{ route('lender.employees.index') }}" class="lender-btn bg-slate-50 text-slate-950 hover:bg-slate-100 lender-btn-md">
                     Kembali
                 </a>
-                <a href="{{ route('lender.employees.edit', $employee) }}" class="lender-btn bg-indigo-600 text-white shadow-sm hover:bg-indigo-700 lender-btn-md">
+                <a href="{{ route('lender.employees.edit', $employee) }}" class="lender-btn lender-btn-primary shadow-sm lender-btn-md">
                     Edit
                 </a>
             </div>

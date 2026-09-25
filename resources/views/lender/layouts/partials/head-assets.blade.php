@@ -58,6 +58,35 @@
         width: 100%;
     }
 
+    .bg-primary,
+    .file\:bg-primary::file-selector-button {
+        background-color: #188ae2;
+    }
+
+    .hover\:bg-primary-dark:hover {
+        background-color: #11609d;
+    }
+
+    .focus\:ring-primary:focus {
+        --tw-ring-color: #188ae2;
+    }
+
+    .lender-btn-primary {
+        background-color: #188ae2;
+        color: #fff;
+    }
+
+    .lender-btn-primary:hover,
+    .lender-btn-primary:focus {
+        background-color: #11609d;
+        color: #fff;
+    }
+
+    .lender-btn-primary:focus {
+        outline: 2px solid #188ae2;
+        outline-offset: 2px;
+    }
+
     input[type="file"]::file-selector-button {
         margin-right: 0.75rem;
         border: 0;

@@ -78,7 +78,7 @@
                 @endphp
                 <div class="rounded-md border border-slate-200 bg-slate-50/50 p-3">
                     <div class="text-sm font-medium text-slate-900">{{ $label }}</div>
-                    <a id="{{ $key }}_link" href="{{ $storedUrl }}" target="_blank" class="{{ $storedUrl ? '' : 'hidden' }} lender-btn bg-indigo-600 text-white shadow-sm hover:bg-indigo-700 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-indigo-500 lender-btn-sm mt-2">Lihat</a>
+                    <a id="{{ $key }}_link" href="{{ $storedUrl }}" target="_blank" class="{{ $storedUrl ? '' : 'hidden' }} lender-btn lender-btn-primary shadow-sm lender-btn-sm mt-2">Lihat</a>
                     <span id="{{ $key }}_empty" class="{{ $storedUrl ? 'hidden' : '' }} mt-2 block text-sm text-slate-500">Belum ada file</span>
                 </div>
             @endforeach
@@ -87,7 +87,7 @@
     </div>
 </div>
 <div class="mt-5 flex items-center gap-2">
-    <button type="submit" class="lender-btn bg-indigo-600 text-white shadow-sm hover:bg-indigo-700 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-indigo-500 lender-btn-md">Simpan</button>
+    <button type="submit" class="lender-btn lender-btn-primary shadow-sm lender-btn-md">Simpan</button>
     <a href="{{ route('lender.disbursements.index') }}" class="lender-btn bg-slate-50 text-slate-950 hover:bg-slate-100 lender-btn-md">Batal</a>
 </div>
 

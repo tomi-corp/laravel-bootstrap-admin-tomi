@@ -53,7 +53,7 @@
                 </a>
             </div>
 
-            <button type="submit" class="flex w-full items-center justify-center gap-2 rounded-md border border-transparent bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+            <button type="submit" class="flex w-full items-center justify-center gap-2 rounded-md border border-transparent bg-primary px-4 py-2.5 text-sm font-semibold text-white hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
                 <i class="fa-solid fa-right-to-bracket"></i>
                 Masuk
             </button>

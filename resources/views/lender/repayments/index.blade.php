@@ -77,7 +77,7 @@
                             <td>{{ $repayment?->payment_proof_file ?? '-' }}</td>
                             <td>
                                 @if ($isInDueWindow)
-                                    <button type="button" class="js-open-proof-modal lender-btn bg-indigo-600 text-white shadow-sm hover:bg-indigo-700 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-indigo-500 lender-btn-sm" data-target="#proofModal{{ $invoice->id }}">
+                                    <button type="button" class="js-open-proof-modal lender-btn lender-btn-primary shadow-sm lender-btn-sm" data-target="#proofModal{{ $invoice->id }}">
                                         <i class="fa-solid fa-upload"></i>
                                         Upload
                                     </button>
@@ -90,7 +90,7 @@
                             </td>
                             <td>
                                 @if ($downloadInvoice && $isInDueWindow)
-                                    <a href="{{ route('lender.repayments.invoice.download', ['invoice' => $downloadInvoice->id, 'company_invoice' => $invoice->id]) }}" target="_blank" class="lender-btn bg-indigo-600 text-white shadow-sm hover:bg-indigo-700 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-indigo-500 lender-btn-sm">
+                                    <a href="{{ route('lender.repayments.invoice.download', ['invoice' => $downloadInvoice->id, 'company_invoice' => $invoice->id]) }}" target="_blank" class="lender-btn lender-btn-primary shadow-sm lender-btn-sm">
                                         <i class="fa-solid fa-download"></i>
                                         Download
                                     </a>
@@ -159,7 +159,7 @@
                             </div>
                             <div>
                                 <label class="mb-1 block text-sm font-medium text-slate-900">File Bukti</label>
-                                <input type="file" name="payment_proof_file" accept=".jpg,.jpeg,.png,.pdf" class="w-full rounded-md border border-slate-200 px-3 py-2 text-slate-950 file:mr-3 file:rounded-md file:border-0 file:bg-indigo-600 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-white focus:border-black focus:outline-none focus:ring-2 focus:ring-black/20" required>
+                                <input type="file" name="payment_proof_file" accept=".jpg,.jpeg,.png,.pdf" class="w-full rounded-md border border-slate-200 px-3 py-2 text-slate-950 file:mr-3 file:rounded-md file:border-0 file:bg-primary file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-white focus:border-black focus:outline-none focus:ring-2 focus:ring-black/20" required>
                             </div>
                         </div>
 
@@ -169,7 +169,7 @@
 
                         <div class="mt-5 flex justify-end gap-2">
                             <button type="button" class="js-close-proof-modal lender-btn bg-slate-50 text-slate-950 hover:bg-slate-100 lender-btn-md" data-target="#proofModal{{ $invoice->id }}">Batal</button>
-                            <button type="submit" class="lender-btn bg-indigo-600 text-white shadow-sm hover:bg-indigo-700 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-indigo-500 lender-btn-md">Simpan Bukti</button>
+                            <button type="submit" class="lender-btn lender-btn-primary shadow-sm lender-btn-md">Simpan Bukti</button>
                         </div>
                     </form>
                 </div>

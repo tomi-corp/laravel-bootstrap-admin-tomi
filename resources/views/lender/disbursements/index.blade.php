@@ -63,7 +63,7 @@
                             </td>
                             <td>
                                 <div class="flex items-center gap-2">
-                                    <button type="button" class="js-open-disbursement-modal lender-btn bg-indigo-600 text-white shadow-sm hover:bg-indigo-700 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-indigo-500 lender-btn-sm" data-target="#disbursementModal{{ $loan->id }}">Cairkan</button>
+                                    <button type="button" class="js-open-disbursement-modal lender-btn lender-btn-primary shadow-sm lender-btn-sm" data-target="#disbursementModal{{ $loan->id }}">Cairkan</button>
                                 </div>
                             </td>
                         </tr>
@@ -113,13 +113,13 @@
                             </div>
                             <div>
                                 <label class="mb-1 block text-sm font-medium text-slate-900">Bukti Transfer</label>
-                                <input type="file" name="transfer_proof" accept=".jpg,.jpeg,.png,.pdf" class="w-full rounded-md border border-slate-200 px-3 py-2 text-slate-950 file:mr-3 file:rounded-md file:border-0 file:bg-indigo-600 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-white focus:border-black focus:outline-none focus:ring-2 focus:ring-black/20" required>
+                                <input type="file" name="transfer_proof" accept=".jpg,.jpeg,.png,.pdf" class="w-full rounded-md border border-slate-200 px-3 py-2 text-slate-950 file:mr-3 file:rounded-md file:border-0 file:bg-primary file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-white focus:border-black focus:outline-none focus:ring-2 focus:ring-black/20" required>
                             </div>
                         </div>
 
                         <div class="mt-5 flex justify-end gap-2">
                             <button type="button" class="js-close-disbursement-modal rounded-md bg-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-300" data-target="#disbursementModal{{ $loan->id }}">Batal</button>
-                            <button type="submit" class="lender-btn bg-indigo-600 text-white shadow-sm hover:bg-indigo-700 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-indigo-500 lender-btn-md">Simpan Pencairan</button>
+                            <button type="submit" class="lender-btn lender-btn-primary shadow-sm lender-btn-md">Simpan Pencairan</button>
                         </div>
                     </form>
                 </div>

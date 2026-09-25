@@ -130,14 +130,14 @@
                     <i class="fa-solid fa-bolt text-black"></i>
                 </div>
                 <div class="space-y-3">
-                    <a href="{{ route('lender.dashboard.summary') }}" class="flex items-center justify-between rounded-md bg-indigo-600 px-4 py-3 text-sm font-medium text-white transition hover:bg-indigo-700">
+                    <a href="{{ route('lender.dashboard.summary') }}" class="flex items-center justify-between rounded-md bg-primary px-4 py-3 text-sm font-medium text-white transition hover:bg-primary-dark">
                         <span class="flex items-center gap-3">
                             <i class="fa-solid fa-code text-white"></i>
                             API Summary
                         </span>
                         <i class="fa-solid fa-chevron-right text-xs text-white/80"></i>
                     </a>
-                    <button type="button" id="refreshDashboard" class="flex w-full items-center justify-between rounded-md bg-indigo-600 px-4 py-3 text-sm font-medium text-white transition hover:bg-indigo-700">
+                    <button type="button" id="refreshDashboard" class="flex w-full items-center justify-between rounded-md bg-primary px-4 py-3 text-sm font-medium text-white transition hover:bg-primary-dark">
                         <span class="flex items-center gap-3">
                             <i class="fa-solid fa-rotate text-white"></i>
                             Refresh Data

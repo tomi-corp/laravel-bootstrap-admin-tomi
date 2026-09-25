@@ -32,7 +32,7 @@
     </div>
 </div>
 <div class="mt-5 flex items-center gap-2">
-    <button type="submit" class="lender-btn bg-indigo-600 text-white shadow-sm hover:bg-indigo-700 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-indigo-500 lender-btn-md">Simpan</button>
+    <button type="submit" class="lender-btn lender-btn-primary shadow-sm lender-btn-md">Simpan</button>
     <a href="{{ route('lender.repayments.index') }}" class="lender-btn bg-slate-50 text-slate-950 hover:bg-slate-100 lender-btn-md">Batal</a>
 </div>
 
