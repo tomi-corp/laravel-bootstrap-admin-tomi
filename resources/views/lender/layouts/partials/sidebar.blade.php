@@ -114,7 +114,7 @@
 
 <aside
     id="lenderSidebar"
-    class="fixed inset-y-0 left-0 z-40 flex w-72 -translate-x-full flex-col border-r border-slate-800 bg-slate-900 transition-all lg:translate-x-0"
+    class="fixed inset-y-0 left-0 z-40 flex w-72 -translate-x-full flex-col border-r border-slate-800 bg-slate-900 transition-all lg:static lg:inset-auto lg:min-h-screen lg:translate-x-0"
 >
     <div class="flex h-16 shrink-0 items-center gap-3 border-b border-white/10 px-5">
         <div class="flex h-10 w-10 items-center justify-center rounded-md bg-white text-lg text-slate-900 shadow-sm shadow-slate-950/20">

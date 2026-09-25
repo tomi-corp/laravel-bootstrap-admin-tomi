@@ -1,4 +1,4 @@
-<header class="sticky top-0 z-20 border-b border-slate-800 bg-slate-900">
+<header class="z-20 border-b border-slate-800 bg-slate-900">
     <div class="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
         <div class="flex items-center gap-3">
             <button

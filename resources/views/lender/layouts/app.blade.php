@@ -43,10 +43,6 @@
             width: 5.5rem !important;
         }
 
-        body.lender-sidebar-collapsed #lenderShell {
-            padding-left: 5.5rem !important;
-        }
-
         body.lender-sidebar-collapsed #lenderSidebar .sidebar-label,
         body.lender-sidebar-collapsed #lenderSidebar .sidebar-submenu {
             display: none !important;
@@ -74,16 +70,18 @@
     @stack('styles')
 </head>
 <body class="relative min-h-screen bg-slate-50 text-slate-950 antialiased">
-    @include('lender.layouts.partials.sidebar')
+    <div class="min-h-screen lg:flex">
+        @include('lender.layouts.partials.sidebar')
 
-    <div id="lenderShell" class="min-h-screen bg-slate-50 transition-all lg:pl-72">
-        @include('lender.layouts.partials.topbar')
+        <div id="lenderShell" class="min-w-0 flex-1 bg-slate-50 transition-all">
+            @include('lender.layouts.partials.topbar')
 
-        <main class="lender-content min-h-[calc(100vh-8rem)] bg-slate-50 text-slate-950">
-            @yield('content')
-        </main>
+            <main class="lender-content min-h-[calc(100vh-8rem)] bg-slate-50 text-slate-950">
+                @yield('content')
+            </main>
 
-        @include('lender.layouts.partials.footer')
+            @include('lender.layouts.partials.footer')
+        </div>
     </div>
 
     @include('lender.layouts.partials.scripts')
