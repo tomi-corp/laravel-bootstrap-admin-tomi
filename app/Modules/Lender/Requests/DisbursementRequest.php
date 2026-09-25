@@ -24,8 +24,8 @@ class DisbursementRequest extends FormRequest
             'dana_yang_dicairkan' => ['nullable', 'numeric', 'min:0'],
             'atas_nama' => ['nullable', 'string', 'max:255'],
             'nomor_rekening' => ['nullable', 'string', 'max:255'],
-            'transfer_date' => ['nullable', 'date'],
-            'transfer_proof' => ['nullable'],
+            'transfer_date' => ['required', 'date'],
+            'transfer_proof' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'],
         ];
     }
 }

@@ -21,4 +21,9 @@ class invoicing_pinjaman extends Model
     {
         return $this->hasOne(Repayment::class, 'id_invoicing', 'id');
     }
+
+    public function jatuh_tempo()
+    {
+        return $this->hasMany(jatuh_tempo::class, 'jatuh_tempo', 'period');
+    }
 }

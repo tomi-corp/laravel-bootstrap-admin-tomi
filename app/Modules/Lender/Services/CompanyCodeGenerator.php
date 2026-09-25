@@ -23,7 +23,18 @@ class CompanyCodeGenerator
     public function uniqueCode(): string
     {
         do {
-            $code = substr(str_shuffle('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'), 0, 4);
+            $letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            $numbers = '0123456789';
+            $characters = $letters.$numbers;
+
+            $code = $letters[random_int(0, strlen($letters) - 1)]
+                .$numbers[random_int(0, strlen($numbers) - 1)];
+
+            for ($i = 0; $i < 2; $i++) {
+                $code .= $characters[random_int(0, strlen($characters) - 1)];
+            }
+
+            $code = str_shuffle($code);
         } while ($this->companies->uniqueCodeExists($code));
 
         return $code;

@@ -31,6 +31,8 @@
                 <table id="companiesTable" class="display nowrap w-full min-w-[1100px]">
                     <thead>
                         <tr>
+                            <th>Kode Perusahaan</th>
+                            <th>Kode Unik</th>
                             <th>Nama</th>
                             <th>PIC</th>
                             <th>Email</th>
@@ -42,6 +44,8 @@
                     <tbody>
                         @foreach ($companies as $company)
                             <tr>
+                                <td>{{ $company->id_code_perusahaan ?? '-' }}</td>
+                                <td>{{ $company->unique_code ?? '-' }}</td>
                                 <td>{{ $company->nama }}</td>
                                 <td>{{ $company->pic_perusahaan }}</td>
                                 <td>{{ $company->email_perusahaan ?? '-' }}</td>

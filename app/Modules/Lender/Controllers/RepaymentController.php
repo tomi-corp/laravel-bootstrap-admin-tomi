@@ -5,13 +5,18 @@ namespace App\Modules\Lender\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\history_invoicing_lender;
 use App\Models\invoicing_pinjaman;
+use App\Models\jatuh_tempo;
+use App\Models\notification;
+use App\Models\pinjaman;
 use App\Models\rekening_pandu;
 use App\Modules\Lender\Models\Repayment;
 use App\Modules\Lender\Requests\RepaymentRequest;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -24,12 +29,13 @@ class RepaymentController extends Controller
             ->with([
                 'pinjaman' => function ($query) use ($lenderId) {
                     $query->where('id_lender', $lenderId)
-                        ->with(['data_karyawan', 'perusahaan', 'disbursement', 'jatuh_tempoSesuaiInvoice', 'user']);
+                        ->where('status', '!=', 'done')
+                        ->with(['data_karyawan', 'perusahaan', 'disbursement', 'jatuh_tempoSesuaiInvoice', 'angsuran', 'user']);
                 },
                 'perusahaan',
                 'repayment.admin',
             ])
-            ->whereHas('pinjaman', fn ($query) => $query->where('id_lender', $lenderId))
+            ->whereHas('perusahaan', fn ($query) => $query->where('id_lender', $lenderId))
             ->latest()
             ->get()
             ->sort(function ($first, $second) {
@@ -146,8 +152,8 @@ class RepaymentController extends Controller
 
         $invoice = invoicing_pinjaman::query()
             ->whereKey($invoice)
-            ->whereHas('pinjaman', fn ($query) => $query->where('id_lender', $lenderId))
-            ->with('perusahaan')
+            ->whereHas('perusahaan', fn ($query) => $query->where('id_lender', $lenderId))
+            ->with(['perusahaan', 'jatuh_tempo.pinjaman'])
             ->firstOrFail();
 
         abort_unless($this->isInCompanyDueWindow($invoice), 403, 'Upload bukti hanya bisa dilakukan pada periode H-jatuh tempo perusahaan.');
@@ -157,20 +163,68 @@ class RepaymentController extends Controller
             'payment_proof_file' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'],
         ]);
 
-        $repayment = Repayment::query()->where('id_invoicing', $invoice->id)->first();
         $file = $request->file('payment_proof_file');
         $fileName = Str::slug($invoice->no_invoice ?? 'invoice-'.$invoice->id).'-'.now()->format('YmdHis').'.'.$file->getClientOriginalExtension();
-        $data['amount_total'] = $repayment?->amount_total ?? 0;
-        $data['payment_proof_file'] = $file->storeAs('assets/repayments', $fileName, 'local');
-        $data['payment_proof_date'] = now()->toDateString();
-        $data['tanggal_pembayaran'] = $data['tanggal_pembayaran'] ?? now();
 
-        Repayment::query()->updateOrCreate(
-            ['id_invoicing' => $invoice->id],
-            $this->withAdmin($data)
-        );
+        DB::transaction(function () use ($invoice, $data, $file, $fileName) {
+            $totalTagihan = $this->tagihanPinjamanQuery($invoice)->sum('total_angsuran_perbulan');
 
-        return redirect()->route('lender.repayments.index')->with('success', 'Bukti pembayaran berhasil diupload.');
+            foreach ($this->validJatuhTempo($invoice) as $jatuhTempo) {
+                $loan = $jatuhTempo->pinjaman;
+
+                $jatuhTempoUpdate = jatuh_tempo::query()
+                    ->where('id_pinjaman', $loan->id)
+                    ->where('status', 'belum')
+                    ->orderBy('pembayaran')
+                    ->first();
+
+                if ($jatuhTempoUpdate) {
+                    $jatuhTempoUpdate->status = 'lunas';
+                    $jatuhTempoUpdate->save();
+                }
+
+                $notification = new notification();
+                $notification->user_id = $loan->user_id;
+                $notification->title = 'Cicilanmu Berhasil Dibayarkan';
+                $notification->description = 'Selamat! Pembayaran cicilanmu untuk periode ini sudah berhasil kami terima!';
+                $notification->type = 'pinjaman_payroll';
+                $notification->read = 'belum';
+                $notification->save();
+
+                $paidCount = jatuh_tempo::query()
+                    ->where('id_pinjaman', $loan->id)
+                    ->where('status', 'lunas')
+                    ->count();
+
+                if ((int) $loan->tenor === $paidCount) {
+                    $notification = new notification();
+                    $notification->user_id = $loan->user_id;
+                    $notification->title = 'Akhirnya Lunas!';
+                    $notification->description = 'Hebat! Pembayaran cicilan Anda telah lunas. Sekarang, Anda bebas dari kewajiban pembayaran. Kami tunggu transaksi selanjutnya!';
+                    $notification->type = 'pinjaman_payroll';
+                    $notification->read = 'belum';
+                    $notification->save();
+
+                    $loan->status = 'done';
+                    $loan->save();
+                }
+            }
+
+            $invoice->status = 'lunas';
+            $invoice->save();
+
+            Repayment::query()->updateOrCreate(
+                ['id_invoicing' => $invoice->id],
+                $this->withAdmin([
+                    'amount_total' => $totalTagihan,
+                    'tanggal_pembayaran' => $data['tanggal_pembayaran'] ?? now(),
+                    'payment_proof_file' => $file->storeAs('repayments/bukti-pembayaran', $fileName, 'public'),
+                    'payment_proof_date' => now()->toDateString(),
+                ])
+            );
+        });
+
+        return redirect()->route('lender.repayments.index')->with('success', 'Repayment berhasil diproses.');
     }
 
     public function create(): View
@@ -224,6 +278,47 @@ class RepaymentController extends Controller
         $data['ksp_admin_id'] = auth('lender')->id();
 
         return $data;
+    }
+
+    private function tagihanPinjamanQuery(invoicing_pinjaman $invoice)
+    {
+        $period = Carbon::parse($invoice->period);
+
+        return pinjaman::query()
+            ->where('id_perusahaan', $invoice->id_list_perusahaan)
+            ->where('id_lender', auth('lender')->user()?->id_lender)
+            ->where('status', 'approve')
+            ->whereHas('angsuran', function ($query) use ($period) {
+                $query->whereYear('jatuh_tempo', $period->year)
+                    ->whereMonth('jatuh_tempo', $period->month)
+                    ->where('status', '!=', 'lunas');
+            });
+    }
+
+    private function validJatuhTempo(invoicing_pinjaman $invoice): Collection
+    {
+        $period = Carbon::parse($invoice->period);
+
+        return $invoice->jatuh_tempo->filter(function ($item) use ($invoice, $period) {
+            if (! $item->pinjaman) {
+                return false;
+            }
+
+            if ((int) $item->pinjaman->id_perusahaan !== (int) $invoice->id_list_perusahaan) {
+                return false;
+            }
+
+            if ((int) $item->pinjaman->id_lender !== (int) auth('lender')->user()?->id_lender) {
+                return false;
+            }
+
+            if ($item->pinjaman->status !== 'approve') {
+                return false;
+            }
+
+            return $item->status !== 'lunas'
+                && Carbon::parse($item->jatuh_tempo)->format('Y-m') === $period->format('Y-m');
+        })->values();
     }
 
     private function isInCompanyDueWindow(invoicing_pinjaman $invoice): bool

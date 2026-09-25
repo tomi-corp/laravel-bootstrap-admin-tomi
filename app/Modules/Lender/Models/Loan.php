@@ -3,11 +3,14 @@
 namespace App\Modules\Lender\Models;
 
 use App\Models\kyc_user;
+use App\Models\jatuh_tempo;
 use App\Models\lender;
 use App\Models\list_karyawan;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Loan extends Model
@@ -87,5 +90,16 @@ class Loan extends Model
     public function kyc(): BelongsTo
     {
         return $this->belongsTo(kyc_user::class, 'id_kyc');
+    }
+
+    public function angsuran(): HasMany
+    {
+        return $this->hasMany(jatuh_tempo::class, 'id_pinjaman');
+    }
+
+    public function jatuhTempoSesuaiInvoice(): HasOne
+    {
+        return $this->hasOne(jatuh_tempo::class, 'id_pinjaman')
+            ->orderByDesc('created_at');
     }
 }

@@ -33,7 +33,6 @@
                             <tr>
                                 <td>
                                     <div class="font-medium text-slate-950">{{ $company->nama }}</div>
-                                    <div class="mt-1 text-xs text-slate-500">ID Perusahaan: {{ $company->id }}</div>
                                 </td>
                                 <td>
                                     {{ $company->loan_amount_exists ? 'Sudah diatur' : 'Belum diatur' }}

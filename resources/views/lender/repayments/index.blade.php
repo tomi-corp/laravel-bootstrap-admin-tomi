@@ -46,9 +46,11 @@
                             $downloadInvoice = $periodKey ? $invoiceDownloadIds->get($periodKey) : null;
                             $isInDueWindow = (bool) ($invoiceDownloadAvailability[$invoice->id] ?? false);
                             $loans = ($invoice->pinjaman ?? collect())->filter(function ($loan) use ($periodKey) {
-                                return ! $periodKey
-                                    || ! $loan->jatuh_tempoSesuaiInvoice
-                                    || \Carbon\Carbon::parse($loan->jatuh_tempoSesuaiInvoice->jatuh_tempo)->format('Y-m') === $periodKey;
+                                return $loan->status === 'approve'
+                                    && (! $periodKey || $loan->angsuran->contains(function ($angsuran) use ($periodKey) {
+                                        return $angsuran->status !== 'lunas'
+                                            && \Carbon\Carbon::parse($angsuran->jatuh_tempo)->format('Y-m') === $periodKey;
+                                    }));
                             })->values();
                         @endphp
                         <tr>
@@ -112,9 +114,11 @@
                 $repayment = $invoice->repayment;
                 $periodKey = $invoice->period ? \Carbon\Carbon::parse($invoice->period)->format('Y-m') : null;
                 $loans = ($invoice->pinjaman ?? collect())->filter(function ($loan) use ($periodKey) {
-                    return ! $periodKey
-                        || ! $loan->jatuh_tempoSesuaiInvoice
-                        || \Carbon\Carbon::parse($loan->jatuh_tempoSesuaiInvoice->jatuh_tempo)->format('Y-m') === $periodKey;
+                    return $loan->status === 'approve'
+                        && (! $periodKey || $loan->angsuran->contains(function ($angsuran) use ($periodKey) {
+                            return $angsuran->status !== 'lunas'
+                                && \Carbon\Carbon::parse($angsuran->jatuh_tempo)->format('Y-m') === $periodKey;
+                        }));
                 })->values();
             @endphp
             <div id="proofModal{{ $invoice->id }}" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/60 px-4 py-6">
@@ -197,13 +201,19 @@
                                     </thead>
                                     <tbody>
                                         @foreach ($loans as $loan)
+                                            @php
+                                                $periodAngsuran = $loan->angsuran->first(function ($angsuran) use ($periodKey) {
+                                                    return ! $periodKey
+                                                        || \Carbon\Carbon::parse($angsuran->jatuh_tempo)->format('Y-m') === $periodKey;
+                                                });
+                                            @endphp
                                             <tr class="border-b border-slate-200">
                                                 <td class="px-3 py-2 font-medium">{{ $loan->id_pinjaman ?? '#'.$loan->id }}</td>
                                                 <td class="px-3 py-2">{{ $loan->data_karyawan?->nama_karyawan ?? $loan->user?->name ?? '-' }}</td>
                                                 <td class="px-3 py-2">{{ $loan->perusahaan?->nama ?? '-' }}</td>
                                                 <td class="px-3 py-2">Rp {{ number_format($loan->nominal ?? 0, 0, ',', '.') }}</td>
                                                 <td class="px-3 py-2">{{ $loan->tenor ?? '-' }} bulan</td>
-                                                <td class="px-3 py-2">{{ $loan->jatuh_tempoSesuaiInvoice?->jatuh_tempo ? \Carbon\Carbon::parse($loan->jatuh_tempoSesuaiInvoice->jatuh_tempo)->format('d/m/Y') : '-' }}</td>
+                                                <td class="px-3 py-2">{{ $periodAngsuran?->jatuh_tempo ? \Carbon\Carbon::parse($periodAngsuran->jatuh_tempo)->format('d/m/Y') : '-' }}</td>
                                             </tr>
                                         @endforeach
                                     </tbody>
