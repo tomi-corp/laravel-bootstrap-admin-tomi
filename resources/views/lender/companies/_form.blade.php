@@ -27,14 +27,10 @@
 
     <div>
         <label class="mb-1 block text-sm font-medium text-slate-900">Lender</label>
-        <select name="id_lender" class="js-select2 w-full rounded-md border border-slate-200 px-3 py-2 text-slate-950">
-            <option value="">Pilih lender</option>
-            @foreach ($lenders as $lender)
-                <option value="{{ $lender->id }}" @selected((string) old('id_lender', $company->id_lender ?: auth('lender')->user()?->id_lender) === (string) $lender->id)>
-                    {{ $lender->nama }}
-                </option>
-            @endforeach
-        </select>
+        <input type="hidden" name="id_lender" value="{{ auth('lender')->user()?->id_lender }}">
+        <div class="w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-slate-700">
+            {{ $lenders->firstWhere('id', auth('lender')->user()?->id_lender)?->nama ?? '-' }}
+        </div>
         @error('id_lender') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
     </div>
 
