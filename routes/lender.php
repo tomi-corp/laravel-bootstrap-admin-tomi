@@ -42,6 +42,10 @@ Route::name('lender.')->group(function () {
             ])
             ->names('loan-amounts')
             ->except(['show']);
+        Route::get('tomi-dana/karyawan/template/import', [EmployeeController::class, 'downloadTemplate'])
+            ->name('employees.template.import');
+        Route::post('tomi-dana/karyawan/import', [EmployeeController::class, 'import'])
+            ->name('employees.import');
         Route::resource('tomi-dana/karyawan', EmployeeController::class)
             ->parameters([
                 'karyawan' => 'employee',
