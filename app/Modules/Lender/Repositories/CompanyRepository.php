@@ -17,9 +17,26 @@ class CompanyRepository
             ->get();
     }
 
+    public function allForLender(int $lenderId): Collection
+    {
+        return Company::query()
+            ->with(['lender', 'provinsi', 'kabupaten'])
+            ->where('id_lender', $lenderId)
+            ->latest()
+            ->get();
+    }
+
     public function lenders(): Collection
     {
         return lender::query()->orderBy('nama')->get(['id', 'nama']);
+    }
+
+    public function lenderOptionsFor(int $lenderId): Collection
+    {
+        return lender::query()
+            ->where('id', $lenderId)
+            ->orderBy('nama')
+            ->get(['id', 'nama']);
     }
 
     public function create(array $data): Company

@@ -30,7 +30,7 @@
         <select name="id_lender" class="js-select2 w-full rounded-md border border-slate-200 px-3 py-2 text-slate-950">
             <option value="">Pilih lender</option>
             @foreach ($lenders as $lender)
-                <option value="{{ $lender->id }}" @selected((string) old('id_lender', $company->id_lender) === (string) $lender->id)>
+                <option value="{{ $lender->id }}" @selected((string) old('id_lender', $company->id_lender ?: auth('lender')->user()?->id_lender) === (string) $lender->id)>
                     {{ $lender->nama }}
                 </option>
             @endforeach
