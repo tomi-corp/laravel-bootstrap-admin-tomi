@@ -18,7 +18,7 @@
                 <h1 class="text-2xl font-semibold tracking-normal">Karyawan TomiDana</h1>
                 <p class="mt-1 text-sm text-slate-600">Kelola data karyawan perusahaan untuk pengajuan pinjaman.</p>
             </div>
-            <a href="{{ route('lender.employees.create') }}" class="lender-btn bg-black text-white shadow-sm hover:bg-slate-800 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-slate-300 lender-btn-md shadow-sm">
+            <a href="{{ route('lender.employees.create') }}" class="lender-btn bg-indigo-600 text-white shadow-sm hover:bg-indigo-700 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-indigo-500 lender-btn-md shadow-sm">
                 <i class="fa-solid fa-plus"></i>
                 Tambah Karyawan
             </a>
@@ -60,7 +60,7 @@
                             <td>{{ ucfirst($employee->approve_satu) }} / {{ ucfirst($employee->approve_dua) }}</td>
                             <td>
                                 <div class="flex items-center gap-2">
-                                    <a href="{{ route('lender.employees.show', $employee) }}" class="lender-btn bg-black text-white shadow-sm hover:bg-slate-800 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-slate-300 lender-btn-sm">
+                                    <a href="{{ route('lender.employees.show', $employee) }}" class="lender-btn bg-indigo-600 text-white shadow-sm hover:bg-indigo-700 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-indigo-500 lender-btn-sm">
                                         Detail
                                     </a>
                                     <a href="{{ route('lender.employees.edit', $employee) }}" class="rounded-md bg-yellow-500 px-3 py-1.5 text-sm font-medium text-white hover:bg-yellow-600">

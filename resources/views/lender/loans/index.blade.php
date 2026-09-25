@@ -18,7 +18,7 @@
                 <h1 class="text-2xl font-semibold tracking-normal">Pinjaman</h1>
                 <p class="mt-1 text-sm text-slate-600">Kelola data dari tabel pinjamen.</p>
             </div>
-            <a href="{{ route('lender.loans.create') }}" class="lender-btn bg-black text-white shadow-sm hover:bg-slate-800 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-slate-300 lender-btn-md shadow-sm">
+            <a href="{{ route('lender.loans.create') }}" class="lender-btn bg-indigo-600 text-white shadow-sm hover:bg-indigo-700 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-indigo-500 lender-btn-md shadow-sm">
                 <i class="fa-solid fa-plus"></i>
                 Tambah Pinjaman
             </a>
@@ -50,7 +50,7 @@
                             <td><span class="rounded-full bg-slate-100 px-2 py-1 text-xs font-medium text-slate-700">{{ str_replace('_', ' ', $loan->status) }}</span></td>
                             <td>
                                 <div class="flex items-center gap-2">
-                                    <a href="{{ route('lender.loans.show', $loan) }}" class="lender-btn bg-black text-white shadow-sm hover:bg-slate-800 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-slate-300 lender-btn-sm">Detail</a>
+                                    <a href="{{ route('lender.loans.show', $loan) }}" class="lender-btn bg-indigo-600 text-white shadow-sm hover:bg-indigo-700 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-indigo-500 lender-btn-sm">Detail</a>
                                     <a href="{{ route('lender.loans.edit', $loan) }}" class="rounded-md bg-yellow-500 px-3 py-1.5 text-sm font-medium text-white hover:bg-yellow-600">Edit</a>
                                     <form action="{{ route('lender.loans.destroy', $loan) }}" method="POST" class="js-delete-row" data-title="Hapus pinjaman?">
                                         @csrf

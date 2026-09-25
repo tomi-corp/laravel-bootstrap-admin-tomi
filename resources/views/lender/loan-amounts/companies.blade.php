@@ -30,7 +30,7 @@
                                     {{ $company->loan_amount_exists ? 'Sudah diatur' : 'Belum diatur' }}
                                 </td>
                                 <td class="px-5 py-4 text-right">
-                                    <a href="{{ route('lender.loan-amounts.index', ['company_id' => $company->id]) }}" class="inline-flex items-center gap-2 rounded-md bg-black px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-slate-800">
+                                    <a href="{{ route('lender.loan-amounts.index', ['company_id' => $company->id]) }}" class="inline-flex items-center gap-2 rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700">
                                         <i class="fa-solid fa-money-bill-wave"></i>
                                         Konfigurasi
                                     </a>

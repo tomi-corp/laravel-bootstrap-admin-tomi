@@ -3,7 +3,7 @@
 @section('title', 'Login Lender')
 
 @section('content')
-    <section class="w-full max-w-md rounded-lg bg-white p-6 shadow-xl shadow-slate-950/20">
+    <section class="w-full max-w-md rounded-lg bg-white p-6 shadow-md">
         <div class="mb-6 text-center">
             <img src="{{ asset('assets/images/logo.jpg') }}" alt="TOMI" class="mx-auto mb-4 h-14 w-auto">
             <h1 class="text-2xl font-semibold text-slate-950">Login Lender</h1>
@@ -24,7 +24,7 @@
                     type="text"
                     name="identity"
                     value="{{ old('identity') }}"
-                    class="w-full rounded-md border border-slate-200 px-3 py-2 text-slate-950 focus:border-black focus:outline-none focus:ring-2 focus:ring-black/20"
+                    class="w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                     required
                     autofocus
                 >
@@ -36,7 +36,7 @@
                 <input
                     type="password"
                     name="password"
-                    class="w-full rounded-md border border-slate-200 px-3 py-2 text-slate-950 focus:border-black focus:outline-none focus:ring-2 focus:ring-black/20"
+                    class="w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                     required
                 >
                 @error('password') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
@@ -44,16 +44,16 @@
 
             <div class="flex items-center justify-between gap-3">
                 <label class="flex items-center gap-2 text-sm text-slate-900">
-                    <input type="checkbox" name="remember" class="rounded border-slate-200 text-black focus:ring-black">
+                    <input type="checkbox" name="remember" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
                     Ingat saya
                 </label>
 
-                <a href="{{ route('lender.forgot') }}" class="text-sm font-medium text-slate-700 hover:text-black">
+                <a href="{{ route('lender.forgot') }}" class="text-sm font-medium text-gray-600 hover:text-gray-900">
                     Lupa password?
                 </a>
             </div>
 
-            <button type="submit" class="flex bg-black text-white hover:bg-slate-800 w-full items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-semibold">
+            <button type="submit" class="flex w-full items-center justify-center gap-2 rounded-md border border-transparent bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                 <i class="fa-solid fa-right-to-bracket"></i>
                 Masuk
             </button>

@@ -29,7 +29,7 @@
                     <i class="fa-solid fa-arrow-left"></i>
                     Perusahaan
                 </a>
-                <a href="{{ route('lender.loan-amounts.create', $selectedCompany ? ['company_id' => $selectedCompany->id] : []) }}" class="lender-btn bg-black text-white shadow-sm hover:bg-slate-800 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-slate-300 lender-btn-md shadow-sm">
+                <a href="{{ route('lender.loan-amounts.create', $selectedCompany ? ['company_id' => $selectedCompany->id] : []) }}" class="lender-btn bg-indigo-600 text-white shadow-sm hover:bg-indigo-700 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-indigo-500 lender-btn-md shadow-sm">
                     <i class="fa-solid fa-plus"></i>
                     Tambah Nominal
                 </a>
