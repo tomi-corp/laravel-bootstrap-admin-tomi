@@ -44,15 +44,15 @@
                     <tbody>
                         @foreach ($companies as $company)
                             <tr>
-                                <td>{{ $company->id_code_perusahaan ?? '-' }}</td>
-                                <td>{{ $company->unique_code ?? '-' }}</td>
-                                <td>{{ $company->nama }}</td>
-                                <td>{{ $company->pic_perusahaan }}</td>
+                                <td>{{ \Illuminate\Support\Str::upper($company->id_code_perusahaan ?? '-') }}</td>
+                                <td>{{ \Illuminate\Support\Str::upper($company->unique_code ?? '-') }}</td>
+                                <td>{{ \Illuminate\Support\Str::upper($company->nama) }}</td>
+                                <td>{{ \Illuminate\Support\Str::upper($company->pic_perusahaan) }}</td>
                                 <td>{{ $company->email_perusahaan ?? '-' }}</td>
-                                <td>{{ optional($company->lender)->nama ?? '-' }}</td>
+                                <td>{{ \Illuminate\Support\Str::upper(optional($company->lender)->nama ?? '-') }}</td>
                                 <td>
                                     <span class="rounded-full px-2 py-1 text-xs font-medium {{ $company->status === 'active' ? 'bg-slate-100 text-slate-700' : 'bg-gray-100 text-gray-700' }}">
-                                        {{ $company->status === 'active' ? 'Aktif' : 'Nonaktif' }}
+                                        {{ $company->status === 'active' ? 'AKTIF' : 'NONAKTIF' }}
                                     </span>
                                 </td>
                                 <td>

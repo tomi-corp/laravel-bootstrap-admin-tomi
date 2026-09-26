@@ -12,6 +12,34 @@ class CompanyRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        $uppercaseFields = [
+            'pic_perusahaan',
+            'pic_internal',
+            'nama',
+            'alamat_lengkap',
+            'bank',
+            'no_rekening',
+            'atas_nama_rekening',
+            'nama_direktur_utama',
+            'telp',
+            'nomor_pks',
+        ];
+
+        $data = [];
+
+        foreach ($uppercaseFields as $field) {
+            if ($this->filled($field)) {
+                $data[$field] = mb_strtoupper((string) $this->input($field), 'UTF-8');
+            }
+        }
+
+        if ($data !== []) {
+            $this->merge($data);
+        }
+    }
+
     public function rules(): array
     {
         $companyId = $this->route('company')?->id;

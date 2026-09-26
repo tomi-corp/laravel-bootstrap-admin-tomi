@@ -9,7 +9,7 @@
         <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
                 <h1 class="text-2xl font-semibold tracking-normal">Detail Perusahaan</h1>
-                <p class="mt-1 text-sm text-slate-600">{{ $company->nama }}</p>
+                <p class="mt-1 text-sm text-slate-600">{{ \Illuminate\Support\Str::upper($company->nama) }}</p>
             </div>
             <div class="flex items-center gap-2">
                 <a href="{{ route('lender.companies.index') }}" class="rounded-md bg-slate-100 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-200">
@@ -25,27 +25,27 @@
             <div class="grid gap-4 md:grid-cols-2">
                 <div>
                     <p class="text-sm text-slate-700">Kode Perusahaan</p>
-                    <p class="mt-1 font-semibold">{{ $company->id_code_perusahaan }}</p>
+                    <p class="mt-1 font-semibold">{{ \Illuminate\Support\Str::upper($company->id_code_perusahaan ?? '-') }}</p>
                 </div>
                 <div>
                     <p class="text-sm text-slate-700">Unique Code</p>
-                    <p class="mt-1 font-semibold">{{ $company->unique_code }}</p>
+                    <p class="mt-1 font-semibold">{{ \Illuminate\Support\Str::upper($company->unique_code ?? '-') }}</p>
                 </div>
                 <div>
                     <p class="text-sm text-slate-700">Nama Perusahaan</p>
-                    <p class="mt-1 font-semibold">{{ $company->nama }}</p>
+                    <p class="mt-1 font-semibold">{{ \Illuminate\Support\Str::upper($company->nama) }}</p>
                 </div>
                 <div>
                     <p class="text-sm text-slate-700">Lender</p>
-                    <p class="mt-1 font-semibold">{{ optional($company->lender)->nama ?? '-' }}</p>
+                    <p class="mt-1 font-semibold">{{ \Illuminate\Support\Str::upper(optional($company->lender)->nama ?? '-') }}</p>
                 </div>
                 <div>
                     <p class="text-sm text-slate-700">PIC Perusahaan</p>
-                    <p class="mt-1 font-semibold">{{ $company->pic_perusahaan }}</p>
+                    <p class="mt-1 font-semibold">{{ \Illuminate\Support\Str::upper($company->pic_perusahaan) }}</p>
                 </div>
                 <div>
                     <p class="text-sm text-slate-700">PIC Internal</p>
-                    <p class="mt-1 font-semibold">{{ $company->pic_internal }}</p>
+                    <p class="mt-1 font-semibold">{{ \Illuminate\Support\Str::upper($company->pic_internal ?? '-') }}</p>
                 </div>
                 <div>
                     <p class="text-sm text-slate-700">Email</p>
@@ -53,35 +53,35 @@
                 </div>
                 <div>
                     <p class="text-sm text-slate-700">Telepon</p>
-                    <p class="mt-1 font-semibold">{{ $company->telp }}</p>
+                    <p class="mt-1 font-semibold">{{ \Illuminate\Support\Str::upper($company->telp) }}</p>
                 </div>
                 <div>
                     <p class="text-sm text-slate-700">Nomor PKS</p>
-                    <p class="mt-1 font-semibold">{{ $company->nomor_pks }}</p>
+                    <p class="mt-1 font-semibold">{{ \Illuminate\Support\Str::upper($company->nomor_pks) }}</p>
                 </div>
                 <div>
                     <p class="text-sm text-slate-700">Status</p>
-                    <p class="mt-1 font-semibold">{{ $company->status === 'active' ? 'Aktif' : 'Nonaktif' }}</p>
+                    <p class="mt-1 font-semibold">{{ $company->status === 'active' ? 'AKTIF' : 'NONAKTIF' }}</p>
                 </div>
                 <div>
                     <p class="text-sm text-slate-700">Provinsi</p>
-                    <p class="mt-1 font-semibold">{{ optional($company->provinsi)->provinsi ?? '-' }}</p>
+                    <p class="mt-1 font-semibold">{{ \Illuminate\Support\Str::upper(optional($company->provinsi)->provinsi ?? '-') }}</p>
                 </div>
                 <div>
                     <p class="text-sm text-slate-700">Kabupaten/Kota</p>
-                    <p class="mt-1 font-semibold">{{ optional($company->kabupaten)->kabupaten ?? '-' }}</p>
+                    <p class="mt-1 font-semibold">{{ \Illuminate\Support\Str::upper(optional($company->kabupaten)->kabupaten ?? '-') }}</p>
                 </div>
                 <div>
                     <p class="text-sm text-slate-700">Kecamatan</p>
-                    <p class="mt-1 font-semibold">{{ optional($company->kecamatan)->kecamatan ?? '-' }}</p>
+                    <p class="mt-1 font-semibold">{{ \Illuminate\Support\Str::upper(optional($company->kecamatan)->kecamatan ?? '-') }}</p>
                 </div>
                 <div>
                     <p class="text-sm text-slate-700">Desa/Kelurahan</p>
-                    <p class="mt-1 font-semibold">{{ optional($company->desa)->desa ?? '-' }}</p>
+                    <p class="mt-1 font-semibold">{{ \Illuminate\Support\Str::upper(optional($company->desa)->desa ?? '-') }}</p>
                 </div>
                 <div class="md:col-span-2">
                     <p class="text-sm text-slate-700">Alamat Lengkap</p>
-                    <p class="mt-1 font-semibold">{{ $company->alamat_lengkap }}</p>
+                    <p class="mt-1 font-semibold">{{ \Illuminate\Support\Str::upper($company->alamat_lengkap) }}</p>
                 </div>
             </div>
         </section>

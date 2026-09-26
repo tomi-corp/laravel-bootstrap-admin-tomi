@@ -1,15 +1,16 @@
 @csrf
+<input type="hidden" name="id_lender" value="{{ auth('lender')->user()?->id_lender }}">
 
 <div class="grid gap-4 md:grid-cols-2">
     <div>
         <label class="mb-1 block text-sm font-medium text-slate-900">Nama Perusahaan</label>
-        <input type="text" name="nama" value="{{ old('nama', $company->nama) }}" class="w-full rounded-md border border-slate-200 px-3 py-2 text-slate-950" required>
+        <input type="text" name="nama" value="{{ old('nama', $company->nama) }}" class="js-uppercase-field w-full rounded-md border border-slate-200 px-3 py-2 text-slate-950 uppercase" required>
         @error('nama') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
     </div>
 
     <div>
         <label class="mb-1 block text-sm font-medium text-slate-900">PIC Perusahaan</label>
-        <input type="text" name="pic_perusahaan" value="{{ old('pic_perusahaan', $company->pic_perusahaan) }}" class="w-full rounded-md border border-slate-200 px-3 py-2 text-slate-950" required>
+        <input type="text" name="pic_perusahaan" value="{{ old('pic_perusahaan', $company->pic_perusahaan) }}" class="js-uppercase-field w-full rounded-md border border-slate-200 px-3 py-2 text-slate-950 uppercase" required>
         @error('pic_perusahaan') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
     </div>
 
@@ -21,17 +22,8 @@
 
     <div>
         <label class="mb-1 block text-sm font-medium text-slate-900">Telepon</label>
-        <input type="text" name="telp" value="{{ old('telp', $company->telp) }}" class="w-full rounded-md border border-slate-200 px-3 py-2 text-slate-950" required>
+        <input type="text" name="telp" value="{{ old('telp', $company->telp) }}" class="js-uppercase-field w-full rounded-md border border-slate-200 px-3 py-2 text-slate-950 uppercase" required>
         @error('telp') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
-    </div>
-
-    <div>
-        <label class="mb-1 block text-sm font-medium text-slate-900">Lender</label>
-        <input type="hidden" name="id_lender" value="{{ auth('lender')->user()?->id_lender }}">
-        <div class="w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-slate-700">
-            {{ $lenders->firstWhere('id', auth('lender')->user()?->id_lender)?->nama ?? '-' }}
-        </div>
-        @error('id_lender') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
     </div>
 
     <div>
@@ -40,7 +32,7 @@
             <option value="">Pilih provinsi</option>
             @foreach ($provinces as $province)
                 <option value="{{ $province->id }}" @selected((string) old('id_provinsi', $company->id_provinsi) === (string) $province->id)>
-                    {{ $province->provinsi }}
+                    {{ \Illuminate\Support\Str::upper($province->provinsi) }}
                 </option>
             @endforeach
         </select>
@@ -53,7 +45,7 @@
             <option value="">Pilih kabupaten/kota</option>
             @foreach ($cities as $city)
                 <option value="{{ $city->id }}" @selected((string) old('id_kabupaten', $company->id_kabupaten) === (string) $city->id)>
-                    {{ $city->kabupaten }}
+                    {{ \Illuminate\Support\Str::upper($city->kabupaten) }}
                 </option>
             @endforeach
         </select>
@@ -66,7 +58,7 @@
             <option value="">Pilih kecamatan</option>
             @foreach ($districts as $district)
                 <option value="{{ $district->id }}" @selected((string) old('id_kecamatan', $company->id_kecamatan) === (string) $district->id)>
-                    {{ $district->kecamatan }}
+                    {{ \Illuminate\Support\Str::upper($district->kecamatan) }}
                 </option>
             @endforeach
         </select>
@@ -79,16 +71,23 @@
             <option value="">Pilih desa/kelurahan</option>
             @foreach ($villages as $village)
                 <option value="{{ $village->id }}" @selected((string) old('id_desa', $company->id_desa) === (string) $village->id)>
-                    {{ $village->desa }}
+                    {{ \Illuminate\Support\Str::upper($village->desa) }}
                 </option>
             @endforeach
         </select>
         @error('id_desa') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
     </div>
 
+    <div class="md:col-span-2">
+        <label class="mb-1 block text-sm font-medium text-slate-900">Alamat Lengkap</label>
+        <textarea name="alamat_lengkap" rows="3" class="js-uppercase-field w-full rounded-md border border-slate-200 px-3 py-2 text-slate-950 uppercase" required>{{ old('alamat_lengkap', $company->alamat_lengkap) }}</textarea>
+        @error('alamat_lengkap') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+        @error('id_lender') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+    </div>
+
     <div>
         <label class="mb-1 block text-sm font-medium text-slate-900">Nomor PKS</label>
-        <input type="text" name="nomor_pks" value="{{ old('nomor_pks', $company->nomor_pks) }}" class="w-full rounded-md border border-slate-200 px-3 py-2 text-slate-950" required>
+        <input type="text" name="nomor_pks" value="{{ old('nomor_pks', $company->nomor_pks) }}" class="js-uppercase-field w-full rounded-md border border-slate-200 px-3 py-2 text-slate-950 uppercase" required>
         @error('nomor_pks') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
     </div>
 
@@ -118,12 +117,6 @@
         <input type="number" name="max_plafon" min="0" value="{{ old('max_plafon', $company->max_plafon) }}" class="w-full rounded-md border border-slate-200 px-3 py-2 text-slate-950">
         @error('max_plafon') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
     </div>
-
-    <div class="md:col-span-2">
-        <label class="mb-1 block text-sm font-medium text-slate-900">Alamat Lengkap</label>
-        <textarea name="alamat_lengkap" rows="3" class="w-full rounded-md border border-slate-200 px-3 py-2 text-slate-950" required>{{ old('alamat_lengkap', $company->alamat_lengkap) }}</textarea>
-        @error('alamat_lengkap') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
-    </div>
 </div>
 
 <div class="mt-6 flex items-center justify-end gap-2">
@@ -148,6 +141,17 @@
             });
         });
 
+        $('.js-uppercase-field').on('input', function () {
+            const cursorStart = this.selectionStart;
+            const cursorEnd = this.selectionEnd;
+
+            this.value = this.value.toLocaleUpperCase('id-ID');
+
+            if (cursorStart !== null && cursorEnd !== null) {
+                this.setSelectionRange(cursorStart, cursorEnd);
+            }
+        });
+
         function resetSelect(selector, placeholder) {
             $(selector).empty().append(new Option(placeholder, '')).trigger('change');
         }
@@ -156,7 +160,7 @@
             resetSelect(selector, placeholder);
 
             rows.forEach((row) => {
-                $(selector).append(new Option(row[textKey], row[valueKey]));
+                $(selector).append(new Option(String(row[textKey]).toLocaleUpperCase('id-ID'), row[valueKey]));
             });
 
             $(selector).trigger('change');
