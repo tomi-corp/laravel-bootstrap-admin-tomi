@@ -86,27 +86,34 @@
             </div>
         </section>
 
-        <section class="grid gap-4 md:grid-cols-3">
+        <section class="grid gap-4 md:grid-cols-4">
             <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm shadow-slate-950/10">
                 <div class="flex items-center justify-between">
-                    <p class="text-sm font-medium text-slate-700">Total Lender</p>
-                    <i class="fa-solid fa-building-columns text-black"></i>
+                    <p class="text-sm font-medium text-slate-700">Perusahaan</p>
+                    <i class="fa-solid fa-building text-black"></i>
                 </div>
-                <p class="mt-4 text-3xl font-semibold text-slate-950">{{ number_format($summary['total_lenders']) }}</p>
+                <p class="mt-4 text-3xl font-semibold text-slate-950">{{ number_format($summary['total_companies']) }}</p>
             </div>
             <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm shadow-slate-950/10">
                 <div class="flex items-center justify-between">
-                    <p class="text-sm font-medium text-slate-700">Lender Aktif</p>
-                    <i class="fa-solid fa-circle-check text-black"></i>
+                    <p class="text-sm font-medium text-slate-700">Karyawan Terdaftar</p>
+                    <i class="fa-solid fa-users text-black"></i>
                 </div>
-                <p class="mt-4 text-3xl font-semibold text-slate-950">{{ number_format($summary['active_lenders']) }}</p>
+                <p class="mt-4 text-3xl font-semibold text-slate-950">{{ number_format($summary['total_employees']) }}</p>
             </div>
             <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm shadow-slate-950/10">
                 <div class="flex items-center justify-between">
-                    <p class="text-sm font-medium text-slate-700">Lender Nonaktif</p>
-                    <i class="fa-solid fa-circle-pause text-slate-400"></i>
+                    <p class="text-sm font-medium text-slate-700">Total Pengajuan</p>
+                    <i class="fa-solid fa-file-signature text-black"></i>
                 </div>
-                <p class="mt-4 text-3xl font-semibold text-slate-950">{{ number_format($summary['inactive_lenders']) }}</p>
+                <p class="mt-4 text-3xl font-semibold text-slate-950">{{ number_format($summary['total_loans']) }}</p>
+            </div>
+            <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm shadow-slate-950/10">
+                <div class="flex items-center justify-between">
+                    <p class="text-sm font-medium text-slate-700">Pengajuan Pending</p>
+                    <i class="fa-solid fa-clock text-slate-400"></i>
+                </div>
+                <p class="mt-4 text-3xl font-semibold text-slate-950">{{ number_format($summary['pending_loans']) }}</p>
             </div>
         </section>
 
@@ -114,36 +121,26 @@
             <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm shadow-slate-950/10 lg:col-span-2">
                 <div class="mb-4 flex items-center justify-between">
                     <div>
-                        <h2 class="text-base font-semibold text-slate-950">Komposisi Status Lender</h2>
-                        <p class="mt-1 text-sm text-slate-700">Perbandingan lender aktif dan nonaktif.</p>
+                        <h2 class="text-base font-semibold text-slate-950">Chart Perusahaan</h2>
+                        <p class="mt-1 text-sm text-slate-700">Perbandingan karyawan terdaftar dan pengajuan per perusahaan.</p>
                     </div>
-                    <i class="fa-solid fa-chart-pie text-black"></i>
+                    <i class="fa-solid fa-chart-column text-black"></i>
                 </div>
                 <div class="h-80">
-                    <canvas id="lenderStatusChart"></canvas>
+                    <canvas id="companyChart"></canvas>
                 </div>
             </div>
 
             <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm shadow-slate-950/10">
                 <div class="mb-4 flex items-center justify-between">
-                    <h2 class="text-base font-semibold text-slate-950">Aksi Cepat</h2>
-                    <i class="fa-solid fa-bolt text-black"></i>
+                    <div>
+                        <h2 class="text-base font-semibold text-slate-950">Status Pengajuan</h2>
+                        <p class="mt-1 text-sm text-slate-700">Diagram donat status pinjaman.</p>
+                    </div>
+                    <i class="fa-solid fa-chart-pie text-black"></i>
                 </div>
-                <div class="space-y-3">
-                    <a href="{{ route('lender.dashboard.summary') }}" class="flex items-center justify-between rounded-md bg-primary px-4 py-3 text-sm font-medium text-white transition hover:bg-primary-dark">
-                        <span class="flex items-center gap-3">
-                            <i class="fa-solid fa-code text-white"></i>
-                            API Summary
-                        </span>
-                        <i class="fa-solid fa-chevron-right text-xs text-white/80"></i>
-                    </a>
-                    <button type="button" id="refreshDashboard" class="flex w-full items-center justify-between rounded-md bg-primary px-4 py-3 text-sm font-medium text-white transition hover:bg-primary-dark">
-                        <span class="flex items-center gap-3">
-                            <i class="fa-solid fa-rotate text-white"></i>
-                            Refresh Data
-                        </span>
-                        <i class="fa-solid fa-chevron-right text-xs text-white/80"></i>
-                    </button>
+                <div class="h-80">
+                    <canvas id="loanStatusChart"></canvas>
                 </div>
             </div>
         </section>
@@ -151,31 +148,35 @@
         <section class="mt-6 rounded-lg border border-slate-200 bg-white p-5 text-slate-950 shadow-sm shadow-slate-950/10">
             <div class="mb-4 flex items-center justify-between">
                 <div>
-                    <h2 class="text-base font-semibold text-slate-950">Ringkasan Data</h2>
-                    <p class="mt-1 text-sm text-slate-700">Data agregat modul lender saat ini.</p>
+                    <h2 class="text-base font-semibold text-slate-950">History Aktivitas</h2>
+                    <p class="mt-1 text-sm text-slate-700">Karyawan yang mendaftar dan pinjaman yang diajukan terbaru.</p>
                 </div>
                 <i class="fa-solid fa-table text-black"></i>
             </div>
-            <table id="lenderSummaryTable" class="display nowrap w-full">
+            <table id="lenderHistoryTable" class="display nowrap w-full">
                 <thead>
                     <tr>
-                        <th>Indikator</th>
-                        <th>Total</th>
+                        <th>Waktu</th>
+                        <th>Aktivitas</th>
+                        <th>Nama</th>
+                        <th>Perusahaan</th>
+                        <th>Status</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>Total Lender</td>
-                        <td>{{ number_format($summary['total_lenders']) }}</td>
-                    </tr>
-                    <tr>
-                        <td>Lender Aktif</td>
-                        <td>{{ number_format($summary['active_lenders']) }}</td>
-                    </tr>
-                    <tr>
-                        <td>Lender Nonaktif</td>
-                        <td>{{ number_format($summary['inactive_lenders']) }}</td>
-                    </tr>
+                    @foreach ($summary['histories'] as $history)
+                        <tr>
+                            <td>{{ $history['date']?->translatedFormat('d M Y H:i') ?? '-' }}</td>
+                            <td>
+                                <span class="rounded-full {{ $history['type'] === 'Pengajuan' ? 'bg-blue-50 text-blue-700' : 'bg-emerald-50 text-emerald-700' }} px-2 py-1 text-xs font-medium">
+                                    {{ $history['type'] }}
+                                </span>
+                            </td>
+                            <td>{{ $history['name'] }}</td>
+                            <td>{{ $history['company'] }}</td>
+                            <td>{{ str_replace('_', ' ', ucfirst($history['status'])) }}</td>
+                        </tr>
+                    @endforeach
                 </tbody>
             </table>
         </section>
@@ -184,16 +185,56 @@
 
 @push('scripts')
     <script>
-        const lenderStatusChart = document.getElementById('lenderStatusChart');
-        const activeLenders = {{ (int) $summary['active_lenders'] }};
-        const inactiveLenders = {{ (int) $summary['inactive_lenders'] }};
+        const companyChart = document.getElementById('companyChart');
+        const companyChartData = @json($summary['company_chart']);
+        const loanStatusChart = document.getElementById('loanStatusChart');
+        const loanStatusData = @json($summary['loan_status_chart']);
 
-        new Chart(lenderStatusChart, {
+        new Chart(companyChart, {
+            type: 'bar',
+            data: {
+                labels: companyChartData.labels,
+                datasets: [
+                    {
+                        label: 'Karyawan Terdaftar',
+                        data: companyChartData.employees,
+                        backgroundColor: '#188ae2',
+                        borderRadius: 6,
+                    },
+                    {
+                        label: 'Pengajuan',
+                        data: companyChartData.loans,
+                        backgroundColor: '#31ce77',
+                        borderRadius: 6,
+                    },
+                ],
+            },
+            options: {
+                maintainAspectRatio: false,
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0,
+                        },
+                    },
+                },
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                    },
+                },
+            },
+        });
+
+        new Chart(loanStatusChart, {
             type: 'doughnut',
             data: {
-                labels: ['Aktif', 'Nonaktif'],
+                labels: loanStatusData.map((item) => item.label),
                 datasets: [{
-                    data: [activeLenders, inactiveLenders],
+                    data: loanStatusData.map((item) => item.total),
+                    backgroundColor: ['#fbcc5c', '#188ae2', '#31ce77'],
                     borderWidth: 4,
                 }],
             },
@@ -207,17 +248,15 @@
             },
         });
 
-        $('#lenderSummaryTable').DataTable({
+        $('#lenderHistoryTable').DataTable({
             responsive: true,
-            pageLength: 5,
+            pageLength: 10,
             lengthChange: false,
             searching: false,
-            info: false,
-            paging: false,
-        });
-
-        $('#refreshDashboard').on('click', function () {
-            AppToast.info('Data dashboard sudah diperbarui.');
+            order: [],
+            language: {
+                emptyTable: 'Belum ada aktivitas.',
+            },
         });
 
         const bannerCarousel = $('#dashboardBannerCarousel');

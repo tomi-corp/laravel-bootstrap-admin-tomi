@@ -13,16 +13,16 @@
 
         <section class="grid gap-4 md:grid-cols-3">
             <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-                <p class="text-sm font-medium text-slate-700">Total Lender</p>
-                <p class="mt-4 text-3xl font-semibold text-slate-950">{{ number_format($summary['total_lenders']) }}</p>
+                <p class="text-sm font-medium text-slate-700">Total Pengajuan</p>
+                <p class="mt-4 text-3xl font-semibold text-slate-950">{{ number_format($summary['total_loans']) }}</p>
             </div>
             <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
                 <p class="text-sm font-medium text-slate-700">Dalam Proses</p>
-                <p class="mt-4 text-3xl font-semibold text-slate-950">0</p>
+                <p class="mt-4 text-3xl font-semibold text-slate-950">{{ number_format($summary['pending_loans']) }}</p>
             </div>
             <div class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
                 <p class="text-sm font-medium text-slate-700">Selesai</p>
-                <p class="mt-4 text-3xl font-semibold text-slate-950">0</p>
+                <p class="mt-4 text-3xl font-semibold text-slate-950">{{ number_format($summary['approved_loans'] + $summary['done_loans']) }}</p>
             </div>
         </section>
     </div>

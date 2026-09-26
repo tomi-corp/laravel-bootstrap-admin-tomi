@@ -24,4 +24,9 @@ class Company extends ListPerusahaan
     {
         return $this->hasMany(Employee::class, 'id_list_perusahaan');
     }
+
+    public function loans(): HasMany
+    {
+        return $this->hasMany(Loan::class, 'id_perusahaan');
+    }
 }

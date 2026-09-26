@@ -5,9 +5,7 @@
 @section('content')
     <section class="w-full max-w-md rounded-lg bg-white p-6 shadow-md">
         <div class="mb-6 text-center">
-            <img src="{{ asset('assets/images/logo.jpg') }}" alt="TOMI" class="mx-auto mb-4 h-14 w-auto">
-            <h1 class="text-2xl font-semibold text-slate-950">Login Lender</h1>
-            <p class="mt-1 text-sm text-slate-700">Masuk ke portal lender TOMI.</p>
+            <img src="{{ asset('assets/images/logo.jpg') }}" alt="TOMI" class="mx-auto mb-4 h-24 w-auto">
         </div>
 
         @if (session('error'))
