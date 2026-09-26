@@ -1,6 +1,6 @@
 @extends('lender.layouts.app')
 
-@section('title', 'Konfigurasi TomiDana')
+@section('title', 'Konfigurasi Tenor')
 
 @push('styles')
     <style>
@@ -14,7 +14,7 @@
 @section('content')
     <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <div class="mb-6">
-            <h1 class="text-2xl font-semibold tracking-normal text-slate-950">Konfigurasi TomiDana</h1>
+            <h1 class="text-2xl font-semibold tracking-normal text-slate-950">Konfigurasi Tenor</h1>
             <p class="mt-1 text-sm text-slate-600">Pilih perusahaan untuk mengatur konfigurasi tenor pinjaman.</p>
         </div>
 

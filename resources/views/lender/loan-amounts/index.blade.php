@@ -1,6 +1,6 @@
 @extends('lender.layouts.app')
 
-@section('title', 'Nominal Pinjaman')
+@section('title', 'Konfigurasi DSR')
 
 @push('styles')
     <style>
@@ -15,7 +15,7 @@
     <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <h1 class="text-2xl font-semibold tracking-normal">Nominal Pinjaman</h1>
+                <h1 class="text-2xl font-semibold tracking-normal">Konfigurasi DSR</h1>
                 <p class="mt-1 text-sm text-slate-600">
                     @if ($selectedCompany)
                         {{ $selectedCompany->nama }} - kelola minimal, maksimal, iuran, dan persentase pinjaman.
@@ -31,7 +31,7 @@
                 </a>
                 <a href="{{ route('lender.loan-amounts.create', $selectedCompany ? ['company_id' => $selectedCompany->id] : []) }}" class="lender-btn lender-btn-primary shadow-sm lender-btn-md">
                     <i class="fa-solid fa-plus"></i>
-                    Tambah Nominal
+                    Tambah DSR
                 </a>
             </div>
         </div>
@@ -94,7 +94,7 @@
                 info: 'Menampilkan _START_ sampai _END_ dari _TOTAL_ data',
                 infoEmpty: 'Tidak ada data',
                 zeroRecords: 'Data tidak ditemukan',
-                emptyTable: 'Belum ada nominal pinjaman',
+                emptyTable: 'Belum ada Konfigurasi DSR',
                 paginate: { next: 'Berikutnya', previous: 'Sebelumnya' },
             },
         });
@@ -105,8 +105,8 @@
 
             AppAlert.fire({
                 icon: 'warning',
-                title: 'Hapus nominal pinjaman?',
-                text: 'Data nominal pinjaman akan dihapus.',
+                title: 'Hapus Konfigurasi DSR?',
+                text: 'Data Konfigurasi DSR akan dihapus.',
                 showCancelButton: true,
                 confirmButtonText: 'Ya, hapus',
                 cancelButtonText: 'Batal',

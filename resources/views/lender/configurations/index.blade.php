@@ -1,6 +1,6 @@
 @extends('lender.layouts.app')
 
-@section('title', 'Konfigurasi TomiDana')
+@section('title', 'Konfigurasi Tenor')
 
 @push('styles')
     <style>
@@ -15,7 +15,7 @@
     <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <h1 class="text-2xl font-semibold tracking-normal">Konfigurasi TomiDana</h1>
+                <h1 class="text-2xl font-semibold tracking-normal">Konfigurasi Tenor</h1>
                 <p class="mt-1 text-sm text-slate-600">
                     @if ($selectedCompany)
                         {{ $selectedCompany->nama }} - kelola tenor, rate, biaya, dan nominal pinjaman.
@@ -31,7 +31,7 @@
                 </a>
                 <a href="{{ route('lender.configurations.create', $selectedCompany ? ['company_id' => $selectedCompany->id] : []) }}" class="lender-btn lender-btn-primary shadow-sm lender-btn-md">
                     <i class="fa-solid fa-plus"></i>
-                    Tambah Konfigurasi
+                    Tambah Konfigurasi Tenor
                 </a>
             </div>
         </div>

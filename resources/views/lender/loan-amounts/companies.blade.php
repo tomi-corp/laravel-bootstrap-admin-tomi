@@ -1,6 +1,6 @@
 @extends('lender.layouts.app')
 
-@section('title', 'Nominal Pinjaman')
+@section('title', 'Konfigurasi DSR')
 
 @push('styles')
     <style>
@@ -14,8 +14,8 @@
 @section('content')
     <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <div class="mb-6">
-            <h1 class="text-2xl font-semibold tracking-normal text-slate-950">Nominal Pinjaman</h1>
-            <p class="mt-1 text-sm text-slate-600">Pilih perusahaan untuk mengatur nominal pinjaman.</p>
+            <h1 class="text-2xl font-semibold tracking-normal text-slate-950">Konfigurasi DSR</h1>
+            <p class="mt-1 text-sm text-slate-600">Pilih perusahaan untuk mengatur Konfigurasi DSR.</p>
         </div>
 
         <section class="rounded-lg border border-slate-200 bg-white p-5 text-slate-950 shadow-sm shadow-slate-950/10">
@@ -24,7 +24,7 @@
                     <thead>
                         <tr>
                             <th>Perusahaan</th>
-                            <th>Status Nominal</th>
+                            <th>Status DSR</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>

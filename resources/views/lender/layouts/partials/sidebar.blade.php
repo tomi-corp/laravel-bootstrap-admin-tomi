@@ -8,7 +8,7 @@
             'development' => false,
         ],
         [
-            'label' => 'List Perusahaan',
+            'label' => 'Perusahaan',
             'icon' => 'fa-solid fa-building',
             'route' => 'lender.companies.index',
             'active' => request()->routeIs('lender.companies.*'),
@@ -20,13 +20,13 @@
             'active' => request()->routeIs('lender.tomi-dana.*') || request()->routeIs('lender.loans.*') || request()->routeIs('lender.disbursements.*') || request()->routeIs('lender.repayments.*') || request()->routeIs('lender.configurations.*') || request()->routeIs('lender.loan-amounts.*') || request()->routeIs('lender.employees.*'),
             'children' => [
                 [
-                    'label' => 'Konfigurasi',
+                    'label' => 'Konfigurasi Tenor',
                     'icon' => 'fa-solid fa-sliders',
                     'route' => 'lender.configurations.index',
                     'active' => request()->routeIs('lender.configurations.*'),
                 ],
                 [
-                    'label' => 'Nominal Pinjaman',
+                    'label' => 'Konfigurasi DSR',
                     'icon' => 'fa-solid fa-money-bill-wave',
                     'route' => 'lender.loan-amounts.index',
                     'active' => request()->routeIs('lender.loan-amounts.*'),

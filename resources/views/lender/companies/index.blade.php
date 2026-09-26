@@ -1,7 +1,7 @@
 @extends('lender.layouts.app')
 
-@section('title', 'List Perusahaan')
-@section('page-title', 'List Perusahaan')
+@section('title', 'Perusahaan')
+@section('page-title', 'Perusahaan')
 @section('page-subtitle', 'Kelola data perusahaan lender')
 
 @push('styles')
@@ -17,7 +17,7 @@
     <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <h1 class="text-2xl font-semibold tracking-normal">List Perusahaan</h1>
+                <h1 class="text-2xl font-semibold tracking-normal">Perusahaan</h1>
                 <p class="mt-1 text-sm text-slate-600">Kelola perusahaan yang terhubung dengan lender.</p>
             </div>
             <a href="{{ route('lender.companies.create') }}" class="lender-btn lender-btn-primary shadow-sm lender-btn-md">

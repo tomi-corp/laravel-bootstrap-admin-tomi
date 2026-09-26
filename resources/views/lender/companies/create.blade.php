@@ -1,7 +1,7 @@
 @extends('lender.layouts.app')
 
 @section('title', 'Tambah Perusahaan')
-@section('page-title', 'List Perusahaan')
+@section('page-title', 'Perusahaan')
 @section('page-subtitle', 'Tambah data perusahaan')
 
 @section('content')
