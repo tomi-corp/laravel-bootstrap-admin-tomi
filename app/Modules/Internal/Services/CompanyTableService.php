@@ -29,13 +29,17 @@ class CompanyTableService
                 return trim(($company->desa->desa ?? '-').' '.($company->desa->kodepos ?? ''));
             })
             ->addColumn('status_badge', function (ListPerusahaan $company) {
-                $class = $company->status === 'active' ? 'badge-success' : 'badge-warning';
+                $class = $company->status === 'active'
+                    ? 'bg-emerald-100 text-emerald-700 ring-emerald-600/20'
+                    : 'bg-amber-100 text-amber-700 ring-amber-600/20';
 
-                return '<span class="badge '.$class.'">'.strtoupper($company->status).'</span>';
+                return '<span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold uppercase ring-1 ring-inset '.$class.'">'.strtoupper($company->status).'</span>';
             })
             ->addColumn('action', function (ListPerusahaan $company) {
-                return '<button type="button" class="btn btn-sm btn-primary mr-1" onclick="editCompany('.$company->id.')"><i class="fa-solid fa-pen"></i></button>'
-                    .'<button type="button" class="btn btn-sm btn-danger" onclick="deleteCompany('.$company->id.')"><i class="fa-solid fa-trash-can"></i></button>';
+                return '<div class="inline-flex items-center gap-2">'
+                    .'<button type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-md bg-blue-600 text-white transition hover:bg-blue-700" onclick="editCompany('.$company->id.')"><i class="fa-solid fa-pen"></i></button>'
+                    .'<button type="button" class="inline-flex h-8 w-8 items-center justify-center rounded-md bg-red-600 text-white transition hover:bg-red-700" onclick="deleteCompany('.$company->id.')"><i class="fa-solid fa-trash-can"></i></button>'
+                    .'</div>';
             })
             ->filterColumn('lender_name', fn ($query, $keyword) => $query->whereHas('lender', fn ($q) => $q->where('nama', 'like', "%{$keyword}%")))
             ->filterColumn('province_name', fn ($query, $keyword) => $query->whereHas('provinsi', fn ($q) => $q->where('provinsi', 'like', "%{$keyword}%")))

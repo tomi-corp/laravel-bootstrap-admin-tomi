@@ -8,565 +8,101 @@
     <meta content="Superapp All-in-One Backend Aplikasi Cepat" name="description" />
     <meta content="Coderthemes" name="author" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <script>
-        window.tailwind = {
-            config: {
-                corePlugins: {
-                    preflight: false
-                }
-            }
-        };
-    </script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body {
-            background: #f5f7fb;
-            color: #1f2937;
-        }
 
-        .fl-wrapper {
-            z-index: 99999 !important;
-            position: fixed !important;
-        }
-
-        .internal-shell {
-            min-height: 100vh;
-        }
-
-        .internal-topbar {
-            background: #ffffff;
-            border-bottom: 1px solid #e5e7eb;
-        }
-
-        .internal-page {
-            padding: 24px;
-        }
-
-        .container-fluid {
-            width: 100%;
-            padding-right: 15px;
-            padding-left: 15px;
-            margin-right: auto;
-            margin-left: auto;
-        }
-
-        .d-flex {
-            display: flex !important;
-        }
-
-        .d-inline-flex {
-            display: inline-flex !important;
-        }
-
-        .align-items-center {
-            align-items: center !important;
-        }
-
-        .justify-content-center {
-            justify-content: center !important;
-        }
-
-        .justify-content-between {
-            justify-content: space-between !important;
-        }
-
-        .text-decoration-none {
-            text-decoration: none !important;
-        }
-
-        .text-dark {
-            color: #111827 !important;
-        }
-
-        .text-white {
-            color: #ffffff !important;
-        }
-
-        .text-muted {
-            color: #6b7280 !important;
-        }
-
-        .text-center {
-            text-align: center !important;
-        }
-
-        .text-danger {
-            color: #dc2626 !important;
-        }
-
-        .text-uppercase {
-            text-transform: uppercase !important;
-        }
-
-        .font-weight-bold {
-            font-weight: 700 !important;
-        }
-
-        .small {
-            font-size: 0.875rem !important;
-        }
-
-        .h4 {
-            font-size: 1.5rem;
-            font-weight: 600;
-        }
-
-        .row {
-            display: flex;
-            flex-wrap: wrap;
-            margin-right: -12px;
-            margin-left: -12px;
-        }
-
-        .col-12,
-        .col-md-3,
-        .col-md-4,
-        .col-md-6,
-        .col-md-12 {
-            position: relative;
-            width: 100%;
-            padding-right: 12px;
-            padding-left: 12px;
-        }
-
-        .col-12,
-        .col-md-12 {
-            flex: 0 0 100%;
-            max-width: 100%;
-        }
-
-        @media (min-width: 768px) {
-            .col-md-3 {
-                flex: 0 0 25%;
-                max-width: 25%;
-            }
-
-            .col-md-4 {
-                flex: 0 0 33.333333%;
-                max-width: 33.333333%;
-            }
-
-            .col-md-6 {
-                flex: 0 0 50%;
-                max-width: 50%;
-            }
-        }
-
-        .page-title-box {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-            margin-bottom: 20px;
-        }
-
-        .page-title {
-            margin: 0;
-            font-size: 1.35rem;
-            font-weight: 700;
-        }
-
-        .page-title-right {
-            order: 2;
-        }
-
-        .breadcrumb {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            padding: 0;
-            margin: 0;
-            list-style: none;
-            font-size: 0.875rem;
-            color: #6b7280;
-        }
-
-        .breadcrumb-item + .breadcrumb-item::before {
-            content: "/";
-            padding-right: 6px;
-            color: #9ca3af;
-        }
-
-        .breadcrumb a {
-            color: #2563eb;
-            text-decoration: none;
-        }
-
-        .card {
-            margin-bottom: 24px;
-            background: #ffffff;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
-        }
-
-        .card-body {
-            padding: 20px;
-        }
-
-        .table {
-            width: 100%;
-            border-collapse: collapse;
-            color: #374151;
-        }
-
-        .table th,
-        .table td {
-            padding: 12px;
-            border-top: 1px solid #e5e7eb;
-            vertical-align: middle;
-        }
-
-        .table thead th {
-            border-top: 0;
-            border-bottom: 1px solid #d1d5db;
-            font-weight: 700;
-            color: #111827;
-        }
-
-        .table-hover tbody tr:hover {
-            background: #f9fafb;
-        }
-
-        .form-group {
-            margin-bottom: 16px;
-        }
-
-        label {
-            display: inline-block;
-            margin-bottom: 6px;
-            font-weight: 600;
-            color: #374151;
-        }
-
-        .form-control {
-            display: block;
-            width: 100%;
-            height: 38px;
-            padding: 8px 12px;
-            font-size: 0.95rem;
-            line-height: 1.5;
-            color: #111827;
-            background: #ffffff;
-            border: 1px solid #d1d5db;
-            border-radius: 6px;
-            transition: border-color 0.15s ease, box-shadow 0.15s ease;
-        }
-
-        textarea.form-control {
-            height: auto;
-        }
-
-        .form-control:focus {
-            border-color: #2563eb;
-            outline: 0;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
-        }
-
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            padding: 8px 14px;
-            border: 1px solid transparent;
-            border-radius: 6px;
-            font-weight: 600;
-            line-height: 1.25;
-            text-decoration: none;
-            cursor: pointer;
-            transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
-        }
-
-        .btn-sm {
-            padding: 6px 10px;
-            font-size: 0.875rem;
-        }
-
-        .btn-primary {
-            background: #2563eb;
-            border-color: #2563eb;
-            color: #ffffff;
-        }
-
-        .btn-primary:hover,
-        .btn-primary:focus {
-            background: #1d4ed8;
-            border-color: #1d4ed8;
-            color: #ffffff;
-        }
-
-        .btn-outline-primary {
-            background: #ffffff;
-            border-color: #2563eb;
-            color: #2563eb;
-        }
-
-        .btn-outline-primary:hover,
-        .btn-outline-primary:focus {
-            background: #eff6ff;
-            color: #1d4ed8;
-        }
-
-        .btn-secondary {
-            background: #6b7280;
-            border-color: #6b7280;
-            color: #ffffff;
-        }
-
-        .btn-danger {
-            background: #dc2626;
-            border-color: #dc2626;
-            color: #ffffff;
-        }
-
-        .badge {
-            display: inline-flex;
-            align-items: center;
-            padding: 4px 8px;
-            border-radius: 999px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            line-height: 1;
-        }
-
-        .badge-success {
-            background: #dcfce7;
-            color: #166534;
-        }
-
-        .badge-warning {
-            background: #fef3c7;
-            color: #92400e;
-        }
-
-        .float-right {
-            float: right !important;
-        }
-
-        .rounded {
-            border-radius: 6px !important;
-        }
-
-        .bg-primary {
-            background: #2563eb !important;
-        }
-
-        .m-0 {
-            margin: 0 !important;
-        }
-
-        .mb-0 {
-            margin-bottom: 0 !important;
-        }
-
-        .mb-1 {
-            margin-bottom: 4px !important;
-        }
-
-        .mb-2 {
-            margin-bottom: 8px !important;
-        }
-
-        .mb-3 {
-            margin-bottom: 16px !important;
-        }
-
-        .ml-1 {
-            margin-left: 4px !important;
-        }
-
-        .mr-1 {
-            margin-right: 4px !important;
-        }
-
-        .mr-2 {
-            margin-right: 8px !important;
-        }
-
-        .pl-1 {
-            padding-left: 4px !important;
-        }
-
-        .py-3 {
-            padding-top: 16px !important;
-            padding-bottom: 16px !important;
-        }
-
-        .modal {
-            position: fixed;
-            inset: 0;
-            z-index: 1050;
-            display: none;
-            overflow: hidden;
-            background: rgba(15, 23, 42, 0.5);
-        }
-
-        .modal.show {
-            display: block;
-        }
-
-        .modal-dialog {
-            position: relative;
-            width: auto;
-            margin: 28px auto;
-            pointer-events: none;
-        }
-
-        .modal-dialog-centered {
-            min-height: calc(100% - 56px);
-            display: flex;
-            align-items: center;
-        }
-
-        .modal-dialog-scrollable {
-            max-height: calc(100% - 56px);
-        }
-
-        .modal-dialog-scrollable .modal-content {
-            max-height: calc(100vh - 56px);
-            overflow: hidden;
-        }
-
-        .modal-dialog-scrollable .modal-body {
-            overflow-y: auto;
-        }
-
-        .modal-xl {
-            max-width: min(1140px, calc(100% - 32px));
-        }
-
-        .modal-content {
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            width: 100%;
-            pointer-events: auto;
-            background: #ffffff;
-            border-radius: 8px;
-            box-shadow: 0 24px 72px rgba(15, 23, 42, 0.25);
-        }
-
-        .modal-header,
-        .modal-footer {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            padding: 16px 20px;
-            border-bottom: 1px solid #e5e7eb;
-        }
-
-        .modal-footer {
-            justify-content: flex-end;
-            border-top: 1px solid #e5e7eb;
-            border-bottom: 0;
-        }
-
-        .modal-title {
-            margin: 0;
-            font-size: 1.1rem;
-            font-weight: 700;
-        }
-
-        .modal-body {
-            padding: 20px;
-        }
-
-        .close {
-            padding: 0;
-            border: 0;
-            background: transparent;
-            color: #6b7280;
-            font-size: 1.5rem;
-            line-height: 1;
-            cursor: pointer;
-        }
-
-        .modal-open {
-            overflow: hidden;
-        }
-
-        .spinner-border {
-            display: inline-block;
-            width: 1rem;
-            height: 1rem;
-            border: 0.16em solid currentColor;
-            border-right-color: transparent;
-            border-radius: 50%;
-            animation: spinner-border 0.75s linear infinite;
-        }
-
-        .spinner-border-sm {
-            width: 0.875rem;
-            height: 0.875rem;
-            border-width: 0.14em;
-        }
-
-        @keyframes spinner-border {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        .btn-purple {
-            background-color: #2563eb;
-            border-color: #2563eb;
-            color: #ffffff;
-        }
-
-        .btn-purple:hover,
-        .btn-purple:focus {
-            background-color: #1d4ed8;
-            border-color: #1d4ed8;
-            color: #ffffff;
-        }
-    </style>
     <link rel="shortcut icon" href="{{ asset('assets/images/favicon.ico') }}">
+
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    {{-- Vendor CSS --}}
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
     <link href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css" rel="stylesheet" />
     <link href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css" rel="stylesheet" />
     <link href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css" rel="stylesheet" />
     <link href="https://cdn.datatables.net/select/1.7.0/css/select.dataTables.min.css" rel="stylesheet" />
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet" />
+
     @stack('css')
+
+    {{-- jQuery must load before Select2, Toastr, and DataTables. --}}
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 </head>
 
-<body>
-    <div class="internal-shell">
-        <header class="internal-topbar">
-            <div class="container-fluid d-flex align-items-center justify-content-between py-3">
-                <a href="{{ route('internal.companies.index') }}" class="d-flex align-items-center text-decoration-none text-dark">
-                    <span class="d-inline-flex align-items-center justify-content-center rounded bg-primary text-white mr-2" style="width: 36px; height: 36px;">
-                        <i class="fa-solid fa-building"></i>
+<body class="bg-slate-50 text-slate-800">
+    <div class="min-h-screen">
+        <aside
+            id="internalSidebar"
+            class="fixed inset-y-0 left-0 z-[1040] w-64 -translate-x-full bg-slate-900 text-slate-300 transition-transform duration-200 lg:translate-x-0"
+            aria-label="Internal navigation"
+        >
+            <div class="flex h-16 items-center border-b border-white/10 px-5">
+                <a href="{{ route('internal.companies.index') }}" class="flex items-center text-white no-underline">
+                    <span class="mr-2 inline-flex h-9 w-9 items-center justify-center rounded-md bg-blue-600 text-white">
+                        <i class="fa-solid fa-layer-group"></i>
                     </span>
-                    <span class="font-weight-bold">TOMI Internal</span>
+                    <span class="font-bold">TOMI Internal</span>
                 </a>
-
-                <nav class="d-flex align-items-center">
-                    <a href="{{ route('internal.companies.index') }}" class="btn btn-sm btn-outline-primary">
-                        <i class="fa-solid fa-building mr-1"></i> Perusahaan
-                    </a>
-                </nav>
             </div>
-        </header>
 
-        <main class="internal-page">
-            <div class="container-fluid">
-                @yield('content')
-            </div>
-        </main>
+            <nav class="space-y-1 px-3 py-4">
+                <div class="px-3 py-2 text-xs font-bold uppercase tracking-wider text-slate-400">Menu</div>
+                <a
+                    href="{{ route('internal.companies.index') }}"
+                    class="flex items-center gap-3 rounded-lg px-3 py-2.5 font-semibold no-underline transition {{ request()->routeIs('internal.companies.*') ? 'bg-blue-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white focus:bg-slate-800 focus:text-white' }}"
+                >
+                    <i class="fa-solid fa-building w-5 text-center"></i>
+                    <span>Perusahaan</span>
+                </a>
+            </nav>
+        </aside>
 
-        <footer class="py-3 text-center text-muted small">
-            TOMI Internal
-        </footer>
+        <div id="internalSidebarBackdrop" class="fixed inset-0 z-[1030] hidden bg-slate-950/50 lg:hidden"></div>
+
+        <div class="min-h-screen transition-[margin] duration-200 lg:ml-64">
+            <header class="sticky top-0 z-[1020] border-b border-slate-200 bg-white">
+                <div class="mx-auto flex w-full items-center justify-between px-4 py-3 sm:px-6">
+                    <div class="flex items-center">
+                        <button
+                            type="button"
+                            class="mr-3 inline-flex h-9 w-9 items-center justify-center rounded-md border border-slate-300 bg-white text-slate-700 shadow-sm transition hover:bg-slate-50 lg:hidden"
+                            id="internalSidebarToggle"
+                            aria-label="Toggle sidebar"
+                        >
+                            <i class="fa-solid fa-bars"></i>
+                        </button>
+                        <a href="{{ route('internal.companies.index') }}" class="flex items-center text-slate-950 no-underline">
+                            <span class="font-bold">TOMI Internal</span>
+                        </a>
+                    </div>
+
+                    <nav class="flex items-center">
+                        <a
+                            href="{{ route('internal.companies.index') }}"
+                            class="inline-flex items-center gap-2 rounded-md border border-blue-600 bg-white px-3 py-2 text-sm font-semibold text-blue-600 no-underline transition hover:bg-blue-50 hover:text-blue-700"
+                        >
+                            <i class="fa-solid fa-building"></i> Perusahaan
+                        </a>
+                    </nav>
+                </div>
+            </header>
+
+            <main class="p-4 sm:p-6">
+                <div class="mx-auto w-full">
+                    @yield('content')
+                </div>
+            </main>
+
+            <footer class="py-3 text-center text-sm text-slate-500">
+                TOMI Internal
+            </footer>
+        </div>
     </div>
 
+    {{-- Vendor JS --}}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.9/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
@@ -577,18 +113,38 @@
     <script src="https://cdn.datatables.net/select/1.7.0/js/dataTables.select.min.js"></script>
     <script>
         (function ($) {
+            function prepareModal($modal) {
+                $modal.addClass('fixed inset-0 z-[1050] overflow-y-auto bg-slate-950/50 p-4');
+                $modal.children('.modal-dialog').addClass('mx-auto flex min-h-full w-full max-w-6xl items-center');
+                $modal.find('.modal-content').addClass('flex max-h-[calc(100vh-3.5rem)] w-full flex-col overflow-hidden rounded-lg bg-white shadow-2xl');
+                $modal.find('.modal-header').addClass('flex items-center justify-between gap-3 border-b border-slate-200 px-5 py-4');
+                $modal.find('.modal-footer').addClass('flex items-center justify-end gap-3 border-t border-slate-200 px-5 py-4');
+                $modal.find('.modal-title').addClass('text-lg font-bold text-slate-950');
+                $modal.find('.modal-body').addClass('overflow-y-auto px-5 py-4');
+                $modal.find('.close').addClass('text-2xl leading-none text-slate-500 transition hover:text-slate-950');
+
+                if (!$modal.hasClass('show')) {
+                    $modal.addClass('hidden');
+                }
+            }
+
+            $('.modal').each(function () {
+                prepareModal($(this));
+            });
+
             $.fn.modal = function (action) {
                 return this.each(function () {
                     var $modal = $(this);
+                    prepareModal($modal);
 
                     if (action === 'hide') {
-                        $modal.removeClass('show').hide();
-                        $('body').removeClass('modal-open');
+                        $modal.removeClass('show').addClass('hidden');
+                        $('body').removeClass('overflow-hidden');
                         return;
                     }
 
-                    $modal.show().addClass('show');
-                    $('body').addClass('modal-open');
+                    $modal.removeClass('hidden').addClass('show');
+                    $('body').addClass('overflow-hidden');
                 });
             };
 
@@ -602,6 +158,34 @@
                 }
             });
         })(jQuery);
+    </script>
+    <script>
+        (function () {
+            const sidebar = document.getElementById('internalSidebar');
+            const backdrop = document.getElementById('internalSidebarBackdrop');
+            const toggle = document.getElementById('internalSidebarToggle');
+
+            function openSidebar() {
+                sidebar?.classList.remove('-translate-x-full');
+                sidebar?.classList.add('translate-x-0');
+                backdrop?.classList.remove('hidden');
+            }
+
+            function closeSidebar() {
+                sidebar?.classList.add('-translate-x-full');
+                sidebar?.classList.remove('translate-x-0');
+                backdrop?.classList.add('hidden');
+            }
+
+            toggle?.addEventListener('click', openSidebar);
+            backdrop?.addEventListener('click', closeSidebar);
+
+            document.addEventListener('keydown', function (event) {
+                if (event.key === 'Escape') {
+                    closeSidebar();
+                }
+            });
+        })();
     </script>
 
     @stack('js')
