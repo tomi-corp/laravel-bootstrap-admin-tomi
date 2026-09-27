@@ -19,7 +19,6 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
     <link href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css" rel="stylesheet" />
     <link href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css" rel="stylesheet" />
-    <link href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css" rel="stylesheet" />
     <link href="https://cdn.datatables.net/select/1.7.0/css/select.dataTables.min.css" rel="stylesheet" />
 
     @stack('css')
@@ -105,10 +104,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
     <script src="https://cdn.datatables.net/keytable/2.12.1/js/dataTables.keyTable.min.js"></script>
     <script src="https://cdn.datatables.net/select/1.7.0/js/dataTables.select.min.js"></script>
     <script>
@@ -116,11 +111,12 @@
             function prepareModal($modal) {
                 $modal.addClass('fixed inset-0 z-[1050] overflow-y-auto bg-slate-950/50 p-4');
                 $modal.children('.modal-dialog').addClass('mx-auto flex min-h-full w-full max-w-6xl items-center');
-                $modal.find('.modal-content').addClass('flex max-h-[calc(100vh-3.5rem)] w-full flex-col overflow-hidden rounded-lg bg-white shadow-2xl');
-                $modal.find('.modal-header').addClass('flex items-center justify-between gap-3 border-b border-slate-200 px-5 py-4');
-                $modal.find('.modal-footer').addClass('flex items-center justify-end gap-3 border-t border-slate-200 px-5 py-4');
+                $modal.find('.modal-content').addClass('flex h-[calc(100vh-3.5rem)] max-h-[calc(100vh-3.5rem)] w-full flex-col overflow-hidden rounded-lg bg-white shadow-2xl');
+                $modal.find('.modal-content > form').addClass('flex min-h-0 flex-1 flex-col');
+                $modal.find('.modal-header').addClass('shrink-0 flex items-center justify-between gap-3 border-b border-slate-200 px-5 py-4');
+                $modal.find('.modal-footer').addClass('shrink-0 flex items-center justify-end gap-3 border-t border-slate-200 bg-white px-5 py-4');
                 $modal.find('.modal-title').addClass('text-lg font-bold text-slate-950');
-                $modal.find('.modal-body').addClass('overflow-y-auto px-5 py-4');
+                $modal.find('.modal-body').addClass('min-h-0 flex-1 overflow-y-auto px-5 py-4');
                 $modal.find('.close').addClass('text-2xl leading-none text-slate-500 transition hover:text-slate-950');
 
                 if (!$modal.hasClass('show')) {

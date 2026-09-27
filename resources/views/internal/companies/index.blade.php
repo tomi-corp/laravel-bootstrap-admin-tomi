@@ -88,10 +88,10 @@
             <form id="companyForm">
                 <div class="modal-body">
                     <input type="hidden" id="companyId">
-                    <div class="grid grid-cols-1 gap-4 md:grid-cols-12">
-                        <div class="space-y-2 md:col-span-4">
+                    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                        <div class="space-y-2">
                             <label class="block text-sm font-semibold text-slate-700">Lender</label>
-                            <select class="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" name="id_lender" id="id_lender">
+                            <select class="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm uppercase text-slate-900 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" name="id_lender" id="id_lender">
                                 <option value="">Pilih Lender</option>
                                 @foreach ($lenders as $lender)
                                     <option value="{{ $lender->id }}">{{ $lender->nama }}</option>
@@ -99,34 +99,34 @@
                             </select>
                             <small class="text-xs text-red-600 error-id_lender"></small>
                         </div>
-                        <div class="space-y-2 md:col-span-4">
+                        <div class="space-y-2">
                             <label class="block text-sm font-semibold text-slate-700">Nama Perusahaan</label>
                             <input class="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm uppercase text-slate-900 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" name="nama" id="nama">
                             <small class="text-xs text-red-600 error-nama"></small>
                         </div>
-                        <div class="space-y-2 md:col-span-4">
+                        <div class="space-y-2">
                             <label class="block text-sm font-semibold text-slate-700">Email Perusahaan</label>
                             <input class="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" name="email_perusahaan" id="email_perusahaan" type="email">
                             <small class="text-xs text-red-600 error-email_perusahaan"></small>
                         </div>
-                        <div class="space-y-2 md:col-span-4">
+                        <div class="space-y-2">
                             <label class="block text-sm font-semibold text-slate-700">PIC Perusahaan</label>
                             <input class="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm uppercase text-slate-900 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" name="pic_perusahaan" id="pic_perusahaan">
                             <small class="text-xs text-red-600 error-pic_perusahaan"></small>
                         </div>
-                        <div class="space-y-2 md:col-span-4">
+                        <div class="space-y-2">
                             <label class="block text-sm font-semibold text-slate-700">PIC Internal</label>
                             <input class="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm uppercase text-slate-900 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" name="pic_internal" id="pic_internal">
                             <small class="text-xs text-red-600 error-pic_internal"></small>
                         </div>
-                        <div class="space-y-2 md:col-span-4">
+                        <div class="space-y-2">
                             <label class="block text-sm font-semibold text-slate-700">Telepon</label>
-                            <input class="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" name="telp" id="telp">
+                            <input class="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm uppercase text-slate-900 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" name="telp" id="telp">
                             <small class="text-xs text-red-600 error-telp"></small>
                         </div>
-                        <div class="space-y-2 md:col-span-3">
+                        <div class="space-y-2">
                             <label class="block text-sm font-semibold text-slate-700">Provinsi</label>
-                            <select class="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" name="id_provinsi" id="id_provinsi">
+                            <select class="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm uppercase text-slate-900 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" name="id_provinsi" id="id_provinsi">
                                 <option value="">Pilih Provinsi</option>
                                 @foreach ($provinces as $province)
                                     <option value="{{ $province->id }}">{{ $province->provinsi }}</option>
@@ -134,93 +134,93 @@
                             </select>
                             <small class="text-xs text-red-600 error-id_provinsi"></small>
                         </div>
-                        <div class="space-y-2 md:col-span-3">
+                        <div class="space-y-2">
                             <label class="block text-sm font-semibold text-slate-700">Kabupaten/Kota</label>
-                            <select class="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" name="id_kabupaten" id="id_kabupaten"></select>
+                            <select class="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm uppercase text-slate-900 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" name="id_kabupaten" id="id_kabupaten"></select>
                             <small class="text-xs text-red-600 error-id_kabupaten"></small>
                         </div>
-                        <div class="space-y-2 md:col-span-3">
+                        <div class="space-y-2">
                             <label class="block text-sm font-semibold text-slate-700">Kecamatan</label>
-                            <select class="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" name="id_kecamatan" id="id_kecamatan"></select>
+                            <select class="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm uppercase text-slate-900 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" name="id_kecamatan" id="id_kecamatan"></select>
                             <small class="text-xs text-red-600 error-id_kecamatan"></small>
                         </div>
-                        <div class="space-y-2 md:col-span-3">
+                        <div class="space-y-2">
                             <label class="block text-sm font-semibold text-slate-700">Desa</label>
-                            <select class="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" name="id_desa" id="id_desa"></select>
+                            <select class="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm uppercase text-slate-900 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" name="id_desa" id="id_desa"></select>
                             <small class="text-xs text-red-600 error-id_desa"></small>
                         </div>
-                        <div class="space-y-2 md:col-span-12">
+                        <div class="space-y-2 md:col-span-2">
                             <label class="block text-sm font-semibold text-slate-700">Alamat Lengkap</label>
                             <textarea class="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm uppercase text-slate-900 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" name="alamat_lengkap" id="alamat_lengkap" rows="2"></textarea>
                             <small class="text-xs text-red-600 error-alamat_lengkap"></small>
                         </div>
-                        <div class="space-y-2 md:col-span-3">
+                        <div class="space-y-2">
                             <label class="block text-sm font-semibold text-slate-700">Bank</label>
-                            <input class="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" name="bank" id="bank">
+                            <input class="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm uppercase text-slate-900 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" name="bank" id="bank">
                             <small class="text-xs text-red-600 error-bank"></small>
                         </div>
-                        <div class="space-y-2 md:col-span-3">
+                        <div class="space-y-2">
                             <label class="block text-sm font-semibold text-slate-700">No Rekening</label>
-                            <input class="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" name="no_rekening" id="no_rekening">
+                            <input class="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm uppercase text-slate-900 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" name="no_rekening" id="no_rekening">
                             <small class="text-xs text-red-600 error-no_rekening"></small>
                         </div>
-                        <div class="space-y-2 md:col-span-3">
+                        <div class="space-y-2">
                             <label class="block text-sm font-semibold text-slate-700">Atas Nama Rekening</label>
                             <input class="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm uppercase text-slate-900 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" name="atas_nama_rekening" id="atas_nama_rekening">
                             <small class="text-xs text-red-600 error-atas_nama_rekening"></small>
                         </div>
-                        <div class="space-y-2 md:col-span-3">
+                        <div class="space-y-2">
                             <label class="block text-sm font-semibold text-slate-700">Direktur Utama</label>
                             <input class="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm uppercase text-slate-900 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" name="nama_direktur_utama" id="nama_direktur_utama">
                             <small class="text-xs text-red-600 error-nama_direktur_utama"></small>
                         </div>
-                        <div class="space-y-2 md:col-span-3">
+                        <div class="space-y-2">
                             <label class="block text-sm font-semibold text-slate-700">Nomor PKS</label>
                             <input class="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm uppercase text-slate-900 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" name="nomor_pks" id="nomor_pks">
                             <small class="text-xs text-red-600 error-nomor_pks"></small>
                         </div>
-                        <div class="space-y-2 md:col-span-3">
+                        <div class="space-y-2">
                             <label class="block text-sm font-semibold text-slate-700">Payment Date</label>
-                            <input class="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" name="payment_date" id="payment_date" type="number" min="1" max="31">
+                            <input class="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm uppercase text-slate-900 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" name="payment_date" id="payment_date" type="number" min="1" max="31">
                             <small class="text-xs text-red-600 error-payment_date"></small>
                         </div>
-                        <div class="space-y-2 md:col-span-3">
+                        <div class="space-y-2">
                             <label class="block text-sm font-semibold text-slate-700">H-Min Jatuh Tempo</label>
-                            <input class="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" name="h_min_jatuh_tempo" id="h_min_jatuh_tempo" type="number" min="0" max="31">
+                            <input class="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm uppercase text-slate-900 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" name="h_min_jatuh_tempo" id="h_min_jatuh_tempo" type="number" min="0" max="31">
                             <small class="text-xs text-red-600 error-h_min_jatuh_tempo"></small>
                         </div>
-                        <div class="space-y-2 md:col-span-3">
+                        <div class="space-y-2">
                             <label class="block text-sm font-semibold text-slate-700">Tanggal Aktif</label>
-                            <input class="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" name="active_tanggal" id="active_tanggal" type="number" min="0" max="31">
+                            <input class="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm uppercase text-slate-900 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" name="active_tanggal" id="active_tanggal" type="number" min="0" max="31">
                             <small class="text-xs text-red-600 error-active_tanggal"></small>
                         </div>
-                        <div class="space-y-2 md:col-span-3">
+                        <div class="space-y-2">
                             <label class="block text-sm font-semibold text-slate-700">Status</label>
-                            <select class="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" name="status" id="status">
+                            <select class="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm uppercase text-slate-900 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" name="status" id="status">
                                 <option value="active">Active</option>
                                 <option value="nonactive">Nonactive</option>
                             </select>
                             <small class="text-xs text-red-600 error-status"></small>
                         </div>
-                        <div class="space-y-2 md:col-span-3">
+                        <div class="space-y-2">
                             <label class="block text-sm font-semibold text-slate-700">Professional Fee</label>
-                            <select class="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" name="active_profesional_fee" id="active_profesional_fee">
+                            <select class="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm uppercase text-slate-900 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" name="active_profesional_fee" id="active_profesional_fee">
                                 <option value="active">Active</option>
                                 <option value="nonactive">Nonactive</option>
                             </select>
                             <small class="text-xs text-red-600 error-active_profesional_fee"></small>
                         </div>
-                        <div class="space-y-2 md:col-span-3">
+                        <div class="space-y-2">
                             <label class="block text-sm font-semibold text-slate-700">Set Pinjaman</label>
-                            <select class="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" name="active_set_pinjaman" id="active_set_pinjaman">
+                            <select class="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm uppercase text-slate-900 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" name="active_set_pinjaman" id="active_set_pinjaman">
                                 <option value="active">Active</option>
                                 <option value="nonactive">Nonactive</option>
                             </select>
                             <small class="text-xs text-red-600 error-active_set_pinjaman"></small>
                         </div>
-                        <div class="space-y-2 md:col-span-3">
+                        <div class="space-y-2">
                             <label class="block text-sm font-semibold text-slate-700">Max Plafon</label>
-                            <input class="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" name="max_plafon" id="max_plafon" type="number" min="0">
+                            <input class="block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm uppercase text-slate-900 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" name="max_plafon" id="max_plafon" type="number" min="0">
                             <small class="text-xs text-red-600 error-max_plafon"></small>
                         </div>
                     </div>
@@ -240,16 +240,38 @@
 @push('js')
 <script>
     var isHydratingForm = false;
+    var defaultCellLimit = 28;
+
+    function escapeHtml(value) {
+        return $('<div>').text(value ?? '-').html();
+    }
+
+    function truncateCell(limit) {
+        return function (data, type) {
+            var value = data ?? '-';
+            var text = String(value);
+
+            if (type !== 'display') {
+                return text;
+            }
+
+            if (text.length <= limit) {
+                return escapeHtml(text);
+            }
+
+            return '<span class="inline-block max-w-[18rem] truncate align-bottom" title="' + escapeHtml(text) + '">'
+                + escapeHtml(text.slice(0, limit)) + '...'
+                + '</span>';
+        };
+    }
+
     var table = $('#companiesTable').DataTable({
-        dom: 'B<"clear">lfrtip',
-        buttons: [
-            { extend: 'excel', className: 'inline-flex items-center gap-2 rounded-md bg-emerald-600 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700', text: '<i class="fa-solid fa-file-excel"></i><span>Excel</span>' },
-            { extend: 'copy', className: 'inline-flex items-center gap-2 rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700', text: '<i class="fa-solid fa-copy"></i><span>Copy</span>' },
-            { extend: 'print', className: 'inline-flex items-center gap-2 rounded-md bg-slate-700 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800', text: '<i class="fa-solid fa-print"></i><span>Print</span>' }
-        ],
+        dom: 'lfrtip',
         processing: true,
         serverSide: true,
-        responsive: true,
+        responsive: false,
+        scrollX: true,
+        scrollCollapse: true,
         ajax: {
             type: 'POST',
             url: '{{ route('internal.companies.table') }}',
@@ -259,31 +281,31 @@
             }
         },
         columns: [
-            { data: 'nama', name: 'nama', defaultContent: '-' },
-            { data: 'pic_perusahaan', name: 'pic_perusahaan', defaultContent: '-' },
-            { data: 'pic_internal', name: 'pic_internal', defaultContent: '-' },
-            { data: 'email_perusahaan', name: 'email_perusahaan', defaultContent: '-' },
-            { data: 'telp', name: 'telp', defaultContent: '-' },
+            { data: 'nama', name: 'nama', defaultContent: '-', render: truncateCell(defaultCellLimit) },
+            { data: 'pic_perusahaan', name: 'pic_perusahaan', defaultContent: '-', render: truncateCell(defaultCellLimit) },
+            { data: 'pic_internal', name: 'pic_internal', defaultContent: '-', render: truncateCell(defaultCellLimit) },
+            { data: 'email_perusahaan', name: 'email_perusahaan', defaultContent: '-', render: truncateCell(32) },
+            { data: 'telp', name: 'telp', defaultContent: '-', render: truncateCell(defaultCellLimit) },
             { data: 'status_badge', name: 'status', orderable: false, searchable: false, defaultContent: '-' },
-            { data: 'lender_name', name: 'lender_name', orderable: false, defaultContent: '-' },
-            { data: 'unique_code', name: 'unique_code', defaultContent: '-' },
-            { data: 'id_code_perusahaan', name: 'id_code_perusahaan', defaultContent: '-' },
-            { data: 'payment_date', name: 'payment_date', defaultContent: '-' },
-            { data: 'h_min_jatuh_tempo', name: 'h_min_jatuh_tempo', defaultContent: '-' },
-            { data: 'province_name', name: 'province_name', orderable: false, defaultContent: '-' },
-            { data: 'city_name', name: 'city_name', orderable: false, defaultContent: '-' },
-            { data: 'district_name', name: 'district_name', orderable: false, defaultContent: '-' },
-            { data: 'village_name', name: 'village_name', orderable: false, defaultContent: '-' },
-            { data: 'alamat_lengkap', name: 'alamat_lengkap', defaultContent: '-' },
-            { data: 'bank', name: 'bank', defaultContent: '-' },
-            { data: 'no_rekening', name: 'no_rekening', defaultContent: '-' },
-            { data: 'atas_nama_rekening', name: 'atas_nama_rekening', defaultContent: '-' },
-            { data: 'nama_direktur_utama', name: 'nama_direktur_utama', defaultContent: '-' },
-            { data: 'nomor_pks', name: 'nomor_pks', defaultContent: '-' },
-            { data: 'active_profesional_fee', name: 'active_profesional_fee', defaultContent: '-' },
-            { data: 'active_set_pinjaman', name: 'active_set_pinjaman', defaultContent: '-' },
-            { data: 'active_tanggal', name: 'active_tanggal', defaultContent: '-' },
-            { data: 'max_plafon', name: 'max_plafon', defaultContent: '-' },
+            { data: 'lender_name', name: 'lender_name', orderable: false, defaultContent: '-', render: truncateCell(defaultCellLimit) },
+            { data: 'unique_code', name: 'unique_code', defaultContent: '-', render: truncateCell(defaultCellLimit) },
+            { data: 'id_code_perusahaan', name: 'id_code_perusahaan', defaultContent: '-', render: truncateCell(defaultCellLimit) },
+            { data: 'payment_date', name: 'payment_date', defaultContent: '-', render: truncateCell(defaultCellLimit) },
+            { data: 'h_min_jatuh_tempo', name: 'h_min_jatuh_tempo', defaultContent: '-', render: truncateCell(defaultCellLimit) },
+            { data: 'province_name', name: 'province_name', orderable: false, defaultContent: '-', render: truncateCell(defaultCellLimit) },
+            { data: 'city_name', name: 'city_name', orderable: false, defaultContent: '-', render: truncateCell(defaultCellLimit) },
+            { data: 'district_name', name: 'district_name', orderable: false, defaultContent: '-', render: truncateCell(defaultCellLimit) },
+            { data: 'village_name', name: 'village_name', orderable: false, defaultContent: '-', render: truncateCell(defaultCellLimit) },
+            { data: 'alamat_lengkap', name: 'alamat_lengkap', defaultContent: '-', render: truncateCell(36) },
+            { data: 'bank', name: 'bank', defaultContent: '-', render: truncateCell(defaultCellLimit) },
+            { data: 'no_rekening', name: 'no_rekening', defaultContent: '-', render: truncateCell(defaultCellLimit) },
+            { data: 'atas_nama_rekening', name: 'atas_nama_rekening', defaultContent: '-', render: truncateCell(defaultCellLimit) },
+            { data: 'nama_direktur_utama', name: 'nama_direktur_utama', defaultContent: '-', render: truncateCell(defaultCellLimit) },
+            { data: 'nomor_pks', name: 'nomor_pks', defaultContent: '-', render: truncateCell(defaultCellLimit) },
+            { data: 'active_profesional_fee', name: 'active_profesional_fee', defaultContent: '-', render: truncateCell(defaultCellLimit) },
+            { data: 'active_set_pinjaman', name: 'active_set_pinjaman', defaultContent: '-', render: truncateCell(defaultCellLimit) },
+            { data: 'active_tanggal', name: 'active_tanggal', defaultContent: '-', render: truncateCell(defaultCellLimit) },
+            { data: 'max_plafon', name: 'max_plafon', defaultContent: '-', render: truncateCell(defaultCellLimit) },
             { data: 'action', name: 'action', orderable: false, searchable: false, defaultContent: '-' }
         ],
         initComplete: function () {
@@ -294,24 +316,22 @@
         }
     });
 
-    $('#id_lender, #id_provinsi, #id_kabupaten, #id_kecamatan, #id_desa').select2({ width: '100%' });
-    styleSelect2();
+    $('#id_lender, #id_provinsi, #id_kabupaten, #id_kecamatan, #id_desa').select2({
+        width: '100%',
+        dropdownParent: $('#companyModal')
+    });
 
     function styleDataTable() {
-        $('.dt-buttons').addClass('mb-4 flex flex-wrap gap-2');
         $('.dataTables_length, .dataTables_filter').addClass('mb-4 text-sm text-slate-600');
         $('.dataTables_length select, .dataTables_filter input').addClass('ml-2 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20');
         $('.dataTables_info').addClass('mt-4 text-sm text-slate-500');
         $('.dataTables_paginate').addClass('mt-4 text-sm');
+        $('.dataTables_scroll').addClass('overflow-hidden rounded-lg border border-slate-200');
+        $('.dataTables_scrollBody').addClass('scrollbar-thin');
         $('#companiesTable').addClass('border-separate border-spacing-0');
         $('#companiesTable thead th').addClass('border-b border-slate-200 bg-slate-50 px-4 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate-500');
-        $('#companiesTable tbody td').addClass('border-b border-slate-100 px-4 py-3 align-middle text-sm text-slate-700');
+        $('#companiesTable tbody td').addClass('whitespace-nowrap border-b border-slate-100 px-4 py-3 align-middle text-sm text-slate-700');
         $('#companiesTable tbody tr').addClass('transition hover:bg-slate-50');
-    }
-
-    function styleSelect2() {
-        $('.select2-container .select2-selection').addClass('min-h-[38px] rounded-md border border-slate-300');
-        $('.select2-container .select2-selection__rendered').addClass('text-sm text-slate-900');
     }
 
     $(document).on('input', '.uppercase', function () {
@@ -416,6 +436,10 @@
         var id = $('#companyId').val();
         var method = id ? 'PUT' : 'POST';
         var url = id ? '{{ route('internal.companies.update', ':id') }}'.replace(':id', id) : '{{ route('internal.companies.store') }}';
+
+        $('#companyForm input.uppercase, #companyForm textarea.uppercase').each(function () {
+            this.value = this.value.toUpperCase();
+        });
 
         $('#saveCompanyButton').attr('disabled', true);
         $('#saveSpinner').addClass('fa-solid fa-spinner animate-spin');
