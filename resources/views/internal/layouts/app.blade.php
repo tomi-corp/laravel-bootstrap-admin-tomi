@@ -15,7 +15,6 @@
 
     {{-- Vendor CSS --}}
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
     <link href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css" rel="stylesheet" />
     <link href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css" rel="stylesheet" />
@@ -23,7 +22,7 @@
 
     @stack('css')
 
-    {{-- jQuery must load before Select2, Toastr, and DataTables. --}}
+    {{-- jQuery must load before Toastr and DataTables. --}}
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 </head>
 
@@ -45,6 +44,13 @@
 
             <nav class="space-y-1 px-3 py-4">
                 <div class="px-3 py-2 text-xs font-bold uppercase tracking-wider text-slate-400">Menu</div>
+                <a
+                    href="{{ route('internal.lenders.index') }}"
+                    class="flex items-center gap-3 rounded-lg px-3 py-2.5 font-semibold no-underline transition {{ request()->routeIs('internal.lenders.*') ? 'bg-blue-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white focus:bg-slate-800 focus:text-white' }}"
+                >
+                    <i class="fa-solid fa-landmark w-5 text-center"></i>
+                    <span>Lender</span>
+                </a>
                 <a
                     href="{{ route('internal.companies.index') }}"
                     class="flex items-center gap-3 rounded-lg px-3 py-2.5 font-semibold no-underline transition {{ request()->routeIs('internal.companies.*') ? 'bg-blue-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white focus:bg-slate-800 focus:text-white' }}"
@@ -76,10 +82,11 @@
 
                     <nav class="flex items-center">
                         <a
-                            href="{{ route('internal.companies.index') }}"
+                            href="{{ request()->routeIs('internal.lenders.*') ? route('internal.lenders.index') : route('internal.companies.index') }}"
                             class="inline-flex items-center gap-2 rounded-md border border-blue-600 bg-white px-3 py-2 text-sm font-semibold text-blue-600 no-underline transition hover:bg-blue-50 hover:text-blue-700"
                         >
-                            <i class="fa-solid fa-building"></i> Perusahaan
+                            <i class="fa-solid {{ request()->routeIs('internal.lenders.*') ? 'fa-landmark' : 'fa-building' }}"></i>
+                            {{ request()->routeIs('internal.lenders.*') ? 'Lender' : 'Perusahaan' }}
                         </a>
                     </nav>
                 </div>
@@ -100,7 +107,6 @@
     {{-- Vendor JS --}}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.9/dist/chart.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>

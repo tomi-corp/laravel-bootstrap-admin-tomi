@@ -37,9 +37,11 @@
     <div class="md:col-span-12">
         <div class="rounded-lg border border-slate-200 bg-white shadow-sm">
             <div class="p-5">
-                <button type="button" class="mb-4 inline-flex items-center gap-2 rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700" onclick="openCreateModal()">
-                    <i class="fa-solid fa-circle-plus"></i> Tambah Perusahaan
-                </button>
+                <div class="mb-4 flex justify-end">
+                    <button type="button" class="inline-flex items-center gap-2 rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700" onclick="openCreateModal()">
+                        <i class="fa-solid fa-circle-plus"></i> Tambah Perusahaan
+                    </button>
+                </div>
 
                 <table id="companiesTable" class="w-full text-left text-sm text-slate-700">
                     <thead>
@@ -316,11 +318,6 @@
         }
     });
 
-    $('#id_lender, #id_provinsi, #id_kabupaten, #id_kecamatan, #id_desa').select2({
-        width: '100%',
-        dropdownParent: $('#companyModal')
-    });
-
     function styleDataTable() {
         $('.dataTables_length, .dataTables_filter').addClass('mb-4 text-sm text-slate-600');
         $('.dataTables_length select, .dataTables_filter input').addClass('ml-2 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20');
@@ -334,7 +331,7 @@
         $('#companiesTable tbody tr').addClass('transition hover:bg-slate-50');
     }
 
-    $(document).on('input', '.uppercase', function () {
+    $(document).on('input', 'input.uppercase, textarea.uppercase', function () {
         var cursorPosition = this.selectionStart;
         this.value = this.value.toUpperCase();
         this.setSelectionRange(cursorPosition, cursorPosition);
