@@ -80,6 +80,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'SellerGuestMiddleware' =>  \App\Http\Middleware\SellerGuestMiddleware::class,
             'LenderMiddleware' =>  \App\Modules\Lender\Middleware\LenderMiddleware::class,
             'LenderGuestMiddleware' =>  \App\Modules\Lender\Middleware\LenderGuestMiddleware::class,
+            'InternalAuthMiddleware' =>  \App\Modules\Internal\Middleware\InternalAuthMiddleware::class,
+            'InternalGuestMiddleware' =>  \App\Modules\Internal\Middleware\InternalGuestMiddleware::class,
             'Cors' => \App\Http\Middleware\CorsMiddleware::class,
             'bta.type' => \App\Http\Middleware\BtaRoleMiddleware::class,
 

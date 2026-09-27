@@ -80,7 +80,10 @@
                         </a>
                     </div>
 
-                    <nav class="flex items-center">
+                    <nav class="flex items-center gap-3">
+                        <span class="hidden text-sm font-medium text-slate-600 sm:inline">
+                            {{ auth('admin')->user()?->username }}
+                        </span>
                         <a
                             href="{{ request()->routeIs('internal.lenders.*') ? route('internal.lenders.index') : route('internal.companies.index') }}"
                             class="inline-flex items-center gap-2 rounded-md border border-blue-600 bg-white px-3 py-2 text-sm font-semibold text-blue-600 no-underline transition hover:bg-blue-50 hover:text-blue-700"
@@ -88,6 +91,13 @@
                             <i class="fa-solid {{ request()->routeIs('internal.lenders.*') ? 'fa-landmark' : 'fa-building' }}"></i>
                             {{ request()->routeIs('internal.lenders.*') ? 'Lender' : 'Perusahaan' }}
                         </a>
+                        <form action="{{ route('internal.logout') }}" method="POST">
+                            @csrf
+                            <button type="submit" class="inline-flex items-center gap-2 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                                <i class="fa-solid fa-right-from-bracket"></i>
+                                Logout
+                            </button>
+                        </form>
                     </nav>
                 </div>
             </header>
