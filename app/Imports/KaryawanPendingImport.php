@@ -29,6 +29,11 @@ class KaryawanPendingImport implements ToModel, WithHeadingRow
     public function model(array $row)
     {
         $rowNumber = $this->getRowNumber();
+
+        if ($this->isEmptyRow($row)) {
+            return null;
+        }
+
         $requiredError = $this->validateRequiredRow($row);
 
         if ($requiredError) {
@@ -140,6 +145,17 @@ class KaryawanPendingImport implements ToModel, WithHeadingRow
             'nik' => $row['nik'] ?? null,
             'reason' => $reason,
         ];
+    }
+
+    private function isEmptyRow(array $row): bool
+    {
+        foreach ($row as $value) {
+            if ($value !== null && $this->cleanValue($value) !== '') {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private function cleanValue($value): string

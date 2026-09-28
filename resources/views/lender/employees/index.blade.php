@@ -102,35 +102,20 @@
 
                     <div class="grid gap-4">
                         @if (session('error') || $errors->any())
-                            <div class="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                            <div id="employeeImportError" class="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
                                 @if (session('error'))
                                     {!! nl2br(e(str_replace('<br>', "\n", session('error')))) !!}
                                 @else
                                     {{ $errors->first() }}
                                 @endif
                             </div>
+                        @else
+                            <div id="employeeImportError" class="hidden rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700"></div>
                         @endif
 
                         <div>
-                            <label class="mb-1 block text-sm font-medium text-slate-900">Perusahaan</label>
-                            <select name="id_perusahaan" class="js-import-company w-full rounded-md border border-slate-200 px-3 py-2 text-slate-950 focus:border-black focus:outline-none focus:ring-2 focus:ring-black/20">
-                                <option value="">Ikuti code_perusahaan dari file</option>
-                                @foreach ($companies as $company)
-                                    <option value="{{ $company->id }}" @selected(old('id_perusahaan') == $company->id)>
-                                        {{ $company->nama }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('id_perusahaan') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
-                        </div>
-
-                        <div class="rounded-md border border-slate-200 bg-slate-50/70 p-3 text-sm text-slate-600">
-                            Pilih perusahaan jika semua baris file ditujukan untuk satu perusahaan. Jika dikosongkan, sistem akan membaca kolom <span class="font-medium text-slate-900">code_perusahaan</span>.
-                        </div>
-
-                        <div>
                             <label class="mb-1 block text-sm font-medium text-slate-900">Template</label>
-                            <a href="{{ route('lender.employees.template.import') }}" data-base-url="{{ route('lender.employees.template.import') }}" class="js-template-download inline-flex items-center gap-2 rounded-md bg-slate-100 px-3 py-2 text-sm font-medium text-slate-900 hover:bg-slate-200">
+                            <a href="{{ route('lender.employees.template.import') }}" class="inline-flex items-center gap-2 rounded-md bg-slate-100 px-3 py-2 text-sm font-medium text-slate-900 hover:bg-slate-200">
                                 <i class="fa-solid fa-download"></i>
                                 Download Template
                             </a>
@@ -217,22 +202,30 @@
             }
         });
 
-        function syncTemplateDownloadUrl() {
-            const companyId = $('.js-import-company').val();
-            const link = $('.js-template-download');
-            const baseUrl = link.data('base-url');
-
-            link.attr('href', companyId ? `${baseUrl}?id_perusahaan=${companyId}` : baseUrl);
+        function resetImportSubmitButton() {
+            $('#employeeImportSubmit')
+                .prop('disabled', false)
+                .removeClass('cursor-not-allowed opacity-70')
+                .html('<i class="fa-solid fa-upload"></i><span>Upload</span>');
         }
 
-        $('.js-import-company').on('change', syncTemplateDownloadUrl);
-        syncTemplateDownloadUrl();
+        function showImportError(message) {
+            const normalized = String(message || 'Gagal upload data karyawan. Periksa format Excel dan pastikan setiap kolom sesuai template.')
+                .replace(/<br\s*\/?>/gi, '\n');
 
-        $('#employeeImportForm').on('submit', function () {
+            $('#employeeImportError')
+                .removeClass('hidden')
+                .text(normalized);
+        }
+
+        $('#employeeImportForm').on('submit', function (event) {
+            event.preventDefault();
+
             const fileInput = document.getElementById('employeeImportFile');
 
             if (!fileInput.files.length) {
-                return true;
+                showImportError('File Excel wajib diisi.');
+                return;
             }
 
             $('#employeeImportSubmit')
@@ -240,7 +233,38 @@
                 .addClass('cursor-not-allowed opacity-70')
                 .html('<i class="fa-solid fa-spinner fa-spin"></i><span>Mengupload...</span>');
 
-            return true;
+            $('#employeeImportError').addClass('hidden').text('');
+
+            $.ajax({
+                url: this.action,
+                method: this.method,
+                data: new FormData(this),
+                processData: false,
+                contentType: false,
+                headers: {
+                    Accept: 'application/json',
+                },
+                success: function (response) {
+                    AppToast.success(response.message || 'Berhasil upload data karyawan.');
+                    window.location.reload();
+                },
+                error: function (xhr) {
+                    resetImportSubmitButton();
+
+                    if (xhr.status === 419) {
+                        showImportError('Sesi halaman sudah kedaluwarsa. Refresh halaman lalu coba upload lagi.');
+                        return;
+                    }
+
+                    const errors = xhr.responseJSON?.errors;
+                    if (errors) {
+                        showImportError(Object.values(errors).flat().join('\n'));
+                        return;
+                    }
+
+                    showImportError(xhr.responseJSON?.message);
+                },
+            });
         });
 
         @if (session('error') || $errors->any())

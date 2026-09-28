@@ -11,6 +11,7 @@ use App\Modules\Lender\Models\Company;
 use App\Modules\Lender\Models\Employee;
 use App\Modules\Lender\Requests\EmployeeRequest;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -106,7 +107,7 @@ class EmployeeController extends Controller
         );
     }
 
-    public function import(Request $request): RedirectResponse
+    public function import(Request $request): RedirectResponse|JsonResponse
     {
         $data = $request->validate([
             'id_perusahaan' => ['nullable', 'integer'],
@@ -135,11 +136,23 @@ class EmployeeController extends Controller
                     ->take(10)
                     ->implode('<br>');
 
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'message' => $messages,
+                    ], 422);
+                }
+
                 return back()->withInput()->with('error', $messages);
             }
 
             if ($import->savedRows === 0) {
                 DB::rollBack();
+
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'message' => 'Tidak ada data karyawan yang tersimpan. Cek isi file Excel.',
+                    ], 422);
+                }
 
                 return back()->withInput()->with('error', 'Tidak ada data karyawan yang tersimpan. Cek isi file Excel.');
             }
@@ -149,6 +162,12 @@ class EmployeeController extends Controller
             }
 
             DB::commit();
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'Berhasil upload '.$import->savedRows.' data karyawan dan update maximal pinjaman.',
+                ]);
+            }
 
             return redirect()
                 ->route('lender.employees.index')
@@ -161,6 +180,12 @@ class EmployeeController extends Controller
                 'file' => $th->getFile(),
                 'line' => $th->getLine(),
             ]);
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'Gagal upload data karyawan. Periksa format Excel dan pastikan setiap kolom sesuai template.',
+                ], 400);
+            }
 
             return back()
                 ->withInput()
