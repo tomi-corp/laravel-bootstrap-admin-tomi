@@ -45,7 +45,7 @@
                             <td>{{ $loan->user?->name ?? $loan->user?->nama_lengkap ?? '-' }}</td>
                             <td>{{ $loan->company?->nama ?? '-' }}</td>
                             <td>{{ $loan->lender?->nama ?? '-' }}</td>
-                            <td>Rp {{ number_format($loan->nominal, 0, ',', '.') }}</td>
+                            <td>Rp. {{ number_format($loan->nominal, 0, ',', '.') }}</td>
                             <td>{{ $loan->tenor }} bulan</td>
                             <td><span class="rounded-full bg-slate-100 px-2 py-1 text-xs font-medium text-slate-700">{{ str_replace('_', ' ', $loan->status) }}</span></td>
                             <td>

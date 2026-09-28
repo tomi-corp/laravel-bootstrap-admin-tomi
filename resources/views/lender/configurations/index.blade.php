@@ -66,9 +66,9 @@
                             <td>{{ number_format($tenor->provisi, 2, ',', '.') }}</td>
                             <td>{{ number_format($tenor->biaya_admin, 2, ',', '.') }}</td>
                             <td>{{ number_format($tenor->fee_tomi, 2, ',', '.') }}</td>
-                            <td>Rp {{ number_format($tenor->biaya_layanan ?? 0, 0, ',', '.') }}</td>
-                            <td>Rp {{ number_format($tenor->minimal_nominal ?? 0, 0, ',', '.') }}</td>
-                            <td>Rp {{ number_format($tenor->maximal_nominal ?? 0, 0, ',', '.') }}</td>
+                            <td>Rp. {{ number_format($tenor->biaya_layanan ?? 0, 0, ',', '.') }}</td>
+                            <td>Rp. {{ number_format($tenor->minimal_nominal ?? 0, 0, ',', '.') }}</td>
+                            <td>Rp. {{ number_format($tenor->maximal_nominal ?? 0, 0, ',', '.') }}</td>
                             <td>{{ number_format($tenor->profesional_fee_1, 2, ',', '.') }}</td>
                             <td>{{ number_format($tenor->profesional_fee_2, 2, ',', '.') }}</td>
                             <td>{{ number_format($tenor->ksp, 2, ',', '.') }}</td>

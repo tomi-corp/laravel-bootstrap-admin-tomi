@@ -42,4 +42,13 @@ class EmployeeRequest extends FormRequest
             'approve_dua' => ['required', Rule::in(['pending', 'approve', 'reject'])],
         ];
     }
+
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('max_plafon')) {
+            $this->merge([
+                'max_plafon' => preg_replace('/\D/', '', (string) $this->input('max_plafon')),
+            ]);
+        }
+    }
 }

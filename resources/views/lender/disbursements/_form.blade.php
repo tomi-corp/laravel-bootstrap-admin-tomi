@@ -17,7 +17,7 @@
                     data-pk-url="{{ $pkUrl }}"
                     data-ktp-url="{{ $ktpUrl }}"
                     data-selfie-url="{{ $selfieUrl }}"
-                    @selected(old('pinjaman_id', $disbursement->pinjaman_id) == $loan->id)>{{ $loan->id_pinjaman }} - Rp {{ number_format($loan->nominal, 0, ',', '.') }}</option>
+                    @selected(old('pinjaman_id', $disbursement->pinjaman_id) == $loan->id)>{{ $loan->id_pinjaman }} - Rp. {{ number_format($loan->nominal, 0, ',', '.') }}</option>
             @endforeach
         </select>
         @error('pinjaman_id') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
@@ -34,7 +34,7 @@
     </div>
     <div>
         <label class="mb-1 block text-sm font-medium text-slate-900">Dana yang Dicairkan</label>
-        <input type="number" step="any" name="dana_yang_dicairkan" value="{{ old('dana_yang_dicairkan', $disbursement->dana_yang_dicairkan) }}" class="w-full rounded-md border border-slate-200 px-3 py-2 text-slate-950 focus:border-black focus:outline-none focus:ring-2 focus:ring-black/20" required>
+        <input type="text" name="dana_yang_dicairkan" value="{{ old('dana_yang_dicairkan', $disbursement->dana_yang_dicairkan) }}" class="js-rupiah-input w-full rounded-md border border-slate-200 px-3 py-2 text-slate-950 focus:border-black focus:outline-none focus:ring-2 focus:ring-black/20" required>
         @error('dana_yang_dicairkan') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
     </div>
     <div>

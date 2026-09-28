@@ -72,7 +72,7 @@
                                 </button>
                             </td>
                             <td>{{ $repayment?->admin?->nama ?? '-' }}</td>
-                            <td>{{ $repayment ? 'Rp '.number_format($repayment->amount_total, 0, ',', '.') : '-' }}</td>
+                            <td>{{ $repayment ? 'Rp. '.number_format($repayment->amount_total, 0, ',', '.') : '-' }}</td>
                             <td>{{ $repayment?->tanggal_pembayaran ? \Carbon\Carbon::parse($repayment->tanggal_pembayaran)->format('d/m/Y H:i') : '-' }}</td>
                             <td>{{ $repayment?->payment_proof_file ?? '-' }}</td>
                             <td>
@@ -211,7 +211,7 @@
                                                 <td class="px-3 py-2 font-medium">{{ $loan->id_pinjaman ?? '#'.$loan->id }}</td>
                                                 <td class="px-3 py-2">{{ $loan->data_karyawan?->nama_karyawan ?? $loan->user?->name ?? '-' }}</td>
                                                 <td class="px-3 py-2">{{ $loan->perusahaan?->nama ?? '-' }}</td>
-                                                <td class="px-3 py-2">Rp {{ number_format($loan->nominal ?? 0, 0, ',', '.') }}</td>
+                                                <td class="px-3 py-2">Rp. {{ number_format($loan->nominal ?? 0, 0, ',', '.') }}</td>
                                                 <td class="px-3 py-2">{{ $loan->tenor ?? '-' }} bulan</td>
                                                 <td class="px-3 py-2">{{ $periodAngsuran?->jatuh_tempo ? \Carbon\Carbon::parse($periodAngsuran->jatuh_tempo)->format('d/m/Y') : '-' }}</td>
                                             </tr>

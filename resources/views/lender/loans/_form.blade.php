@@ -67,7 +67,10 @@
     ] as $field => $label)
         <div>
             <label class="mb-1 block text-sm font-medium text-slate-900">{{ $label }}</label>
-            <input type="number" step="any" name="{{ $field }}" value="{{ old($field, $loan->{$field}) }}" class="w-full rounded-md border border-slate-200 px-3 py-2 text-slate-950 focus:border-black focus:outline-none focus:ring-2 focus:ring-black/20" {{ in_array($field, ['nominal', 'tenor', 'rate']) ? 'required' : '' }}>
+            @php
+                $isCurrency = in_array($field, ['nominal', 'biaya_admin', 'iuran_anggota', 'biaya_layanan', 'total_angsuran_perbulan', 'jumlah_yang_diterima'], true);
+            @endphp
+            <input type="{{ $isCurrency ? 'text' : 'number' }}" @if (! $isCurrency) step="any" @endif name="{{ $field }}" value="{{ old($field, $loan->{$field}) }}" class="{{ $isCurrency ? 'js-rupiah-input ' : '' }}w-full rounded-md border border-slate-200 px-3 py-2 text-slate-950 focus:border-black focus:outline-none focus:ring-2 focus:ring-black/20" {{ in_array($field, ['nominal', 'tenor', 'rate']) ? 'required' : '' }}>
             @error($field) <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
         </div>
     @endforeach

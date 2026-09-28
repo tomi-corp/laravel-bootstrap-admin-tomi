@@ -12,6 +12,21 @@ class LoanTenorRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        $data = [];
+
+        foreach (['biaya_layanan', 'minimal_nominal', 'maximal_nominal'] as $field) {
+            if ($this->has($field)) {
+                $data[$field] = preg_replace('/\D/', '', (string) $this->input($field));
+            }
+        }
+
+        if ($data !== []) {
+            $this->merge($data);
+        }
+    }
+
     public function rules(): array
     {
         $lenderId = auth('lender')->user()?->id_lender;

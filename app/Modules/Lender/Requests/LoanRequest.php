@@ -12,6 +12,28 @@ class LoanRequest extends FormRequest
         return auth('lender')->check();
     }
 
+    protected function prepareForValidation(): void
+    {
+        $data = [];
+
+        foreach ([
+            'nominal',
+            'biaya_admin',
+            'iuran_anggota',
+            'biaya_layanan',
+            'total_angsuran_perbulan',
+            'jumlah_yang_diterima',
+        ] as $field) {
+            if ($this->has($field)) {
+                $data[$field] = preg_replace('/\D/', '', (string) $this->input($field));
+            }
+        }
+
+        if ($data !== []) {
+            $this->merge($data);
+        }
+    }
+
     public function rules(): array
     {
         $loan = $this->route('loan');

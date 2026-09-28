@@ -12,7 +12,7 @@
     </div>
     <div>
         <label class="mb-1 block text-sm font-medium text-slate-900">Total Pembayaran</label>
-        <input type="number" step="any" name="amount_total" value="{{ old('amount_total', $repayment->amount_total) }}" class="w-full rounded-md border border-slate-200 px-3 py-2 text-slate-950 focus:border-black focus:outline-none focus:ring-2 focus:ring-black/20" required>
+        <input type="text" name="amount_total" value="{{ old('amount_total', $repayment->amount_total) }}" class="js-rupiah-input w-full rounded-md border border-slate-200 px-3 py-2 text-slate-950 focus:border-black focus:outline-none focus:ring-2 focus:ring-black/20" required>
         @error('amount_total') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
     </div>
     <div>

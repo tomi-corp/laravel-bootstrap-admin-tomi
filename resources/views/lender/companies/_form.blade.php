@@ -114,7 +114,7 @@
 
     <div>
         <label class="mb-1 block text-sm font-medium text-slate-900">Maksimal Plafon</label>
-        <input type="number" name="max_plafon" min="0" value="{{ old('max_plafon', $company->max_plafon) }}" class="w-full rounded-md border border-slate-200 px-3 py-2 text-slate-950">
+        <input type="text" name="max_plafon" value="{{ old('max_plafon', $company->max_plafon) }}" class="js-rupiah-input w-full rounded-md border border-slate-200 px-3 py-2 text-slate-950">
         @error('max_plafon') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
     </div>
 </div>

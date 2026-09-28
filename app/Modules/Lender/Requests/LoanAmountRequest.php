@@ -31,10 +31,27 @@ class LoanAmountRequest extends FormRequest
         ];
     }
 
+    protected function prepareForValidation(): void
+    {
+        $this->merge($this->normalizeCurrencyFields([
+            'iuran_anggota',
+            'minimal',
+            'maximal',
+        ]));
+    }
+
     public function messages(): array
     {
         return [
             'id_perusahaan.unique' => 'Konfigurasi DSR untuk perusahaan ini sudah ada. Silakan edit konfigurasi yang sudah tersedia.',
         ];
+    }
+
+    private function normalizeCurrencyFields(array $fields): array
+    {
+        return collect($fields)
+            ->filter(fn ($field) => $this->has($field))
+            ->mapWithKeys(fn ($field) => [$field => preg_replace('/\D/', '', (string) $this->input($field))])
+            ->all();
     }
 }

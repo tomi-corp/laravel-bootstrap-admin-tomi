@@ -30,13 +30,18 @@
     ] as [$field, $label, $type, $step, $min])
         <div>
             <label class="mb-1 block text-sm font-medium text-slate-900">{{ $label }}</label>
+            @php
+                $isCurrency = in_array($field, ['biaya_layanan', 'minimal_nominal', 'maximal_nominal'], true);
+            @endphp
             <input
-                type="{{ $type }}"
+                type="{{ $isCurrency ? 'text' : $type }}"
                 name="{{ $field }}"
-                step="{{ $step }}"
-                min="{{ $min }}"
+                @if (! $isCurrency)
+                    step="{{ $step }}"
+                    min="{{ $min }}"
+                @endif
                 value="{{ old($field, $tenor->{$field}) }}"
-                class="w-full rounded-md border border-slate-200 px-3 py-2 text-slate-950"
+                class="{{ $isCurrency ? 'js-rupiah-input ' : '' }}w-full rounded-md border border-slate-200 px-3 py-2 text-slate-950"
                 @if (! in_array($field, ['biaya_layanan', 'minimal_nominal', 'maximal_nominal'], true)) required @endif
             >
             @error($field) <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror

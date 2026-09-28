@@ -46,8 +46,8 @@
                             <td>{{ $loan->id_pinjaman }}</td>
                             <td>{{ $loan->user?->name ?? $loan->user?->nama_lengkap ?? '-' }}</td>
                             <td>{{ $loan->company?->nama ?? '-' }}</td>
-                            <td>Rp {{ number_format($loan->nominal, 0, ',', '.') }}</td>
-                            <td>Rp {{ number_format($loan->jumlah_yang_diterima, 0, ',', '.') }}</td>
+                            <td>Rp. {{ number_format($loan->nominal, 0, ',', '.') }}</td>
+                            <td>Rp. {{ number_format($loan->jumlah_yang_diterima, 0, ',', '.') }}</td>
                             <td>{{ $loan->tenor }} bulan</td>
                             <td>{{ str_replace('_', ' ', $loan->status) }}</td>
                             <td>
@@ -97,7 +97,7 @@
                                 'Bank' => $bankName,
                                 'Atas Nama' => $accountName,
                                 'Nomor Rekening' => $accountNumber,
-                                'Dana Dicairkan' => 'Rp '.number_format($disbursementAmount, 0, ',', '.'),
+                                'Dana Dicairkan' => 'Rp. '.number_format($disbursementAmount, 0, ',', '.'),
                             ] as $label => $value)
                                 <div class="rounded-md border border-slate-200 bg-slate-50/50 p-3">
                                     <dt class="text-xs font-medium uppercase text-slate-700">{{ $label }}</dt>

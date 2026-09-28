@@ -17,7 +17,7 @@
                     'ID Pinjaman' => $disbursement->loan?->id_pinjaman ?? '#'.$disbursement->pinjaman_id,
                     'Admin' => $disbursement->admin?->nama ?? '-',
                     'Bank' => trim(($disbursement->bank?->code_bank ?? '-').' '.($disbursement->bank?->description ?? '')),
-                    'Dana Dicairkan' => 'Rp '.number_format($disbursement->dana_yang_dicairkan, 0, ',', '.'),
+                    'Dana Dicairkan' => 'Rp. '.number_format($disbursement->dana_yang_dicairkan, 0, ',', '.'),
                     'Atas Nama' => $disbursement->atas_nama,
                     'Nomor Rekening' => $disbursement->nomor_rekening,
                     'Tanggal Transfer' => $disbursement->transfer_date ? \Carbon\Carbon::parse($disbursement->transfer_date)->format('d/m/Y') : '-',

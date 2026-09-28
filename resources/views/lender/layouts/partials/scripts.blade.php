@@ -15,5 +15,44 @@
         positionClass: 'toast-top-right',
         timeOut: 3500,
     };
+
+    window.formatRupiahInput = function (value) {
+        const digits = String(value || '').replace(/\D/g, '');
+
+        if (!digits) {
+            return '';
+        }
+
+        return 'Rp. ' + digits.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    };
+
+    window.normalizeCurrencyInput = function (value) {
+        return String(value || '').replace(/\D/g, '');
+    };
+
+    function initializeCurrencyInputs(scope) {
+        $(scope || document).find('.js-rupiah-input').each(function () {
+            this.value = window.formatRupiahInput(this.value);
+        });
+    }
+
+    $(document).on('input', '.js-rupiah-input', function () {
+        const cursorAtEnd = this.selectionStart === this.value.length;
+        this.value = window.formatRupiahInput(this.value);
+
+        if (cursorAtEnd) {
+            this.setSelectionRange(this.value.length, this.value.length);
+        }
+    });
+
+    $(document).on('submit', 'form', function () {
+        $(this).find('.js-rupiah-input').each(function () {
+            this.value = window.normalizeCurrencyInput(this.value);
+        });
+    });
+
+    $(function () {
+        initializeCurrencyInputs(document);
+    });
 </script>
 

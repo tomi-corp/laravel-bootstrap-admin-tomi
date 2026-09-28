@@ -30,7 +30,7 @@
                     'Divisi' => $employee->divisi ?? '-',
                     'Departement' => $employee->departement,
                     'Jabatan' => $employee->jabatan,
-                    'Max Plafon' => 'Rp '.number_format((float) $employee->max_plafon, 0, ',', '.'),
+                    'Max Plafon' => 'Rp. '.number_format((float) $employee->max_plafon, 0, ',', '.'),
                     'Tanggal Bergabung' => optional($employee->tanggal_bergabung)->format('d/m/Y') ?? '-',
                     'Status' => ucfirst($employee->status),
                     'Status SP' => 'SP '.$employee->status_sp,

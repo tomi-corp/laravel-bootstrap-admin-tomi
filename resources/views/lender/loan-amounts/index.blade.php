@@ -59,9 +59,9 @@
                     @foreach ($amounts as $amount)
                         <tr>
                             <td>{{ $amount->company?->nama ?? '-' }}</td>
-                            <td>Rp {{ number_format($amount->iuran_anggota ?? 0, 0, ',', '.') }}</td>
-                            <td>Rp {{ number_format($amount->minimal, 0, ',', '.') }}</td>
-                            <td>Rp {{ number_format($amount->maximal, 0, ',', '.') }}</td>
+                            <td>Rp. {{ number_format($amount->iuran_anggota ?? 0, 0, ',', '.') }}</td>
+                            <td>Rp. {{ number_format($amount->minimal, 0, ',', '.') }}</td>
+                            <td>Rp. {{ number_format($amount->maximal, 0, ',', '.') }}</td>
                             <td>{{ number_format($amount->maximal_persentase ?? 0, 2, ',', '.') }}%</td>
                             <td>
                                 <div class="flex items-center gap-2">

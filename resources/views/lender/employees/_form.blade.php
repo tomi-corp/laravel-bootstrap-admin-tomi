@@ -27,12 +27,15 @@
     ] as [$field, $label, $type, $required])
         <div>
             <label class="mb-1 block text-sm font-medium text-slate-900">{{ $label }}</label>
+            @php
+                $isCurrency = $field === 'max_plafon';
+            @endphp
             <input
-                type="{{ $type }}"
+                type="{{ $isCurrency ? 'text' : $type }}"
                 name="{{ $field }}"
                 value="{{ old($field, $type === 'date' && $employee->{$field} ? $employee->{$field}->format('Y-m-d') : $employee->{$field}) }}"
-                class="w-full rounded-md border border-slate-200 px-3 py-2 text-slate-950"
-                @if ($type === 'number') min="0" step="1" @endif
+                class="{{ $isCurrency ? 'js-rupiah-input ' : '' }}w-full rounded-md border border-slate-200 px-3 py-2 text-slate-950"
+                @if ($type === 'number' && ! $isCurrency) min="0" step="1" @endif
                 @if ($required) required @endif
             >
             @error($field) <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror

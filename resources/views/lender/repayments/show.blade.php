@@ -16,7 +16,7 @@
                 @foreach ([
                     'Invoice' => $repayment->invoice?->no_invoice ?? '#'.$repayment->id_invoicing,
                     'Admin' => $repayment->admin?->nama ?? '-',
-                    'Total Pembayaran' => 'Rp '.number_format($repayment->amount_total, 0, ',', '.'),
+                    'Total Pembayaran' => 'Rp. '.number_format($repayment->amount_total, 0, ',', '.'),
                     'Tanggal Pembayaran' => $repayment->tanggal_pembayaran ? \Carbon\Carbon::parse($repayment->tanggal_pembayaran)->format('d/m/Y H:i') : '-',
                     'Tanggal Bukti Bayar' => $repayment->payment_proof_date ? \Carbon\Carbon::parse($repayment->payment_proof_date)->format('d/m/Y') : '-',
                     'File Bukti Bayar' => $repayment->payment_proof_file ?? '-',

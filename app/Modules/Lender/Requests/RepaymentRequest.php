@@ -21,4 +21,13 @@ class RepaymentRequest extends FormRequest
             'payment_proof_file' => ['nullable', 'string', 'max:255'],
         ];
     }
+
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('amount_total')) {
+            $this->merge([
+                'amount_total' => preg_replace('/\D/', '', (string) $this->input('amount_total')),
+            ]);
+        }
+    }
 }

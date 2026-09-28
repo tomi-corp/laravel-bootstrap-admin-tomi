@@ -28,4 +28,13 @@ class DisbursementRequest extends FormRequest
             'transfer_proof' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:5120'],
         ];
     }
+
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('dana_yang_dicairkan')) {
+            $this->merge([
+                'dana_yang_dicairkan' => preg_replace('/\D/', '', (string) $this->input('dana_yang_dicairkan')),
+            ]);
+        }
+    }
 }

@@ -60,7 +60,7 @@
                             <td>{{ $employee->divisi ?? '-' }}</td>
                             <td>{{ $employee->departement }}</td>
                             <td>{{ $employee->jabatan }}</td>
-                            <td>Rp {{ number_format((float) $employee->max_plafon, 0, ',', '.') }}</td>
+                            <td>Rp. {{ number_format((float) $employee->max_plafon, 0, ',', '.') }}</td>
                             <td>{{ ucfirst($employee->status) }}</td>
                             <td>SP {{ $employee->status_sp }}</td>
                             <td>{{ ucfirst($employee->approve_satu) }} / {{ ucfirst($employee->approve_dua) }}</td>

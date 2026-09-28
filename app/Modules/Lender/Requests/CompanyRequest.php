@@ -35,6 +35,10 @@ class CompanyRequest extends FormRequest
             }
         }
 
+        if ($this->has('max_plafon')) {
+            $data['max_plafon'] = preg_replace('/\D/', '', (string) $this->input('max_plafon'));
+        }
+
         if ($data !== []) {
             $this->merge($data);
         }
