@@ -38,26 +38,50 @@ class KaryawanTemplateExport implements FromArray, ShouldAutoSize, WithEvents, W
 
     public function array(): array
     {
-        return [
-            [
-                $this->codePerusahaan ?: '#TomiLender-01012026-0001',
-                'Budi Santoso',
-                '3174010101900001',
-                'EMP001',
-                '081234567890',
-                'Jl. Contoh No. 1',
-                'Operasional',
-                'Staff',
-                'Finance',
-                now()->format('Y-m-d'),
-                'tetap',
-                '0',
-                'BCA',
-                'Budi Santoso',
-                '1234567890',
-                5000000,
-            ],
+        $codePerusahaan = $this->codePerusahaan ?: '#TOMILENDER-'.now()->format('dmY').'-0001';
+        $names = [
+            'Ayu Purnama',
+            'Bayu Maulana',
+            'Citra Lestari',
+            'Dedi Saputra',
+            'Eka Pratama',
+            'Fitri Handayani',
+            'Gilang Ramadhan',
+            'Hana Safitri',
+            'Indra Wijaya',
+            'Joko Santoso',
         ];
+        $divisions = ['Operasional', 'Keuangan', 'Sales', 'Human Capital', 'Teknologi'];
+        $jobs = ['Staff', 'Senior Staff', 'Supervisor', 'Officer', 'Analyst'];
+        $departments = ['Operations', 'Finance', 'Sales', 'HR', 'IT'];
+        $banks = ['BCA', 'Mandiri', 'BRI', 'BNI', 'CIMB Niaga'];
+        $rows = [];
+
+        for ($i = 1; $i <= 100; $i++) {
+            $index = ($i - 1) % count($names);
+            $name = $names[$index];
+
+            $rows[] = [
+                $codePerusahaan,
+                $name,
+                '3174'.str_pad((string) $i, 12, '0', STR_PAD_LEFT),
+                'EMP'.str_pad((string) $i, 3, '0', STR_PAD_LEFT),
+                '0812'.str_pad((string) (600000000 + ($i * 7919)), 8, '0', STR_PAD_LEFT),
+                'Jl. Dummy Karyawan No. '.$i.', Jakarta',
+                $divisions[$index % count($divisions)],
+                $jobs[$index % count($jobs)],
+                $departments[$index % count($departments)],
+                now()->subDays($i * 17)->format('Y-m-d'),
+                $i % 17 === 0 ? 'percobaan' : 'tetap',
+                (string) ($i % 4),
+                $banks[$index % count($banks)],
+                $name,
+                '100'.str_pad((string) ($i * 7919), 7, '0', STR_PAD_LEFT),
+                5000000 + (($i % 10) * 1000000),
+            ];
+        }
+
+        return $rows;
     }
 
     public function registerEvents(): array

@@ -214,6 +214,10 @@ class KaryawanPendingImport implements ToModel, WithHeadingRow
             return 'NIP sudah terdaftar di data karyawan';
         }
 
+        if (str_contains($message, 'Duplicate entry') && str_contains($message, 'list_karyawans_nik_unique')) {
+            return 'NIK sudah terdaftar di data karyawan';
+        }
+
         if (str_contains($message, 'Duplicate entry') && str_contains($message, 'list_karyawans_whatsapp_unique')) {
             return 'No Whatsapp sudah terdaftar di data karyawan';
         }
