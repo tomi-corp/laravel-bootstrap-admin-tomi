@@ -97,10 +97,20 @@
                     <button type="button" class="js-close-import-modal rounded-md px-2 py-1 text-slate-500 hover:bg-slate-100" data-target="#employeeImportModal">Tutup</button>
                 </div>
 
-                <form action="{{ route('lender.employees.import') }}" method="POST" enctype="multipart/form-data" class="px-5 py-4">
+                <form id="employeeImportForm" action="{{ route('lender.employees.import') }}" method="POST" enctype="multipart/form-data" class="px-5 py-4">
                     @csrf
 
                     <div class="grid gap-4">
+                        @if (session('error') || $errors->any())
+                            <div class="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                                @if (session('error'))
+                                    {!! nl2br(e(str_replace('<br>', "\n", session('error')))) !!}
+                                @else
+                                    {{ $errors->first() }}
+                                @endif
+                            </div>
+                        @endif
+
                         <div>
                             <label class="mb-1 block text-sm font-medium text-slate-900">Perusahaan</label>
                             <select name="id_perusahaan" class="js-import-company w-full rounded-md border border-slate-200 px-3 py-2 text-slate-950 focus:border-black focus:outline-none focus:ring-2 focus:ring-black/20">
@@ -111,6 +121,7 @@
                                     </option>
                                 @endforeach
                             </select>
+                            @error('id_perusahaan') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                         </div>
 
                         <div class="rounded-md border border-slate-200 bg-slate-50/70 p-3 text-sm text-slate-600">
@@ -127,14 +138,17 @@
 
                         <div>
                             <label class="mb-1 block text-sm font-medium text-slate-900">File Excel</label>
-                            <input type="file" name="file" accept=".xlsx,.xls,.csv" class="w-full rounded-md border border-slate-200 px-3 py-2 text-slate-950 file:mr-3 file:rounded-md file:border-0 file:bg-primary file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-white focus:border-black focus:outline-none focus:ring-2 focus:ring-black/20" required>
+                            <input id="employeeImportFile" type="file" name="file" accept=".xlsx,.xls,.csv" class="w-full rounded-md border border-slate-200 px-3 py-2 text-slate-950 file:mr-3 file:rounded-md file:border-0 file:bg-primary file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-white focus:border-black focus:outline-none focus:ring-2 focus:ring-black/20" required>
                             @error('file') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                         </div>
                     </div>
 
                     <div class="mt-5 flex justify-end gap-2">
                         <button type="button" class="js-close-import-modal lender-btn bg-slate-50 text-slate-950 hover:bg-slate-100 lender-btn-md" data-target="#employeeImportModal">Batal</button>
-                        <button type="submit" class="lender-btn lender-btn-primary shadow-sm lender-btn-md">Upload</button>
+                        <button id="employeeImportSubmit" type="submit" class="lender-btn lender-btn-primary shadow-sm lender-btn-md">
+                            <i class="fa-solid fa-upload"></i>
+                            <span>Upload</span>
+                        </button>
                     </div>
                 </form>
             </div>
@@ -213,5 +227,24 @@
 
         $('.js-import-company').on('change', syncTemplateDownloadUrl);
         syncTemplateDownloadUrl();
+
+        $('#employeeImportForm').on('submit', function () {
+            const fileInput = document.getElementById('employeeImportFile');
+
+            if (!fileInput.files.length) {
+                return true;
+            }
+
+            $('#employeeImportSubmit')
+                .prop('disabled', true)
+                .addClass('cursor-not-allowed opacity-70')
+                .html('<i class="fa-solid fa-spinner fa-spin"></i><span>Mengupload...</span>');
+
+            return true;
+        });
+
+        @if (session('error') || $errors->any())
+            $('#employeeImportModal').removeClass('hidden').addClass('flex');
+        @endif
     </script>
 @endpush
