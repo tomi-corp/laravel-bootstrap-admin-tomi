@@ -1,0 +1,29 @@
+name: Semgrep Security Scan
+
+on:
+  # Scan saat ada push ke branch dev/prod
+  push:
+    branches: [ "develop", "staging", "main" ]
+
+  # Scan saat Pull Request (TAPI ADA SYARATNYA)
+  pull_request:
+
+jobs:
+  semgrep:
+    name: Scan
+    runs-on: ubuntu-latest
+
+    # LOGIKA SKIP: Jangan jalankan kalau sumbernya dari main-dev
+    # if: github.head_ref != 'main-dev'
+
+    container:
+      image: returntocorp/semgrep
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Semgrep CI
+        uses: returntocorp/semgrep-action@v1
+        with:
+           # INI KUNCINYA: Biar nyambung ke Dashboard kamu
+           publishToken: ${{ secrets.SEMGREP_APP_TOKEN }}
