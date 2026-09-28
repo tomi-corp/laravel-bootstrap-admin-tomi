@@ -17,7 +17,6 @@
     @foreach ([
         ['iuran_anggota', 'Iuran Anggota', false],
         ['minimal', 'Minimal', true],
-        ['maximal', 'Maksimal', true],
         ['maximal_persentase', 'Maksimal Persentase', false],
     ] as [$field, $label, $required])
         <div>
@@ -34,6 +33,21 @@
             @error($field) <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
         </div>
     @endforeach
+
+    <div>
+        <label class="mb-1 block text-sm font-medium text-slate-900">Maksimal</label>
+        <input type="hidden" name="maximal" value="{{ old('maximal', $amount->maximal) }}">
+        <input
+            type="number"
+            step="any"
+            min="0"
+            value="{{ old('maximal', $amount->maximal) }}"
+            class="w-full cursor-not-allowed rounded-md border border-slate-200 bg-slate-100 px-3 py-2 text-slate-500"
+            disabled
+        >
+        <p class="mt-1 text-xs text-slate-500">Diatur otomatis dari gaji karyawan tertinggi dikali DSR.</p>
+        @error('maximal') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+    </div>
 </div>
 
 <div class="mt-6 flex items-center justify-end gap-2">

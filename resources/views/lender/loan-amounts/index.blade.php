@@ -29,10 +29,17 @@
                     <i class="fa-solid fa-arrow-left"></i>
                     Perusahaan
                 </a>
-                <a href="{{ route('lender.loan-amounts.create', $selectedCompany ? ['company_id' => $selectedCompany->id] : []) }}" class="lender-btn lender-btn-primary shadow-sm lender-btn-md">
-                    <i class="fa-solid fa-plus"></i>
-                    Tambah DSR
-                </a>
+                @if ($amounts->isEmpty())
+                    <a href="{{ route('lender.loan-amounts.create', $selectedCompany ? ['company_id' => $selectedCompany->id] : []) }}" class="lender-btn lender-btn-primary shadow-sm lender-btn-md">
+                        <i class="fa-solid fa-plus"></i>
+                        Tambah DSR
+                    </a>
+                @else
+                    <a href="{{ route('lender.loan-amounts.edit', $amounts->first()) }}" class="rounded-md bg-yellow-500 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-yellow-600">
+                        <i class="fa-solid fa-pen"></i>
+                        Edit DSR
+                    </a>
+                @endif
             </div>
         </div>
 

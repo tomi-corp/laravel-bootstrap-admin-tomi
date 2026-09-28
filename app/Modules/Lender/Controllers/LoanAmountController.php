@@ -33,9 +33,15 @@ class LoanAmountController extends Controller
         ]);
     }
 
-    public function create(Request $request): View
+    public function create(Request $request): View|RedirectResponse
     {
         $selectedCompany = $this->selectedCompany($request);
+
+        if ($selectedCompany?->loanAmount()->exists()) {
+            return redirect()
+                ->route('lender.loan-amounts.index', ['company_id' => $selectedCompany->id])
+                ->with('error', 'Konfigurasi DSR untuk perusahaan ini sudah ada. Silakan edit konfigurasi yang tersedia.');
+        }
 
         return view('lender.loan-amounts.create', [
             'amount' => new LoanAmount([
@@ -45,7 +51,7 @@ class LoanAmountController extends Controller
                 'maximal' => 0,
                 'maximal_persentase' => 0,
             ]),
-            'companies' => $this->companies(),
+            'companies' => $this->companiesWithoutAmount(),
         ]);
     }
 
@@ -104,6 +110,15 @@ class LoanAmountController extends Controller
     {
         return Company::query()
             ->where('id_lender', $this->lenderId())
+            ->orderBy('nama')
+            ->get(['id', 'nama', 'id_lender']);
+    }
+
+    private function companiesWithoutAmount()
+    {
+        return Company::query()
+            ->where('id_lender', $this->lenderId())
+            ->whereDoesntHave('loanAmount')
             ->orderBy('nama')
             ->get(['id', 'nama', 'id_lender']);
     }
