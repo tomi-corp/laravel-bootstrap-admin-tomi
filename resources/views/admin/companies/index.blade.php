@@ -374,33 +374,64 @@
                                             <label>H-Min Jatuh Tempo</label>
                                             <input class="form-control" id="tomi_dana_plus_h_min_jatuh_tempo" type="number" min="0" max="31">
                                         </div>
-                                        <div class="col-12 form-group">
-                                            <label>Pilih Referral Tomi Dana Plus</label>
-                                            <select class="form-control feature-referral-select" name="tomi_dana_plus_referral_id" id="tomi_dana_plus_referral_id">
-                                                <option value="">Pilih Referral</option>
+                                        <div class="col-md-6 form-group tomi-dana-plus-referral-field">
+                                            <label>Refferal 1</label>
+                                            <select class="form-control feature-referral-select" name="tomi_dana_plus_referral_1_id" id="tomi_dana_plus_referral_1_id">
+                                                <option value="">Pilih Refferal 1</option>
                                                 @foreach ($referrals as $referral)
                                                     <option value="{{ $referral->id }}">
                                                         {{ $referral->name }}{{ $referral->national_id_number ? ' - '.$referral->national_id_number : '' }}
                                                     </option>
                                                 @endforeach
                                             </select>
-                                            <small class="text-danger error-tomi_dana_plus_referral_id"></small>
+                                            <small class="text-danger error-tomi_dana_plus_referral_1_id"></small>
+                                        </div>
+                                        <div class="col-md-6 form-group tomi-dana-plus-referral-field">
+                                            <label>Refferal 2</label>
+                                            <select class="form-control feature-referral-select" name="tomi_dana_plus_referral_2_id" id="tomi_dana_plus_referral_2_id">
+                                                <option value="">Pilih Refferal 2</option>
+                                                @foreach ($referrals as $referral)
+                                                    <option value="{{ $referral->id }}">
+                                                        {{ $referral->name }}{{ $referral->national_id_number ? ' - '.$referral->national_id_number : '' }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            <small class="text-danger error-tomi_dana_plus_referral_2_id"></small>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="tab-pane fade" id="tomi-gawai-pane" role="tabpanel" aria-labelledby="tomi-gawai-tab">
                                     <div class="row">
-                                        <div class="col-12 form-group">
-                                            <label>Pilih Referral Tomi Gawai</label>
-                                            <select class="form-control feature-referral-select" name="tomi_gawai_referral_id" id="tomi_gawai_referral_id">
-                                                <option value="">Pilih Referral</option>
+                                        <div class="col-md-6 form-group">
+                                            <label>Referral</label>
+                                            <select class="form-control feature-referral-toggle" id="tomi_gawai_referral">
+                                                <option value="active">Active</option>
+                                                <option value="nonactive">Nonactive</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6 form-group tomi-gawai-referral-field">
+                                            <label>Refferal 1</label>
+                                            <select class="form-control feature-referral-select" name="tomi_gawai_referral_1_id" id="tomi_gawai_referral_1_id">
+                                                <option value="">Pilih Refferal 1</option>
                                                 @foreach ($referrals as $referral)
                                                     <option value="{{ $referral->id }}">
                                                         {{ $referral->name }}{{ $referral->national_id_number ? ' - '.$referral->national_id_number : '' }}
                                                     </option>
                                                 @endforeach
                                             </select>
-                                            <small class="text-danger error-tomi_gawai_referral_id"></small>
+                                            <small class="text-danger error-tomi_gawai_referral_1_id"></small>
+                                        </div>
+                                        <div class="col-md-6 form-group tomi-gawai-referral-field">
+                                            <label>Refferal 2</label>
+                                            <select class="form-control feature-referral-select" name="tomi_gawai_referral_2_id" id="tomi_gawai_referral_2_id">
+                                                <option value="">Pilih Refferal 2</option>
+                                                @foreach ($referrals as $referral)
+                                                    <option value="{{ $referral->id }}">
+                                                        {{ $referral->name }}{{ $referral->national_id_number ? ' - '.$referral->national_id_number : '' }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            <small class="text-danger error-tomi_gawai_referral_2_id"></small>
                                         </div>
                                     </div>
                                 </div>
@@ -412,17 +443,36 @@
                                             <input type="hidden" name="max_plafon" id="max_plafon">
                                             <small class="text-danger error-max_plafon"></small>
                                         </div>
-                                        <div class="col-12 form-group">
-                                            <label>Pilih Referral Tomi Gaji</label>
-                                            <select class="form-control feature-referral-select" name="tomi_gaji_referral_id" id="tomi_gaji_referral_id">
-                                                <option value="">Pilih Referral</option>
+                                        <div class="col-md-6 form-group">
+                                            <label>Referral</label>
+                                            <select class="form-control feature-referral-toggle" id="tomi_gaji_referral">
+                                                <option value="active">Active</option>
+                                                <option value="nonactive">Nonactive</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6 form-group tomi-gaji-referral-field">
+                                            <label>Refferal 1</label>
+                                            <select class="form-control feature-referral-select" name="tomi_gaji_referral_1_id" id="tomi_gaji_referral_1_id">
+                                                <option value="">Pilih Refferal 1</option>
                                                 @foreach ($referrals as $referral)
                                                     <option value="{{ $referral->id }}">
                                                         {{ $referral->name }}{{ $referral->national_id_number ? ' - '.$referral->national_id_number : '' }}
                                                     </option>
                                                 @endforeach
                                             </select>
-                                            <small class="text-danger error-tomi_gaji_referral_id"></small>
+                                            <small class="text-danger error-tomi_gaji_referral_1_id"></small>
+                                        </div>
+                                        <div class="col-md-6 form-group tomi-gaji-referral-field">
+                                            <label>Refferal 2</label>
+                                            <select class="form-control feature-referral-select" name="tomi_gaji_referral_2_id" id="tomi_gaji_referral_2_id">
+                                                <option value="">Pilih Refferal 2</option>
+                                                @foreach ($referrals as $referral)
+                                                    <option value="{{ $referral->id }}">
+                                                        {{ $referral->name }}{{ $referral->national_id_number ? ' - '.$referral->national_id_number : '' }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            <small class="text-danger error-tomi_gaji_referral_2_id"></small>
                                         </div>
                                     </div>
                                 </div>
@@ -432,17 +482,36 @@
                                             <label>Max Plafon</label>
                                             <input class="form-control rupiah-display-input" id="tomi_invoice_max_plafon" inputmode="numeric" placeholder="Rp. 0">
                                         </div>
-                                        <div class="col-12 form-group">
-                                            <label>Pilih Referral Tomi Invoice</label>
-                                            <select class="form-control feature-referral-select" name="tomi_invoice_referral_id" id="tomi_invoice_referral_id">
-                                                <option value="">Pilih Referral</option>
+                                        <div class="col-md-6 form-group">
+                                            <label>Referral</label>
+                                            <select class="form-control feature-referral-toggle" id="tomi_invoice_referral">
+                                                <option value="active">Active</option>
+                                                <option value="nonactive">Nonactive</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6 form-group tomi-invoice-referral-field">
+                                            <label>Refferal 1</label>
+                                            <select class="form-control feature-referral-select" name="tomi_invoice_referral_1_id" id="tomi_invoice_referral_1_id">
+                                                <option value="">Pilih Refferal 1</option>
                                                 @foreach ($referrals as $referral)
                                                     <option value="{{ $referral->id }}">
                                                         {{ $referral->name }}{{ $referral->national_id_number ? ' - '.$referral->national_id_number : '' }}
                                                     </option>
                                                 @endforeach
                                             </select>
-                                            <small class="text-danger error-tomi_invoice_referral_id"></small>
+                                            <small class="text-danger error-tomi_invoice_referral_1_id"></small>
+                                        </div>
+                                        <div class="col-md-6 form-group tomi-invoice-referral-field">
+                                            <label>Refferal 2</label>
+                                            <select class="form-control feature-referral-select" name="tomi_invoice_referral_2_id" id="tomi_invoice_referral_2_id">
+                                                <option value="">Pilih Refferal 2</option>
+                                                @foreach ($referrals as $referral)
+                                                    <option value="{{ $referral->id }}">
+                                                        {{ $referral->name }}{{ $referral->national_id_number ? ' - '.$referral->national_id_number : '' }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            <small class="text-danger error-tomi_invoice_referral_2_id"></small>
                                         </div>
                                     </div>
                                 </div>
@@ -647,7 +716,7 @@
         $('#id_lender, #id_provinsi, #bank, .feature-referral-select').val('').trigger('change');
         $('#id_kabupaten, #id_kecamatan, #id_desa').empty().trigger('change');
         $('#status, #active_profesional_fee, #active_set_pinjaman').val('active');
-        $('#tomi_dana_plus_status, #tomi_dana_plus_referral, #tomi_dana_plus_set_pinjaman').val('active');
+        $('#tomi_dana_plus_status, #tomi_dana_plus_referral, #tomi_dana_plus_set_pinjaman, #tomi_gawai_referral, #tomi_gaji_referral, #tomi_invoice_referral').val('active');
         $('#payment_date').val(25);
         $('#h_min_jatuh_tempo').val(9);
         $('#active_tanggal').val(1);
@@ -656,7 +725,7 @@
         $('#tomi_dana_plus_h_min_jatuh_tempo').val(9);
         setRupiahField('#max_plafon_view', '#max_plafon', '');
         setRupiahField('#tomi_invoice_max_plafon', null, '');
-        toggleTomiDanaReferralFields();
+        syncAllFeatureReferralFields();
         toggleTomiDanaConfiguration();
         $('#tomi-dana-tab').tab('show');
         $('#companyModalTitle').text('Tambah Perusahaan');
@@ -682,7 +751,7 @@
 
             setRupiahField('#max_plafon_view', '#max_plafon', company.max_plafon);
             syncFeaturePreviewFields(company);
-            toggleTomiDanaReferralFields();
+            syncAllFeatureReferralFields();
             toggleTomiDanaConfiguration();
             isHydratingForm = false;
             $('#tomi-dana-tab').tab('show');
@@ -711,6 +780,23 @@
         syncTenorReferralConfigFields();
     }
 
+    function toggleFeatureReferralFields(toggleSelector, fieldSelector, selectSelector) {
+        var isActive = $(toggleSelector).val() === 'active';
+        $(fieldSelector).toggleClass('d-none', !isActive);
+
+        if (!isActive) {
+            $(selectSelector).val('').trigger('change');
+        }
+    }
+
+    function syncAllFeatureReferralFields() {
+        toggleTomiDanaReferralFields();
+        toggleFeatureReferralFields('#tomi_dana_plus_referral', '.tomi-dana-plus-referral-field', '#tomi_dana_plus_referral_1_id, #tomi_dana_plus_referral_2_id');
+        toggleFeatureReferralFields('#tomi_gawai_referral', '.tomi-gawai-referral-field', '#tomi_gawai_referral_1_id, #tomi_gawai_referral_2_id');
+        toggleFeatureReferralFields('#tomi_gaji_referral', '.tomi-gaji-referral-field', '#tomi_gaji_referral_1_id, #tomi_gaji_referral_2_id');
+        toggleFeatureReferralFields('#tomi_invoice_referral', '.tomi-invoice-referral-field', '#tomi_invoice_referral_1_id, #tomi_invoice_referral_2_id');
+    }
+
     function toggleTomiDanaConfiguration() {
         $('#tomi_dana_configuration_wrapper').removeClass('d-none');
 
@@ -731,6 +817,7 @@
     }
 
     $('#active_profesional_fee').on('change', toggleTomiDanaReferralFields);
+    $('#tomi_dana_plus_referral, #tomi_gawai_referral, #tomi_gaji_referral, #tomi_invoice_referral').on('change', syncAllFeatureReferralFields);
 
     function initCompanyTenorTable() {
         if (companyTenorTable) {
