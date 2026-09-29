@@ -43,7 +43,7 @@ class MakeDisbursementTester extends Command
                 $userId = $this->ensureUser($i);
                 $kycId = $this->ensureKyc($userId);
                 $loanId = $this->createLoan((int) $lenderId, $companyId, $employeeId, $userId, $kycId, $i);
-                $this->createInstallments($loanId);
+                $this->createInstallments($loanId, $companyId);
             }
         });
 
@@ -78,6 +78,15 @@ class MakeDisbursementTester extends Command
         $region = $this->regionPayload($lenderId);
 
         if ($company) {
+            DB::table('list_perusahaans')
+                ->where('id', $company->id)
+                ->update($this->filterColumns('list_perusahaans', [
+                    'id_lender' => $lenderId,
+                    'payment_date' => 25,
+                    'h_min_jatuh_tempo' => 7,
+                    'updated_at' => now(),
+                ]));
+
             return $company->id;
         }
 
@@ -239,22 +248,48 @@ class MakeDisbursementTester extends Command
         ]);
     }
 
-    private function createInstallments(int $loanId): void
+    private function createInstallments(int $loanId, int $companyId): void
     {
         if (! Schema::hasTable('jatuh_tempos')) {
             return;
         }
 
+        $company = DB::table('list_perusahaans')->where('id', $companyId)->first();
+        $paymentDate = (int) ($company?->payment_date ?: 25);
+        $hMinJatuhTempo = (int) ($company?->h_min_jatuh_tempo ?: 0);
+        $baseDate = Carbon::now();
+
         for ($i = 1; $i <= 3; $i++) {
             $this->insert('jatuh_tempos', [
                 'id_pinjaman' => $loanId,
                 'pembayaran' => $i,
-                'jatuh_tempo' => Carbon::now()->addMonths($i)->toDateString(),
+                'jatuh_tempo' => $this->tanggalJatuhTempoPerusahaan($baseDate, $paymentDate, $hMinJatuhTempo, $i - 1),
                 'angsuran_perbulan' => 1700000,
                 'total_angsuran_perbulan' => 1700000,
                 'status' => 'belum',
             ]);
         }
+    }
+
+    private function tanggalJatuhTempoPerusahaan(Carbon $tanggalPengajuan, int $paymentDate, int $hMinJatuhTempo, int $monthOffset): string
+    {
+        $paymentDay = max(1, min($paymentDate, 31));
+        $baseDate = $tanggalPengajuan->copy()->startOfDay();
+        $thresholdDay = max(1, $paymentDay - $hMinJatuhTempo);
+
+        $firstDueDate = $this->dateWithCompanyPaymentDay($baseDate, $paymentDay);
+
+        if ((int) $baseDate->format('d') > $thresholdDay) {
+            $firstDueDate = $this->dateWithCompanyPaymentDay($baseDate->copy()->addMonthNoOverflow(), $paymentDay);
+        }
+
+        return $this->dateWithCompanyPaymentDay($firstDueDate->copy()->addMonthsNoOverflow($monthOffset), $paymentDay)
+            ->toDateString();
+    }
+
+    private function dateWithCompanyPaymentDay(Carbon $date, int $paymentDay): Carbon
+    {
+        return $date->copy()->day(min($paymentDay, $date->daysInMonth));
     }
 
     private function insert(string $table, array $data): int
