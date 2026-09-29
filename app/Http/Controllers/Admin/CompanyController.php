@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\CompanyRequest;
 use App\Models\bank;
 use App\Models\ListPerusahaan;
+use App\Models\Referral;
 use App\Modules\Internal\Repositories\CompanyRepository;
 use App\Modules\Internal\Repositories\RegionRepository;
 use App\Modules\Internal\Services\CompanyService;
@@ -31,6 +32,9 @@ class CompanyController extends Controller
             'lenders' => $this->companies->lenders(),
             'provinces' => $this->companies->provinces(),
             'banks' => bank::orderBy('code_bank')->get(['id', 'description']),
+            'referrals' => Referral::where('is_active', true)
+                ->orderBy('name')
+                ->get(['id', 'name', 'national_id_number']),
         ]);
     }
 

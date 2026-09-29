@@ -281,6 +281,18 @@
                                             <input class="form-control" name="h_min_jatuh_tempo" id="h_min_jatuh_tempo" type="number" min="0" max="31">
                                             <small class="text-danger error-h_min_jatuh_tempo"></small>
                                         </div>
+                                        <div class="col-12 form-group">
+                                            <label>Pilih Referral Tomi Dana</label>
+                                            <select class="form-control feature-referral-select" name="tomi_dana_referral_id" id="tomi_dana_referral_id">
+                                                <option value="">Pilih Referral</option>
+                                                @foreach ($referrals as $referral)
+                                                    <option value="{{ $referral->id }}">
+                                                        {{ $referral->name }}{{ $referral->national_id_number ? ' - '.$referral->national_id_number : '' }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            <small class="text-danger error-tomi_dana_referral_id"></small>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="tab-pane fade" id="tomi-dana-plus-pane" role="tabpanel" aria-labelledby="tomi-dana-plus-tab">
@@ -318,9 +330,36 @@
                                             <label>H-Min Jatuh Tempo</label>
                                             <input class="form-control" id="tomi_dana_plus_h_min_jatuh_tempo" type="number" min="0" max="31">
                                         </div>
+                                        <div class="col-12 form-group">
+                                            <label>Pilih Referral Tomi Dana Plus</label>
+                                            <select class="form-control feature-referral-select" name="tomi_dana_plus_referral_id" id="tomi_dana_plus_referral_id">
+                                                <option value="">Pilih Referral</option>
+                                                @foreach ($referrals as $referral)
+                                                    <option value="{{ $referral->id }}">
+                                                        {{ $referral->name }}{{ $referral->national_id_number ? ' - '.$referral->national_id_number : '' }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            <small class="text-danger error-tomi_dana_plus_referral_id"></small>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="tab-pane fade" id="tomi-gawai-pane" role="tabpanel" aria-labelledby="tomi-gawai-tab"></div>
+                                <div class="tab-pane fade" id="tomi-gawai-pane" role="tabpanel" aria-labelledby="tomi-gawai-tab">
+                                    <div class="row">
+                                        <div class="col-12 form-group">
+                                            <label>Pilih Referral Tomi Gawai</label>
+                                            <select class="form-control feature-referral-select" name="tomi_gawai_referral_id" id="tomi_gawai_referral_id">
+                                                <option value="">Pilih Referral</option>
+                                                @foreach ($referrals as $referral)
+                                                    <option value="{{ $referral->id }}">
+                                                        {{ $referral->name }}{{ $referral->national_id_number ? ' - '.$referral->national_id_number : '' }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            <small class="text-danger error-tomi_gawai_referral_id"></small>
+                                        </div>
+                                    </div>
+                                </div>
                                 <div class="tab-pane fade" id="tomi-gaji-pane" role="tabpanel" aria-labelledby="tomi-gaji-tab">
                                     <div class="row">
                                         <div class="col-md-6 form-group">
@@ -329,6 +368,18 @@
                                             <input type="hidden" name="max_plafon" id="max_plafon">
                                             <small class="text-danger error-max_plafon"></small>
                                         </div>
+                                        <div class="col-12 form-group">
+                                            <label>Pilih Referral Tomi Gaji</label>
+                                            <select class="form-control feature-referral-select" name="tomi_gaji_referral_id" id="tomi_gaji_referral_id">
+                                                <option value="">Pilih Referral</option>
+                                                @foreach ($referrals as $referral)
+                                                    <option value="{{ $referral->id }}">
+                                                        {{ $referral->name }}{{ $referral->national_id_number ? ' - '.$referral->national_id_number : '' }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            <small class="text-danger error-tomi_gaji_referral_id"></small>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="tab-pane fade" id="tomi-invoice-pane" role="tabpanel" aria-labelledby="tomi-invoice-tab">
@@ -336,6 +387,18 @@
                                         <div class="col-md-6 form-group">
                                             <label>Max Plafon</label>
                                             <input class="form-control rupiah-display-input" id="tomi_invoice_max_plafon" inputmode="numeric" placeholder="Rp. 0">
+                                        </div>
+                                        <div class="col-12 form-group">
+                                            <label>Pilih Referral Tomi Invoice</label>
+                                            <select class="form-control feature-referral-select" name="tomi_invoice_referral_id" id="tomi_invoice_referral_id">
+                                                <option value="">Pilih Referral</option>
+                                                @foreach ($referrals as $referral)
+                                                    <option value="{{ $referral->id }}">
+                                                        {{ $referral->name }}{{ $referral->national_id_number ? ' - '.$referral->national_id_number : '' }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            <small class="text-danger error-tomi_invoice_referral_id"></small>
                                         </div>
                                     </div>
                                 </div>
@@ -408,7 +471,7 @@
         ]
     });
 
-    $('#id_lender, #id_provinsi, #id_kabupaten, #id_kecamatan, #id_desa, #bank').select2({ width: '100%' });
+    $('#id_lender, #id_provinsi, #id_kabupaten, #id_kecamatan, #id_desa, #bank, .feature-referral-select').select2({ width: '100%' });
 
     $(document).on('input', '.text-uppercase', function () {
         var cursorPosition = this.selectionStart;
@@ -420,7 +483,7 @@
         clearErrors();
         $('#companyForm')[0].reset();
         $('#companyId').val('');
-        $('#id_lender, #id_provinsi, #bank').val('').trigger('change');
+        $('#id_lender, #id_provinsi, #bank, .feature-referral-select').val('').trigger('change');
         $('#id_kabupaten, #id_kecamatan, #id_desa').empty().trigger('change');
         $('#status, #active_profesional_fee, #active_set_pinjaman').val('active');
         $('#tomi_dana_plus_status, #tomi_dana_plus_referral, #tomi_dana_plus_set_pinjaman').val('active');
