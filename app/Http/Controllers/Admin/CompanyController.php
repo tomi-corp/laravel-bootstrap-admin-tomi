@@ -45,17 +45,23 @@ class CompanyController extends Controller
 
     public function store(CompanyRequest $request): JsonResponse
     {
-        $this->companyService->create($request->validated());
+        $company = $this->companyService->create($request->validated());
 
         return response()->json([
             'message' => 'Perusahaan berhasil ditambahkan',
+            'data' => [
+                'id' => $company->id,
+            ],
         ]);
     }
 
     public function show(ListPerusahaan $company): JsonResponse
     {
+        $company->load(['lender', 'provinsi', 'kabupaten', 'kecamatan', 'desa']);
+        $company->configuration_url = route('admin.ksp.konfigurasi', encryptSecure($company->id));
+
         return response()->json([
-            'data' => $company->load(['lender', 'provinsi', 'kabupaten', 'kecamatan', 'desa']),
+            'data' => $company,
             'cities' => $this->regions->citiesByProvinceName(optional($company->provinsi)->provinsi),
             'districts' => $this->regions->districtsByCityName(optional($company->kabupaten)->kabupaten),
             'villages' => $this->regions->villagesByDistrictName(optional($company->kecamatan)->kecamatan),
@@ -68,6 +74,9 @@ class CompanyController extends Controller
 
         return response()->json([
             'message' => 'Perusahaan berhasil diperbarui',
+            'data' => [
+                'id' => $company->id,
+            ],
         ]);
     }
 

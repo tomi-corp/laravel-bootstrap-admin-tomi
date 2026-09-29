@@ -42,6 +42,8 @@ class CompanyRequest extends FormRequest
             'h_min_jatuh_tempo' => ['required', 'integer', 'min:0', 'max:31'],
             'status' => ['required', Rule::in(['active', 'nonactive'])],
             'active_profesional_fee' => ['required', Rule::in(['active', 'nonactive'])],
+            'tomi_dana_referral_1_id' => ['nullable', 'integer', Rule::exists('referrals', 'id')->where('is_active', true)],
+            'tomi_dana_referral_2_id' => ['nullable', 'integer', Rule::exists('referrals', 'id')->where('is_active', true)],
             'active_set_pinjaman' => ['required', Rule::in(['active', 'nonactive'])],
             'active_tanggal' => ['required', 'integer', 'min:0', 'max:31'],
             'max_plafon' => ['nullable', 'numeric', 'min:0'],

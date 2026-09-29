@@ -33,6 +33,8 @@ class ListPerusahaan extends Model
         'h_min_jatuh_tempo',
         'status',
         'active_profesional_fee',
+        'tomi_dana_referral_1_id',
+        'tomi_dana_referral_2_id',
         'active_set_pinjaman',
         'active_tanggal',
         'max_plafon',
@@ -66,6 +68,16 @@ class ListPerusahaan extends Model
     public function lender()
     {
         return $this->hasOne(lender::class, 'id', 'id_lender');
+    }
+
+    public function tomiDanaReferral1()
+    {
+        return $this->belongsTo(Referral::class, 'tomi_dana_referral_1_id');
+    }
+
+    public function tomiDanaReferral2()
+    {
+        return $this->belongsTo(Referral::class, 'tomi_dana_referral_2_id');
     }
 
     public function karyawanPending()

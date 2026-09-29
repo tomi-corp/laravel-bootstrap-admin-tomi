@@ -17,14 +17,14 @@ class CompanyService
     {
         $data['unique_code'] = $this->codeGenerator->uniqueCode();
         $data['id_code_perusahaan'] = $this->codeGenerator->companyCode();
-        $data['max_plafon'] = $this->normalizeNullableNumber($data['max_plafon'] ?? null);
+        $data = $this->normalizeFeatureData($data);
 
         return $this->companies->create($data);
     }
 
     public function update(ListPerusahaan $company, array $data): bool
     {
-        $data['max_plafon'] = $this->normalizeNullableNumber($data['max_plafon'] ?? null);
+        $data = $this->normalizeFeatureData($data);
 
         return $this->companies->update($company, $data);
     }
@@ -41,5 +41,17 @@ class CompanyService
         }
 
         return (string) $value;
+    }
+
+    private function normalizeFeatureData(array $data): array
+    {
+        $data['max_plafon'] = $this->normalizeNullableNumber($data['max_plafon'] ?? null);
+
+        if (($data['active_profesional_fee'] ?? null) !== 'active') {
+            $data['tomi_dana_referral_1_id'] = null;
+            $data['tomi_dana_referral_2_id'] = null;
+        }
+
+        return $data;
     }
 }
