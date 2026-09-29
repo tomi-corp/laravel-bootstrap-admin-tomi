@@ -38,10 +38,10 @@ class CompanyTableService
             ->addColumn('action', function (ListPerusahaan $company) {
                 $configurationUrl = route('admin.ksp.konfigurasi', encryptSecure($company->id));
 
-                return '<div class="btn-group btn-group-sm" role="group" aria-label="Aksi perusahaan">'
-                    .'<button type="button" class="btn btn-primary" title="Edit" onclick="editCompany('.$company->id.')"><i class="fa-solid fa-pen"></i></button>'
-                    .'<a class="btn btn-info" title="Konfigurasi Tenor" href="'.$configurationUrl.'"><i class="fa-solid fa-gear"></i></a>'
-                    .'<button type="button" class="btn btn-danger" title="Hapus" onclick="deleteCompany('.$company->id.')"><i class="fa-solid fa-trash-can"></i></button>'
+                return '<div class="d-inline-flex align-items-center" style="gap: .35rem;" aria-label="Aksi perusahaan">'
+                    .'<button type="button" class="btn btn-sm btn-primary" title="Edit" onclick="editCompany('.$company->id.')"><i class="fa-solid fa-pen"></i></button>'
+                    .'<a class="btn btn-sm btn-info" title="Konfigurasi Tenor" href="'.$configurationUrl.'"><i class="fa-solid fa-gear"></i></a>'
+                    .'<button type="button" class="btn btn-sm btn-danger" title="Hapus" onclick="deleteCompany('.$company->id.')"><i class="fa-solid fa-trash-can"></i></button>'
                     .'</div>';
             })
             ->filterColumn('lender_name', fn ($query, $keyword) => $query->whereHas('lender', fn ($q) => $q->where('nama', 'like', "%{$keyword}%")))
