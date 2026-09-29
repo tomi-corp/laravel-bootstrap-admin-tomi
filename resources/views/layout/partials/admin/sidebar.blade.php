@@ -77,7 +77,7 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                 </li>
 
                 <li>
-                    <a href="javascript: void(0);">
+                    <a href="{{ route('admin.features.index') }}">
                         <i class="fa-solid fa-puzzle-piece"></i>
                         <span> Fitur </span>
                     </a>

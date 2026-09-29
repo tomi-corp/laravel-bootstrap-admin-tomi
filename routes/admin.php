@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\CompanyController;
 use App\Http\Controllers\Admin\CostController;
 use App\Http\Controllers\Admin\DailyCheckinController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\FeatureController;
 use App\Http\Controllers\Admin\GadgetInstallmentController;
 use App\Http\Controllers\Admin\GenerateInvoiceController;
 use App\Http\Controllers\Admin\InvoiceFeePageController;
@@ -180,6 +181,8 @@ Route::middleware(['AdminMiddleware'])->group(
                 Route::get('/daily/checkin', [DailyCheckinController::class, 'dailyIndex'])->name('admin.daily.index');
                 Route::post('/daily/checkin/table', [DailyCheckinController::class, 'dailyTable'])->name('admin.daily.table');
                 Route::post('/daily/checkin/update', [DailyCheckinController::class, 'dailyUpdate'])->name('admin.daily.update');
+
+                Route::resource('/features', FeatureController::class)->names('admin.features');
 
                 // ksp => cost
                 Route::get('/cost/ksp', [CostController::class, 'costIndex'])->name('admin.cost.index');
