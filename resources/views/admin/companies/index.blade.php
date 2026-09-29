@@ -36,6 +36,29 @@
         border-bottom-color: #536de6;
         color: #536de6;
     }
+
+    #tenorConfigModal {
+        z-index: 1065;
+    }
+
+    .modal-backdrop.tenor-config-backdrop {
+        z-index: 1060;
+    }
+
+    #tenorConfigModal .modal-content {
+        max-height: calc(100vh - 3.5rem);
+    }
+
+    #tenorConfigModal .tenor-config-modal-body {
+        max-height: calc(100vh - 12rem);
+        overflow-y: auto;
+    }
+
+    #tenorConfigModal .modal-footer {
+        flex-shrink: 0;
+        border-top: 1px solid #dee2e6;
+        background-color: #fff;
+    }
 </style>
 @endpush
 
@@ -312,9 +335,6 @@
                                                     <i class="fa-solid fa-plus"></i> Tambah Konfigurasi
                                                 </button>
                                             </div>
-                                            <div class="alert alert-info mb-2 d-none" id="tomi_dana_configuration_empty">
-                                                Simpan data perusahaan terlebih dahulu, lalu konfigurasi Tomi Dana bisa ditambahkan di sini.
-                                            </div>
                                             <div class="table-responsive">
                                                 <table id="companyTenorTable" class="table table-hover table-bordered nowrap text-center" style="width:100%">
                                                     <thead>
@@ -334,6 +354,7 @@
                                                             <th>Aksi</th>
                                                         </tr>
                                                     </thead>
+                                                    <tbody id="pendingTenorConfigBody"></tbody>
                                                 </table>
                                             </div>
                                         </div>
@@ -538,10 +559,10 @@
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
             </div>
             <form id="tenorConfigForm">
-                <div class="modal-body">
+                <div class="modal-body tenor-config-modal-body">
                     <input type="hidden" id="tenor_config_id">
                     <div class="row">
-                        <div class="col-md-4 form-group">
+                        <div class="col-md-6 form-group">
                             <label>Tenor</label>
                             <div class="input-group">
                                 <input class="form-control" id="cfg_tenor" type="number" min="1">
@@ -549,7 +570,7 @@
                             </div>
                             <small class="text-danger cfg-error-tenor"></small>
                         </div>
-                        <div class="col-md-4 form-group">
+                        <div class="col-md-6 form-group">
                             <label>Rate</label>
                             <div class="input-group">
                                 <input class="form-control" id="cfg_rate" type="number" step="0.01" min="0">
@@ -557,7 +578,7 @@
                             </div>
                             <small class="text-danger cfg-error-rate"></small>
                         </div>
-                        <div class="col-md-4 form-group">
+                        <div class="col-md-6 form-group">
                             <label>Asuransi</label>
                             <div class="input-group">
                                 <input class="form-control" id="cfg_asuransi" type="number" step="0.01" min="0">
@@ -565,7 +586,7 @@
                             </div>
                             <small class="text-danger cfg-error-asuransi"></small>
                         </div>
-                        <div class="col-md-4 form-group">
+                        <div class="col-md-6 form-group">
                             <label>Provisi</label>
                             <div class="input-group">
                                 <input class="form-control" id="cfg_provisi" type="number" step="0.01" min="0">
@@ -573,7 +594,7 @@
                             </div>
                             <small class="text-danger cfg-error-provisi"></small>
                         </div>
-                        <div class="col-md-4 form-group">
+                        <div class="col-md-6 form-group">
                             <label>Fee Tomi</label>
                             <div class="input-group">
                                 <input class="form-control" id="cfg_fee_tomi" type="number" step="0.01" min="0">
@@ -581,7 +602,7 @@
                             </div>
                             <small class="text-danger cfg-error-fee_tomi"></small>
                         </div>
-                        <div class="col-md-4 form-group">
+                        <div class="col-md-6 form-group">
                             <label>Biaya Admin</label>
                             <div class="input-group">
                                 <input class="form-control" id="cfg_biaya_admin" type="number" step="0.01" min="0">
@@ -589,7 +610,7 @@
                             </div>
                             <small class="text-danger cfg-error-biaya_admin"></small>
                         </div>
-                        <div class="col-md-4 form-group tenor-referral-config-field">
+                        <div class="col-md-6 form-group tenor-referral-config-field">
                             <label>Refferal 1</label>
                             <div class="input-group">
                                 <input class="form-control cfg-admin-fee-input" id="cfg_profesional_fee_1" type="number" step="0.01" min="0">
@@ -597,7 +618,7 @@
                             </div>
                             <small class="text-danger cfg-error-profesional_fee_1"></small>
                         </div>
-                        <div class="col-md-4 form-group tenor-referral-config-field">
+                        <div class="col-md-6 form-group tenor-referral-config-field">
                             <label>Refferal 2</label>
                             <div class="input-group">
                                 <input class="form-control cfg-admin-fee-input" id="cfg_profesional_fee_2" type="number" step="0.01" min="0">
@@ -605,7 +626,7 @@
                             </div>
                             <small class="text-danger cfg-error-profesional_fee_2"></small>
                         </div>
-                        <div class="col-md-4 form-group tenor-referral-config-field">
+                        <div class="col-md-6 form-group tenor-referral-config-field">
                             <label>Lender</label>
                             <div class="input-group">
                                 <input class="form-control cfg-admin-fee-input" id="cfg_ksp" type="number" step="0.01" min="0">
@@ -613,19 +634,19 @@
                             </div>
                             <small class="text-danger cfg-error-ksp"></small>
                         </div>
-                        <div class="col-md-4 form-group">
+                        <div class="col-md-6 form-group">
                             <label>Biaya Layanan</label>
                             <input class="form-control rupiah-display-input" id="cfg_biaya_layanan_view" inputmode="numeric" placeholder="Rp. 0">
                             <input type="hidden" id="cfg_biaya_layanan">
                             <small class="text-danger cfg-error-biaya_layanan"></small>
                         </div>
-                        <div class="col-md-4 form-group">
+                        <div class="col-md-6 form-group">
                             <label>Minimal Nominal</label>
                             <input class="form-control rupiah-display-input" id="cfg_minimal_nominal_view" inputmode="numeric" placeholder="Rp. 0">
                             <input type="hidden" id="cfg_minimal_nominal">
                             <small class="text-danger cfg-error-minimal_nominal"></small>
                         </div>
-                        <div class="col-md-4 form-group">
+                        <div class="col-md-6 form-group">
                             <label>Maximal Nominal</label>
                             <input class="form-control rupiah-display-input" id="cfg_maximal_nominal_view" inputmode="numeric" placeholder="Rp. 0">
                             <input type="hidden" id="cfg_maximal_nominal">
@@ -650,6 +671,8 @@
     var isHydratingForm = false;
     var currentCompanyId = null;
     var companyTenorTable = null;
+    var pendingTenorConfigs = [];
+    var pendingTenorConfigKey = 1;
     var table = $('#companiesTable').DataTable({
         dom: 'B<"clear">lfrtip',
         buttons: [
@@ -713,6 +736,8 @@
         $('#companyForm')[0].reset();
         $('#companyId').val('');
         currentCompanyId = null;
+        pendingTenorConfigs = [];
+        pendingTenorConfigKey = 1;
         $('#id_lender, #id_provinsi, #bank, .feature-referral-select').val('').trigger('change');
         $('#id_kabupaten, #id_kecamatan, #id_desa').empty().trigger('change');
         $('#status, #active_profesional_fee, #active_set_pinjaman').val('active');
@@ -799,25 +824,148 @@
 
     function toggleTomiDanaConfiguration() {
         $('#tomi_dana_configuration_wrapper').removeClass('d-none');
+        $('#addTenorConfigButton').prop('disabled', false);
 
         if (currentCompanyId) {
-            $('#addTenorConfigButton').prop('disabled', false);
-            $('#tomi_dana_configuration_empty').addClass('d-none');
             $('#companyTenorTable_wrapper, #companyTenorTable').removeClass('d-none');
             initCompanyTenorTable();
             return;
         }
 
-        $('#addTenorConfigButton').prop('disabled', true);
-        $('#tomi_dana_configuration_empty').removeClass('d-none');
-        $('#companyTenorTable_wrapper, #companyTenorTable').addClass('d-none');
+        $('#companyTenorTable_wrapper, #companyTenorTable').removeClass('d-none');
+        if (companyTenorTable) {
+            companyTenorTable.destroy();
+            companyTenorTable = null;
+        }
+
+        renderPendingTenorConfigs();
+    }
+
+    function renderPendingTenorConfigs() {
+        var rows = pendingTenorConfigs.map(function (config) {
+            return '<tr>'
+                + '<td>' + config.tenor + ' bulan</td>'
+                + '<td>' + config.rate + ' %</td>'
+                + '<td>' + config.asuransi + ' %</td>'
+                + '<td>' + config.provisi + ' %</td>'
+                + '<td>' + config.biaya_admin + ' %</td>'
+                + '<td>' + config.fee_tomi + ' %</td>'
+                + '<td>' + config.profesional_fee_1 + ' %</td>'
+                + '<td>' + config.profesional_fee_2 + ' %</td>'
+                + '<td>' + config.ksp + ' %</td>'
+                + '<td>' + formatRupiah(config.biaya_layanan) + '</td>'
+                + '<td>' + formatRupiah(config.minimal_nominal) + '</td>'
+                + '<td>' + formatRupiah(config.maximal_nominal) + '</td>'
+                + '<td><div class="btn-group">'
+                + '<button type="button" class="btn btn-sm btn-primary" onclick="editPendingTenorConfig(' + config.key + ')"><i class="fa-solid fa-pen"></i></button>'
+                + '<button type="button" class="btn btn-sm btn-danger" onclick="deletePendingTenorConfig(' + config.key + ')"><i class="fa-solid fa-trash-can"></i></button>'
+                + '</div></td>'
+                + '</tr>';
+        }).join('');
+
+        if (!rows) {
+            rows = '<tr><td colspan="13">Belum ada konfigurasi Tomi Dana untuk perusahaan ini.</td></tr>';
+        }
+
+        $('#pendingTenorConfigBody').html(rows);
+    }
+
+    function editPendingTenorConfig(key) {
+        var config = pendingTenorConfigs.find(function (item) {
+            return item.key === key;
+        });
+
+        if (!config) {
+            return;
+        }
+
+        resetTenorConfigForm();
+        $('#tenorConfigModalTitle').text('Edit Konfigurasi Tomi Dana');
+        $('#tenor_config_id').val('pending-' + key);
+        $('#cfg_tenor').val(config.tenor);
+        $('#cfg_rate').val(config.rate);
+        $('#cfg_asuransi').val(config.asuransi);
+        $('#cfg_provisi').val(config.provisi);
+        $('#cfg_biaya_admin').val(config.biaya_admin);
+        $('#cfg_fee_tomi').val(config.fee_tomi);
+        $('#cfg_profesional_fee_1').val(config.profesional_fee_1);
+        $('#cfg_profesional_fee_2').val(config.profesional_fee_2);
+        $('#cfg_ksp').val(config.ksp);
+        setRupiahField('#cfg_biaya_layanan_view', '#cfg_biaya_layanan', config.biaya_layanan);
+        setRupiahField('#cfg_minimal_nominal_view', '#cfg_minimal_nominal', config.minimal_nominal);
+        setRupiahField('#cfg_maximal_nominal_view', '#cfg_maximal_nominal', config.maximal_nominal);
+        syncTenorReferralConfigFields();
+        $('#tenorConfigModal').modal('show');
+    }
+
+    function deletePendingTenorConfig(key) {
+        pendingTenorConfigs = pendingTenorConfigs.filter(function (item) {
+            return item.key !== key;
+        });
+        renderPendingTenorConfigs();
+    }
+
+    function tenorConfigPayload() {
+        return {
+            tenor: $('#cfg_tenor').val(),
+            rate: $('#cfg_rate').val(),
+            asuransi: $('#cfg_asuransi').val(),
+            provisi: $('#cfg_provisi').val(),
+            biaya_admin: $('#cfg_biaya_admin').val(),
+            fee_tomi: $('#cfg_fee_tomi').val(),
+            profesional_fee_1: $('#cfg_profesional_fee_1').val(),
+            profesional_fee_2: $('#cfg_profesional_fee_2').val(),
+            ksp: $('#cfg_ksp').val(),
+            biaya_layanan: $('#cfg_biaya_layanan').val(),
+            minimal_nominal: $('#cfg_minimal_nominal').val(),
+            maximal_nominal: $('#cfg_maximal_nominal').val(),
+        };
+    }
+
+    function savePendingTenorConfigs(companyId) {
+        if (!pendingTenorConfigs.length) {
+            return $.Deferred().resolve().promise();
+        }
+
+        var chain = $.Deferred().resolve().promise();
+
+        pendingTenorConfigs.forEach(function (config) {
+            chain = chain.then(function () {
+                return $.post('{{ route('admin.ksp.konfigurasi.add') }}', $.extend({
+                    _token: '{{ csrf_token() }}',
+                    id: companyId,
+                }, config));
+            });
+        });
+
+        return chain.then(function () {
+            pendingTenorConfigs = [];
+            renderPendingTenorConfigs();
+        });
+    }
+
+    function activateServerTenorTable() {
+        $('#pendingTenorConfigBody').empty();
+
         if (companyTenorTable) {
             companyTenorTable.clear().draw();
         }
+
+        initCompanyTenorTable();
     }
 
     $('#active_profesional_fee').on('change', toggleTomiDanaReferralFields);
     $('#tomi_dana_plus_referral, #tomi_gawai_referral, #tomi_gaji_referral, #tomi_invoice_referral').on('change', syncAllFeatureReferralFields);
+
+    $('#tenorConfigModal').on('show.bs.modal', function () {
+        $(this).appendTo('body');
+    }).on('shown.bs.modal', function () {
+        $('.modal-backdrop').last().addClass('tenor-config-backdrop');
+    }).on('hidden.bs.modal', function () {
+        if ($('#companyModal').hasClass('show')) {
+            $('body').addClass('modal-open');
+        }
+    });
 
     function initCompanyTenorTable() {
         if (companyTenorTable) {
@@ -890,11 +1038,6 @@
     }
 
     function openTenorConfigModal() {
-        if (!currentCompanyId) {
-            toastr.warning('Simpan perusahaan terlebih dahulu sebelum menambah konfigurasi.');
-            return;
-        }
-
         resetTenorConfigForm();
         $('#tenorConfigModalTitle').text('Tambah Konfigurasi Tomi Dana');
         $('#tenorConfigModal').modal('show');
@@ -976,6 +1119,22 @@
 
         var id = $('#tenor_config_id').val();
         var url = id ? '{{ route('admin.ksp.konfigurasi.edit') }}' : '{{ route('admin.ksp.konfigurasi.add') }}';
+        var payload = tenorConfigPayload();
+
+        if (!currentCompanyId) {
+            if (id && id.indexOf('pending-') === 0) {
+                var pendingKey = parseInt(id.replace('pending-', ''), 10);
+                pendingTenorConfigs = pendingTenorConfigs.map(function (config) {
+                    return config.key === pendingKey ? $.extend({ key: pendingKey }, payload) : config;
+                });
+            } else {
+                pendingTenorConfigs.push($.extend({ key: pendingTenorConfigKey++ }, payload));
+            }
+
+            $('#tenorConfigModal').modal('hide');
+            renderPendingTenorConfigs();
+            return;
+        }
 
         $('#saveTenorConfigButton').attr('disabled', true);
         $('#saveTenorConfigSpinner').addClass('spinner-border spinner-border-sm');
@@ -987,18 +1146,18 @@
             data: {
                 _token: '{{ csrf_token() }}',
                 id: id || currentCompanyId,
-                tenor: $('#cfg_tenor').val(),
-                rate: $('#cfg_rate').val(),
-                asuransi: $('#cfg_asuransi').val(),
-                provisi: $('#cfg_provisi').val(),
-                biaya_admin: $('#cfg_biaya_admin').val(),
-                fee_tomi: $('#cfg_fee_tomi').val(),
-                profesional_fee_1: $('#cfg_profesional_fee_1').val(),
-                profesional_fee_2: $('#cfg_profesional_fee_2').val(),
-                ksp: $('#cfg_ksp').val(),
-                biaya_layanan: $('#cfg_biaya_layanan').val(),
-                minimal_nominal: $('#cfg_minimal_nominal').val(),
-                maximal_nominal: $('#cfg_maximal_nominal').val(),
+                tenor: payload.tenor,
+                rate: payload.rate,
+                asuransi: payload.asuransi,
+                provisi: payload.provisi,
+                biaya_admin: payload.biaya_admin,
+                fee_tomi: payload.fee_tomi,
+                profesional_fee_1: payload.profesional_fee_1,
+                profesional_fee_2: payload.profesional_fee_2,
+                ksp: payload.ksp,
+                biaya_layanan: payload.biaya_layanan,
+                minimal_nominal: payload.minimal_nominal,
+                maximal_nominal: payload.maximal_nominal,
             },
             success: function (response) {
                 toastr.success(response.message);
@@ -1088,8 +1247,21 @@
                     $('#companyId').val(response.data.id);
                     currentCompanyId = response.data.id;
                     $('#companyModalTitle').text('Ubah Perusahaan');
-                    toggleTomiDanaConfiguration();
+                    savePendingTenorConfigs(currentCompanyId)
+                        .done(function () {
+                            activateServerTenorTable();
+                            table.ajax.reload();
+                        })
+                        .fail(function () {
+                            toastr.error('Perusahaan tersimpan, tetapi konfigurasi Tomi Dana gagal disimpan.');
+                        });
+                    return;
                 }
+
+                if (currentCompanyId) {
+                    activateServerTenorTable();
+                }
+
                 table.ajax.reload();
             },
             error: function (xhr) {
