@@ -206,16 +206,6 @@
                             <input class="form-control text-uppercase" name="nomor_pks" id="nomor_pks">
                             <small class="text-danger error-nomor_pks"></small>
                         </div>
-                        <div class="col-md-6 form-group">
-                            <label>Payment Date</label>
-                            <input class="form-control" name="payment_date" id="payment_date" type="number" min="1" max="31">
-                            <small class="text-danger error-payment_date"></small>
-                        </div>
-                        <div class="col-md-6 form-group">
-                            <label>H-Min Jatuh Tempo</label>
-                            <input class="form-control" name="h_min_jatuh_tempo" id="h_min_jatuh_tempo" type="number" min="0" max="31">
-                            <small class="text-danger error-h_min_jatuh_tempo"></small>
-                        </div>
                         <div class="col-12 form-group">
                             <label>Lender</label>
                             <select class="form-control" name="id_lender" id="id_lender">
@@ -276,6 +266,16 @@
                                             <input class="form-control" name="active_tanggal" id="active_tanggal" type="number" min="0" max="31">
                                             <small class="text-danger error-active_tanggal"></small>
                                         </div>
+                                        <div class="col-md-6 form-group">
+                                            <label>Payment Date</label>
+                                            <input class="form-control" name="payment_date" id="payment_date" type="number" min="1" max="31">
+                                            <small class="text-danger error-payment_date"></small>
+                                        </div>
+                                        <div class="col-md-6 form-group">
+                                            <label>H-Min Jatuh Tempo</label>
+                                            <input class="form-control" name="h_min_jatuh_tempo" id="h_min_jatuh_tempo" type="number" min="0" max="31">
+                                            <small class="text-danger error-h_min_jatuh_tempo"></small>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="tab-pane fade" id="tomi-dana-plus-pane" role="tabpanel" aria-labelledby="tomi-dana-plus-tab">
@@ -304,6 +304,14 @@
                                         <div class="col-md-6 form-group">
                                             <label>Tanggal Aktif</label>
                                             <input class="form-control" id="tomi_dana_plus_active_tanggal" type="number" min="0" max="31">
+                                        </div>
+                                        <div class="col-md-6 form-group">
+                                            <label>Payment Date</label>
+                                            <input class="form-control" id="tomi_dana_plus_payment_date" type="number" min="1" max="31">
+                                        </div>
+                                        <div class="col-md-6 form-group">
+                                            <label>H-Min Jatuh Tempo</label>
+                                            <input class="form-control" id="tomi_dana_plus_h_min_jatuh_tempo" type="number" min="0" max="31">
                                         </div>
                                     </div>
                                 </div>
@@ -412,6 +420,8 @@
         $('#h_min_jatuh_tempo').val(9);
         $('#active_tanggal').val(1);
         $('#tomi_dana_plus_active_tanggal').val(1);
+        $('#tomi_dana_plus_payment_date').val(25);
+        $('#tomi_dana_plus_h_min_jatuh_tempo').val(9);
         $('#tomi_invoice_max_plafon').val('');
         $('#tomi-dana-tab').tab('show');
         $('#companyModalTitle').text('Tambah Perusahaan');
@@ -446,6 +456,8 @@
         $('#tomi_dana_plus_referral').val(company.active_profesional_fee || 'active');
         $('#tomi_dana_plus_set_pinjaman').val(company.active_set_pinjaman || 'active');
         $('#tomi_dana_plus_active_tanggal').val(company.active_tanggal || 1);
+        $('#tomi_dana_plus_payment_date').val(company.payment_date || 25);
+        $('#tomi_dana_plus_h_min_jatuh_tempo').val(company.h_min_jatuh_tempo || 9);
         $('#tomi_invoice_max_plafon').val(company.max_plafon || '');
     }
 
