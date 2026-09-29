@@ -93,9 +93,9 @@
                             <th class="none">Payment Date</th>
                             <th class="none">H-Min Jatuh Tempo</th>
                             <th class="none">Provinsi</th>
-                            <th class="none">Kabupaten/Kota</th>
+                            <th class="none">Kota</th>
                             <th class="none">Kecamatan</th>
-                            <th class="none">Desa</th>
+                            <th class="none">Kalurahan</th>
                             <th class="none">Alamat</th>
                             <th class="none">Bank</th>
                             <th class="none">No Rekening</th>
@@ -162,7 +162,7 @@
                             <small class="text-danger error-id_provinsi"></small>
                         </div>
                         <div class="col-md-6 form-group">
-                            <label>Kabupaten/Kota</label>
+                            <label>Kota</label>
                             <select class="form-control" name="id_kabupaten" id="id_kabupaten"></select>
                             <small class="text-danger error-id_kabupaten"></small>
                         </div>
@@ -172,7 +172,7 @@
                             <small class="text-danger error-id_kecamatan"></small>
                         </div>
                         <div class="col-md-6 form-group">
-                            <label>Desa</label>
+                            <label>Kalurahan</label>
                             <select class="form-control" name="id_desa" id="id_desa"></select>
                             <small class="text-danger error-id_desa"></small>
                         </div>
@@ -183,7 +183,12 @@
                         </div>
                         <div class="col-md-6 form-group">
                             <label>Bank</label>
-                            <input class="form-control" name="bank" id="bank">
+                            <select class="form-control" name="bank" id="bank">
+                                <option value="">Pilih Bank</option>
+                                @foreach ($banks as $bank)
+                                    <option value="{{ $bank->id }}">{{ $bank->description }}</option>
+                                @endforeach
+                            </select>
                             <small class="text-danger error-bank"></small>
                         </div>
                         <div class="col-md-6 form-group">
@@ -320,7 +325,8 @@
                                     <div class="row">
                                         <div class="col-md-6 form-group">
                                             <label>Max Plafon</label>
-                                            <input class="form-control" name="max_plafon" id="max_plafon" type="number" min="0">
+                                            <input class="form-control rupiah-display-input" id="max_plafon_view" inputmode="numeric" placeholder="Rp. 0">
+                                            <input type="hidden" name="max_plafon" id="max_plafon">
                                             <small class="text-danger error-max_plafon"></small>
                                         </div>
                                     </div>
@@ -329,7 +335,7 @@
                                     <div class="row">
                                         <div class="col-md-6 form-group">
                                             <label>Max Plafon</label>
-                                            <input class="form-control" id="tomi_invoice_max_plafon" type="number" min="0">
+                                            <input class="form-control rupiah-display-input" id="tomi_invoice_max_plafon" inputmode="numeric" placeholder="Rp. 0">
                                         </div>
                                     </div>
                                 </div>
@@ -395,12 +401,14 @@
             { data: 'active_profesional_fee', name: 'active_profesional_fee', defaultContent: '-' },
             { data: 'active_set_pinjaman', name: 'active_set_pinjaman', defaultContent: '-' },
             { data: 'active_tanggal', name: 'active_tanggal', defaultContent: '-' },
-            { data: 'max_plafon', name: 'max_plafon', defaultContent: '-' },
+            { data: 'max_plafon', name: 'max_plafon', defaultContent: '-', render: function (data) {
+                return data ? formatRupiah(data) : '-';
+            } },
             { data: 'action', name: 'action', orderable: false, searchable: false, defaultContent: '-' }
         ]
     });
 
-    $('#id_lender, #id_provinsi, #id_kabupaten, #id_kecamatan, #id_desa').select2({ width: '100%' });
+    $('#id_lender, #id_provinsi, #id_kabupaten, #id_kecamatan, #id_desa, #bank').select2({ width: '100%' });
 
     $(document).on('input', '.text-uppercase', function () {
         var cursorPosition = this.selectionStart;
@@ -412,7 +420,7 @@
         clearErrors();
         $('#companyForm')[0].reset();
         $('#companyId').val('');
-        $('#id_lender, #id_provinsi').val('').trigger('change');
+        $('#id_lender, #id_provinsi, #bank').val('').trigger('change');
         $('#id_kabupaten, #id_kecamatan, #id_desa').empty().trigger('change');
         $('#status, #active_profesional_fee, #active_set_pinjaman').val('active');
         $('#tomi_dana_plus_status, #tomi_dana_plus_referral, #tomi_dana_plus_set_pinjaman').val('active');
@@ -422,7 +430,8 @@
         $('#tomi_dana_plus_active_tanggal').val(1);
         $('#tomi_dana_plus_payment_date').val(25);
         $('#tomi_dana_plus_h_min_jatuh_tempo').val(9);
-        $('#tomi_invoice_max_plafon').val('');
+        setRupiahField('#max_plafon_view', '#max_plafon', '');
+        setRupiahField('#tomi_invoice_max_plafon', null, '');
         $('#tomi-dana-tab').tab('show');
         $('#companyModalTitle').text('Tambah Perusahaan');
         $('#companyModal').modal('show');
@@ -444,6 +453,7 @@
                 $('#' + key).val(company[key]).trigger('change');
             });
 
+            setRupiahField('#max_plafon_view', '#max_plafon', company.max_plafon);
             syncFeaturePreviewFields(company);
             isHydratingForm = false;
             $('#tomi-dana-tab').tab('show');
@@ -458,7 +468,7 @@
         $('#tomi_dana_plus_active_tanggal').val(company.active_tanggal || 1);
         $('#tomi_dana_plus_payment_date').val(company.payment_date || 25);
         $('#tomi_dana_plus_h_min_jatuh_tempo').val(company.h_min_jatuh_tempo || 9);
-        $('#tomi_invoice_max_plafon').val(company.max_plafon || '');
+        setRupiahField('#tomi_invoice_max_plafon', null, company.max_plafon);
     }
 
     function deleteCompany(id) {
@@ -569,5 +579,36 @@
     function clearErrors() {
         $('[class*="error-"]').text('');
     }
+
+    function onlyDigits(value) {
+        return String(value || '').replace(/\D/g, '');
+    }
+
+    function formatThousands(value) {
+        var digits = onlyDigits(value);
+        return digits.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    }
+
+    function formatRupiah(value) {
+        var formatted = formatThousands(value);
+        return formatted ? 'Rp. ' + formatted : '';
+    }
+
+    function setRupiahField(displaySelector, rawSelector, value) {
+        var raw = onlyDigits(value);
+        $(displaySelector).val(formatRupiah(raw));
+        if (rawSelector) {
+            $(rawSelector).val(raw);
+        }
+    }
+
+    $(document).on('input', '.rupiah-display-input', function () {
+        var raw = onlyDigits(this.value);
+        this.value = formatRupiah(raw);
+
+        if (this.id === 'max_plafon_view') {
+            $('#max_plafon').val(raw);
+        }
+    });
 </script>
 @endpush
