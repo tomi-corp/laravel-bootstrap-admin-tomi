@@ -18,6 +18,24 @@
         border-top: 1px solid #dee2e6;
         background-color: #fff;
     }
+
+    #companyModal .company-feature-tabs {
+        border-bottom: 1px solid #dee2e6;
+        margin: .5rem 0 1rem;
+    }
+
+    #companyModal .company-feature-tabs .nav-link {
+        border: 0;
+        border-bottom: 2px solid transparent;
+        color: #6c757d;
+        font-weight: 600;
+        padding: .75rem 1rem;
+    }
+
+    #companyModal .company-feature-tabs .nav-link.active {
+        border-bottom-color: #536de6;
+        color: #536de6;
+    }
 </style>
 @endpush
 
@@ -84,7 +102,7 @@
                             <th class="none">Atas Nama Rekening</th>
                             <th class="none">Direktur Utama</th>
                             <th class="none">Nomor PKS</th>
-                            <th class="none">Professional Fee</th>
+                            <th class="none">Referral</th>
                             <th class="none">Set Pinjaman</th>
                             <th class="none">Tanggal Aktif</th>
                             <th class="none">Max Plafon</th>
@@ -108,17 +126,7 @@
                 <div class="modal-body company-modal-body">
                     <input type="hidden" id="companyId">
                     <div class="row">
-                        <div class="col-md-6 form-group">
-                            <label>Lender</label>
-                            <select class="form-control" name="id_lender" id="id_lender">
-                                <option value="">Pilih Lender</option>
-                                @foreach ($lenders as $lender)
-                                    <option value="{{ $lender->id }}">{{ $lender->nama }}</option>
-                                @endforeach
-                            </select>
-                            <small class="text-danger error-id_lender"></small>
-                        </div>
-                        <div class="col-md-6 form-group">
+                        <div class="col-12 form-group">
                             <label>Nama Perusahaan</label>
                             <input class="form-control text-uppercase" name="nama" id="nama">
                             <small class="text-danger error-nama"></small>
@@ -208,39 +216,116 @@
                             <input class="form-control" name="h_min_jatuh_tempo" id="h_min_jatuh_tempo" type="number" min="0" max="31">
                             <small class="text-danger error-h_min_jatuh_tempo"></small>
                         </div>
-                        <div class="col-md-6 form-group">
-                            <label>Tanggal Aktif</label>
-                            <input class="form-control" name="active_tanggal" id="active_tanggal" type="number" min="0" max="31">
-                            <small class="text-danger error-active_tanggal"></small>
-                        </div>
-                        <div class="col-md-6 form-group">
-                            <label>Status</label>
-                            <select class="form-control" name="status" id="status">
-                                <option value="active">Active</option>
-                                <option value="nonactive">Nonactive</option>
+                        <div class="col-12 form-group">
+                            <label>Lender</label>
+                            <select class="form-control" name="id_lender" id="id_lender">
+                                <option value="">Pilih Lender</option>
+                                @foreach ($lenders as $lender)
+                                    <option value="{{ $lender->id }}">{{ $lender->nama }}</option>
+                                @endforeach
                             </select>
-                            <small class="text-danger error-status"></small>
+                            <small class="text-danger error-id_lender"></small>
                         </div>
-                        <div class="col-md-6 form-group">
-                            <label>Professional Fee</label>
-                            <select class="form-control" name="active_profesional_fee" id="active_profesional_fee">
-                                <option value="active">Active</option>
-                                <option value="nonactive">Nonactive</option>
-                            </select>
-                            <small class="text-danger error-active_profesional_fee"></small>
-                        </div>
-                        <div class="col-md-6 form-group">
-                            <label>Set Pinjaman</label>
-                            <select class="form-control" name="active_set_pinjaman" id="active_set_pinjaman">
-                                <option value="active">Active</option>
-                                <option value="nonactive">Nonactive</option>
-                            </select>
-                            <small class="text-danger error-active_set_pinjaman"></small>
-                        </div>
-                        <div class="col-md-6 form-group">
-                            <label>Max Plafon</label>
-                            <input class="form-control" name="max_plafon" id="max_plafon" type="number" min="0">
-                            <small class="text-danger error-max_plafon"></small>
+                        <div class="col-12">
+                            <ul class="nav company-feature-tabs" id="companyFeatureTabs" role="tablist">
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="tomi-dana-tab" data-toggle="tab" href="#tomi-dana-pane" role="tab" aria-controls="tomi-dana-pane" aria-selected="true">Tomi Dana</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="tomi-dana-plus-tab" data-toggle="tab" href="#tomi-dana-plus-pane" role="tab" aria-controls="tomi-dana-plus-pane" aria-selected="false">Tomi Dana Plus</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="tomi-gawai-tab" data-toggle="tab" href="#tomi-gawai-pane" role="tab" aria-controls="tomi-gawai-pane" aria-selected="false">Tomi Gawai</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="tomi-gaji-tab" data-toggle="tab" href="#tomi-gaji-pane" role="tab" aria-controls="tomi-gaji-pane" aria-selected="false">Tomi Gaji</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="tomi-invoice-tab" data-toggle="tab" href="#tomi-invoice-pane" role="tab" aria-controls="tomi-invoice-pane" aria-selected="false">Tomi Invoice</a>
+                                </li>
+                            </ul>
+                            <div class="tab-content">
+                                <div class="tab-pane fade show active" id="tomi-dana-pane" role="tabpanel" aria-labelledby="tomi-dana-tab">
+                                    <div class="row">
+                                        <div class="col-md-6 form-group">
+                                            <label>Status</label>
+                                            <select class="form-control" name="status" id="status">
+                                                <option value="active">Active</option>
+                                                <option value="nonactive">Nonactive</option>
+                                            </select>
+                                            <small class="text-danger error-status"></small>
+                                        </div>
+                                        <div class="col-md-6 form-group">
+                                            <label>Referral</label>
+                                            <select class="form-control" name="active_profesional_fee" id="active_profesional_fee">
+                                                <option value="active">Active</option>
+                                                <option value="nonactive">Nonactive</option>
+                                            </select>
+                                            <small class="text-danger error-active_profesional_fee"></small>
+                                        </div>
+                                        <div class="col-md-6 form-group">
+                                            <label>Set Pinjaman</label>
+                                            <select class="form-control" name="active_set_pinjaman" id="active_set_pinjaman">
+                                                <option value="active">Active</option>
+                                                <option value="nonactive">Nonactive</option>
+                                            </select>
+                                            <small class="text-danger error-active_set_pinjaman"></small>
+                                        </div>
+                                        <div class="col-md-6 form-group">
+                                            <label>Tanggal Aktif</label>
+                                            <input class="form-control" name="active_tanggal" id="active_tanggal" type="number" min="0" max="31">
+                                            <small class="text-danger error-active_tanggal"></small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="tomi-dana-plus-pane" role="tabpanel" aria-labelledby="tomi-dana-plus-tab">
+                                    <div class="row">
+                                        <div class="col-md-6 form-group">
+                                            <label>Status</label>
+                                            <select class="form-control" id="tomi_dana_plus_status">
+                                                <option value="active">Active</option>
+                                                <option value="nonactive">Nonactive</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6 form-group">
+                                            <label>Referral</label>
+                                            <select class="form-control" id="tomi_dana_plus_referral">
+                                                <option value="active">Active</option>
+                                                <option value="nonactive">Nonactive</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6 form-group">
+                                            <label>Set Pinjaman</label>
+                                            <select class="form-control" id="tomi_dana_plus_set_pinjaman">
+                                                <option value="active">Active</option>
+                                                <option value="nonactive">Nonactive</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6 form-group">
+                                            <label>Tanggal Aktif</label>
+                                            <input class="form-control" id="tomi_dana_plus_active_tanggal" type="number" min="0" max="31">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="tomi-gawai-pane" role="tabpanel" aria-labelledby="tomi-gawai-tab"></div>
+                                <div class="tab-pane fade" id="tomi-gaji-pane" role="tabpanel" aria-labelledby="tomi-gaji-tab">
+                                    <div class="row">
+                                        <div class="col-md-6 form-group">
+                                            <label>Max Plafon</label>
+                                            <input class="form-control" name="max_plafon" id="max_plafon" type="number" min="0">
+                                            <small class="text-danger error-max_plafon"></small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="tomi-invoice-pane" role="tabpanel" aria-labelledby="tomi-invoice-tab">
+                                    <div class="row">
+                                        <div class="col-md-6 form-group">
+                                            <label>Max Plafon</label>
+                                            <input class="form-control" id="tomi_invoice_max_plafon" type="number" min="0">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -322,9 +407,13 @@
         $('#id_lender, #id_provinsi').val('').trigger('change');
         $('#id_kabupaten, #id_kecamatan, #id_desa').empty().trigger('change');
         $('#status, #active_profesional_fee, #active_set_pinjaman').val('active');
+        $('#tomi_dana_plus_status, #tomi_dana_plus_referral, #tomi_dana_plus_set_pinjaman').val('active');
         $('#payment_date').val(25);
         $('#h_min_jatuh_tempo').val(9);
         $('#active_tanggal').val(1);
+        $('#tomi_dana_plus_active_tanggal').val(1);
+        $('#tomi_invoice_max_plafon').val('');
+        $('#tomi-dana-tab').tab('show');
         $('#companyModalTitle').text('Tambah Perusahaan');
         $('#companyModal').modal('show');
     }
@@ -345,9 +434,19 @@
                 $('#' + key).val(company[key]).trigger('change');
             });
 
+            syncFeaturePreviewFields(company);
             isHydratingForm = false;
+            $('#tomi-dana-tab').tab('show');
             $('#companyModal').modal('show');
         });
+    }
+
+    function syncFeaturePreviewFields(company) {
+        $('#tomi_dana_plus_status').val(company.status || 'active');
+        $('#tomi_dana_plus_referral').val(company.active_profesional_fee || 'active');
+        $('#tomi_dana_plus_set_pinjaman').val(company.active_set_pinjaman || 'active');
+        $('#tomi_dana_plus_active_tanggal').val(company.active_tanggal || 1);
+        $('#tomi_invoice_max_plafon').val(company.max_plafon || '');
     }
 
     function deleteCompany(id) {
