@@ -13,6 +13,22 @@
     $hasSortOrder = in_array('sort_order', $menuColumns, true);
     $hasStatus = in_array('status', $menuColumns, true);
     $hasIsActive = in_array('is_active', $menuColumns, true);
+    $statusOptions = [
+        'show' => 'Show',
+        'hidden' => 'Hidden',
+        'develop' => 'Develop',
+        'maintenance' => 'Maintenance',
+        'coming_soon' => 'Coming Soon',
+        'disabled' => 'Disabled',
+    ];
+    $statusBadges = [
+        'show' => 'success',
+        'hidden' => 'secondary',
+        'develop' => 'info',
+        'maintenance' => 'warning',
+        'coming_soon' => 'primary',
+        'disabled' => 'danger',
+    ];
 @endphp
 <div class="row">
     <div class="col-12">
@@ -30,25 +46,25 @@
     <div class="col-12">
         <div class="card">
             <div class="card-body">
-                <button type="button" class="btn btn-sm btn-primary float-right mb-3" onclick="openCreateModal()">
-                    <i class="fa-solid fa-circle-plus"></i> Tambah Menu
-                </button>
+                <div class="d-flex justify-content-end mb-3">
+                    <button type="button" class="btn btn-sm btn-primary" onclick="openCreateModal()">
+                        <i class="fa-solid fa-circle-plus"></i> Tambah Menu
+                    </button>
+                </div>
 
                 <table id="menusTable" class="table dt-responsive table-hover text-center" style="width:100%">
                     <thead>
                         <tr>
-                            @if ($hasSortOrder)
-                            <th>Urutan</th>
-                            @endif
+                            <th>No</th>
                             @if ($hasLabel)
                             <th>Label</th>
                             @endif
-                            <th>Name</th>
+                            <th>Nama Menu</th>
                             @if ($hasProject)
                             <th>Project</th>
                             @endif
                             @if ($hasFeature)
-                            <th>Feature</th>
+                            <th>Fitur</th>
                             @endif
                             <th>Parent</th>
                             @if ($hasType)
@@ -58,7 +74,7 @@
                             <th>Icon</th>
                             @endif
                             @if ($hasRoute)
-                            <th>Route</th>
+                            <th>Route Name</th>
                             @endif
                             @if ($hasStatus || $hasIsActive)
                             <th>Status</th>
@@ -69,9 +85,7 @@
                     <tbody>
                         @foreach ($menus as $menu)
                             <tr id="menu-row-{{ $menu->id }}">
-                                @if ($hasSortOrder)
-                                <td>{{ $menu->sort_order }}</td>
-                                @endif
+                                <td>{{ $loop->iteration }}</td>
                                 @if ($hasLabel)
                                 <td>{{ $menu->label }}</td>
                                 @endif
@@ -98,8 +112,8 @@
                                 @endif
                                 @if ($hasStatus)
                                 <td>
-                                    <span class="badge badge-{{ $menu->status === 'show' ? 'success' : 'danger' }}">
-                                        {{ $menu->status === 'show' ? 'Show' : 'Hide' }}
+                                    <span class="badge badge-{{ $statusBadges[$menu->status] ?? 'secondary' }}">
+                                        {{ $statusOptions[$menu->status] ?? ucfirst(str_replace('_', ' ', $menu->status)) }}
                                     </span>
                                 </td>
                                 @elseif ($hasIsActive)
@@ -140,6 +154,11 @@
                     <input type="hidden" id="menuId">
 
                     <div class="row">
+                        <div class="col-md-6 form-group">
+                            <label>Nama Menu</label>
+                            <input class="form-control" name="name" id="name" placeholder="Dashboard">
+                            <small class="text-danger error-name"></small>
+                        </div>
                         @if ($hasProject)
                         <div class="col-md-6 form-group">
                             <label>Project</label>
@@ -154,9 +173,9 @@
                         @endif
                         @if ($hasFeature)
                         <div class="col-md-6 form-group">
-                            <label>Feature</label>
+                            <label>Fitur</label>
                             <select class="form-control" name="feature_id" id="feature_id">
-                                <option value="">Tidak Ada Feature</option>
+                                <option value="">Tidak Ada Fitur</option>
                                 @foreach ($features as $feature)
                                     <option value="{{ $feature->id }}">{{ $feature->name }} ({{ $feature->code }})</option>
                                 @endforeach
@@ -165,7 +184,7 @@
                         </div>
                         @endif
                         <div class="col-md-6 form-group">
-                            <label>Parent</label>
+                            <label>Parent Menu</label>
                             <select class="form-control" name="parent_id" id="parent_id">
                                 <option value="">Tidak Ada Parent</option>
                                 @foreach ($parentMenus as $parentMenu)
@@ -175,21 +194,6 @@
                                 @endforeach
                             </select>
                             <small class="text-danger error-parent_id"></small>
-                        </div>
-                        @if ($hasType)
-                        <div class="col-md-6 form-group">
-                            <label>Type</label>
-                            <select class="form-control" name="type" id="type">
-                                <option value="menu">Menu</option>
-                                <option value="group">Group</option>
-                            </select>
-                            <small class="text-danger error-type"></small>
-                        </div>
-                        @endif
-                        <div class="col-md-6 form-group">
-                            <label>Name</label>
-                            <input class="form-control" name="name" id="name">
-                            <small class="text-danger error-name"></small>
                         </div>
                         @if ($hasLabel)
                         <div class="col-md-6 form-group">
@@ -201,20 +205,30 @@
                         @if ($hasIcon)
                         <div class="col-md-6 form-group">
                             <label>Icon</label>
-                            <input class="form-control" name="icon" id="icon" placeholder="fa-solid fa-house">
+                            <input class="form-control" name="icon" id="icon" placeholder="fa-solid fa-gauge-high">
                             <small class="text-danger error-icon"></small>
                         </div>
                         @endif
                         @if ($hasRoute)
                         <div class="col-md-6 form-group">
-                            <label>Route</label>
+                            <label>Route Name</label>
                             <input class="form-control" name="route" id="route" placeholder="admin.dashboard.index">
                             <small class="text-danger error-route"></small>
                         </div>
                         @endif
+                        @if ($hasType)
+                        <div class="col-md-6 form-group">
+                            <label>Type</label>
+                            <select class="form-control" name="type" id="type">
+                                <option value="menu">Menu</option>
+                                <option value="group">Group</option>
+                            </select>
+                            <small class="text-danger error-type"></small>
+                        </div>
+                        @endif
                         @if ($hasSortOrder)
                         <div class="col-md-6 form-group">
-                            <label>Urutan</label>
+                            <label>Sort Order</label>
                             <input class="form-control" type="number" min="0" name="sort_order" id="sort_order" value="0">
                             <small class="text-danger error-sort_order"></small>
                         </div>
@@ -223,8 +237,9 @@
                         <div class="col-md-6 form-group">
                             <label>Status</label>
                             <select class="form-control" name="status" id="status">
-                                <option value="show">Show</option>
-                                <option value="hide">Hide</option>
+                                @foreach ($statusOptions as $value => $label)
+                                    <option value="{{ $value }}">{{ $label }}</option>
+                                @endforeach
                             </select>
                             <small class="text-danger error-status"></small>
                         </div>

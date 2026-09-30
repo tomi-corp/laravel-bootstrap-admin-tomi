@@ -108,6 +108,7 @@
     <script src="{{ asset('assets/js/pages/chartjs.init.js') }}"></script> --}}
     <script src="{{ asset('assets/libs/moment/moment.min.js') }}"></script>
     <script src="{{ asset('assets/libs/bootstrap-daterangepicker/daterangepicker.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     @stack('js')
 

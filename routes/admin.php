@@ -23,6 +23,7 @@ use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\ProductConfigurationController;
 use App\Http\Controllers\Admin\ProjectController;
 use App\Http\Controllers\Admin\ReferralController;
+use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SalaryFinancingController;
 use App\Http\Controllers\Admin\TomiInvoiceController;
 use App\Http\Controllers\Admin\WebsiteInvoiceController;
@@ -95,6 +96,10 @@ Route::middleware(['AdminMiddleware'])->group(
                 Route::resource('/projects', ProjectController::class)
                     ->except(['create', 'edit'])
                     ->names('admin.projects');
+
+                Route::resource('/roles', RoleController::class)
+                    ->except(['create', 'edit'])
+                    ->names('admin.roles');
 
                 // menu mobile
                 Route::get('/mobile/menu', [MenuMobileController::class, 'index'])->name('admin.menumobile.index');

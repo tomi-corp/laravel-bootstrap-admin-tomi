@@ -18,7 +18,7 @@
         ->orderBy('menus.name');
 
     if ($hasStatusColumn) {
-        $menusQuery->where('menus.status', 'show');
+        $menusQuery->where('menus.status', '!=', 'hidden');
     } elseif ($hasIsActiveColumn) {
         $menusQuery->where('menus.is_active', true);
     }
@@ -92,10 +92,20 @@
         return route($menu->route, $params);
     };
 
-    $renderMenuItem = function ($menu) use (&$renderMenuItem, $menusByParent, $menuUrl) {
+    $statusLabels = [
+        'show' => 'tersedia',
+        'develop' => 'sedang dikembangkan',
+        'maintenance' => 'sedang maintenance',
+        'coming_soon' => 'segera tersedia',
+        'disabled' => 'dinonaktifkan',
+    ];
+
+    $renderMenuItem = function ($menu) use (&$renderMenuItem, $menusByParent, $menuUrl, $hasStatusColumn, $statusLabels) {
         $children = $menusByParent->get($menu->id, collect());
         $hasChildren = $children->isNotEmpty();
         $icon = $menu->icon ?: 'fa-solid fa-circle';
+        $status = $hasStatusColumn ? ($menu->status ?? 'show') : 'show';
+        $isAvailable = $status === 'show';
 
         if ($hasChildren) {
             echo '<li>';
@@ -116,7 +126,12 @@
         }
 
         echo '<li>';
-        echo '<a href="'.e($menuUrl($menu)).'">';
+        if ($isAvailable) {
+            echo '<a href="'.e($menuUrl($menu)).'">';
+        } else {
+            $statusLabel = $statusLabels[$status] ?? str_replace('_', ' ', $status);
+            echo '<a href="javascript: void(0);" class="js-sidebar-status-alert" data-menu-name="'.e($menu->name).'" data-status-label="'.e($statusLabel).'">';
+        }
 
         if (filled($menu->icon)) {
             echo '<i class="'.e($menu->icon).'"></i>';
@@ -154,3 +169,25 @@
         <div class="clearfix"></div>
     </div>
 </div>
+
+@push('js')
+<script>
+    $(document).on('click', '.js-sidebar-status-alert', function () {
+        var menuName = $(this).data('menu-name');
+        var statusLabel = $(this).data('status-label');
+        var message = menuName + ' ' + statusLabel + '.';
+
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                icon: 'info',
+                title: menuName,
+                text: message,
+                confirmButtonText: 'OK'
+            });
+            return;
+        }
+
+        alert(message);
+    });
+</script>
+@endpush

@@ -67,7 +67,7 @@ class MenuRequest extends FormRequest
         }
 
         if (in_array('status', $menuColumns, true)) {
-            $rules['status'] = ['required', Rule::in(['show', 'hide'])];
+            $rules['status'] = ['required', Rule::in(['show', 'hidden', 'develop', 'maintenance', 'coming_soon', 'disabled'])];
         } elseif (in_array('is_active', $menuColumns, true)) {
             $rules['is_active'] = ['required', 'boolean'];
         }
