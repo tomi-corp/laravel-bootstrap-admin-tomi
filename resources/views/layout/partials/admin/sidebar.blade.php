@@ -1,301 +1,155 @@
 {{-- Left Sidebar Start --}}
 @php
-$admin = Auth::guard('admin')->user();
-$roleType = $admin?->type;
+    $admin = Auth::guard('admin')->user();
+    $roleType = $admin?->type;
+    $limitedProductRole = in_array($roleType, ['pic', 'staff']);
 
-// Role yang hanya boleh melihat e-Kasbon dan Salary Financing
-$limitedProductRole = in_array($roleType, ['pic', 'staff']);
-$showHiddenAdminMenu = false;
+    $menuColumns = \Illuminate\Support\Facades\Schema::getColumnListing('menus');
+    $hasStatusColumn = in_array('status', $menuColumns, true);
+    $hasIsActiveColumn = in_array('is_active', $menuColumns, true);
+
+    $menusQuery = \Illuminate\Support\Facades\DB::table('menus')
+        ->leftJoin('projects', 'projects.id', '=', 'menus.project_id')
+        ->whereNull('menus.deleted_at')
+        ->where('projects.code', 'internal')
+        ->select('menus.*')
+        ->orderBy('menus.parent_id')
+        ->orderBy('menus.sort_order')
+        ->orderBy('menus.name');
+
+    if ($hasStatusColumn) {
+        $menusQuery->where('menus.status', 'show');
+    } elseif ($hasIsActiveColumn) {
+        $menusQuery->where('menus.is_active', true);
+    }
+
+    $allMenus = $menusQuery->get();
+
+    if ($limitedProductRole) {
+        $limitedHiddenRoots = ['PPOB', 'Daily', 'Mobile', 'Management'];
+        $hiddenRootIds = $allMenus
+            ->whereIn('name', $limitedHiddenRoots)
+            ->pluck('id')
+            ->all();
+
+        $collectDescendants = function ($parentIds) use (&$collectDescendants, $allMenus) {
+            $children = $allMenus->whereIn('parent_id', $parentIds)->pluck('id')->all();
+
+            if ($children === []) {
+                return [];
+            }
+
+            return array_merge($children, $collectDescendants($children));
+        };
+
+        $hiddenIds = array_merge($hiddenRootIds, $collectDescendants($hiddenRootIds));
+        $allMenus = $allMenus->reject(fn ($menu) => in_array($menu->id, $hiddenIds, true))->values();
+    }
+
+    $menusByParent = $allMenus->groupBy(fn ($menu) => $menu->parent_id ?: 0);
+    $menusById = $allMenus->keyBy('id');
+
+    $productSlugFor = function ($menu) use ($menusById) {
+        $names = [];
+        $cursor = $menu;
+
+        while ($cursor) {
+            $names[] = $cursor->name;
+            $cursor = $cursor->parent_id ? $menusById->get($cursor->parent_id) : null;
+        }
+
+        if (in_array('Tomi Dana Plus', $names, true)) {
+            return 'tomi-dana-plus';
+        }
+
+        if (in_array('Tomi Dana', $names, true)) {
+            return 'tomi-dana';
+        }
+
+        return null;
+    };
+
+    $menuUrl = function ($menu) use ($productSlugFor) {
+        if (blank($menu->route) || ! \Illuminate\Support\Facades\Route::has($menu->route)) {
+            return 'javascript: void(0);';
+        }
+
+        $params = [];
+
+        if (in_array($menu->route, [
+            'admin.product-configurations.tenor.companies',
+            'admin.product-configurations.dsr.companies',
+        ], true)) {
+            $productSlug = $productSlugFor($menu);
+
+            if (! $productSlug) {
+                return 'javascript: void(0);';
+            }
+
+            $params[] = $productSlug;
+        }
+
+        return route($menu->route, $params);
+    };
+
+    $renderMenuItem = function ($menu) use (&$renderMenuItem, $menusByParent, $menuUrl) {
+        $children = $menusByParent->get($menu->id, collect());
+        $hasChildren = $children->isNotEmpty();
+        $icon = $menu->icon ?: 'fa-solid fa-circle';
+
+        if ($hasChildren) {
+            echo '<li>';
+            echo '<a href="javascript: void(0);">';
+            echo '<i class="'.e($icon).'"></i>';
+            echo '<span> '.e($menu->name).' </span>';
+            echo '<span class="menu-arrow"></span>';
+            echo '</a>';
+            echo '<ul class="nav-second-level" aria-expanded="false">';
+
+            foreach ($children as $child) {
+                $renderMenuItem($child);
+            }
+
+            echo '</ul>';
+            echo '</li>';
+            return;
+        }
+
+        echo '<li>';
+        echo '<a href="'.e($menuUrl($menu)).'">';
+
+        if (filled($menu->icon)) {
+            echo '<i class="'.e($menu->icon).'"></i>';
+            echo '<span> '.e($menu->name).' </span>';
+        } else {
+            echo e($menu->name);
+        }
+
+        echo '</a>';
+        echo '</li>';
+    };
 @endphp
 
 <div class="left-side-menu">
-
     <div class="slimscroll-menu">
         <div id="sidebar-menu">
             <ul class="metismenu" id="side-menu">
+                @foreach ($menusByParent->get(0, collect()) as $menu)
+                    @php
+                        $children = $menusByParent->get($menu->id, collect());
+                        $isTitle = blank($menu->icon) && blank($menu->route);
+                    @endphp
 
-                <li class="menu-title">Navigation</li>
+                    @if ($isTitle)
+                        <li class="menu-title">{{ $menu->name }}</li>
 
-                <li>
-                    <a href="{{ route('admin.dashboard.index') }}">
-                        <i class="fa-solid fa-gauge-high"></i>
-                        <span> Dashboard </span>
-                    </a>
-                </li>
-
-                <li class="menu-title">Product</li>
-
-                {{-- PPOB hanya tampil selain pic dan staff --}}
-                @if (!$limitedProductRole)
-                <li>
-                    <a href="javascript: void(0);">
-                        <i class="fa-solid fa-receipt"></i>
-                        <span> PPOB </span>
-                        <span class="menu-arrow"></span>
-                    </a>
-
-                    <ul class="nav-second-level" aria-expanded="false">
-                        <li>
-                            <a href="{{ route('admin.ppob.komisi') }}">Komisi</a>
-                        </li>
-                        <li>
-                            <a href="{{ route('admin.ppob.prepaid') }}">Transaksi Prabayar</a>
-                        </li>
-                        <li>
-                            <a href="{{ route('admin.ppob.postpaid') }}">Transaksi Pasca Bayar</a>
-                        </li>
-                    </ul>
-                </li>
-                @endif
-
-                {{-- Perusahaan dan Lender dipakai lintas produk --}}
-                <li>
-                    <a href="{{ route('admin.lender.index') }}">
-                        <i class="fa-solid fa-users-line"></i>
-                        <span> Lender </span>
-                    </a>
-                </li>
-
-                @if ($showHiddenAdminMenu)
-                    <li>
-                        <a href="{{ route('admin.lender-officers.index') }}">
-                            <i class="fa-solid fa-user-tie"></i>
-                            <span> Pengurus Lender </span>
-                        </a>
-                    </li>
-                @endif
-
-                <li>
-                    <a href="{{ route('admin.companies.index') }}">
-                        <i class="fa-solid fa-building"></i>
-                        <span> Perusahaan </span>
-                    </a>
-                </li>
-
-                <li>
-                    <a href="{{ route('admin.referral.index') }}">
-                        <i class="fa-solid fa-handshake-angle"></i>
-                        <span> Refferal </span>
-                    </a>
-                </li>
-
-                @if ($showHiddenAdminMenu)
-                    <li>
-                        <a href="{{ route('admin.features.index') }}">
-                            <i class="fa-solid fa-puzzle-piece"></i>
-                            <span> Fitur </span>
-                        </a>
-                    </li>
-                @endif
-
-                {{-- Tomi Dana tetap tampil untuk semua role, termasuk pic dan staff --}}
-                <li>
-                    <a href="javascript: void(0);">
-                        <i class="fa-solid fa-network-wired"></i>
-                        <span> Tomi Dana </span>
-                        <span class="menu-arrow"></span>
-                    </a>
-
-                    <ul class="nav-second-level nav" aria-expanded="false">
-                        <li>
-                            <a href="{{ route('admin.product-configurations.tenor.companies', 'tomi-dana') }}">Konfigurasi Tenor</a>
-                        </li>
-
-                        <li>
-                            <a href="{{ route('admin.product-configurations.dsr.companies', 'tomi-dana') }}">Konfigurasi DSR</a>
-                        </li>
-
-                        <li>
-                            <a href="{{ route('admin.cost.index') }}">Cost</a>
-                        </li>
-
-                        <li>
-                            <a href="{{ route('admin.ksp.invoicing.index') }}">List Invoice Perusahaan</a>
-                        </li>
-
-                        <li>
-                            <a href="{{ route('admin.lender.invoicing.index') }}">Invoice Lender</a>
-                        </li>
-
-                        <li>
-                            <a href="{{ route('admin.generate.invoice.index') }}">
-                                <span> Generate Invoice </span>
-                            </a>
-                        </li>
-                    </ul>
-                </li>
-
-                @if ($showHiddenAdminMenu)
-                    {{-- Tomi Dana Plus --}}
-                    <li>
-                        <a href="javascript: void(0);">
-                            <i class="fa-solid fa-hand-holding-dollar"></i>
-                            <span> Tomi Dana Plus </span>
-                            <span class="menu-arrow"></span>
-                        </a>
-
-                        <ul class="nav-second-level" aria-expanded="false">
-                            <li>
-                                <a href="{{ route('admin.product-configurations.tenor.companies', 'tomi-dana-plus') }}">Konfigurasi Tenor</a>
-                            </li>
-                            <li>
-                                <a href="{{ route('admin.product-configurations.dsr.companies', 'tomi-dana-plus') }}">Konfigurasi DSR</a>
-                            </li>
-                            <li>
-                                <a href="{{ route('admin.lender.index') }}">Lender</a>
-                            </li>
-                            <li>
-                                <a href="{{ route('admin.companies.index') }}">Perusahaan</a>
-                            </li>
-                        </ul>
-                    </li>
-                @endif
-
-                {{-- TomiGaji --}}
-                <li>
-                    <a href="javascript: void(0);">
-                        <i class="fa-solid fa-wallet"></i>
-                        <span>TomiGaji</span>
-                        <span class="menu-arrow"></span>
-                    </a>
-
-                    <ul class="nav-second-level" aria-expanded="false">
-                        <li>
-                            <a href="{{ route('admin.salary-financing.lenders') }}">Lender</a>
-                        </li>
-                        <li>
-                            <a href="{{ route('admin.salary-financing.companies') }}">Perusahaan</a>
-                        </li>
-                    </ul>
-                </li>
-
-                {{-- TomiGawai --}}
-                <li>
-                    <a href="{{ route('admin.gadget-installment.index') }}">
-                        <i class="fa-solid fa-mobile-screen-button"></i>
-                        <span>TomiGawai</span>
-                    </a>
-                </li>
-
-                {{-- TomiInvoice --}}
-                <li>
-                    <a href="javascript: void(0);">
-                        <i class="fa-solid fa-file-invoice-dollar"></i>
-                        <span>TomiInvoice</span>
-                        <span class="menu-arrow"></span>
-                    </a>
-
-                    <ul class="nav-second-level" aria-expanded="false">
-                        <li>
-                            <a href="{{ route('admin.invoice-financing.lenders') }}">Lender</a>
-                        </li>
-                        <li>
-                            <a href="{{ route('admin.invoice-financing.companies') }}">Perusahaan</a>
-                        </li>
-                    </ul>
-                </li>
-
-                {{-- Menu di bawah ini hanya tampil selain pic dan staff --}}
-                @if (!$limitedProductRole)
-
-                <!-- <li>
-                    <a href="#">
-                        <i class="dripicons-briefcase"></i>
-                        <span> Pinjaman Regular </span>
-                    </a>
-                </li>
-
-                <li>
-                    <a href="{{ route('admin.cicilan-elektronik.index') }}">
-                        <i class="dripicons-briefcase"></i>
-                        <span> Cicilan Gedget </span>
-                    </a>
-                </li> -->
-
-                <li class="menu-title">Daily</li>
-
-                <li>
-                    <a href="{{ route('admin.daily.index') }}">
-                        <i class="fa-solid fa-calendar-check"></i>
-                        <span> Daily Checkin </span>
-                    </a>
-                </li>
-
-                <li class="menu-title">Mobile</li>
-
-                <li>
-                    <a href="javascript: void(0);">
-                        <i class="fa-solid fa-table-cells-large"></i>
-                        <span> Mobile </span>
-                        <span class="menu-arrow"></span>
-                    </a>
-
-                    <ul class="nav-second-level" aria-expanded="false">
-                        <li>
-                            <a href="{{ route('admin.menumobile.index') }}"> Menu Mobile</a>
-                        </li>
-                        <li>
-                            <a href="{{ route('admin.ota.index') }}"> OTA Mobile</a>
-                        </li>
-                        <li>
-                            <a href="{{ route('admin.sendnotif.index') }}"> Send Notification</a>
-                        </li>
-                    </ul>
-                </li>
-
-                <li class="menu-title">Management</li>
-
-                <li>
-                    <a href="{{ route('admin.manage.admin.index') }}">
-                        <i class="fa-solid fa-user-gear"></i>
-                        <span> Manage Admin </span>
-                    </a>
-                </li>
-
-                <li>
-                    <a href="{{ route('admin.manage.pic-lender.index') }}">
-                        <i class="fa-solid fa-id-card"></i>
-                        <span> PIC Lender </span>
-                    </a>
-                </li>
-
-                @if ($showHiddenAdminMenu)
-                    <li>
-                        <a href="{{ route('admin.projects.index') }}">
-                            <i class="fa-solid fa-diagram-project"></i>
-                            <span> Project </span>
-                        </a>
-                    </li>
-                @endif
-
-                @if ($showHiddenAdminMenu)
-                    <li>
-                        <a href="{{ route('admin.menus.index') }}">
-                            <i class="fa-solid fa-bars-staggered"></i>
-                            <span> Menu </span>
-                        </a>
-                    </li>
-                @endif
-
-                @endif
-
-                <li class="menu-title">BTA</li>
-
-                <li>
-                    <a href="javascript: void(0);">
-                        <i class="fa-solid fa-globe"></i>
-                        <span> Layanan Website </span>
-                        <span class="menu-arrow"></span>
-                    </a>
-
-                    <ul class="nav-second-level" aria-expanded="false">
-                        <li>
-                            <a href="{{ route('admin.website.invoice.index') }}">
-                                Invoice
-                            </a>
-                        </li>
-                    </ul>
-                </li>
+                        @foreach ($children as $child)
+                            @php $renderMenuItem($child); @endphp
+                        @endforeach
+                    @else
+                        @php $renderMenuItem($menu); @endphp
+                    @endif
+                @endforeach
             </ul>
         </div>
 

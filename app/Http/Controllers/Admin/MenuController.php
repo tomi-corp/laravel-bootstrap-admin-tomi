@@ -22,6 +22,12 @@ class MenuController extends Controller
             $parentMenuQuery->orderBy('sort_order');
         }
 
+        if (in_array('status', $menuColumns, true)) {
+            $parentMenuQuery->where('status', 'show');
+        } elseif (in_array('is_active', $menuColumns, true)) {
+            $parentMenuQuery->where('is_active', true);
+        }
+
         $parentMenuQuery->orderBy(in_array('label', $menuColumns, true) ? 'label' : 'name');
 
         return view('admin.menus.index', [

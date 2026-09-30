@@ -19,11 +19,10 @@ class Menu extends Model
         'icon',
         'route',
         'sort_order',
-        'is_active',
+        'status',
     ];
 
     protected $casts = [
-        'is_active' => 'boolean',
         'sort_order' => 'integer',
     ];
 

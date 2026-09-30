@@ -11,6 +11,7 @@
     $hasRoute = in_array('route', $menuColumns, true);
     $hasType = in_array('type', $menuColumns, true);
     $hasSortOrder = in_array('sort_order', $menuColumns, true);
+    $hasStatus = in_array('status', $menuColumns, true);
     $hasIsActive = in_array('is_active', $menuColumns, true);
 @endphp
 <div class="row">
@@ -59,7 +60,7 @@
                             @if ($hasRoute)
                             <th>Route</th>
                             @endif
-                            @if ($hasIsActive)
+                            @if ($hasStatus || $hasIsActive)
                             <th>Status</th>
                             @endif
                             <th>Aksi</th>
@@ -95,7 +96,13 @@
                                 @if ($hasRoute)
                                 <td>{{ $menu->route ?? '-' }}</td>
                                 @endif
-                                @if ($hasIsActive)
+                                @if ($hasStatus)
+                                <td>
+                                    <span class="badge badge-{{ $menu->status === 'show' ? 'success' : 'danger' }}">
+                                        {{ $menu->status === 'show' ? 'Show' : 'Hide' }}
+                                    </span>
+                                </td>
+                                @elseif ($hasIsActive)
                                 <td>
                                     <span class="badge badge-{{ $menu->is_active ? 'success' : 'danger' }}">
                                         {{ $menu->is_active ? 'Aktif' : 'Nonaktif' }}
@@ -212,7 +219,16 @@
                             <small class="text-danger error-sort_order"></small>
                         </div>
                         @endif
-                        @if ($hasIsActive)
+                        @if ($hasStatus)
+                        <div class="col-md-6 form-group">
+                            <label>Status</label>
+                            <select class="form-control" name="status" id="status">
+                                <option value="show">Show</option>
+                                <option value="hide">Hide</option>
+                            </select>
+                            <small class="text-danger error-status"></small>
+                        </div>
+                        @elseif ($hasIsActive)
                         <div class="col-md-6 form-group">
                             <label>Status</label>
                             <select class="form-control" name="is_active" id="is_active">
@@ -262,7 +278,9 @@
         @if ($hasSortOrder)
         $('#sort_order').val(0);
         @endif
-        @if ($hasIsActive)
+        @if ($hasStatus)
+        $('#status').val('show');
+        @elseif ($hasIsActive)
         $('#is_active').val('1');
         @endif
         @if ($hasType)
@@ -313,7 +331,9 @@
                 @if ($hasSortOrder)
                 $('#sort_order').val(menu.sort_order);
                 @endif
-                @if ($hasIsActive)
+                @if ($hasStatus)
+                $('#status').val(menu.status || 'show');
+                @elseif ($hasIsActive)
                 $('#is_active').val(menu.is_active ? '1' : '0');
                 @endif
                 $('#menuModal').modal('show');

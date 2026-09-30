@@ -66,7 +66,9 @@ class MenuRequest extends FormRequest
             $rules['sort_order'] = ['required', 'integer', 'min:0'];
         }
 
-        if (in_array('is_active', $menuColumns, true)) {
+        if (in_array('status', $menuColumns, true)) {
+            $rules['status'] = ['required', Rule::in(['show', 'hide'])];
+        } elseif (in_array('is_active', $menuColumns, true)) {
             $rules['is_active'] = ['required', 'boolean'];
         }
 
