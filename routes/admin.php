@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\CompanyController;
 use App\Http\Controllers\Admin\CostController;
 use App\Http\Controllers\Admin\DailyCheckinController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\DisbursementController;
 use App\Http\Controllers\Admin\FeatureController;
 use App\Http\Controllers\Admin\GadgetInstallmentController;
 use App\Http\Controllers\Admin\GenerateInvoiceController;
@@ -100,6 +101,10 @@ Route::middleware(['AdminMiddleware'])->group(
                 Route::resource('/roles', RoleController::class)
                     ->except(['create', 'edit'])
                     ->names('admin.roles');
+
+                Route::resource('/disbursements', DisbursementController::class)
+                    ->except(['create', 'edit'])
+                    ->names('admin.disbursements');
 
                 // menu mobile
                 Route::get('/mobile/menu', [MenuMobileController::class, 'index'])->name('admin.menumobile.index');
