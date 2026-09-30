@@ -112,6 +112,24 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                     </ul>
                 </li>
 
+                {{-- Tomi Dana Plus --}}
+                <li>
+                    <a href="javascript: void(0);">
+                        <i class="fa-solid fa-hand-holding-dollar"></i>
+                        <span> Tomi Dana Plus </span>
+                        <span class="menu-arrow"></span>
+                    </a>
+
+                    <ul class="nav-second-level" aria-expanded="false">
+                        <li>
+                            <a href="{{ route('admin.lender.index') }}">Lender</a>
+                        </li>
+                        <li>
+                            <a href="{{ route('admin.companies.index') }}">Perusahaan</a>
+                        </li>
+                    </ul>
+                </li>
+
                 {{-- TomiGaji --}}
                 <li>
                     <a href="javascript: void(0);">

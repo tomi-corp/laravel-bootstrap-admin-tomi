@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\InvoiceFeePdfController;
 use App\Http\Controllers\Admin\KspController;
 use App\Http\Controllers\Admin\LenderController;
 use App\Http\Controllers\Admin\LenderOfficerController;
+use App\Http\Controllers\Admin\MenuController;
 use App\Http\Controllers\Admin\MenuMobileController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\OtaController;
@@ -84,6 +85,11 @@ Route::middleware(['AdminMiddleware'])->group(
                 Route::post('/ppob/transacion/postpaid/table', [PpobController::class, 'postpaidTransactionTable'])->name('admin.ppob.postpaid.table');
 
                 Route::post('/logout', [AuthController::class, 'logoutAction'])->name('admin.logout');
+
+                Route::resource('/menus', MenuController::class)
+                    ->except(['create', 'edit'])
+                    ->names('admin.menus');
+
                 // menu mobile
                 Route::get('/mobile/menu', [MenuMobileController::class, 'index'])->name('admin.menumobile.index');
                 Route::post('/mobile/list', [MenuMobileController::class, 'listMenu'])->name('admin.listMenu.index');
