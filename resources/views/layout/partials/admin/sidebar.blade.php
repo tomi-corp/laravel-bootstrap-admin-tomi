@@ -137,12 +137,10 @@
                 @foreach ($menusByParent->get(0, collect()) as $menu)
                     @php
                         $children = $menusByParent->get($menu->id, collect());
-                        $isTitle = blank($menu->icon) && blank($menu->route);
+                        $isCategory = blank($menu->icon) && blank($menu->route);
                     @endphp
 
-                    @if ($isTitle)
-                        <li class="menu-title">{{ $menu->name }}</li>
-
+                    @if ($isCategory)
                         @foreach ($children as $child)
                             @php $renderMenuItem($child); @endphp
                         @endforeach
