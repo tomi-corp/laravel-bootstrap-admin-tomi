@@ -24,6 +24,7 @@ use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\ProductConfigurationController;
 use App\Http\Controllers\Admin\ProjectController;
 use App\Http\Controllers\Admin\ReferralController;
+use App\Http\Controllers\Admin\RepaymentController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SalaryFinancingController;
 use App\Http\Controllers\Admin\TomiInvoiceController;
@@ -105,6 +106,10 @@ Route::middleware(['AdminMiddleware'])->group(
                 Route::resource('/disbursements', DisbursementController::class)
                     ->except(['create', 'edit'])
                     ->names('admin.disbursements');
+
+                Route::resource('/repayments', RepaymentController::class)
+                    ->except(['create', 'edit'])
+                    ->names('admin.repayments');
 
                 // menu mobile
                 Route::get('/mobile/menu', [MenuMobileController::class, 'index'])->name('admin.menumobile.index');

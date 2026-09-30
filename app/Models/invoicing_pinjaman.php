@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Modules\Lender\Models\Repayment;
 use Illuminate\Database\Eloquent\Model;
 
 class invoicing_pinjaman extends Model
@@ -19,7 +18,7 @@ class invoicing_pinjaman extends Model
 
     public function repayment()
     {
-        return $this->hasOne(Repayment::class, 'id_invoicing', 'id');
+        return $this->hasOne(repayment::class, 'id_invoicing', 'id');
     }
 
     public function jatuh_tempo()
