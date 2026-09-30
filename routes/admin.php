@@ -248,6 +248,8 @@ Route::middleware(['AdminMiddleware'])->group(
                 Route::get('/manage/admin', [AuthController::class, 'manageAdminIndex'])->name('admin.manage.admin.index');
                 Route::post('/manage/admin/table', [AuthController::class, 'manageAdminTable'])->name('admin.manage.admin.table');
                 Route::post('/manage/admin/add', [AuthController::class, 'manageAdminAdd'])->name('admin.manage.admin.add');
+                Route::post('/manage/admin/detail', [AuthController::class, 'manageAdminDetail'])->name('admin.manage.admin.detail');
+                Route::post('/manage/admin/update', [AuthController::class, 'manageAdminUpdate'])->name('admin.manage.admin.update');
                 Route::post('/manage/admin/delete', [AuthController::class, 'manageAdminDelete'])->name('admin.manage.admin.delete');
                 Route::post('/manage/admin/audit/table', [AuthController::class, 'manageAuditTable'])->name('admin.manage.admin.audit.table');
 

@@ -24,15 +24,16 @@ class AddAdminRequest extends FormRequest
     {
         return [
             'username' => 'required|unique:admins,username',
-            'email' => 'required|unique:admins,email',
+            'email' => 'required|email|unique:admins,email',
             'type_admin' => 'required|in:admin,master',
             'password' => ['required', Password::min(8)
                 ->letters()
                 ->mixedCase()
                 ->numbers()
                 ->symbols()
-                ->uncompromised()],
-            'password_confirmation' => 'required',
+                ->uncompromised(),
+                'confirmed',
+            ],
         ];
     }
 }

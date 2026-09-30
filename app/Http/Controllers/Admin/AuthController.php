@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Auth\AddAdminRequest;
 use App\Http\Requests\Admin\Auth\DoForgorPasswordRequest;
+use App\Http\Requests\Admin\Auth\UpdateAdminRequest;
 use App\Mail\ForgotEmailBackend;
 use App\Models\Admin;
 use App\Models\lender_update;
@@ -195,8 +196,10 @@ class AuthController extends Controller
             })
 
             ->addColumn('action', function ($row) {
-                // <button class="btn btn-sm btn-primary mr-2" onclick="editAdmin(' . $row->id . ')"><i class="mdi mdi-pencil"></i> </button>
-                return '<button class="btn btn-sm btn-danger mr-2" onclick="deleteAdmin(' . $row->id . ')"><i class=" mdi mdi-trash-can"></i> </button>';
+                return '<div class="btn-group">
+                    <button class="btn btn-sm btn-primary" onclick="editAdmin(' . $row->id . ')"><i class="fa-solid fa-pen"></i></button>
+                    <button class="btn btn-sm btn-danger" onclick="deleteAdmin(' . $row->id . ')"><i class="fa-solid fa-trash-can"></i></button>
+                </div>';
             })
 
             ->rawColumns(['action', 'google2fa_secret', 'type'])
@@ -228,6 +231,40 @@ class AuthController extends Controller
         ], 200);
     }
 
+    public function manageAdminDetail(Request $req)
+    {
+        $admin = Admin::findOrFail($req->id);
+
+        return response()->json([
+            'status' => 200,
+            'data' => [
+                'id' => $admin->id,
+                'username' => $admin->username,
+                'email' => $admin->email,
+                'type' => $admin->type,
+            ],
+        ], 200);
+    }
+
+    public function manageAdminUpdate(UpdateAdminRequest $req)
+    {
+        $admin = Admin::findOrFail($req->id);
+        $admin->username = $req->username;
+        $admin->email = $req->email;
+        $admin->type = $req->type_admin;
+
+        if ($req->filled('password')) {
+            $admin->password = Hash::make($req->password);
+        }
+
+        $admin->save();
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Admin Berhasil Diperbarui'
+        ], 200);
+    }
+
     public function manageAdminDelete(Request $req)
     {
         $admin = Admin::where('id', $req->id)->first();
@@ -251,7 +288,7 @@ class AuthController extends Controller
             })
 
             ->addColumn('username', function ($row) {
-                return $row->admin->username;
+                return $row->admin?->username ?? '-';
             })
 
             ->addColumn('activity_type', function ($row) {
