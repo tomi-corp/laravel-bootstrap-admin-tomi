@@ -4,20 +4,36 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Menu\MenuRequest;
+use App\Models\Feature;
 use App\Models\Menu;
+use App\Models\Project;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\View\View;
 
 class MenuController extends Controller
 {
     public function index(): View
     {
+        $menuColumns = Schema::getColumnListing('menus');
+        $parentMenuQuery = Menu::query();
+
+        if (in_array('sort_order', $menuColumns, true)) {
+            $parentMenuQuery->orderBy('sort_order');
+        }
+
+        $parentMenuQuery->orderBy(in_array('label', $menuColumns, true) ? 'label' : 'name');
+
         return view('admin.menus.index', [
             'menus' => $this->menuQuery()->get(),
-            'parentMenus' => Menu::query()
-                ->orderBy('sort_order')
-                ->orderBy('label')
-                ->get(['id', 'label', 'name']),
+            'menuColumns' => $menuColumns,
+            'parentMenus' => $parentMenuQuery->get(array_values(array_intersect(['id', 'label', 'name'], $menuColumns))),
+            'projects' => Project::query()
+                ->orderBy('name')
+                ->get(['id', 'name', 'code']),
+            'features' => Feature::query()
+                ->orderBy('name')
+                ->get(['id', 'name', 'code']),
         ]);
     }
 
@@ -33,8 +49,18 @@ class MenuController extends Controller
 
     public function show(Menu $menu): JsonResponse
     {
+        $relations = ['parent'];
+
+        if (Schema::hasColumn('menus', 'project_id')) {
+            $relations[] = 'project';
+        }
+
+        if (Schema::hasColumn('menus', 'feature_id')) {
+            $relations[] = 'feature';
+        }
+
         return response()->json([
-            'data' => $menu->load('parent'),
+            'data' => $menu->load($relations),
         ]);
     }
 
@@ -59,9 +85,21 @@ class MenuController extends Controller
 
     private function menuQuery()
     {
-        return Menu::query()
-            ->with('parent')
-            ->orderBy('sort_order')
-            ->orderBy('label');
+        $menuColumns = Schema::getColumnListing('menus');
+        $query = Menu::query()->with('parent');
+
+        if (in_array('project_id', $menuColumns, true)) {
+            $query->with('project')->orderBy('project_id');
+        }
+
+        if (in_array('feature_id', $menuColumns, true)) {
+            $query->with('feature')->orderBy('feature_id');
+        }
+
+        if (in_array('sort_order', $menuColumns, true)) {
+            $query->orderBy('sort_order');
+        }
+
+        return $query->orderBy(in_array('label', $menuColumns, true) ? 'label' : 'name');
     }
 }

@@ -5,6 +5,7 @@ $roleType = $admin?->type;
 
 // Role yang hanya boleh melihat e-Kasbon dan Salary Financing
 $limitedProductRole = in_array($roleType, ['pic', 'staff']);
+$showHiddenAdminMenu = false;
 @endphp
 
 <div class="left-side-menu">
@@ -55,12 +56,14 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                     </a>
                 </li>
 
-                <li>
-                    <a href="{{ route('admin.lender-officers.index') }}">
-                        <i class="fa-solid fa-user-tie"></i>
-                        <span> Pengurus Lender </span>
-                    </a>
-                </li>
+                @if ($showHiddenAdminMenu)
+                    <li>
+                        <a href="{{ route('admin.lender-officers.index') }}">
+                            <i class="fa-solid fa-user-tie"></i>
+                            <span> Pengurus Lender </span>
+                        </a>
+                    </li>
+                @endif
 
                 <li>
                     <a href="{{ route('admin.companies.index') }}">
@@ -76,12 +79,14 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                     </a>
                 </li>
 
-                <li>
-                    <a href="{{ route('admin.features.index') }}">
-                        <i class="fa-solid fa-puzzle-piece"></i>
-                        <span> Fitur </span>
-                    </a>
-                </li>
+                @if ($showHiddenAdminMenu)
+                    <li>
+                        <a href="{{ route('admin.features.index') }}">
+                            <i class="fa-solid fa-puzzle-piece"></i>
+                            <span> Fitur </span>
+                        </a>
+                    </li>
+                @endif
 
                 {{-- Tomi Dana tetap tampil untuk semua role, termasuk pic dan staff --}}
                 <li>
@@ -120,29 +125,31 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                     </ul>
                 </li>
 
-                {{-- Tomi Dana Plus --}}
-                <li>
-                    <a href="javascript: void(0);">
-                        <i class="fa-solid fa-hand-holding-dollar"></i>
-                        <span> Tomi Dana Plus </span>
-                        <span class="menu-arrow"></span>
-                    </a>
+                @if ($showHiddenAdminMenu)
+                    {{-- Tomi Dana Plus --}}
+                    <li>
+                        <a href="javascript: void(0);">
+                            <i class="fa-solid fa-hand-holding-dollar"></i>
+                            <span> Tomi Dana Plus </span>
+                            <span class="menu-arrow"></span>
+                        </a>
 
-                    <ul class="nav-second-level" aria-expanded="false">
-                        <li>
-                            <a href="{{ route('admin.product-configurations.tenor.companies', 'tomi-dana-plus') }}">Konfigurasi Tenor</a>
-                        </li>
-                        <li>
-                            <a href="{{ route('admin.product-configurations.dsr.companies', 'tomi-dana-plus') }}">Konfigurasi DSR</a>
-                        </li>
-                        <li>
-                            <a href="{{ route('admin.lender.index') }}">Lender</a>
-                        </li>
-                        <li>
-                            <a href="{{ route('admin.companies.index') }}">Perusahaan</a>
-                        </li>
-                    </ul>
-                </li>
+                        <ul class="nav-second-level" aria-expanded="false">
+                            <li>
+                                <a href="{{ route('admin.product-configurations.tenor.companies', 'tomi-dana-plus') }}">Konfigurasi Tenor</a>
+                            </li>
+                            <li>
+                                <a href="{{ route('admin.product-configurations.dsr.companies', 'tomi-dana-plus') }}">Konfigurasi DSR</a>
+                            </li>
+                            <li>
+                                <a href="{{ route('admin.lender.index') }}">Lender</a>
+                            </li>
+                            <li>
+                                <a href="{{ route('admin.companies.index') }}">Perusahaan</a>
+                            </li>
+                        </ul>
+                    </li>
+                @endif
 
                 {{-- TomiGaji --}}
                 <li>
@@ -252,12 +259,23 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                     </a>
                 </li>
 
-                <li>
-                    <a href="{{ route('admin.projects.index') }}">
-                        <i class="fa-solid fa-diagram-project"></i>
-                        <span> Project </span>
-                    </a>
-                </li>
+                @if ($showHiddenAdminMenu)
+                    <li>
+                        <a href="{{ route('admin.projects.index') }}">
+                            <i class="fa-solid fa-diagram-project"></i>
+                            <span> Project </span>
+                        </a>
+                    </li>
+                @endif
+
+                @if ($showHiddenAdminMenu)
+                    <li>
+                        <a href="{{ route('admin.menus.index') }}">
+                            <i class="fa-solid fa-bars-staggered"></i>
+                            <span> Menu </span>
+                        </a>
+                    </li>
+                @endif
 
                 @endif
 

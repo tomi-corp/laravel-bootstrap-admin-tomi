@@ -13,11 +13,11 @@ class Menu extends Model
 
     protected $fillable = [
         'parent_id',
+        'project_id',
+        'feature_id',
         'name',
-        'label',
         'icon',
         'route',
-        'type',
         'sort_order',
         'is_active',
     ];
@@ -30,6 +30,16 @@ class Menu extends Model
     public function parent(): BelongsTo
     {
         return $this->belongsTo(self::class, 'parent_id');
+    }
+
+    public function project(): BelongsTo
+    {
+        return $this->belongsTo(Project::class, 'project_id');
+    }
+
+    public function feature(): BelongsTo
+    {
+        return $this->belongsTo(Feature::class, 'feature_id');
     }
 
     public function children(): HasMany

@@ -3,6 +3,16 @@
 @section('title', 'Admin Menu')
 
 @section('content')
+@php
+    $hasProject = in_array('project_id', $menuColumns, true);
+    $hasFeature = in_array('feature_id', $menuColumns, true);
+    $hasLabel = in_array('label', $menuColumns, true);
+    $hasIcon = in_array('icon', $menuColumns, true);
+    $hasRoute = in_array('route', $menuColumns, true);
+    $hasType = in_array('type', $menuColumns, true);
+    $hasSortOrder = in_array('sort_order', $menuColumns, true);
+    $hasIsActive = in_array('is_active', $menuColumns, true);
+@endphp
 <div class="row">
     <div class="col-12">
         <div class="page-title-box">
@@ -26,36 +36,72 @@
                 <table id="menusTable" class="table dt-responsive table-hover text-center" style="width:100%">
                     <thead>
                         <tr>
+                            @if ($hasSortOrder)
                             <th>Urutan</th>
+                            @endif
+                            @if ($hasLabel)
                             <th>Label</th>
+                            @endif
                             <th>Name</th>
+                            @if ($hasProject)
+                            <th>Project</th>
+                            @endif
+                            @if ($hasFeature)
+                            <th>Feature</th>
+                            @endif
                             <th>Parent</th>
+                            @if ($hasType)
                             <th>Type</th>
+                            @endif
+                            @if ($hasIcon)
                             <th>Icon</th>
+                            @endif
+                            @if ($hasRoute)
                             <th>Route</th>
+                            @endif
+                            @if ($hasIsActive)
                             <th>Status</th>
+                            @endif
                             <th>Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach ($menus as $menu)
                             <tr id="menu-row-{{ $menu->id }}">
+                                @if ($hasSortOrder)
                                 <td>{{ $menu->sort_order }}</td>
+                                @endif
+                                @if ($hasLabel)
                                 <td>{{ $menu->label }}</td>
+                                @endif
                                 <td>{{ $menu->name }}</td>
-                                <td>{{ $menu->parent?->label ?? '-' }}</td>
+                                @if ($hasProject)
+                                <td>{{ $menu->project?->name ?? '-' }}</td>
+                                @endif
+                                @if ($hasFeature)
+                                <td>{{ $menu->feature?->name ?? '-' }}</td>
+                                @endif
+                                <td>{{ $menu->parent ? ($hasLabel ? $menu->parent->label : $menu->parent->name) : '-' }}</td>
+                                @if ($hasType)
                                 <td>
                                     <span class="badge badge-{{ $menu->type === 'group' ? 'info' : 'secondary' }}">
                                         {{ ucfirst($menu->type) }}
                                     </span>
                                 </td>
+                                @endif
+                                @if ($hasIcon)
                                 <td>{{ $menu->icon ?? '-' }}</td>
+                                @endif
+                                @if ($hasRoute)
                                 <td>{{ $menu->route ?? '-' }}</td>
+                                @endif
+                                @if ($hasIsActive)
                                 <td>
                                     <span class="badge badge-{{ $menu->is_active ? 'success' : 'danger' }}">
                                         {{ $menu->is_active ? 'Aktif' : 'Nonaktif' }}
                                     </span>
                                 </td>
+                                @endif
                                 <td>
                                     <div class="btn-group">
                                         <button type="button" class="btn btn-sm btn-primary" onclick="editMenu({{ $menu->id }})">
@@ -87,16 +133,43 @@
                     <input type="hidden" id="menuId">
 
                     <div class="row">
+                        @if ($hasProject)
+                        <div class="col-md-6 form-group">
+                            <label>Project</label>
+                            <select class="form-control" name="project_id" id="project_id">
+                                <option value="">Tidak Ada Project</option>
+                                @foreach ($projects as $project)
+                                    <option value="{{ $project->id }}">{{ $project->name }} ({{ $project->code }})</option>
+                                @endforeach
+                            </select>
+                            <small class="text-danger error-project_id"></small>
+                        </div>
+                        @endif
+                        @if ($hasFeature)
+                        <div class="col-md-6 form-group">
+                            <label>Feature</label>
+                            <select class="form-control" name="feature_id" id="feature_id">
+                                <option value="">Tidak Ada Feature</option>
+                                @foreach ($features as $feature)
+                                    <option value="{{ $feature->id }}">{{ $feature->name }} ({{ $feature->code }})</option>
+                                @endforeach
+                            </select>
+                            <small class="text-danger error-feature_id"></small>
+                        </div>
+                        @endif
                         <div class="col-md-6 form-group">
                             <label>Parent</label>
                             <select class="form-control" name="parent_id" id="parent_id">
                                 <option value="">Tidak Ada Parent</option>
                                 @foreach ($parentMenus as $parentMenu)
-                                    <option value="{{ $parentMenu->id }}">{{ $parentMenu->label }} ({{ $parentMenu->name }})</option>
+                                    <option value="{{ $parentMenu->id }}">
+                                        {{ $hasLabel ? $parentMenu->label : $parentMenu->name }} ({{ $parentMenu->name }})
+                                    </option>
                                 @endforeach
                             </select>
                             <small class="text-danger error-parent_id"></small>
                         </div>
+                        @if ($hasType)
                         <div class="col-md-6 form-group">
                             <label>Type</label>
                             <select class="form-control" name="type" id="type">
@@ -105,31 +178,41 @@
                             </select>
                             <small class="text-danger error-type"></small>
                         </div>
+                        @endif
                         <div class="col-md-6 form-group">
                             <label>Name</label>
                             <input class="form-control" name="name" id="name">
                             <small class="text-danger error-name"></small>
                         </div>
+                        @if ($hasLabel)
                         <div class="col-md-6 form-group">
                             <label>Label</label>
                             <input class="form-control" name="label" id="label">
                             <small class="text-danger error-label"></small>
                         </div>
+                        @endif
+                        @if ($hasIcon)
                         <div class="col-md-6 form-group">
                             <label>Icon</label>
                             <input class="form-control" name="icon" id="icon" placeholder="fa-solid fa-house">
                             <small class="text-danger error-icon"></small>
                         </div>
+                        @endif
+                        @if ($hasRoute)
                         <div class="col-md-6 form-group">
                             <label>Route</label>
                             <input class="form-control" name="route" id="route" placeholder="admin.dashboard.index">
                             <small class="text-danger error-route"></small>
                         </div>
+                        @endif
+                        @if ($hasSortOrder)
                         <div class="col-md-6 form-group">
                             <label>Urutan</label>
                             <input class="form-control" type="number" min="0" name="sort_order" id="sort_order" value="0">
                             <small class="text-danger error-sort_order"></small>
                         </div>
+                        @endif
+                        @if ($hasIsActive)
                         <div class="col-md-6 form-group">
                             <label>Status</label>
                             <select class="form-control" name="is_active" id="is_active">
@@ -138,6 +221,7 @@
                             </select>
                             <small class="text-danger error-is_active"></small>
                         </div>
+                        @endif
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -175,9 +259,21 @@
         clearErrors();
         $('#menuForm')[0].reset();
         $('#menuId').val('');
+        @if ($hasSortOrder)
         $('#sort_order').val(0);
+        @endif
+        @if ($hasIsActive)
         $('#is_active').val('1');
+        @endif
+        @if ($hasType)
         $('#type').val('menu');
+        @endif
+        @if ($hasProject)
+        $('#project_id').val('');
+        @endif
+        @if ($hasFeature)
+        $('#feature_id').val('');
+        @endif
         $('#parent_id option').prop('disabled', false);
         $('#menuModalTitle').text('Tambah Menu');
         $('#menuModal').modal('show');
@@ -194,14 +290,32 @@
         $.get('{{ route('admin.menus.show', ':id') }}'.replace(':id', id))
             .done(function (response) {
                 var menu = response.data;
+                @if ($hasProject)
+                $('#project_id').val(menu.project_id || '');
+                @endif
+                @if ($hasFeature)
+                $('#feature_id').val(menu.feature_id || '');
+                @endif
                 $('#parent_id').val(menu.parent_id || '');
                 $('#name').val(menu.name);
+                @if ($hasLabel)
                 $('#label').val(menu.label);
+                @endif
+                @if ($hasIcon)
                 $('#icon').val(menu.icon);
+                @endif
+                @if ($hasRoute)
                 $('#route').val(menu.route);
+                @endif
+                @if ($hasType)
                 $('#type').val(menu.type);
+                @endif
+                @if ($hasSortOrder)
                 $('#sort_order').val(menu.sort_order);
+                @endif
+                @if ($hasIsActive)
                 $('#is_active').val(menu.is_active ? '1' : '0');
+                @endif
                 $('#menuModal').modal('show');
             })
             .fail(function () {
