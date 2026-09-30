@@ -1091,27 +1091,11 @@
     function syncTenorReferralConfigFields() {
         var isActive = $('#active_profesional_fee').val() === 'active';
         $('.tenor-referral-config-field').toggleClass('d-none', !isActive);
-        $('#cfg_biaya_admin').prop('readonly', isActive);
 
         if (!isActive) {
             $('#cfg_profesional_fee_1, #cfg_profesional_fee_2, #cfg_ksp').val(0);
         }
-
-        calculateTenorAdminFee();
     }
-
-    function calculateTenorAdminFee() {
-        if ($('#active_profesional_fee').val() !== 'active') {
-            return;
-        }
-
-        var fee1 = parseFloat($('#cfg_profesional_fee_1').val()) || 0;
-        var fee2 = parseFloat($('#cfg_profesional_fee_2').val()) || 0;
-        var ksp = parseFloat($('#cfg_ksp').val()) || 0;
-        $('#cfg_biaya_admin').val((fee1 + fee2 + ksp).toFixed(2));
-    }
-
-    $(document).on('input', '.cfg-admin-fee-input', calculateTenorAdminFee);
 
     $('#tenorConfigForm').on('submit', function (event) {
         event.preventDefault();
