@@ -19,9 +19,11 @@
     <div class="col-12">
         <div class="card">
             <div class="card-body">
-                <button type="button" class="btn btn-sm btn-primary float-right mb-3" onclick="openCreateModal()">
-                    <i class="fa-solid fa-circle-plus"></i> Tambah Project
-                </button>
+                <div class="d-flex justify-content-end mb-3">
+                    <button type="button" class="btn btn-sm btn-primary" onclick="openCreateModal()">
+                        <i class="fa-solid fa-circle-plus"></i> Tambah Project
+                    </button>
+                </div>
 
                 <table id="projectsTable" class="table dt-responsive table-hover text-center" style="width:100%">
                     <thead>
