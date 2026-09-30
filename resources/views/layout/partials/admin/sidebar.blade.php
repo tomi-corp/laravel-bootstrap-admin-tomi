@@ -93,6 +93,14 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
 
                     <ul class="nav-second-level nav" aria-expanded="false">
                         <li>
+                            <a href="{{ route('admin.product-configurations.tenor.companies', 'tomi-dana') }}">Konfigurasi Tenor</a>
+                        </li>
+
+                        <li>
+                            <a href="{{ route('admin.product-configurations.dsr.companies', 'tomi-dana') }}">Konfigurasi DSR</a>
+                        </li>
+
+                        <li>
                             <a href="{{ route('admin.cost.index') }}">Cost</a>
                         </li>
 
@@ -121,6 +129,12 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                     </a>
 
                     <ul class="nav-second-level" aria-expanded="false">
+                        <li>
+                            <a href="{{ route('admin.product-configurations.tenor.companies', 'tomi-dana-plus') }}">Konfigurasi Tenor</a>
+                        </li>
+                        <li>
+                            <a href="{{ route('admin.product-configurations.dsr.companies', 'tomi-dana-plus') }}">Konfigurasi DSR</a>
+                        </li>
                         <li>
                             <a href="{{ route('admin.lender.index') }}">Lender</a>
                         </li>
@@ -235,6 +249,13 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                     <a href="{{ route('admin.manage.pic-lender.index') }}">
                         <i class="fa-solid fa-id-card"></i>
                         <span> PIC Lender </span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="{{ route('admin.projects.index') }}">
+                        <i class="fa-solid fa-diagram-project"></i>
+                        <span> Project </span>
                     </a>
                 </li>
 

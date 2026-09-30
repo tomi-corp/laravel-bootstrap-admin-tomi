@@ -20,6 +20,8 @@ use App\Http\Controllers\Admin\OtaController;
 use App\Http\Controllers\Admin\PicLenderAdminController;
 use App\Http\Controllers\Admin\PpobController;
 use App\Http\Controllers\Admin\ProfileController;
+use App\Http\Controllers\Admin\ProductConfigurationController;
+use App\Http\Controllers\Admin\ProjectController;
 use App\Http\Controllers\Admin\ReferralController;
 use App\Http\Controllers\Admin\SalaryFinancingController;
 use App\Http\Controllers\Admin\TomiInvoiceController;
@@ -89,6 +91,10 @@ Route::middleware(['AdminMiddleware'])->group(
                 Route::resource('/menus', MenuController::class)
                     ->except(['create', 'edit'])
                     ->names('admin.menus');
+
+                Route::resource('/projects', ProjectController::class)
+                    ->except(['create', 'edit'])
+                    ->names('admin.projects');
 
                 // menu mobile
                 Route::get('/mobile/menu', [MenuMobileController::class, 'index'])->name('admin.menumobile.index');
@@ -166,6 +172,21 @@ Route::middleware(['AdminMiddleware'])->group(
                 Route::post('/ksp/konfigurasi/delete', [KspController::class, 'deleteKonfigurasi'])->name('admin.ksp.konfigurasi.delete');
                 Route::post('/ksp/konfigurasi/detail', [KspController::class, 'detailKonfigurasi'])->name('admin.ksp.konfigurasi.detail');
                 Route::post('/ksp/konfigurasi/edit', [KspController::class, 'editKonfigurasi'])->name('admin.ksp.konfigurasi.edit');
+
+                Route::prefix('{product}')
+                    ->whereIn('product', ['tomi-dana', 'tomi-dana-plus'])
+                    ->group(function () {
+                        Route::get('/konfigurasi-tenor', [ProductConfigurationController::class, 'tenorCompanies'])
+                            ->name('admin.product-configurations.tenor.companies');
+                        Route::get('/konfigurasi-tenor/{company}', [ProductConfigurationController::class, 'tenorEdit'])
+                            ->name('admin.product-configurations.tenor.edit');
+                        Route::get('/konfigurasi-dsr', [ProductConfigurationController::class, 'dsrCompanies'])
+                            ->name('admin.product-configurations.dsr.companies');
+                        Route::get('/konfigurasi-dsr/{company}', [ProductConfigurationController::class, 'dsrEdit'])
+                            ->name('admin.product-configurations.dsr.edit');
+                        Route::put('/konfigurasi-dsr/{company}', [ProductConfigurationController::class, 'dsrUpdate'])
+                            ->name('admin.product-configurations.dsr.update');
+                    });
                 // KSP => Pengajuan => invoicing
                 Route::post('/ksp/invoicing/table', [KspController::class, 'invoicingTable'])->name('admin.ksp.invoicing.table');
                 Route::post('/ksp/invoicing/update', [KspController::class, 'invoicingUpdate'])->name('admin.ksp.invoicing.update');

@@ -134,6 +134,11 @@ class ListPerusahaan extends Model
         return $this->hasOne(amount_pinjaman::class, 'id_perusahaan', 'id');
     }
 
+    public function tenorPinjaman()
+    {
+        return $this->hasMany(tenor_pinjaman::class, 'id_perusahaan', 'id');
+    }
+
     public function pinjamanBerjalan()
     {
         return $this->hasMany(pinjaman::class, 'id_perusahaan', 'id')
