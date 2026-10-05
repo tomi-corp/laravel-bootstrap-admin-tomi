@@ -26,6 +26,7 @@ use App\Http\Controllers\Admin\ProjectController;
 use App\Http\Controllers\Admin\ReferralController;
 use App\Http\Controllers\Admin\RepaymentController;
 use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\Admin\RoleMenuPermissionController;
 use App\Http\Controllers\Admin\SalaryFinancingController;
 use App\Http\Controllers\Admin\TomiInvoiceController;
 use App\Http\Controllers\Admin\WebsiteInvoiceController;
@@ -102,6 +103,11 @@ Route::middleware(['AdminMiddleware'])->group(
                 Route::resource('/roles', RoleController::class)
                     ->except(['create', 'edit'])
                     ->names('admin.roles');
+
+                Route::resource('/role-menu-permissions', RoleMenuPermissionController::class)
+                    ->except(['create', 'edit'])
+                    ->parameters(['role-menu-permissions' => 'role_menu_permission'])
+                    ->names('admin.role-menu-permissions');
 
                 Route::resource('/disbursements', DisbursementController::class)
                     ->except(['create', 'edit'])

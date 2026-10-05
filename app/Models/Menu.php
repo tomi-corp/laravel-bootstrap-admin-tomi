@@ -45,4 +45,9 @@ class Menu extends Model
     {
         return $this->hasMany(self::class, 'parent_id')->orderBy('sort_order');
     }
+
+    public function rolePermissions(): HasMany
+    {
+        return $this->hasMany(RoleMenuPermission::class);
+    }
 }
