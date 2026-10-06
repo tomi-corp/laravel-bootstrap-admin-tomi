@@ -392,7 +392,12 @@ class SalaryFinancingController extends Controller
         ], $totalPinjaman * $this->rateToMultiplier($biayaAdminRate));
         $biayaAdmin = $this->roundUpToThousand($biayaAdmin);
 
-        $totalTagihan = $this->roundUpToThousand($totalPinjaman + $biayaAdmin);
+        $totalTagihan = (float) $this->value($detail, [
+            'total_tagihan',
+            'jumlah_tagihan',
+            'total_dibayarkan',
+        ], $totalPinjaman + $biayaAdmin);
+        $totalTagihan = $this->roundToNearestFiveHundred($totalTagihan);
 
         return [
             'id' => $this->value($detail, ['id']),
@@ -518,11 +523,14 @@ class SalaryFinancingController extends Controller
                 'biaya_admin' => $biayaAdmin,
                 'biaya_admin_rate' => $biayaAdminRate,
                 'fee_tomi' => (float) ($row['fee_tomi'] ?? $configuration['fee_tomi'] ?? 1),
+                'biaya_tomi' => $row['biaya_tomi'] ?? $row['cost_tomi'] ?? $row['fee_tomi_amount'] ?? null,
                 'profesional_fee_1' => (float) ($row['profesional_fee_1'] ?? $row['professional_fee_1'] ?? $configuration['profesional_fee_1'] ?? 0),
+                'biaya_referal_1' => $row['biaya_referal_1'] ?? $row['biaya_referral_1'] ?? $row['referal_1_amount'] ?? $row['referral_1_amount'] ?? null,
                 'profesional_fee_2' => (float) ($row['profesional_fee_2'] ?? $row['professional_fee_2'] ?? $configuration['profesional_fee_2'] ?? 0),
+                'biaya_referal_2' => $row['biaya_referal_2'] ?? $row['biaya_referral_2'] ?? $row['referal_2_amount'] ?? $row['referral_2_amount'] ?? null,
                 'ksp' => (float) ($row['ksp'] ?? $configuration['ksp'] ?? 0),
                 'iuran_anggota' => (float) ($row['iuran_anggota'] ?? $configuration['iuran_anggota'] ?? 0),
-                'total_tagihan' => $this->roundUpToThousand($jumlahPendapatan + $biayaAdmin),
+                'total_tagihan' => $this->roundToNearestFiveHundred((float) ($row['total_tagihan'] ?? $row['jumlah_tagihan'] ?? ($jumlahPendapatan + $biayaAdmin))),
                 'total_dibayarkan' => (float) ($row['total_dibayarkan'] ?? 0),
                 'total_fee' => (float) ($row['total_fee'] ?? 0),
             ];
@@ -536,6 +544,15 @@ class SalaryFinancingController extends Controller
         }
 
         return ceil($value / 1000) * 1000;
+    }
+
+    private function roundToNearestFiveHundred(float|int $value): float
+    {
+        if ($value <= 0) {
+            return 0;
+        }
+
+        return round($value / 500) * 500;
     }
 
     private function rateToMultiplier(float|int $value): float

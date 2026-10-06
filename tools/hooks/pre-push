@@ -1,0 +1,23 @@
+#!/bin/sh
+set -e
+
+branch="$(git rev-parse --abbrev-ref HEAD)"
+
+case "$branch" in
+  local|develop|staging|main)
+    echo "Push langsung ke branch '$branch' tidak diperbolehkan."
+    echo "Gunakan Pull Request sesuai alur branch."
+    exit 1
+    ;;
+esac
+
+if git diff --cached --name-only | grep -E '(^|/)\.env($|\.production$|\.stagging$|\.staging$)' >/dev/null; then
+  echo "File env rahasia tidak boleh di-commit."
+  exit 1
+fi
+
+echo "Menjalankan pengecekan sebelum push..."
+php artisan test
+npm run build
+
+echo "Pre-push check selesai."

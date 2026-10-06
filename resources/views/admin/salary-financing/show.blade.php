@@ -284,7 +284,7 @@ if ($sisaPlafon < 0) { $sisaPlafon=0; } @endphp <div class="container-fluid">
                                     </td>
 
                                     <td>
-                                        Rp {{ number_format($totalTagihan, 0, ',', '.') }}
+                                        Rp {{ number_format(round($totalTagihan / 500) * 500, 0, ',', '.') }}
                                     </td>
 
                                     <td>
