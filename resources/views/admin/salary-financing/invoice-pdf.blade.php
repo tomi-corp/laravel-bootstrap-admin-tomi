@@ -835,7 +835,7 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
                 table.main-table {
                     width: 100%;
                     border-collapse: collapse;
-                    margin-top: 20px;
+                    margin-top: 14px;
                 }
 
                 table.main-table th {
@@ -860,10 +860,11 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
                 }
 
                 .total-section {
-                    margin-top: 20px;
-                    padding: 15px;
+                    margin-top: 10px;
+                    padding: 10px 12px;
                     background-color: #f8f9fa;
                     border-radius: 5px;
+                    page-break-inside: avoid;
                 }
 
                 .total-title {
@@ -878,16 +879,33 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
                 }
 
                 .note-section {
-                    margin-top: 30px;
+                    margin-top: 10px;
                     font-size: 10px;
                     color: #666;
+                    line-height: 1.35;
+                    page-break-inside: avoid;
                 }
 
                 .bank-info {
                     margin-top: 5px;
-                    padding: 10px;
+                    padding: 7px 9px;
                     border: 1px dashed #ccc;
                     display: inline-block;
+                    page-break-inside: avoid;
+                }
+
+                .bank-info table {
+                    border-collapse: collapse;
+                }
+
+                .bank-info td {
+                    padding: 1px 4px;
+                    line-height: 1.25;
+                }
+
+                .footer-section {
+                    margin-top: 8px;
+                    page-break-inside: avoid;
                 }
 
                 .summary-table {
@@ -896,7 +914,7 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
                 }
 
                 .summary-table td {
-                    padding: 6px 0;
+                    padding: 4px 0;
                 }
 
                 .nowrap {
@@ -1641,7 +1659,7 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
 
 
 
-            <div class="clearfix">
+            <div class="clearfix footer-section">
 
 
                 <div class="float-right total-section" style="width: 350px;">
