@@ -879,18 +879,25 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
                 }
 
                 .note-section {
-                    margin-top: 10px;
-                    font-size: 10px;
+                    margin-top: 6px;
+                    font-size: 8.5px;
                     color: #666;
-                    line-height: 1.35;
+                    line-height: 1.2;
                     page-break-inside: avoid;
                 }
 
+                .note-section p {
+                    margin: 4px 0;
+                }
+
                 .bank-info {
-                    margin-top: 5px;
-                    padding: 7px 9px;
+                    margin-top: 2px;
+                    padding: 4px 6px;
                     border: 1px dashed #ccc;
                     display: inline-block;
+                    font-size: 8.5px;
+                    font-weight: bold;
+                    line-height: 1.15;
                     page-break-inside: avoid;
                 }
 
@@ -899,8 +906,8 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
                 }
 
                 .bank-info td {
-                    padding: 1px 4px;
-                    line-height: 1.25;
+                    padding: 0 3px;
+                    line-height: 1.15;
                 }
 
                 .footer-section {
@@ -1738,13 +1745,13 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
                     </p>
 
 
-                    <div class="bank-info total-title">
+                    <div class="bank-info">
 
                         <table>
 
                             <tr>
 
-                                <td width="100">
+                                <td width="70">
                                     Bank
                                 </td>
 
@@ -1763,7 +1770,7 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
 
                             <tr>
 
-                                <td width="100">
+                                <td width="70">
                                     No. Rekening
                                 </td>
 
@@ -1782,7 +1789,7 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
 
                             <tr>
 
-                                <td width="100">
+                                <td width="70">
                                     Atas Nama
                                 </td>
 
