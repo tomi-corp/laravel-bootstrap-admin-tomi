@@ -247,6 +247,21 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
     )
     ));
 
+    $biayaTomi = round(
+    $jumlahPendapatan
+    * rateToMultiplier($feeTomiRate)
+    );
+
+    $biayaReferal1 = round(
+    $jumlahPendapatan
+    * rateToMultiplier($profesionalFee1Rate)
+    );
+
+    $biayaReferal2 = round(
+    $biayaTomi
+    * rateToMultiplier($profesionalFee2Rate)
+    );
+
 
     /*
     |--------------------------------------------------------------------------
@@ -314,6 +329,15 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
 
     $item['profesional_fee_2'] =
     $profesionalFee2Rate;
+
+    $item['biaya_tomi_amount'] =
+    $biayaTomi;
+
+    $item['biaya_referal_1_amount'] =
+    $biayaReferal1;
+
+    $item['biaya_referal_2_amount'] =
+    $biayaReferal2;
 
     $item['ksp'] =
     cleanRupiahValue(
@@ -473,9 +497,8 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
     |--------------------------------------------------------------------------
     */
 
-    $biayaTomi = round(
-    $jumlahPendapatan
-    * rateToMultiplier($feeTomiRate)
+    $biayaTomi = cleanRupiahValue(
+    $group->sum('biaya_tomi_amount')
     );
 
 
@@ -485,9 +508,8 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
     |--------------------------------------------------------------------------
     */
 
-    $biayaReferal1 = round(
-    $jumlahPendapatan
-    * rateToMultiplier($profesionalFee1Rate)
+    $biayaReferal1 = cleanRupiahValue(
+    $group->sum('biaya_referal_1_amount')
     );
 
 
@@ -497,9 +519,8 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
     |--------------------------------------------------------------------------
     */
 
-    $biayaReferal2 = round(
-    $biayaTomi
-    * rateToMultiplier($profesionalFee2Rate)
+    $biayaReferal2 = cleanRupiahValue(
+    $group->sum('biaya_referal_2_amount')
     );
 
 
