@@ -247,17 +247,49 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
     )
     ));
 
-    $biayaTomi = round(
+    $biayaTomiSource = cleanRupiahValue(
+    $item['biaya_tomi_amount']
+    ?? $item['biaya_tomi']
+    ?? $item['cost_tomi']
+    ?? $item['fee_tomi_amount']
+    ?? null
+    );
+
+    $biayaTomi = $biayaTomiSource > 0
+    ? round($biayaTomiSource)
+    : round(
     $jumlahPendapatan
     * rateToMultiplier($feeTomiRate)
     );
 
-    $biayaReferal1 = round(
+    $biayaReferal1Source = cleanRupiahValue(
+    $item['biaya_referal_1_amount']
+    ?? $item['biaya_referal_1']
+    ?? $item['biaya_referral_1']
+    ?? $item['referal_1_amount']
+    ?? $item['referral_1_amount']
+    ?? null
+    );
+
+    $biayaReferal1 = $biayaReferal1Source > 0
+    ? round($biayaReferal1Source)
+    : round(
     $jumlahPendapatan
     * rateToMultiplier($profesionalFee1Rate)
     );
 
-    $biayaReferal2 = round(
+    $biayaReferal2Source = cleanRupiahValue(
+    $item['biaya_referal_2_amount']
+    ?? $item['biaya_referal_2']
+    ?? $item['biaya_referral_2']
+    ?? $item['referal_2_amount']
+    ?? $item['referral_2_amount']
+    ?? null
+    );
+
+    $biayaReferal2 = $biayaReferal2Source > 0
+    ? round($biayaReferal2Source)
+    : round(
     $biayaTomi
     * rateToMultiplier($profesionalFee2Rate)
     );
