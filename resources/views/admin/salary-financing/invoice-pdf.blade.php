@@ -35,6 +35,7 @@ $value = cleanRupiahValue($value);
 
 if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rateToMultiplier($value): float {
     $value=cleanRupiahValue($value); if ($value <=0) { return 0; } return $value <=1 ? $value : ($value / 100); }
+    function formatRupiahInvoice($value): string { $value=cleanRupiahValue($value); $decimal = floor($value) == $value ? 0 : 2; return 'Rp ' . number_format($value, $decimal, ',' , '.' ); }
     function formatPercentValue($value): string { $value=cleanRupiahValue($value); $displayValue=$value <=1 ? ($value *
     100) : $value; if (floor($displayValue)==$displayValue) { return number_format($displayValue, 0, ',' , '.' ) . '%' ;
     } return number_format($displayValue, 2, ',' , '.' ) . '%' ; } function firstFilledValue($rows, string $key,
@@ -137,8 +138,9 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
     | jumlah_pendapatan di sini diperlakukan sebagai
     | JUMLAH FASILITAS PINJAMAN per item.
     |
-    | Biaya admin dan jumlah tagihan dihitung serta di-roundup
-    | per item terlebih dahulu. Setelah itu baru dijumlahkan
+    | Biaya admin dihitung serta di-roundup per item. Jumlah
+    | tagihan memakai nilai fasilitas + biaya admin tanpa roundup.
+    | Setelah itu baru dijumlahkan
     | untuk baris penempatan kerja dan total keseluruhan.
     |
     |--------------------------------------------------------------------------
@@ -224,8 +226,7 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
     |--------------------------------------------------------------------------
     |
     | Biaya admin item di-roundup dulu, lalu ditambahkan dengan
-    | jumlah fasilitas item. Hasil jumlah tagihan item juga di-roundup
-    | sebelum dijumlahkan ke baris penempatan kerja.
+    | jumlah fasilitas item tanpa roundup jumlah tagihan.
     |
     |--------------------------------------------------------------------------
     */
@@ -235,10 +236,9 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
     * rateToMultiplier($biayaAdminRate)
     );
 
-    $jumlahTagihan = roundUpToThousand(
+    $jumlahTagihan =
     $jumlahPendapatan
-    + $biayaAdmin
-    );
+    + $biayaAdmin;
 
 
     /*
@@ -434,10 +434,9 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
     |--------------------------------------------------------------------------
     */
 
-    $jumlahTagihan = roundUpToThousand(
+    $jumlahTagihan =
     $jumlahPendapatan
-    + $biayaAdmin
-    );
+    + $biayaAdmin;
 
 
     /*
@@ -445,8 +444,8 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
     | Override Dengan Total Item
     |--------------------------------------------------------------------------
     |
-    | Aturan invoice: biaya admin dan tagihan di-roundup per item,
-    | lalu jumlah tagihan item tersebut dijumlahkan untuk total grup.
+    | Aturan invoice: biaya admin di-roundup per item, lalu jumlah
+    | tagihan item tanpa roundup dijumlahkan untuk total grup.
     |
     |--------------------------------------------------------------------------
     */
@@ -466,10 +465,9 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
     |--------------------------------------------------------------------------
     */
 
-    $biayaTomi = roundUpToThousand(
+    $biayaTomi =
     $jumlahPendapatan
-    * rateToMultiplier($feeTomiRate)
-    );
+    * rateToMultiplier($feeTomiRate);
 
 
     /*
@@ -478,10 +476,9 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
     |--------------------------------------------------------------------------
     */
 
-    $biayaReferal1 = roundUpToThousand(
+    $biayaReferal1 =
     $jumlahPendapatan
-    * rateToMultiplier($profesionalFee1Rate)
-    );
+    * rateToMultiplier($profesionalFee1Rate);
 
 
     /*
@@ -490,10 +487,9 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
     |--------------------------------------------------------------------------
     */
 
-    $biayaReferal2 = roundUpToThousand(
+    $biayaReferal2 =
     $biayaTomi
-    * rateToMultiplier($profesionalFee2Rate)
-    );
+    * rateToMultiplier($profesionalFee2Rate);
 
 
     /*
@@ -667,17 +663,17 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
         $invoice['professional_fee_1'] ?? 0 ); $profesionalFee2Rate=cleanRupiahValue( $invoice['profesional_fee_2'] ??
         $invoice['professional_fee_2'] ?? 0 ); /*
         |-------------------------------------------------------------------------- | Biaya TOMI
-        |-------------------------------------------------------------------------- */ $biayaTomi=roundUpToThousand(
-        $totalJumlahPendapatan * rateToMultiplier($feeTomiRate) ); /*
+        |-------------------------------------------------------------------------- */ $biayaTomi=
+        $totalJumlahPendapatan * rateToMultiplier($feeTomiRate); /*
         |-------------------------------------------------------------------------- | Referral 1
-        |-------------------------------------------------------------------------- */ $biayaReferal1=roundUpToThousand(
-        $totalJumlahPendapatan * rateToMultiplier($profesionalFee1Rate) ); /*
+        |-------------------------------------------------------------------------- */ $biayaReferal1=
+        $totalJumlahPendapatan * rateToMultiplier($profesionalFee1Rate); /*
         |-------------------------------------------------------------------------- | Referral 2
-        |-------------------------------------------------------------------------- */ $biayaReferal2=roundUpToThousand(
-        $biayaTomi * rateToMultiplier($profesionalFee2Rate) ); /*
+        |-------------------------------------------------------------------------- */ $biayaReferal2=
+        $biayaTomi * rateToMultiplier($profesionalFee2Rate); /*
         |-------------------------------------------------------------------------- | JUMLAH TAGIHAN
         |-------------------------------------------------------------------------- */
-        $totalJumlahTagihan=roundUpToThousand( $totalJumlahPendapatan + $biayaAdmin ); /*
+        $totalJumlahTagihan=$totalJumlahPendapatan + $biayaAdmin; /*
         |-------------------------------------------------------------------------- | Jumlah Fee
         |-------------------------------------------------------------------------- */ $totalJumlahFee=$biayaTomi +
         $biayaReferal1 + $biayaReferal2; /* |--------------------------------------------------------------------------
@@ -1330,15 +1326,12 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
                         <td align="right" class="nowrap">
 
 
-                            Rp {{
-                            number_format(
+                            {{
+                            formatRupiahInvoice(
                             $item[
                             'jumlah_tagihan'
                             ]
-                            ?? 0,
-                            0,
-                            ',',
-                            '.'
+                            ?? 0
                             )
                             }}
 
@@ -1356,17 +1349,12 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
 
                         <td align="right" class="nowrap">
 
-                            Rp {{
-                            number_format(
-                            round(
+                            {{
+                            formatRupiahInvoice(
                             $item[
                             'biaya_tomi'
                             ]
                             ?? 0
-                            ),
-                            0,
-                            ',',
-                            '.'
                             )
                             }}
 
@@ -1385,17 +1373,12 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
 
                         <td align="right" class="nowrap">
 
-                            Rp {{
-                            number_format(
-                            round(
+                            {{
+                            formatRupiahInvoice(
                             $item[
                             'biaya_referal_1'
                             ]
                             ?? 0
-                            ),
-                            0,
-                            ',',
-                            '.'
                             )
                             }}
 
@@ -1414,17 +1397,12 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
 
                         <td align="right" class="nowrap">
 
-                            Rp {{
-                            number_format(
-                            round(
+                            {{
+                            formatRupiahInvoice(
                             $item[
                             'biaya_referal_2'
                             ]
                             ?? 0
-                            ),
-                            0,
-                            ',',
-                            '.'
                             )
                             }}
 
@@ -1435,17 +1413,12 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
 
                         <td align="right" class="nowrap">
 
-                            Rp {{
-                            number_format(
-                            round(
+                            {{
+                            formatRupiahInvoice(
                             $item[
                             'jumlah_fee'
                             ]
                             ?? 0
-                            ),
-                            0,
-                            ',',
-                            '.'
                             )
                             }}
 
@@ -1524,13 +1497,10 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
 
                             <b>
 
-                                Rp {{
-                                number_format(
+                                {{
+                                formatRupiahInvoice(
                                 $totalJumlahTagihan
-                                ?? 0,
-                                0,
-                                ',',
-                                '.'
+                                ?? 0
                                 )
                                 }}
 
@@ -1551,17 +1521,12 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
 
                             <b>
 
-                                Rp {{
-                                number_format(
-                                round(
+                                {{
+                                formatRupiahInvoice(
                                 $itemsByPenempatanKerja
                                 ->sum(
                                 'biaya_tomi'
                                 )
-                                ),
-                                0,
-                                ',',
-                                '.'
                                 )
                                 }}
 
@@ -1584,17 +1549,12 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
 
                             <b>
 
-                                Rp {{
-                                number_format(
-                                round(
+                                {{
+                                formatRupiahInvoice(
                                 $itemsByPenempatanKerja
                                 ->sum(
                                 'biaya_referal_1'
                                 )
-                                ),
-                                0,
-                                ',',
-                                '.'
                                 )
                                 }}
 
@@ -1617,17 +1577,12 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
 
                             <b>
 
-                                Rp {{
-                                number_format(
-                                round(
+                                {{
+                                formatRupiahInvoice(
                                 $itemsByPenempatanKerja
                                 ->sum(
                                 'biaya_referal_2'
                                 )
-                                ),
-                                0,
-                                ',',
-                                '.'
                                 )
                                 }}
 
@@ -1642,15 +1597,10 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
 
                             <b>
 
-                                Rp {{
-                                number_format(
-                                round(
+                                {{
+                                formatRupiahInvoice(
                                 $totalJumlahFee
                                 ?? 0
-                                ),
-                                0,
-                                ',',
-                                '.'
                                 )
                                 }}
 
@@ -1684,15 +1634,10 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
 
                             <td align="right" class="total-amount">
 
-                                Rp {{
-                                number_format(
-                                round(
+                                {{
+                                formatRupiahInvoice(
                                 $totalJumlahFee
                                 ?? 0
-                                ),
-                                0,
-                                ',',
-                                '.'
                                 )
                                 }}
 
