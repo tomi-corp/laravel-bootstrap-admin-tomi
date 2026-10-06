@@ -337,7 +337,7 @@ class SalaryFinancingController extends Controller
             'jumlah_tagihan',
             'total_dibayarkan',
         ], $totalPinjaman + $biayaAdmin);
-        $totalTagihan = round($totalTagihan);
+        $totalTagihan = $this->roundToNearestFiveHundred($totalTagihan);
 
         return [
             'id' => $this->value($detail, ['id']),
@@ -467,7 +467,7 @@ class SalaryFinancingController extends Controller
                 'profesional_fee_2' => (float) ($row['profesional_fee_2'] ?? $row['professional_fee_2'] ?? $configuration['profesional_fee_2'] ?? 0),
                 'ksp' => (float) ($row['ksp'] ?? $configuration['ksp'] ?? 0),
                 'iuran_anggota' => (float) ($row['iuran_anggota'] ?? $configuration['iuran_anggota'] ?? 0),
-                'total_tagihan' => round((float) ($row['total_tagihan'] ?? $row['jumlah_tagihan'] ?? ($jumlahPendapatan + $biayaAdmin))),
+                'total_tagihan' => $this->roundToNearestFiveHundred((float) ($row['total_tagihan'] ?? $row['jumlah_tagihan'] ?? ($jumlahPendapatan + $biayaAdmin))),
                 'total_dibayarkan' => (float) ($row['total_dibayarkan'] ?? 0),
                 'total_fee' => (float) ($row['total_fee'] ?? 0),
             ];
@@ -481,6 +481,15 @@ class SalaryFinancingController extends Controller
         }
 
         return ceil($value / 1000) * 1000;
+    }
+
+    private function roundToNearestFiveHundred(float|int $value): float
+    {
+        if ($value <= 0) {
+            return 0;
+        }
+
+        return round($value / 500) * 500;
     }
 
     private function rateToMultiplier(float|int $value): float
