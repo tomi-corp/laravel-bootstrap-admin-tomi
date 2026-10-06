@@ -35,9 +35,7 @@ $value = cleanRupiahValue($value);
 
 if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rateToMultiplier($value): float {
     $value=cleanRupiahValue($value); if ($value <=0) { return 0; } return $value <=1 ? $value : ($value / 100); }
-    function roundToNearestFiveHundred($value): float { $value=cleanRupiahValue($value); if ($value <=0) { return 0; } return round($value / 500) * 500; }
     function formatRupiahInvoice($value): string { $value=round(cleanRupiahValue($value)); return 'Rp ' . number_format($value, 0, ',' , '.' ); }
-    function formatRupiahTagihanInvoice($value): string { $value=roundToNearestFiveHundred($value); return 'Rp ' . number_format($value, 0, ',' , '.' ); }
     function formatPercentValue($value): string { $value=cleanRupiahValue($value); $displayValue=$value <=1 ? ($value *
     100) : $value; if (floor($displayValue)==$displayValue) { return number_format($displayValue, 0, ',' , '.' ) . '%' ;
     } return number_format($displayValue, 2, ',' , '.' ) . '%' ; } function firstFilledValue($rows, string $key,
@@ -238,61 +236,9 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
     * rateToMultiplier($biayaAdminRate)
     );
 
-    $jumlahTagihan = roundToNearestFiveHundred(cleanRupiahValue(
-    $item['total_tagihan']
-    ?? $item['jumlah_tagihan']
-    ?? (
+    $jumlahTagihan =
     $jumlahPendapatan
-    + $biayaAdmin
-    )
-    ));
-
-    $biayaTomiSource = cleanRupiahValue(
-    $item['biaya_tomi_amount']
-    ?? $item['biaya_tomi']
-    ?? $item['cost_tomi']
-    ?? $item['fee_tomi_amount']
-    ?? null
-    );
-
-    $biayaTomi = $biayaTomiSource > 0
-    ? round($biayaTomiSource)
-    : round(
-    $jumlahPendapatan
-    * rateToMultiplier($feeTomiRate)
-    );
-
-    $biayaReferal1Source = cleanRupiahValue(
-    $item['biaya_referal_1_amount']
-    ?? $item['biaya_referal_1']
-    ?? $item['biaya_referral_1']
-    ?? $item['referal_1_amount']
-    ?? $item['referral_1_amount']
-    ?? null
-    );
-
-    $biayaReferal1 = $biayaReferal1Source > 0
-    ? round($biayaReferal1Source)
-    : round(
-    $jumlahPendapatan
-    * rateToMultiplier($profesionalFee1Rate)
-    );
-
-    $biayaReferal2Source = cleanRupiahValue(
-    $item['biaya_referal_2_amount']
-    ?? $item['biaya_referal_2']
-    ?? $item['biaya_referral_2']
-    ?? $item['referal_2_amount']
-    ?? $item['referral_2_amount']
-    ?? null
-    );
-
-    $biayaReferal2 = $biayaReferal2Source > 0
-    ? round($biayaReferal2Source)
-    : round(
-    $biayaTomi
-    * rateToMultiplier($profesionalFee2Rate)
-    );
+    + $biayaAdmin;
 
 
     /*
@@ -361,15 +307,6 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
 
     $item['profesional_fee_2'] =
     $profesionalFee2Rate;
-
-    $item['biaya_tomi_amount'] =
-    $biayaTomi;
-
-    $item['biaya_referal_1_amount'] =
-    $biayaReferal1;
-
-    $item['biaya_referal_2_amount'] =
-    $biayaReferal2;
 
     $item['ksp'] =
     cleanRupiahValue(
@@ -497,10 +434,9 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
     |--------------------------------------------------------------------------
     */
 
-    $jumlahTagihan = roundToNearestFiveHundred(
+    $jumlahTagihan =
     $jumlahPendapatan
-    + $biayaAdmin
-    );
+    + $biayaAdmin;
 
 
     /*
@@ -529,9 +465,9 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
     |--------------------------------------------------------------------------
     */
 
-    $biayaTomi = cleanRupiahValue(
-    $group->sum('biaya_tomi_amount')
-    );
+    $biayaTomi =
+    $jumlahPendapatan
+    * rateToMultiplier($feeTomiRate);
 
 
     /*
@@ -540,9 +476,9 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
     |--------------------------------------------------------------------------
     */
 
-    $biayaReferal1 = cleanRupiahValue(
-    $group->sum('biaya_referal_1_amount')
-    );
+    $biayaReferal1 =
+    $jumlahPendapatan
+    * rateToMultiplier($profesionalFee1Rate);
 
 
     /*
@@ -551,9 +487,9 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
     |--------------------------------------------------------------------------
     */
 
-    $biayaReferal2 = cleanRupiahValue(
-    $group->sum('biaya_referal_2_amount')
-    );
+    $biayaReferal2 =
+    $biayaTomi
+    * rateToMultiplier($profesionalFee2Rate);
 
 
     /*
@@ -727,17 +663,17 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
         $invoice['professional_fee_1'] ?? 0 ); $profesionalFee2Rate=cleanRupiahValue( $invoice['profesional_fee_2'] ??
         $invoice['professional_fee_2'] ?? 0 ); /*
         |-------------------------------------------------------------------------- | Biaya TOMI
-        |-------------------------------------------------------------------------- */ $biayaTomi=round(
-        $totalJumlahPendapatan * rateToMultiplier($feeTomiRate) ); /*
+        |-------------------------------------------------------------------------- */ $biayaTomi=
+        $totalJumlahPendapatan * rateToMultiplier($feeTomiRate); /*
         |-------------------------------------------------------------------------- | Referral 1
-        |-------------------------------------------------------------------------- */ $biayaReferal1=round(
-        $totalJumlahPendapatan * rateToMultiplier($profesionalFee1Rate) ); /*
+        |-------------------------------------------------------------------------- */ $biayaReferal1=
+        $totalJumlahPendapatan * rateToMultiplier($profesionalFee1Rate); /*
         |-------------------------------------------------------------------------- | Referral 2
-        |-------------------------------------------------------------------------- */ $biayaReferal2=round(
-        $biayaTomi * rateToMultiplier($profesionalFee2Rate) ); /*
+        |-------------------------------------------------------------------------- */ $biayaReferal2=
+        $biayaTomi * rateToMultiplier($profesionalFee2Rate); /*
         |-------------------------------------------------------------------------- | JUMLAH TAGIHAN
         |-------------------------------------------------------------------------- */
-        $totalJumlahTagihan=roundToNearestFiveHundred( $totalJumlahPendapatan + $biayaAdmin ); /*
+        $totalJumlahTagihan=$totalJumlahPendapatan + $biayaAdmin; /*
         |-------------------------------------------------------------------------- | Jumlah Fee
         |-------------------------------------------------------------------------- */ $totalJumlahFee=$biayaTomi +
         $biayaReferal1 + $biayaReferal2; /* |--------------------------------------------------------------------------
@@ -1391,7 +1327,7 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
 
 
                             {{
-                            formatRupiahTagihanInvoice(
+                            formatRupiahInvoice(
                             $item[
                             'jumlah_tagihan'
                             ]
@@ -1562,7 +1498,7 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
                             <b>
 
                                 {{
-                                formatRupiahTagihanInvoice(
+                                formatRupiahInvoice(
                                 $totalJumlahTagihan
                                 ?? 0
                                 )
