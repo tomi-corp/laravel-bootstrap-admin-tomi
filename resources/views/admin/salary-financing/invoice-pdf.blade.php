@@ -256,8 +256,8 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
     );
 
     $biayaTomi = $biayaTomiSource > 0
-    ? ceil($biayaTomiSource)
-    : ceil(
+    ? round($biayaTomiSource)
+    : round(
     $jumlahPendapatan
     * rateToMultiplier($feeTomiRate)
     );
@@ -272,8 +272,8 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
     );
 
     $biayaReferal1 = $biayaReferal1Source > 0
-    ? ceil($biayaReferal1Source)
-    : ceil(
+    ? round($biayaReferal1Source)
+    : round(
     $jumlahPendapatan
     * rateToMultiplier($profesionalFee1Rate)
     );
@@ -288,8 +288,8 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
     );
 
     $biayaReferal2 = $biayaReferal2Source > 0
-    ? ceil($biayaReferal2Source)
-    : ceil(
+    ? round($biayaReferal2Source)
+    : round(
     $biayaTomi
     * rateToMultiplier($profesionalFee2Rate)
     );
@@ -727,13 +727,13 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
         $invoice['professional_fee_1'] ?? 0 ); $profesionalFee2Rate=cleanRupiahValue( $invoice['profesional_fee_2'] ??
         $invoice['professional_fee_2'] ?? 0 ); /*
         |-------------------------------------------------------------------------- | Biaya TOMI
-        |-------------------------------------------------------------------------- */ $biayaTomi=ceil(
+        |-------------------------------------------------------------------------- */ $biayaTomi=round(
         $totalJumlahPendapatan * rateToMultiplier($feeTomiRate) ); /*
         |-------------------------------------------------------------------------- | Referral 1
-        |-------------------------------------------------------------------------- */ $biayaReferal1=ceil(
+        |-------------------------------------------------------------------------- */ $biayaReferal1=round(
         $totalJumlahPendapatan * rateToMultiplier($profesionalFee1Rate) ); /*
         |-------------------------------------------------------------------------- | Referral 2
-        |-------------------------------------------------------------------------- */ $biayaReferal2=ceil(
+        |-------------------------------------------------------------------------- */ $biayaReferal2=round(
         $biayaTomi * rateToMultiplier($profesionalFee2Rate) ); /*
         |-------------------------------------------------------------------------- | JUMLAH TAGIHAN
         |-------------------------------------------------------------------------- */
