@@ -262,7 +262,7 @@ if ($sisaPlafon < 0) { $sisaPlafon=0; } @endphp <div class="container-fluid">
                                     </td>
 
                                     <td>
-                                        Rp {{ number_format($totalTagihan, floor($totalTagihan) == $totalTagihan ? 0 : 2, ',', '.') }}
+                                        Rp {{ number_format(round($totalTagihan), 0, ',', '.') }}
                                     </td>
 
                                     <td>

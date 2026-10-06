@@ -35,7 +35,7 @@ $value = cleanRupiahValue($value);
 
 if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rateToMultiplier($value): float {
     $value=cleanRupiahValue($value); if ($value <=0) { return 0; } return $value <=1 ? $value : ($value / 100); }
-    function formatRupiahInvoice($value): string { $value=cleanRupiahValue($value); $decimal = floor($value) == $value ? 0 : 2; return 'Rp ' . number_format($value, $decimal, ',' , '.' ); }
+    function formatRupiahInvoice($value): string { $value=round(cleanRupiahValue($value)); return 'Rp ' . number_format($value, 0, ',' , '.' ); }
     function formatPercentValue($value): string { $value=cleanRupiahValue($value); $displayValue=$value <=1 ? ($value *
     100) : $value; if (floor($displayValue)==$displayValue) { return number_format($displayValue, 0, ',' , '.' ) . '%' ;
     } return number_format($displayValue, 2, ',' , '.' ) . '%' ; } function firstFilledValue($rows, string $key,
