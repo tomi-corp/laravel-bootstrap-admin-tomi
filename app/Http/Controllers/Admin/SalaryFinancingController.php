@@ -332,7 +332,12 @@ class SalaryFinancingController extends Controller
         ], $totalPinjaman * $this->rateToMultiplier($biayaAdminRate));
         $biayaAdmin = $this->roundUpToThousand($biayaAdmin);
 
-        $totalTagihan = round($totalPinjaman + $biayaAdmin);
+        $totalTagihan = (float) $this->value($detail, [
+            'total_tagihan',
+            'jumlah_tagihan',
+            'total_dibayarkan',
+        ], $totalPinjaman + $biayaAdmin);
+        $totalTagihan = round($totalTagihan);
 
         return [
             'id' => $this->value($detail, ['id']),
@@ -462,7 +467,7 @@ class SalaryFinancingController extends Controller
                 'profesional_fee_2' => (float) ($row['profesional_fee_2'] ?? $row['professional_fee_2'] ?? $configuration['profesional_fee_2'] ?? 0),
                 'ksp' => (float) ($row['ksp'] ?? $configuration['ksp'] ?? 0),
                 'iuran_anggota' => (float) ($row['iuran_anggota'] ?? $configuration['iuran_anggota'] ?? 0),
-                'total_tagihan' => round($jumlahPendapatan + $biayaAdmin),
+                'total_tagihan' => round((float) ($row['total_tagihan'] ?? $row['jumlah_tagihan'] ?? ($jumlahPendapatan + $biayaAdmin))),
                 'total_dibayarkan' => (float) ($row['total_dibayarkan'] ?? 0),
                 'total_fee' => (float) ($row['total_fee'] ?? 0),
             ];

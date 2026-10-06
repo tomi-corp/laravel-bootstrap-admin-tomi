@@ -236,10 +236,14 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
     * rateToMultiplier($biayaAdminRate)
     );
 
-    $jumlahTagihan = round(
+    $jumlahTagihan = round(cleanRupiahValue(
+    $item['total_tagihan']
+    ?? $item['jumlah_tagihan']
+    ?? (
     $jumlahPendapatan
     + $biayaAdmin
-    );
+    )
+    ));
 
 
     /*
