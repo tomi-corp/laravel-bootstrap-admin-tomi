@@ -465,9 +465,10 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
     |--------------------------------------------------------------------------
     */
 
-    $biayaTomi =
+    $biayaTomi = roundUpToThousand(
     $jumlahPendapatan
-    * rateToMultiplier($feeTomiRate);
+    * rateToMultiplier($feeTomiRate)
+    );
 
 
     /*
@@ -666,8 +667,8 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
         $invoice['professional_fee_1'] ?? 0 ); $profesionalFee2Rate=cleanRupiahValue( $invoice['profesional_fee_2'] ??
         $invoice['professional_fee_2'] ?? 0 ); /*
         |-------------------------------------------------------------------------- | Biaya TOMI
-        |-------------------------------------------------------------------------- */ $biayaTomi=
-        $totalJumlahPendapatan * rateToMultiplier($feeTomiRate); /*
+        |-------------------------------------------------------------------------- */ $biayaTomi=roundUpToThousand(
+        $totalJumlahPendapatan * rateToMultiplier($feeTomiRate) ); /*
         |-------------------------------------------------------------------------- | Referral 1
         |-------------------------------------------------------------------------- */ $biayaReferal1=roundUpToThousand(
         $totalJumlahPendapatan * rateToMultiplier($profesionalFee1Rate) ); /*
