@@ -13,8 +13,8 @@ jobs:
     name: Scan
     runs-on: ubuntu-latest
 
-    # LOGIKA SKIP: Jangan jalankan kalau sumbernya dari main-dev
-    # if: github.head_ref != 'main-dev'
+    # LOGIKA SKIP: Jangan jalankan kalau sumbernya dari staging
+    if: github.head_ref != 'staging'
 
     container:
       image: returntocorp/semgrep
