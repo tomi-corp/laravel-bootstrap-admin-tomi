@@ -476,9 +476,10 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
     |--------------------------------------------------------------------------
     */
 
-    $biayaReferal1 =
+    $biayaReferal1 = roundUpToThousand(
     $jumlahPendapatan
-    * rateToMultiplier($profesionalFee1Rate);
+    * rateToMultiplier($profesionalFee1Rate)
+    );
 
 
     /*
@@ -487,9 +488,10 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
     |--------------------------------------------------------------------------
     */
 
-    $biayaReferal2 =
+    $biayaReferal2 = roundUpToThousand(
     $biayaTomi
-    * rateToMultiplier($profesionalFee2Rate);
+    * rateToMultiplier($profesionalFee2Rate)
+    );
 
 
     /*
@@ -498,10 +500,11 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
     |--------------------------------------------------------------------------
     */
 
-    $jumlahFee =
+    $jumlahFee = roundUpToThousand(
     $biayaTomi
     + $biayaReferal1
-    + $biayaReferal2;
+    + $biayaReferal2
+    );
 
 
     return [
@@ -666,17 +669,17 @@ if ($value <= 0) { return 0; } return ceil($value / 1000) * 1000; } function rat
         |-------------------------------------------------------------------------- */ $biayaTomi=
         $totalJumlahPendapatan * rateToMultiplier($feeTomiRate); /*
         |-------------------------------------------------------------------------- | Referral 1
-        |-------------------------------------------------------------------------- */ $biayaReferal1=
-        $totalJumlahPendapatan * rateToMultiplier($profesionalFee1Rate); /*
+        |-------------------------------------------------------------------------- */ $biayaReferal1=roundUpToThousand(
+        $totalJumlahPendapatan * rateToMultiplier($profesionalFee1Rate) ); /*
         |-------------------------------------------------------------------------- | Referral 2
-        |-------------------------------------------------------------------------- */ $biayaReferal2=
-        $biayaTomi * rateToMultiplier($profesionalFee2Rate); /*
+        |-------------------------------------------------------------------------- */ $biayaReferal2=roundUpToThousand(
+        $biayaTomi * rateToMultiplier($profesionalFee2Rate) ); /*
         |-------------------------------------------------------------------------- | JUMLAH TAGIHAN
         |-------------------------------------------------------------------------- */
         $totalJumlahTagihan=$totalJumlahPendapatan + $biayaAdmin; /*
         |-------------------------------------------------------------------------- | Jumlah Fee
-        |-------------------------------------------------------------------------- */ $totalJumlahFee=$biayaTomi +
-        $biayaReferal1 + $biayaReferal2; /* |--------------------------------------------------------------------------
+        |-------------------------------------------------------------------------- */ $totalJumlahFee=roundUpToThousand($biayaTomi +
+        $biayaReferal1 + $biayaReferal2); /* |--------------------------------------------------------------------------
         | Buat 1 Baris Fallback |-------------------------------------------------------------------------- */
         $itemsByPenempatanKerja=collect([ [ 'penempatan_kerja'=>
         $invoice['penempatan_kerja']
