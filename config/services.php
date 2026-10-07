@@ -42,6 +42,18 @@ return [
         'leader_token' => env('BUYLINK_LEADER_TOKEN'),
     ],
 
+    'privy_digital_id' => [
+        'application_id' => env('PRIVY_DIGITAL_ID_APPLICATION_ID'),
+        'api_base_url' => env('PRIVY_DIGITAL_ID_API_BASE_URL', env('PRIVY_URL')),
+        'web_base_url' => env('PRIVY_DIGITAL_ID_WEB_BASE_URL', 'https://stg-digitalid.privy.id'),
+        'client_id' => env('PRIVY_DIGITAL_ID_CLIENT_ID'),
+        'client_secret' => env('PRIVY_DIGITAL_ID_CLIENT_SECRET'),
+        'private_key' => env('PRIVY_DIGITAL_ID_PRIVATE_KEY'),
+        'public_key' => env('PRIVY_DIGITAL_ID_PUBLIC_KEY'),
+        'merchant_id' => env('PRIVY_DIGITAL_ID_MERCHANT_ID'),
+        'merchant_api_key' => env('PRIVY_DIGITAL_ID_MERCHANT_API_KEY'),
+    ],
+
     'postmark' => [
         'token' => env('POSTMARK_TOKEN'),
     ],

@@ -14,6 +14,8 @@ class ProfileDetailResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $isPrivyVerified = in_array($this->verified_privy, ['y', '1', 1, true], true);
+
         return [
             'name' => $this->name,
             'nama_lengkap' => $this->nama_lengkap,
@@ -34,6 +36,9 @@ class ProfileDetailResource extends JsonResource
             'status_verifikasi_wa' => $this->whatsapp_verified_at === null ? "belum verifikasi" : "terverifikasi",
             'status_verifikasi_email' => $this->email_verified_at === null ? "belum verifikasi" : "terverifikasi",
             'status_privy' => $this->verified_privy,
+            'status_privy_terbaru' => $isPrivyVerified ? 'terverifikasi' : 'belum terverifikasi',
+            'privy_verified' => $isPrivyVerified,
+            'privy_id' => $isPrivyVerified ? $this->id_privy : null,
             'reason_privy' => $this->reason_privy,
             'resend_privy' => $this->resend_privy,
             'update_data_privy' => $this->update_data_privy,

@@ -133,9 +133,14 @@ Route::middleware(['LanguangeMiddleware'])->group(function () {
             Route::post('/history/detail', [HistoryController::class, 'historyDetail']);
 
             // privy
+            // Legacy Privy register flow. Aplikasi versi baru memakai digital-id/session dan digital-id/exchange.
             Route::post('/register/privy', [PrivyController::class, 'registerPrivy']);
             Route::post('/register/privy/resend', [PrivyController::class, 'resendRegister']);
             Route::post('/register/privy/check', [PrivyController::class, 'cekStatusPrivy']);
+
+            // digital-id flow for Privy. Aplikasi versi baru memakai digital-id/session dan digital-id/exchange.
+            Route::post('/privy/digital-id/session', [PrivyController::class, 'digitalIdSession']);
+            Route::post('/privy/digital-id/exchange', [PrivyController::class, 'digitalIdExchange']);
         });
 
         // product
