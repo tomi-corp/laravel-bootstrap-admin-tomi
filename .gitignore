@@ -21,5 +21,8 @@ composer.lock
 public/.htaccess
 *.md
 !readme.md
+!AGENTS.md
+!docs/
+!docs/*.md
 !.github/*.md
 !.github/ISSUE_TEMPLATE/*.md
