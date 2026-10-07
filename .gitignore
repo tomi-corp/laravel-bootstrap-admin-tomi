@@ -1,25 +1,105 @@
+# ==========================================
+# Laravel
+# ==========================================
+
 /.phpunit.cache
-/node_modules
-/public/build
+.phpunit.result.cache
+
+/vendor/
+/node_modules/
+
+/public/build/
 /public/hot
 /public/storage
-/vendor
+
+# Environment
 .env
 .env.*
-!env.example
-.phpunit.result.cache
+!.env.example
+
+# ==========================================
+# IDE / Editor
+# ==========================================
+
+/.idea/
+/.fleet/
+/.vscode/
+
+# ==========================================
+# OS / System
+# ==========================================
+
+.DS_Store
+Thumbs.db
+
+# ==========================================
+# Logs
+# ==========================================
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ==========================================
+# Laravel / Local Development
+# ==========================================
+
 Homestead.json
 Homestead.yaml
+
+# ==========================================
+# Authentication / Credentials
+# ==========================================
+
 auth.json
-npm-debug.log
-yarn-error.log
-/.fleet
-/.idea
-/.vscode
-docker-compose.yml
-composer.lock
+
+# ==========================================
+# Docker
+# ==========================================
+
+# Jangan ignore docker-compose.yml
+# supaya konfigurasi Docker bisa dibagikan ke developer lain.
+
+# ==========================================
+# Documentation
+# ==========================================
+
+# Jangan ignore semua Markdown.
+# Dokumentasi project sebaiknya masuk Git.
+
+# Jika ada dokumentasi yang bersifat private,
+# ignore secara spesifik, misalnya:
+# /docs/private/
+
+# ==========================================
+# Server / Generated Files
+# ==========================================
+
 public/.htaccess
-*.md
-!readme.md
-!.github/*.md
-!.github/ISSUE_TEMPLATE/*.md
+
+# ==========================================
+# Temporary / Backup
+# ==========================================
+
+*.log
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+
+# ==========================================
+# Project-specific documentation
+# ==========================================
+
+# Dokumentasi berikut sengaja TIDAK di-ignore:
+# readme.md
+# AGENTS.md
+# buylink.md
+# fcm.md
+# g-captcha.md
+# privy.md
+# verihubs.md
+# .github/*.md
+# .github/ISSUE_TEMPLATE/*.md
