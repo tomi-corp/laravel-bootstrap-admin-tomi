@@ -75,7 +75,7 @@ class PrivyDigitalIdService
     {
         $affected = PrivyDigitalIdSession::where('privy_session_id', $sessionId)
             ->where(function ($query) {
-                $query->whereIn('status', ['created', 'failed'])
+                $query->whereIn('status', ['created', 'pending', 'failed'])
                     ->orWhere(function ($query) {
                         $query->where('status', 'processing')
                             ->where('processing_started_at', '<', now()->subMinutes(10));

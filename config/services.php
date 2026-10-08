@@ -43,15 +43,17 @@ return [
     ],
 
     'privy_digital_id' => [
-        'application_id' => env('PRIVY_DIGITAL_ID_APPLICATION_ID'),
-        'api_base_url' => env('PRIVY_DIGITAL_ID_API_BASE_URL', env('PRIVY_URL')),
+        'env' => env('DIGITAL_IDV2_PRIVY_ENV', env('PRIVY_DIGITAL_ID_ENV', 'sandbox')),
+        'issuer' => env('DIGITAL_IDV2_PRIVY_ISSUER', env('PRIVY_DIGITAL_ID_ISSUER', 'https://digitalid.privy.id/')),
+        'application_id' => env('DIGITAL_IDV2_PRIVY_APPLICATION_ID', env('PRIVY_DIGITAL_ID_APPLICATION_ID')),
+        'api_base_url' => env('DIGITAL_IDV2_PRIVY_BASE_URL', env('PRIVY_DIGITAL_ID_API_BASE_URL', env('PRIVY_URL'))),
         'web_base_url' => env('PRIVY_DIGITAL_ID_WEB_BASE_URL', 'https://stg-digitalid.privy.id'),
-        'client_id' => env('PRIVY_DIGITAL_ID_CLIENT_ID'),
-        'client_secret' => env('PRIVY_DIGITAL_ID_CLIENT_SECRET'),
-        'private_key' => env('PRIVY_DIGITAL_ID_PRIVATE_KEY'),
-        'public_key' => env('PRIVY_DIGITAL_ID_PUBLIC_KEY'),
-        'merchant_id' => env('PRIVY_DIGITAL_ID_MERCHANT_ID'),
-        'merchant_api_key' => env('PRIVY_DIGITAL_ID_MERCHANT_API_KEY'),
+        'client_id' => env('DIGITAL_IDV2_PRIVY_CLIENT_ID', env('PRIVY_DIGITAL_ID_CLIENT_ID')),
+        'client_secret' => env('DIGITAL_IDV2_PRIVY_CLIENT_SECRET', env('PRIVY_DIGITAL_ID_CLIENT_SECRET')),
+        'private_key' => env('DIGITAL_IDV2_PRIVY_PRIVATE_KEY', env('PRIVY_DIGITAL_ID_PRIVATE_KEY')),
+        'public_key' => env('DIGITAL_IDV2_PRIVY_PUBLIC_KEY', env('PRIVY_DIGITAL_ID_PUBLIC_KEY')),
+        'merchant_id' => env('DIGITAL_IDV2_PRIVY_MERCHANT_ID', env('PRIVY_DIGITAL_ID_MERCHANT_ID')),
+        'merchant_api_key' => env('DIGITAL_IDV2_PRIVY_MERCHANT_API_KEY', env('PRIVY_DIGITAL_ID_MERCHANT_API_KEY')),
     ],
 
     'postmark' => [
