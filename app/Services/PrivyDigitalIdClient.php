@@ -3,8 +3,9 @@
 namespace App\Services;
 
 use App\Exceptions\PrivyDigitalIdException;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 
 class PrivyDigitalIdClient
@@ -15,9 +16,13 @@ class PrivyDigitalIdClient
     ];
 
     private const DEFAULT_ISSUER = 'https://digitalid.privy.id/';
+
     private const DEFAULT_USER_AGENT = 'tomi-api';
+
     private const HTTP_TIMEOUT_SECONDS = 30;
+
     private const CLOCK_SKEW_SECONDS = 60;
+
     private const JWKS_TTL_SECONDS = 600;
 
     private const STATUS_TO_PRIVY_CODE = [
@@ -96,7 +101,7 @@ class PrivyDigitalIdClient
         $header = $this->base64UrlJson($parts[0], 'header');
 
         if (($header['alg'] ?? null) !== 'EdDSA') {
-            throw new PrivyDigitalIdException('Algoritma JWT tidak diizinkan: ' . ($header['alg'] ?? ''), 'jwt_bad_alg', 401);
+            throw new PrivyDigitalIdException('Algoritma JWT tidak diizinkan: '.($header['alg'] ?? ''), 'jwt_bad_alg', 401);
         }
 
         if (empty($header['kid'])) {
@@ -105,7 +110,7 @@ class PrivyDigitalIdClient
 
         $jwk = $this->signingJwk($header['kid'], $config);
         $signature = $this->base64UrlDecode($parts[2]);
-        $message = $parts[0] . '.' . $parts[1];
+        $message = $parts[0].'.'.$parts[1];
         $publicKey = $this->ed25519PublicKeyFromJwk($jwk);
 
         if (! sodium_crypto_sign_verify_detached($signature, $message, $publicKey)) {
@@ -116,7 +121,7 @@ class PrivyDigitalIdClient
         $nowSec = $now ?? time();
 
         if (($payload['iss'] ?? null) !== $config['issuer']) {
-            throw new PrivyDigitalIdException('Issuer JWT tidak sesuai: ' . ($payload['iss'] ?? ''), 'jwt_bad_iss', 401);
+            throw new PrivyDigitalIdException('Issuer JWT tidak sesuai: '.($payload['iss'] ?? ''), 'jwt_bad_iss', 401);
         }
 
         $audiences = is_array($payload['aud'] ?? null) ? array_map('strval', $payload['aud']) : [(string) ($payload['aud'] ?? '')];
@@ -174,45 +179,52 @@ class PrivyDigitalIdClient
         $config = $this->config();
 
         try {
-            $request = Http::timeout(self::HTTP_TIMEOUT_SECONDS)
-                ->withHeaders($this->headers($config, $options));
+            $client = new Client([
+                'timeout' => self::HTTP_TIMEOUT_SECONDS,
+                'http_errors' => false,
+            ]);
 
             $response = match ($method) {
-                'POST' => $request->post($config['base_url'] . $path, $body ?? []),
+                'POST' => $client->request('POST', $config['base_url'].$path, [
+                    'headers' => $this->headers($config, $options),
+                    'json' => $body ?? new \stdClass(),
+                ]),
                 default => throw new PrivyDigitalIdException('HTTP method tidak didukung', 'internal_error', 500),
             };
         } catch (PrivyDigitalIdException $e) {
             throw $e;
-        } catch (\Throwable $e) {
+        } catch (GuzzleException $e) {
             throw new PrivyDigitalIdException(
-                'Privy tidak merespons (' . $e->getMessage() . ')',
+                'Privy tidak merespons ('.$e->getMessage().')',
                 'privy_unreachable',
                 504,
             );
         }
 
-        $data = $response->json();
+        $status = $response->getStatusCode();
+        $data = json_decode((string) $response->getBody(), true);
+        $data = is_array($data) ? $data : [];
 
-        if ($response->successful()) {
-            return is_array($data) ? $data : [];
+        if ($status >= 200 && $status < 300) {
+            return $data;
         }
 
         $privyCode = $data['error']['code']
-            ?? self::STATUS_TO_PRIVY_CODE[$response->status()]
+            ?? self::STATUS_TO_PRIVY_CODE[$status]
             ?? null;
         $known = self::PRIVY_ERRORS_BY_KIND[$kind][$privyCode]
             ?? self::PRIVY_ERRORS[$privyCode]
             ?? null;
 
         if ($known) {
-            throw new PrivyDigitalIdException($known[1], $known[0], $known[2], $response->status(), $privyCode, $data);
+            throw new PrivyDigitalIdException($known[1], $known[0], $known[2], $status, $privyCode, $data);
         }
 
         throw new PrivyDigitalIdException(
-            'Privy mengembalikan HTTP ' . $response->status(),
+            'Privy mengembalikan HTTP '.$status,
             'privy_http_error',
             502,
-            $response->status(),
+            $status,
             $privyCode,
             $data,
         );
@@ -249,7 +261,7 @@ class PrivyDigitalIdClient
 
         if ($missing) {
             throw new PrivyDigitalIdException(
-                'Konfigurasi Privy Digital ID belum lengkap: ' . implode(', ', $missing),
+                'Konfigurasi Privy Digital ID belum lengkap: '.implode(', ', $missing),
                 'config_missing',
                 500,
             );
@@ -276,7 +288,7 @@ class PrivyDigitalIdClient
 
     private function signingJwk(string $kid, array $config): array
     {
-        $cacheKey = 'privy_digital_id_jwks:' . sha1($config['base_url']);
+        $cacheKey = 'privy_digital_id_jwks:'.sha1($config['base_url']);
         $keys = Cache::remember($cacheKey, self::JWKS_TTL_SECONDS, fn () => $this->fetchJwks($config));
         $jwk = collect($keys)->firstWhere('kid', $kid);
 
@@ -287,11 +299,11 @@ class PrivyDigitalIdClient
         }
 
         if (! $jwk) {
-            throw new PrivyDigitalIdException('Kunci publik dengan kid "' . $kid . '" tidak ada di JWKS Privy', 'jwt_unknown_kid', 401);
+            throw new PrivyDigitalIdException('Kunci publik dengan kid "'.$kid.'" tidak ada di JWKS Privy', 'jwt_unknown_kid', 401);
         }
 
         if (($jwk['kty'] ?? null) !== 'OKP' || ($jwk['crv'] ?? null) !== 'Ed25519') {
-            throw new PrivyDigitalIdException('Kunci kid "' . $kid . '" bukan Ed25519', 'jwt_bad_key', 401);
+            throw new PrivyDigitalIdException('Kunci kid "'.$kid.'" bukan Ed25519', 'jwt_bad_key', 401);
         }
 
         return $jwk;
@@ -300,17 +312,22 @@ class PrivyDigitalIdClient
     private function fetchJwks(array $config): array
     {
         try {
-            $response = Http::timeout(self::HTTP_TIMEOUT_SECONDS)
-                ->withHeaders(['User-Agent' => self::DEFAULT_USER_AGENT])
-                ->get($config['base_url'] . '/.well-known/jwks.json');
-        } catch (\Throwable $e) {
-            throw new PrivyDigitalIdException('Gagal mengambil JWKS Privy (' . $e->getMessage() . ')', 'jwks_unreachable', 504);
+            $client = new Client([
+                'timeout' => self::HTTP_TIMEOUT_SECONDS,
+                'http_errors' => false,
+            ]);
+            $response = $client->request('GET', $config['base_url'].'/.well-known/jwks.json', [
+                'headers' => ['User-Agent' => self::DEFAULT_USER_AGENT],
+            ]);
+        } catch (GuzzleException $e) {
+            throw new PrivyDigitalIdException('Gagal mengambil JWKS Privy ('.$e->getMessage().')', 'jwks_unreachable', 504);
         }
 
-        $data = $response->json();
+        $status = $response->getStatusCode();
+        $data = json_decode((string) $response->getBody(), true);
 
-        if ($response->status() !== 200 || ! is_array($data) || ! is_array($data['keys'] ?? null)) {
-            throw new PrivyDigitalIdException('JWKS Privy tidak valid (HTTP ' . $response->status() . ')', 'jwks_invalid');
+        if ($status !== 200 || ! is_array($data) || ! is_array($data['keys'] ?? null)) {
+            throw new PrivyDigitalIdException('JWKS Privy tidak valid (HTTP '.$status.')', 'jwks_invalid');
         }
 
         return $data['keys'];
@@ -322,7 +339,7 @@ class PrivyDigitalIdClient
         $data = json_decode($decoded, true);
 
         if (! is_array($data)) {
-            throw new PrivyDigitalIdException('JWT ' . $what . ' tidak valid', 'jwt_malformed', 401);
+            throw new PrivyDigitalIdException('JWT '.$what.' tidak valid', 'jwt_malformed', 401);
         }
 
         return $data;
@@ -330,7 +347,7 @@ class PrivyDigitalIdClient
 
     private function base64UrlDecode(string $value): string
     {
-        $decoded = base64_decode(strtr($value, '-_', '+/') . str_repeat('=', (4 - strlen($value) % 4) % 4), true);
+        $decoded = base64_decode(strtr($value, '-_', '+/').str_repeat('=', (4 - strlen($value) % 4) % 4), true);
 
         if ($decoded === false) {
             throw new PrivyDigitalIdException('JWT tidak valid', 'jwt_malformed', 401);
