@@ -23,6 +23,10 @@ Route::middleware(['CenterFileMiddleware'])->group(function () {
     Route::post('/get/image', [DocumentController::class, 'image']);
 });
 
+// Privy Digital ID v1.5: endpoint ini dipanggil mobile tanpa middleware API proyek.
+Route::post('/privy/digital-id/session', [PrivyController::class, 'digitalIdSession']);
+Route::post('/privy/digital-id/exchange', [PrivyController::class, 'digitalIdExchange']);
+
 Route::middleware(['LanguangeMiddleware'])->group(function () {
 
     Route::post('/login', [AuthController::class, 'login']);
@@ -139,11 +143,7 @@ Route::middleware(['LanguangeMiddleware'])->group(function () {
             Route::post('/register/privy/check', [PrivyController::class, 'cekStatusPrivy']);
 
             // digital-id flow for Privy. Aplikasi versi baru memakai digital-id/session dan digital-id/exchange.
-            Route::post('/privy/digital-id/session', [PrivyController::class, 'digitalIdSession']);
-            Route::post('/privy/digital-id/exchange', [PrivyController::class, 'digitalIdExchange']);
             Route::post('/privy/digital-id/status', [PrivyController::class, 'digitalIdStatus']);
-            Route::post('/teken_aja/digitalid/session', [PrivyController::class, 'digitalIdSession']);
-            Route::post('/teken_aja/digitalid/exchange', [PrivyController::class, 'digitalIdExchange']);
             Route::post('/teken_aja/digitalid/status', [PrivyController::class, 'digitalIdStatus']);
         });
 

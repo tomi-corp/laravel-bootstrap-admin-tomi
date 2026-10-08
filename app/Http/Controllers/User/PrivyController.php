@@ -296,13 +296,17 @@ class PrivyController extends Controller
 
     public function digitalIdSession(Request $request)
     {
-        $user = User::where('id', auth('api')->user()->id)->first();
+        $authUser = auth('api')->user();
+        $userId = $authUser?->id ?? $request->input('id_borrower');
+        $user = $userId ? User::where('id', $userId)->first() : null;
 
         if (! $user) {
             return response()->json([
                 'status' => false,
-                'message' => 'Sesi login berakhir, silakan masuk kembali.',
-            ], 401);
+                'message' => 'id_borrower wajib diisi',
+                'code' => 'invalid_request',
+                'data' => [],
+            ], 400);
         }
 
         if (in_array($user->verified_privy, ['y', '1', 1, true], true) && ! empty($user->id_privy)) {
@@ -369,13 +373,17 @@ class PrivyController extends Controller
             ], 400);
         }
 
-        $user = User::where('id', auth('api')->user()->id)->first();
+        $authUser = auth('api')->user();
+        $userId = $authUser?->id ?? $request->input('id_borrower');
+        $user = $userId ? User::where('id', $userId)->first() : null;
 
         if (! $user) {
             return response()->json([
                 'status' => false,
-                'message' => 'Sesi login berakhir, silakan masuk kembali.',
-            ], 401);
+                'message' => 'id_borrower wajib diisi',
+                'code' => 'invalid_request',
+                'data' => [],
+            ], 400);
         }
 
         $verifiedSession = PrivyDigitalIdSession::where('exchange_code', $exchangeCode)
