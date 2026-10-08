@@ -53,6 +53,11 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasOne(kyc_user::class, 'user_id', 'id')->latestOfMany();
     }
 
+    public function privy()
+    {
+        return $this->hasOne(PrivyDigitalIdSession::class, 'user_id', 'id')->latestOfMany();
+    }
+
     protected function casts(): array
     {
         return [
