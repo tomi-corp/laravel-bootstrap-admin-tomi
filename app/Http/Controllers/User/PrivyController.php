@@ -9,11 +9,14 @@ use App\Models\PrivyDigitalIdSession;
 use App\Models\privy_pse;
 use App\Models\User;
 use Carbon\Carbon;
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class PrivyController extends Controller
 {
@@ -410,6 +413,7 @@ class PrivyController extends Controller
                 'status' => true,
                 'message' => 'Sesi verifikasi Privy berhasil dibuat.',
                 'data' => [
+                    'session_id' => $privySessionId,
                     'session_url' => $sessionUrl,
                     'expires_at' => $expiresAt,
                 ],
@@ -459,7 +463,7 @@ class PrivyController extends Controller
 
     public function digitalIdExchange(Request $request)
     {
-        $exchangeCode = trim((string) $request->input('exchange_code'));
+        $exchangeCode = trim((string) ($request->input('exchange_code') ?? $request->input('code')));
 
         if ($exchangeCode === '') {
             return response()->json([
@@ -488,6 +492,7 @@ class PrivyController extends Controller
                 'status' => true,
                 'message' => 'Verifikasi Privy berhasil.',
                 'data' => [
+                    'session_id' => $verifiedSession->privy_session_id,
                     'status_privy' => 'y',
                     'privy_id' => $user->id_privy,
                 ],
@@ -583,34 +588,19 @@ class PrivyController extends Controller
             if ($privyId) {
                 $wasVerified = $user->verified_privy == 'y';
 
-                $user->id_privy = $privyId;
-                $user->enterprise_token_privy = $enterpriseToken ?? $user->enterprise_token_privy;
-                $user->reason_privy = null;
-                $user->resend_privy = null;
-                $user->verified_privy = 'y';
-                $user->save();
+                $this->markUserPrivyVerified($user, $privyId, $enterpriseToken, $wasVerified);
+
                 $digitalIdSession->exchange_code = $exchangeCode;
                 $digitalIdSession->status = 'verified';
                 $digitalIdSession->exchanged_at = now();
                 $digitalIdSession->save();
-
-                if (! $wasVerified) {
-                    $cost = cost::first();
-
-                    if ($cost) {
-                        $newPSEPrivy = new privy_pse();
-                        $newPSEPrivy->user_id = $user->id;
-                        $newPSEPrivy->cost = $cost->biaya;
-                        $newPSEPrivy->keterangan = 'Penerbitan sertifikat elektronik';
-                        $newPSEPrivy->save();
-                    }
-                }
             }
 
             return response()->json([
                 'status' => true,
                 'message' => 'Verifikasi Privy berhasil.',
                 'data' => [
+                    'session_id' => $digitalIdSession->privy_session_id,
                     'status_privy' => 'y',
                     'privy_id' => $privyId,
                 ],
@@ -648,5 +638,194 @@ class PrivyController extends Controller
                 'message' => $message,
             ], $statusCode);
         }
+    }
+
+    public function digitalIdStatus(Request $request)
+    {
+        $sessionId = trim((string) $request->input('session_id'));
+
+        if ($sessionId === '' || strlen($sessionId) > 100) {
+            return response()->json([
+                'status' => false,
+                'message' => 'session_id wajib diisi',
+                'code' => 'invalid_request',
+                'data' => [],
+            ], 400);
+        }
+
+        $user = User::where('id', auth('api')->user()->id)->first();
+
+        if (! $user) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Sesi login berakhir, silakan masuk kembali.',
+            ], 401);
+        }
+
+        $session = PrivyDigitalIdSession::where('privy_session_id', $sessionId)
+            ->orWhere('id', $sessionId)
+            ->latest()
+            ->first();
+
+        if (! $session) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Sesi verifikasi tidak dikenal',
+                'code' => 'session_unknown',
+                'data' => [],
+            ], 404);
+        }
+
+        if ((int) $session->user_id !== (int) $user->id) {
+            Log::warning('Privy Digital ID status borrower mismatch', [
+                'session_id' => $sessionId,
+                'user_id' => $user->id,
+            ]);
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Sesi verifikasi bukan milik borrower ini',
+                'code' => 'session_forbidden',
+                'data' => [],
+            ], 403);
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Status sesi verifikasi.',
+            'data' => [
+                'session_id' => $session->privy_session_id,
+                'status' => strtoupper($session->status),
+                'privy_id' => $session->status === 'verified' ? $user->id_privy : null,
+                'error_code' => $session->status === 'failed' ? 'verification_failed' : null,
+                'expires_at' => $session->expires_at,
+            ],
+        ], 200);
+    }
+
+    public function digitalIdCallback(Request $request)
+    {
+        $sessionId = trim((string) $request->input('session_id'));
+        $token = $request->input('token');
+
+        if ($sessionId === '' || ! is_string($token) || $token === '') {
+            Log::warning('Privy Digital ID callback invalid', [
+                'has_session_id' => $sessionId !== '',
+                'has_token' => is_string($token) && $token !== '',
+            ]);
+
+            return response()->json([
+                'received' => false,
+                'message' => 'session_id dan token wajib diisi',
+            ], 400);
+        }
+
+        $session = PrivyDigitalIdSession::where('privy_session_id', $sessionId)->latest()->first();
+
+        if (! $session) {
+            Log::warning('Privy Digital ID callback unknown session', [
+                'session_id' => $sessionId,
+                'event' => $request->input('event'),
+            ]);
+
+            return response()->json([
+                'received' => true,
+                'processed' => false,
+            ], 200);
+        }
+
+        $this->processDigitalIdCallbackToken($session, $token, $request->input('event'));
+
+        return response()->json([
+            'received' => true,
+        ], 200);
+    }
+
+    private function processDigitalIdCallbackToken(PrivyDigitalIdSession $session, string $token, mixed $event = null): void
+    {
+        $payload = $this->verifyJwtPayload($token);
+
+        if (! $payload) {
+            Log::warning('Privy Digital ID callback token unreadable', [
+                'session_id' => $session->privy_session_id,
+                'event' => $event,
+            ]);
+
+            return;
+        }
+
+        $status = strtolower((string) ($payload['status'] ?? $payload['verification_status'] ?? $payload['event'] ?? $event ?? ''));
+        $privyId = $payload['privy_id'] ?? $payload['id_privy'] ?? $payload['id_user'] ?? null;
+        $enterpriseToken = $payload['enterprise_token'] ?? $payload['enterpriseToken'] ?? null;
+
+        if ($privyId && in_array($status, ['', 'verified', 'success', 'completed', 'approved'], true)) {
+            $user = User::find($session->user_id);
+
+            if ($user) {
+                $this->markUserPrivyVerified($user, $privyId, $enterpriseToken, $user->verified_privy == 'y');
+            }
+
+            $session->status = 'verified';
+            $session->exchanged_at = $session->exchanged_at ?? now();
+            $session->save();
+
+            return;
+        }
+
+        if (in_array($status, ['failed', 'rejected', 'error'], true)) {
+            $session->status = 'failed';
+            $session->save();
+        }
+    }
+
+    private function verifyJwtPayload(string $token): ?array
+    {
+        $publicKey = config('services.privy_digital_id.public_key');
+
+        if (! $publicKey) {
+            Log::warning('Privy Digital ID public key is not configured');
+            return null;
+        }
+
+        $publicKey = str_replace('\\n', "\n", $publicKey);
+
+        try {
+            $decoded = JWT::decode($token, new Key($publicKey, 'RS256'));
+        } catch (Throwable $e) {
+            Log::warning('Privy Digital ID callback token verification failed', [
+                'error' => $e->getMessage(),
+            ]);
+            return null;
+        }
+
+        $data = json_decode(json_encode($decoded), true);
+
+        return is_array($data) ? $data : null;
+    }
+
+    private function markUserPrivyVerified(User $user, string $privyId, ?string $enterpriseToken, bool $wasVerified): void
+    {
+        $user->id_privy = $privyId;
+        $user->enterprise_token_privy = $enterpriseToken ?? $user->enterprise_token_privy;
+        $user->reason_privy = null;
+        $user->resend_privy = null;
+        $user->verified_privy = 'y';
+        $user->save();
+
+        if ($wasVerified) {
+            return;
+        }
+
+        $cost = cost::first();
+
+        if (! $cost) {
+            return;
+        }
+
+        $newPSEPrivy = new privy_pse();
+        $newPSEPrivy->user_id = $user->id;
+        $newPSEPrivy->cost = $cost->biaya;
+        $newPSEPrivy->keterangan = 'Penerbitan sertifikat elektronik';
+        $newPSEPrivy->save();
     }
 }

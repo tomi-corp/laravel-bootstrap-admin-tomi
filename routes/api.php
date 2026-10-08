@@ -141,6 +141,10 @@ Route::middleware(['LanguangeMiddleware'])->group(function () {
             // digital-id flow for Privy. Aplikasi versi baru memakai digital-id/session dan digital-id/exchange.
             Route::post('/privy/digital-id/session', [PrivyController::class, 'digitalIdSession']);
             Route::post('/privy/digital-id/exchange', [PrivyController::class, 'digitalIdExchange']);
+            Route::post('/privy/digital-id/status', [PrivyController::class, 'digitalIdStatus']);
+            Route::post('/teken_aja/digitalid/session', [PrivyController::class, 'digitalIdSession']);
+            Route::post('/teken_aja/digitalid/exchange', [PrivyController::class, 'digitalIdExchange']);
+            Route::post('/teken_aja/digitalid/status', [PrivyController::class, 'digitalIdStatus']);
         });
 
         // product
@@ -153,4 +157,8 @@ Route::middleware(['LanguangeMiddleware'])->group(function () {
 
     // ota react native
     Route::post('/ota/check', [OtaController::class, 'checkUpdate']);
+
+    // Callback Privy Digital ID dari server Privy. Tidak memakai auth user karena validasi ada di token callback.
+    Route::post('/privy/digital-id/callback', [PrivyController::class, 'digitalIdCallback']);
+    Route::post('/teken_aja/digitalid/callback', [PrivyController::class, 'digitalIdCallback']);
 });

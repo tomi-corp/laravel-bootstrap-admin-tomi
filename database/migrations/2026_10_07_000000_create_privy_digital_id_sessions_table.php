@@ -16,8 +16,18 @@ return new class extends Migration
             $table->string('exchange_code')->nullable()->unique();
             $table->text('session_url')->nullable();
             $table->string('status')->default('pending')->index();
+            $table->string('event')->nullable();
+            $table->string('privy_id')->nullable()->index();
+            $table->string('processed_by')->nullable();
+            $table->unsignedInteger('attempts')->default(0);
+            $table->string('error_code', 50)->nullable();
+            $table->string('error_message', 255)->nullable();
             $table->timestamp('expires_at')->nullable()->index();
             $table->timestamp('exchanged_at')->nullable();
+            $table->timestamp('exchange_received_at')->nullable();
+            $table->timestamp('callback_received_at')->nullable();
+            $table->timestamp('processing_started_at')->nullable();
+            $table->timestamp('verified_at')->nullable();
             $table->timestamps();
 
             $table->index(['user_id', 'status', 'expires_at']);
