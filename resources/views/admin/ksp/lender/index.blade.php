@@ -37,32 +37,7 @@
         </div>
     </div>
 
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-body">
-                <h4 class="pb-2">Pending Approval Lender</h4>
-
-                <table id="tableapprovalLender" class="table dt-responsive table-hover mt-4 text-center justify-center"
-                    style="width:100%">
-                    <thead>
-                        <tr>
-                            <th>DateTime</th>
-                            <th>Username Requester</th>
-                            <th>Status Approval Layer 1</th>
-                            <th>Status Approval Layer 2</th>
-                            <th>First Approval</th>
-                            <th>Second Approval</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                </table>
-            </div>
-        </div>
-    </div>
-
-
-
-    <div class="col-md-8">
+    <div class="col-12">
         <div class="card">
             <div class="card-body">
 
@@ -77,7 +52,6 @@
                         style="width:100%">
                         <thead>
                             <tr>
-                                <th>Pending Approval</th>
                                 <th>Last Updated</th>
                                 <th>Expired Update</th>
                                 <th>ID Lender</th>
@@ -673,7 +647,6 @@
     var mulai = "";
     var akhir = "";
     var editID = "";
-    var editApprovalID = "";
     var deleteID = "";
 
     var dataTable = {
@@ -807,8 +780,6 @@
             },
         },
         columns: [{
-            data: 'pendingApproval'
-        }, {
             data: 'last_updated'
         }, {
             data: 'expired_updated'
@@ -853,72 +824,6 @@
         }]
     });
 
-    var tableApproval = $('#tableapprovalLender').DataTable({
-        dom: 'B<"clear">lfrtip',
-        buttons: [{
-            extend: 'excel',
-            className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
-            text: '<span class="mdi mdi-file-excel"><span class="pl-1">Excel</span></span>',
-            header: true,
-            title: 'List Lender',
-            exportOptions: {
-                columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
-            },
-        },
-        {
-            extend: 'copy',
-            className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
-            text: '<span class="mdi mdi-content-copy"><span class="pl-1">Copy</span></span>',
-            header: true,
-            title: 'List Perusahaan',
-            exportOptions: {
-                columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
-
-            },
-        },
-        {
-            extend: 'print',
-            className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
-            text: '<span class="mdi mdi-printer"><span class="pl-1">Print</span></span>',
-            header: true,
-            title: 'List Perusahaan',
-            exportOptions: {
-                columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
-            },
-        }
-        ],
-        "lengthMenu": [10, 50, 100, 500, 1000, 2000, 5000, 10000, 50000, 100000],
-        processing: true,
-        responsive: true,
-        serverSide: true,
-        language: {
-            processing: '<i class="dripicons-loading">autorenew</i>'
-        },
-        ajax: {
-            "type": "POST",
-            "url": '{!! route('admin.lender.approval.lender') !!}',
-            "data": function (xx) {
-                return $.extend(xx, dataTable);
-            },
-        },
-        columns: [{
-            data: 'waktu'
-        }, {
-            data: 'requester'
-        }, {
-            data: 'status_pertama'
-        }, {
-            data: 'status_kedua'
-        }, {
-            data: 'first_approver_id'
-        }, {
-            data: 'second_approver_id'
-        }, {
-            data: 'action'
-        }]
-    });
-
-
     $('#saveVerif').on('click', function () {
         $.ajax({
             url: '{!! route('admin.ksp.verifikasi') !!}',
@@ -937,7 +842,6 @@
             success: function (approve) {
                 toastr.success(approve.message)
                 table.ajax.reload();
-                tableApproval.ajax.reload();
                 $("#modalApprove").modal('hide');
                 $('#saveVerif').attr("disabled", false);
                 $('#loadingText').removeClass("spinner-border");
@@ -989,7 +893,6 @@
             success: function (add) {
                 toastr.success(add.message);
                 table.ajax.reload();
-                tableApproval.ajax.reload();
                 $("#modalAdd").modal('hide');
                 $('#buttonSubmit').attr("disabled", false);
                 $('#loadingText').removeClass("spinner-border");
@@ -1088,57 +991,6 @@
         });
     }
 
-    editApproval = (id) => {
-        editApprovalID = id;
-        $.ajax({
-            url: '{!! route('admin.lender.approval.detail') !!}',
-            data: {
-                '_token': "{{ csrf_token() }}",
-                'id': editApprovalID,
-            },
-            type: 'POST',
-            dataType: 'json',
-            success: function (detail) {
-                $('#id_lender_detail').text(detail.data.id_code_lender);
-                $('#nama_lender_detail').text(detail.data.nama);
-                $('#status_pertama').text(detail.data.status_pertama);
-                $('#status_kedua').text(detail.data.status_kedua);
-
-                const $changedDataContainer = $('#changedData');
-                $changedDataContainer.empty();
-
-                // Ambil old_data dan new_data
-                let data = JSON.parse(detail.data.new_data);
-                let oldData = data.old_data;
-                let newData = data.new_data;
-
-                if (newData && Object.keys(newData).length > 0) {
-                    let htmlContent = '<h6>Perubahan Data:</h6>';
-
-                    $.each(newData, function (key, newValue) {
-                        if (key === 'update_by') {
-                            return true; // continue
-                        }
-                        const oldValue = oldData[key] ?? '-';
-                        htmlContent += `
-                        <span>
-                            <strong>${key.replace(/_/g, ' ')}:</strong> 
-                            <span class="text-danger">${oldValue}</span> 
-                            &rarr; 
-                            <span class="text-success">${newValue}</span>
-                        </span></br>`;
-                    });
-
-                    $changedDataContainer.append(htmlContent);
-                } else {
-                    $changedDataContainer.html('<p>Tidak ada data yang ditampilkan.</p>');
-                }
-
-                $('#modalApproveEdit').modal('show');
-            }
-        });
-    }
-
     $('#buttonSubmitEdit').on('click', function () {
         // Clear previous error messages
         $('.text-danger').text('');
@@ -1183,7 +1035,6 @@
             success: function (add) {
                 toastr.success(add.message);
                 table.ajax.reload();
-                tableApproval.ajax.reload();
                 $("#modalEdit").modal('hide');
                 $('#buttonSubmitEdit').attr("disabled", false);
                 $('#loadingTextEdit').removeClass("spinner-border");
@@ -1230,42 +1081,6 @@
         });
     });
 
-    $('#buttonSubmitApprove').on('click', function () {
-        $.ajax({
-            url: '{!! route('admin.lender.approval.action') !!}',
-            data: {
-                '_token': "{{ csrf_token() }}",
-                'id': editApprovalID,
-                'action': $('#approveAction').val(),
-            },
-            type: 'POST',
-            dataType: 'json',
-            beforeSend: function () {
-                $('#buttonSubmitApprove').attr("disabled", true);
-                $('#loadingTextApprove').addClass("spinner-border");
-            },
-            success: function (deleteSave) {
-                toastr.success(deleteSave.message)
-                table.ajax.reload();
-                tableApproval.ajax.reload();
-                $("#modalApproveEdit").modal('hide');
-                $('#buttonSubmitApprove').attr("disabled", false);
-                $('#loadingTextApprove').removeClass("spinner-border");
-            },
-            error: function (err) {
-                toastr.success(err.message)
-                table.ajax.reload();
-                tableApproval.ajax.reload();
-                $("#modalApproveEdit").modal('hide');
-                $('#buttonSubmitApprove').attr("disabled", false);
-                $('#loadingTextApprove').removeClass("spinner-border");
-            }
-        });
-    });
-
-
-
-
     deleteLender = (id) => {
         deleteID = id;
         $('#modalDelete').modal('show');
@@ -1287,7 +1102,6 @@
             success: function (deleteSave) {
                 toastr.success(deleteSave.message)
                 table.ajax.reload();
-                tableApproval.ajax.reload();
                 $("#modalDelete").modal('hide');
                 $('#buttonDelete').attr("disabled", false);
                 $('#loadingTextDelete').removeClass("spinner-border");
@@ -1295,7 +1109,6 @@
             error: function (err) {
                 toastr.success(err.message)
                 table.ajax.reload();
-                tableApproval.ajax.reload();
                 $("#modalDelete").modal('hide');
                 $('#buttonDelete').attr("disabled", false);
                 $('#loadingTextDelete').removeClass("spinner-border");

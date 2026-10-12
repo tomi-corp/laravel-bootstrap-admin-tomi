@@ -106,21 +106,11 @@ class LenderController extends Controller
 
     public function lenderTable()
     {
-        $lender = lender::with(['provinsi', 'kabupaten', 'kecamatan', 'desa', 'pendingApproval', 'bank'])->get();
+        $lender = lender::with(['provinsi', 'kabupaten', 'kecamatan', 'desa', 'bank'])->get();
         $configurasi = configurasi_lender::first();
 
         return DataTables::of($lender)
             ->addIndexColumn()
-
-            ->addColumn('pendingApproval', function ($row) {
-                if (isset($row->pendingApproval)) {
-                    $pendingApproval = '<span class="badge badge-warning">Locked</span>';
-                } else {
-                    $pendingApproval = '<span class="badge badge-success">Available to Edit</span>';
-                }
-
-                return $pendingApproval;
-            })
 
             ->addColumn('bank', function ($row) {
                 return $row->bank?->code_bank ?? '-';
@@ -178,23 +168,14 @@ class LenderController extends Controller
                 return $status;
             })
             ->addColumn('action', function ($row) {
-
-                if (isset($row->pendingApproval)) {
-                    $action = '<button class="btn btn-sm btn-primary mr-2 disabled" ><i class="mdi mdi-pencil"></i> </button>
-                    <button class="btn btn-sm btn-info mr-2" onclick="historyUpdate('.$row->id.')"><i class="mdi mdi-history"></i> </button>
-                    <button class="btn btn-sm btn-danger mr-2 disabled"><i class=" mdi mdi-trash-can"></i> </button>
-                    ';
-                } else {
-                    $action = '<button class="btn btn-sm btn-primary mr-2" onclick="editLender('.$row->id.')"><i class="mdi mdi-pencil"></i> </button>
-                    <button class="btn btn-sm btn-info mr-2" onclick="historyUpdate('.$row->id.')"><i class="mdi mdi-history"></i> </button>
+                $action = '<button class="btn btn-sm btn-primary mr-2" onclick="editLender('.$row->id.')"><i class="mdi mdi-pencil"></i> </button>
                     <button class="btn btn-sm btn-danger mr-2" onclick="deleteLender('.$row->id.')"><i class=" mdi mdi-trash-can"></i> </button>
                     ';
-                }
 
                 return $action;
             })
 
-            ->rawColumns(['action', 'status', 'pks', 'pendingApproval', 'logo'])
+            ->rawColumns(['action', 'status', 'pks', 'logo'])
             ->only([
                 'DT_RowIndex',
                 'id_code_lender',
@@ -214,7 +195,6 @@ class LenderController extends Controller
                 'desa',
                 'status',
                 'action',
-                'pendingApproval',
                 'bank',
                 'nama_rekening',
                 'no_rekening',
@@ -264,7 +244,6 @@ class LenderController extends Controller
     public function updateLender(UpdateLenderRequest $req)
     {
         $lender = lender::where('id', $req->id)->first();
-        $oldData = $lender->getOriginal();
 
         // Lakukan perubahan pada model (sebelum disimpan ke database)
         $lender->pic_lender = $req->pic_lender;
@@ -284,6 +263,12 @@ class LenderController extends Controller
             $lender->last_update_file_pks = Carbon::now()->format('Y-m-d');
         }
 
+        if ($req->file('logoLender') !== null) {
+            $imageName = time().'_'.$req->nama_lender.'.'.$req->logoLender->extension();
+            $req->logoLender->move(public_path('assets/images'), $imageName);
+            $lender->logo = $imageName;
+        }
+
         $provinsi = provinsi::where('provinsi', $req->provinsi)->first();
         $kabupaten = kota::where('kabupaten', $req->kabupaten)->first();
         $kecamatan = kecamatan::where('kecamatan', $req->kecamatan)->first();
@@ -300,65 +285,25 @@ class LenderController extends Controller
         $lender->id_bank = $req->bank;
         $lender->nama_rekening = $req->an_rekening;
         $lender->no_rekening = $req->no_rekening;
+        $lender->status = $req->status;
+        $lender->color = $req->colorLender;
         $lender->update_by = auth('admin')->user()->id;
-
-        // Dapatkan data yang diubah (hanya kolom yang berubah)
-        $changedData = $lender->getDirty();
-
-        // Gabungkan oldData dan newData ke dalam satu array untuk JSON
-        $logData = [
-            'old_data' => array_intersect_key($oldData, $changedData), // Ambil data lama hanya untuk kolom yang berubah
-            'new_data' => $changedData,
-        ];
-
-        // Simpan data perubahan ke tabel sementara
-        $lender_updates = new lender_update;
-        $lender_updates->lender_id = $lender->id;
-        $lender_updates->new_data = json_encode($logData);
-        $lender_updates->requester_id = auth('admin')->user()->id;
-        $lender_updates->status_pertama = 'pending';
-        $lender_updates->status_kedua = 'pending';
-        $lender_updates->save();
+        $lender->save();
 
         return response()->json([
             'status' => 200,
-            'message' => 'Request Update Lender Berhasil, Harap menunggu approval',
+            'message' => 'Lender berhasil diperbarui',
         ], 200);
     }
 
     public function deleteLender(Request $req)
     {
-        $lender = lender::where('id', $req->id)
-            ->with('pendingApproval')
-            ->first();
-
-        if (isset($lender->pendingApproval)) {
-            return response()->json([
-                'status' => 400,
-                'message' => 'Data lender sedang tahap pending approval, tidak bisa dihapus',
-            ], 400);
-        }
-
-        $oldData = $lender->getOriginal();
-        $lender->deleted_at = now();
-        $changedData = $lender->getDirty();
-
-        $logData = [
-            'old_data' => array_intersect_key($oldData, $changedData),
-            'new_data' => $changedData,
-        ];
-        // Simpan data perubahan ke tabel sementara
-        $lender_updates = new lender_update;
-        $lender_updates->lender_id = $lender->id;
-        $lender_updates->new_data = json_encode($logData);
-        $lender_updates->requester_id = auth('admin')->user()->id;
-        $lender_updates->status_pertama = 'pending';
-        $lender_updates->status_kedua = 'pending';
-        $lender_updates->save();
+        $lender = lender::where('id', $req->id)->firstOrFail();
+        $lender->delete();
 
         return response()->json([
             'status' => 200,
-            'message' => 'Request Delete Lender Berhasil, Harap menunggu approval',
+            'message' => 'Lender berhasil dihapus',
         ], 200);
     }
 
