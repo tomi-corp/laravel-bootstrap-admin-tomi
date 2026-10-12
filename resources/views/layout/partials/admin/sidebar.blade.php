@@ -3,6 +3,7 @@
     $admin = Auth::guard('admin')->user();
     $roleType = $admin?->type;
     $limitedProductRole = in_array($roleType, ['pic', 'staff']);
+    $isLenderAdmin = filled($admin?->lender_id);
 
     $menuColumns = \Illuminate\Support\Facades\Schema::getColumnListing('menus');
     $hasStatusColumn = in_array('status', $menuColumns, true);
@@ -268,6 +269,210 @@
 
         $hiddenIds = array_merge($hiddenRootIds, $collectDescendants($hiddenRootIds));
         $allMenus = $allMenus->reject(fn ($menu) => in_array($menu->id, $hiddenIds, true))->values();
+    }
+
+    if ($isLenderAdmin) {
+        $allowedLenderRootNames = [
+            'dashboard',
+            'tomidana',
+            'tomigaji',
+            'tomigawai',
+            'tomiinvoice',
+        ];
+
+        $findMenu = function (?string $rootName, ?string $route = null, ?string $name = null) use ($allMenus, $normalizeMenuName) {
+            return $allMenus->first(function ($menu) use ($allMenus, $normalizeMenuName, $rootName, $route, $name) {
+                if ($route !== null && $menu->route !== $route) {
+                    return false;
+                }
+
+                if ($name !== null && $normalizeMenuName($menu->name) !== $normalizeMenuName($name)) {
+                    return false;
+                }
+
+                if ($rootName === null) {
+                    return true;
+                }
+
+                $cursor = $menu;
+                while ($cursor && filled($cursor->parent_id)) {
+                    $cursor = $allMenus->firstWhere('id', $cursor->parent_id);
+                }
+
+                return $cursor && $normalizeMenuName($cursor->name) === $normalizeMenuName($rootName);
+            });
+        };
+
+        $ensureLenderMenu = function (
+            int $id,
+            int|string|null $parentId,
+            string $name,
+            ?string $route,
+            int $sortOrder,
+            ?string $icon = null
+        ) use (&$allMenus) {
+            $existing = $allMenus->firstWhere('id', $id);
+
+            if ($existing) {
+                $existing->parent_id = $parentId;
+                $existing->name = $name;
+                $existing->route = $route;
+                $existing->sort_order = $sortOrder;
+                $existing->icon = $icon ?? $existing->icon;
+                $existing->status = 'show';
+
+                return $existing;
+            }
+
+            $menu = (object) [
+                'id' => $id,
+                'parent_id' => $parentId,
+                'project_id' => null,
+                'feature_id' => null,
+                'name' => $name,
+                'icon' => $icon,
+                'route' => $route,
+                'sort_order' => $sortOrder,
+                'status' => 'show',
+            ];
+
+            $allMenus = $allMenus->push($menu)->values();
+
+            return $menu;
+        };
+
+        $dashboardMenu = $findMenu(null, 'admin.dashboard.index', 'Dashboard');
+        $tomiDanaMenu = $findMenu('TomiDana', null, 'TomiDana');
+        $tomiGajiMenu = $findMenu('TomiGaji', null, 'TomiGaji');
+        $tomiGawaiMenu = $findMenu('TomiGawai', null, 'TomiGawai');
+        $tomiInvoiceMenu = $findMenu('TomiInvoice', null, 'TomiInvoice');
+
+        $lenderMenuIds = collect([$dashboardMenu, $tomiDanaMenu, $tomiGajiMenu, $tomiGawaiMenu, $tomiInvoiceMenu])
+            ->filter()
+            ->pluck('id')
+            ->all();
+
+        if ($tomiDanaMenu) {
+            $tomiDanaCompanyMenu = $findMenu('TomiDana', 'admin.ksp.index') ?: $ensureLenderMenu(-1101, $tomiDanaMenu->id, 'Perusahaan', 'admin.ksp.index', 1);
+            $tomiDanaCompanyMenu->parent_id = $tomiDanaMenu->id;
+            $tomiDanaCompanyMenu->name = 'Perusahaan';
+            $tomiDanaCompanyMenu->sort_order = 1;
+
+            $tomiDanaConfigurationMenu->parent_id = $tomiDanaMenu->id;
+            $tomiDanaConfigurationMenu->name = 'Konfigurasi';
+            $tomiDanaConfigurationMenu->route = null;
+            $tomiDanaConfigurationMenu->sort_order = 2;
+
+            $disbursementMenu = $findMenu('TomiDana', 'admin.disbursements.index') ?: $ensureLenderMenu(-1102, $tomiDanaMenu->id, 'Pencairan Dana', 'admin.disbursements.index', 3);
+            $disbursementMenu->parent_id = $tomiDanaMenu->id;
+            $disbursementMenu->name = 'Pencairan Dana';
+            $disbursementMenu->sort_order = 3;
+
+            $repaymentMenu = $findMenu('TomiDana', 'admin.repayments.index') ?: $ensureLenderMenu(-1103, $tomiDanaMenu->id, 'Pengembalian Dana', 'admin.repayments.index', 4);
+            $repaymentMenu->parent_id = $tomiDanaMenu->id;
+            $repaymentMenu->name = 'Pengembalian Dana';
+            $repaymentMenu->sort_order = 4;
+
+            $generateInvoiceMenu = $findMenu('TomiDana', 'admin.generate.invoice.index') ?: $ensureLenderMenu(-1104, $tomiDanaMenu->id, 'Generate Invoice', 'admin.generate.invoice.index', 5);
+            $generateInvoiceMenu->parent_id = $tomiDanaMenu->id;
+            $generateInvoiceMenu->name = 'Generate Invoice';
+            $generateInvoiceMenu->sort_order = 5;
+
+            foreach ([
+                $tomiDanaCompanyMenu,
+                $tomiDanaConfigurationMenu,
+                $disbursementMenu,
+                $repaymentMenu,
+                $generateInvoiceMenu,
+            ] as $menu) {
+                $lenderMenuIds[] = $menu->id;
+            }
+
+            $allMenus
+                ->filter(fn ($menu) => in_array($menu->route, [
+                    'admin.product-configurations.tenor.companies',
+                    'admin.product-configurations.dsr.companies',
+                ], true))
+                ->each(function ($menu) use ($tomiDanaConfigurationMenu, &$lenderMenuIds) {
+                    $menu->parent_id = $tomiDanaConfigurationMenu->id;
+                    $lenderMenuIds[] = $menu->id;
+                });
+        }
+
+        if ($tomiGajiMenu) {
+            $salaryCompanyMenu = $findMenu('TomiGaji', 'admin.salary-financing.companies') ?: $ensureLenderMenu(-1111, $tomiGajiMenu->id, 'Perusahaan', 'admin.salary-financing.companies', 1);
+            $salaryCompanyMenu->parent_id = $tomiGajiMenu->id;
+            $salaryCompanyMenu->name = 'Perusahaan';
+            $salaryCompanyMenu->sort_order = 1;
+
+            $salaryConfigurationMenu = $findMenu('TomiGaji', 'admin.salary-financing.index') ?: $ensureLenderMenu(-1112, $tomiGajiMenu->id, 'Konfigurasi', 'admin.salary-financing.index', 2);
+            $salaryConfigurationMenu->parent_id = $tomiGajiMenu->id;
+            $salaryConfigurationMenu->name = 'Konfigurasi';
+            $salaryConfigurationMenu->sort_order = 2;
+
+            $lenderMenuIds[] = $salaryCompanyMenu->id;
+            $lenderMenuIds[] = $salaryConfigurationMenu->id;
+        }
+
+        if ($tomiGawaiMenu) {
+            $gadgetCompanyMenu = $findMenu('TomiGawai', null, 'Perusahaan') ?: $ensureLenderMenu(-1131, $tomiGawaiMenu->id, 'Perusahaan', null, 1);
+            $gadgetCompanyMenu->parent_id = $tomiGawaiMenu->id;
+            $gadgetCompanyMenu->name = 'Perusahaan';
+            $gadgetCompanyMenu->sort_order = 1;
+
+            $gadgetConfigurationMenu = $findMenu('TomiGawai', 'admin.gadget-installment.index') ?: $ensureLenderMenu(-1132, $tomiGawaiMenu->id, 'Konfigurasi', 'admin.gadget-installment.index', 2);
+            $gadgetConfigurationMenu->parent_id = $tomiGawaiMenu->id;
+            $gadgetConfigurationMenu->name = 'Konfigurasi';
+            $gadgetConfigurationMenu->sort_order = 2;
+
+            $lenderMenuIds[] = $gadgetCompanyMenu->id;
+            $lenderMenuIds[] = $gadgetConfigurationMenu->id;
+        }
+
+        if ($tomiInvoiceMenu) {
+            $invoiceTransactionMenu = $findMenu('TomiInvoice', 'admin.invoice-financing.index') ?: $ensureLenderMenu(-1121, $tomiInvoiceMenu->id, 'Transaksi', 'admin.invoice-financing.index', 1);
+            $invoiceTransactionMenu->parent_id = $tomiInvoiceMenu->id;
+            $invoiceTransactionMenu->name = 'Transaksi';
+            $invoiceTransactionMenu->sort_order = 1;
+
+            $invoiceConfigurationMenu = $ensureLenderMenu(-1122, $tomiInvoiceMenu->id, 'Konfigurasi', null, 2, 'fa-solid fa-gear');
+
+            $invoiceMitraMenu = $findMenu('TomiInvoice', 'admin.invoice-financing.lenders') ?: $ensureLenderMenu(-1123, $invoiceConfigurationMenu->id, 'Mitra', 'admin.invoice-financing.lenders', 1);
+            $invoiceMitraMenu->parent_id = $invoiceConfigurationMenu->id;
+            $invoiceMitraMenu->name = 'Mitra';
+            $invoiceMitraMenu->sort_order = 1;
+
+            $invoicePelangganMenu = $findMenu('TomiInvoice', 'admin.invoice-financing.companies') ?: $ensureLenderMenu(-1124, $invoiceConfigurationMenu->id, 'Pelanggan', 'admin.invoice-financing.companies', 2);
+            $invoicePelangganMenu->parent_id = $invoiceConfigurationMenu->id;
+            $invoicePelangganMenu->name = 'Pelanggan';
+            $invoicePelangganMenu->sort_order = 2;
+
+            foreach ([
+                $invoiceTransactionMenu,
+                $invoiceConfigurationMenu,
+                $invoiceMitraMenu,
+                $invoicePelangganMenu,
+            ] as $menu) {
+                $lenderMenuIds[] = $menu->id;
+            }
+        }
+
+        $lenderMenuIds = array_values(array_unique($lenderMenuIds));
+
+        $allMenus = $allMenus
+            ->filter(function ($menu) use ($lenderMenuIds, $allowedLenderRootNames, $normalizeMenuName) {
+                if (blank($menu->parent_id) && ! in_array($normalizeMenuName($menu->name), $allowedLenderRootNames, true)) {
+                    return false;
+                }
+
+                return in_array($menu->id, $lenderMenuIds, true);
+            })
+            ->sortBy([
+                ['parent_id', 'asc'],
+                ['sort_order', 'asc'],
+                ['name', 'asc'],
+            ])
+            ->values();
     }
 
     $menusByParent = $allMenus->groupBy(fn ($menu) => $menu->parent_id ?: 0);

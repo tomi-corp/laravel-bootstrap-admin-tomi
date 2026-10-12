@@ -274,6 +274,7 @@ class KspController extends Controller
                 'admin_id' => $admin?->id,
                 'type' => $admin?->type,
                 'company_id' => $admin?->company_id,
+                'lender_id' => $admin?->lender_id,
             ]);
 
             $query = ListPerusahaan::query()
@@ -1661,7 +1662,7 @@ class KspController extends Controller
         $noInv = "INV-" . $periodMonthT . '-' . $perusahaan->id_code_perusahaan . "-" . $invoice->id;
         // ada perbaikan invoicing nantiiii
         // $rekeningRepayment = rekening_tomi::with('bank')->first();
-        $lender = lender::where('id', auth('admin')->user()->id_lender)->with('bank')->first();
+        $lender = lender::where('id', auth('admin')->user()?->lender_id)->with('bank')->first();
 
         return view("admin.ksp.invoicing.perusahaan.index", compact('invoice', 'lender', 'pinjaman', 'noInv'));
     }
