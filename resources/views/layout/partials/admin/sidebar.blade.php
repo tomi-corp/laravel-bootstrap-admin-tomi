@@ -67,8 +67,14 @@
         ])->values();
     }
 
-    $normalizeMenuName = fn ($name) => strtolower(trim((string) $name));
-    $tomiDanaMenu = $allMenus->first(fn ($menu) => $normalizeMenuName($menu->name) === 'tomi dana');
+    $normalizeMenuName = function ($name) {
+        $name = str_replace("\xc2\xa0", ' ', (string) $name);
+        $name = preg_replace('/\s+/u', ' ', trim($name));
+
+        return str_replace(' ', '', strtolower($name));
+    };
+
+    $tomiDanaMenu = $allMenus->first(fn ($menu) => $normalizeMenuName($menu->name) === 'tomidana');
 
     if (! $tomiDanaMenu) {
         $tomiDanaMenu = (object) [
@@ -76,7 +82,7 @@
             'parent_id' => null,
             'project_id' => null,
             'feature_id' => null,
-            'name' => 'Tomi Dana',
+            'name' => 'TomiDana',
             'icon' => 'fa-solid fa-hand-holding-dollar',
             'route' => null,
             'sort_order' => 97,
@@ -84,7 +90,57 @@
         ];
 
         $allMenus = $allMenus->push($tomiDanaMenu)->values();
+    } else {
+        $tomiDanaMenu->name = 'TomiDana';
     }
+
+    $duplicateTomiDanaIds = $allMenus
+        ->filter(fn ($menu) => $normalizeMenuName($menu->name) === 'tomidana' && $menu->id !== $tomiDanaMenu->id)
+        ->pluck('id')
+        ->all();
+
+    if ($duplicateTomiDanaIds !== []) {
+        $allMenus->each(function ($menu) use ($duplicateTomiDanaIds, $tomiDanaMenu) {
+            if (in_array($menu->parent_id, $duplicateTomiDanaIds, true)) {
+                $menu->parent_id = $tomiDanaMenu->id;
+            }
+        });
+
+        $allMenus = $allMenus
+            ->reject(fn ($menu) => in_array($menu->id, $duplicateTomiDanaIds, true))
+            ->values();
+    }
+
+    $tomiDanaConfigurationMenu = $allMenus->first(
+        fn ($menu) => $menu->parent_id === $tomiDanaMenu->id && $normalizeMenuName($menu->name) === 'konfigurasi'
+    );
+
+    if (! $tomiDanaConfigurationMenu) {
+        $tomiDanaConfigurationMenu = (object) [
+            'id' => -1011,
+            'parent_id' => $tomiDanaMenu->id,
+            'project_id' => $tomiDanaMenu->project_id,
+            'feature_id' => null,
+            'name' => 'Konfigurasi',
+            'icon' => 'fa-solid fa-gear',
+            'route' => null,
+            'sort_order' => 95,
+            'status' => 'show',
+        ];
+
+        $allMenus = $allMenus->push($tomiDanaConfigurationMenu)->values();
+    } else {
+        $tomiDanaConfigurationMenu->name = 'Konfigurasi';
+        $tomiDanaConfigurationMenu->route = null;
+        $tomiDanaConfigurationMenu->sort_order = 95;
+    }
+
+    $allMenus = $allMenus
+        ->reject(fn ($menu) => $menu->id !== $tomiDanaConfigurationMenu->id && in_array($menu->route, [
+            'admin.product-configurations.tenor.companies',
+            'admin.product-configurations.dsr.companies',
+        ], true))
+        ->values();
 
     if (! $allMenus->contains('route', 'admin.disbursements.index') && \Illuminate\Support\Facades\Route::has('admin.disbursements.index')) {
         $fallbackDisbursementMenu = (object) [
@@ -100,6 +156,46 @@
         ];
 
         $allMenus = $allMenus->push($fallbackDisbursementMenu)->sortBy([
+            ['parent_id', 'asc'],
+            ['sort_order', 'asc'],
+            ['name', 'asc'],
+        ])->values();
+    }
+
+    if (\Illuminate\Support\Facades\Route::has('admin.product-configurations.tenor.companies')) {
+        $fallbackTenorMenu = (object) [
+            'id' => -1005,
+            'parent_id' => $tomiDanaConfigurationMenu->id,
+            'project_id' => $tomiDanaMenu->project_id,
+            'feature_id' => null,
+            'name' => 'Tenor',
+            'icon' => 'fa-solid fa-sliders',
+            'route' => 'admin.product-configurations.tenor.companies',
+            'sort_order' => 1,
+            'status' => 'show',
+        ];
+
+        $allMenus = $allMenus->push($fallbackTenorMenu)->sortBy([
+            ['parent_id', 'asc'],
+            ['sort_order', 'asc'],
+            ['name', 'asc'],
+        ])->values();
+    }
+
+    if (\Illuminate\Support\Facades\Route::has('admin.product-configurations.dsr.companies')) {
+        $fallbackDsrMenu = (object) [
+            'id' => -1006,
+            'parent_id' => $tomiDanaConfigurationMenu->id,
+            'project_id' => $tomiDanaMenu->project_id,
+            'feature_id' => null,
+            'name' => 'DSR',
+            'icon' => 'fa-solid fa-percent',
+            'route' => 'admin.product-configurations.dsr.companies',
+            'sort_order' => 2,
+            'status' => 'show',
+        ];
+
+        $allMenus = $allMenus->push($fallbackDsrMenu)->sortBy([
             ['parent_id', 'asc'],
             ['sort_order', 'asc'],
             ['name', 'asc'],
@@ -127,9 +223,23 @@
     }
 
     $allMenus->each(function ($menu) use ($tomiDanaMenu) {
-        if (in_array($menu->route, ['admin.disbursements.index', 'admin.repayments.index'], true)) {
+        if (in_array($menu->route, [
+            'admin.disbursements.index',
+            'admin.repayments.index',
+        ], true)) {
             $menu->parent_id = $tomiDanaMenu->id;
             $menu->project_id = $tomiDanaMenu->project_id;
+        }
+    });
+
+    $allMenus->each(function ($menu) use ($tomiDanaConfigurationMenu, $tomiDanaMenu) {
+        if (in_array($menu->route, [
+            'admin.product-configurations.tenor.companies',
+            'admin.product-configurations.dsr.companies',
+        ], true)) {
+            $menu->parent_id = $tomiDanaConfigurationMenu->id;
+            $menu->project_id = $tomiDanaMenu->project_id;
+            $menu->name = $menu->route === 'admin.product-configurations.tenor.companies' ? 'Tenor' : 'DSR';
         }
     });
 
@@ -176,7 +286,7 @@
             return 'tomi-dana-plus';
         }
 
-        if (in_array('Tomi Dana', $names, true)) {
+        if (in_array('Tomi Dana', $names, true) || in_array('TomiDana', $names, true)) {
             return 'tomi-dana';
         }
 
@@ -230,7 +340,8 @@
             echo '<span> '.e($menu->name).' </span>';
             echo '<span class="menu-arrow"></span>';
             echo '</a>';
-            echo '<ul class="nav-second-level" aria-expanded="false">';
+            $submenuClass = $level === 0 ? 'nav-second-level' : 'nav-third-level';
+            echo '<ul class="'.$submenuClass.'" aria-expanded="false">';
 
             foreach ($children as $child) {
                 $renderMenuItem($child, $level + 1);
