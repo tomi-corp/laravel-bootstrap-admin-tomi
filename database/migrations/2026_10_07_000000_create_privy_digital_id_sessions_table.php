@@ -22,6 +22,9 @@ return new class extends Migration
             $table->unsignedInteger('attempts')->default(0);
             $table->string('error_code', 50)->nullable();
             $table->string('error_message', 255)->nullable();
+            $table->string('callback_state')->nullable();
+            $table->text('callback_token')->nullable();
+            $table->json('callback_shared_data')->nullable();
             $table->timestamp('expires_at')->nullable()->index();
             $table->timestamp('exchanged_at')->nullable();
             $table->timestamp('exchange_received_at')->nullable();

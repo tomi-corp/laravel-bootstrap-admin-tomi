@@ -159,6 +159,7 @@ Route::middleware(['LanguangeMiddleware'])->group(function () {
     Route::post('/ota/check', [OtaController::class, 'checkUpdate']);
 
     // Callback Privy Digital ID dari server Privy. Tidak memakai auth user karena validasi ada di token callback.
+    Route::post('/privy/callback', [PrivyController::class, 'digitalIdCallback']);
     Route::post('/privy/digital-id/callback', [PrivyController::class, 'digitalIdCallback']);
     Route::post('/teken_aja/digitalid/callback', [PrivyController::class, 'digitalIdCallback']);
 });

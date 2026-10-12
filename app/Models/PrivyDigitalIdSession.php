@@ -19,6 +19,9 @@ class PrivyDigitalIdSession extends Model
         'attempts',
         'error_code',
         'error_message',
+        'callback_state',
+        'callback_token',
+        'callback_shared_data',
         'expires_at',
         'exchanged_at',
         'exchange_received_at',
@@ -35,5 +38,6 @@ class PrivyDigitalIdSession extends Model
         'processing_started_at' => 'datetime',
         'verified_at' => 'datetime',
         'attempts' => 'integer',
+        'callback_shared_data' => 'array',
     ];
 }

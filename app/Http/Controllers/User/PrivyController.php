@@ -14,6 +14,7 @@ use App\Services\PrivyDigitalIdService;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Log;
 
 class PrivyController extends Controller
@@ -565,7 +566,7 @@ class PrivyController extends Controller
         $sessionId = trim((string) $request->input('session_id'));
         $token = $request->input('token');
 
-        if ($sessionId === '' || ! is_string($token) || $token === '') {
+        if (! is_string($token) || $token === '') {
             Log::warning('Privy Digital ID callback invalid', [
                 'has_session_id' => $sessionId !== '',
                 'has_token' => is_string($token) && $token !== '',
@@ -573,7 +574,36 @@ class PrivyController extends Controller
 
             return response()->json([
                 'received' => false,
-                'message' => 'session_id dan token wajib diisi',
+                'message' => 'token wajib diisi',
+            ], 400);
+        }
+
+        if ($sessionId === '') {
+            try {
+                $payload = app(PrivyDigitalIdClient::class)->verifyToken($token);
+                $sessionId = trim((string) ($payload['session_id'] ?? $payload['data']['session_id'] ?? ''));
+            } catch (PrivyDigitalIdException $e) {
+                Log::warning('Privy Digital ID callback token invalid', [
+                    'code' => $e->errorCode,
+                    'http_status' => $e->httpStatus,
+                ]);
+
+                return response()->json([
+                    'received' => false,
+                    'message' => 'token callback tidak valid',
+                ], 401);
+            }
+        }
+
+        if ($sessionId === '') {
+            Log::warning('Privy Digital ID callback invalid', [
+                'has_session_id' => false,
+                'has_token' => true,
+            ]);
+
+            return response()->json([
+                'received' => false,
+                'message' => 'session_id tidak ditemukan pada callback',
             ], 400);
         }
 
@@ -593,8 +623,21 @@ class PrivyController extends Controller
 
         app(PrivyDigitalIdService::class)->markReceived($sessionId, 'callback');
 
+        $sharedData = $request->input('shared_data', []);
+        if (is_string($sharedData)) {
+            $decodedSharedData = json_decode($sharedData, true);
+            $sharedData = is_array($decodedSharedData) ? $decodedSharedData : [];
+        }
+
+        $session->forceFill([
+            'exchange_code' => $request->input('exchange_code') ?: $session->exchange_code,
+            'callback_state' => $request->input('state'),
+            'callback_token' => Crypt::encryptString($token),
+            'callback_shared_data' => is_array($sharedData) ? $sharedData : [],
+        ])->save();
+
         try {
-            $this->processDigitalIdResult($session, $token, 'callback', $request->input('event'));
+            $this->processDigitalIdResult($session, $token, 'callback', $request->input('state') ?? $request->input('event'));
         } catch (PrivyDigitalIdException $e) {
             Log::warning('Privy Digital ID callback processing failed', [
                 'session_id' => $sessionId,
