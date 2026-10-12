@@ -37,7 +37,7 @@ class DisbursementController extends Controller
         $disbursement = disbursement::query()->create($this->validatedData($request));
 
         return response()->json([
-            'message' => 'Disbursement berhasil ditambahkan.',
+            'message' => 'Pencairan dana berhasil ditambahkan.',
             'data' => ['id' => $disbursement->id],
         ]);
     }
@@ -70,7 +70,7 @@ class DisbursementController extends Controller
         $disbursement->update($this->validatedData($request, $disbursement));
 
         return response()->json([
-            'message' => 'Disbursement berhasil diperbarui.',
+            'message' => 'Pencairan dana berhasil diperbarui.',
             'data' => ['id' => $disbursement->id],
         ]);
     }
@@ -80,7 +80,7 @@ class DisbursementController extends Controller
         $disbursement->delete();
 
         return response()->json([
-            'message' => 'Disbursement berhasil dihapus.',
+            'message' => 'Pencairan dana berhasil dihapus.',
         ]);
     }
 

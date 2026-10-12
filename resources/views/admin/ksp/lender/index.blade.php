@@ -128,7 +128,7 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="row">
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <div class="form-group">
                                     <label>Nama PIC Lender</label>
                                     <input class="form-control" id="namaPicLender" placeholder="PIC Lender"></input>
@@ -137,7 +137,7 @@
                             </div>
 
 
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <div class="form-group">
                                     <label>Nama PIC HC / HRD</label>
                                     <input class="form-control" id="namaPicInternal" placeholder="PIC Internal"></input>
@@ -152,7 +152,7 @@
                                     <small class="text-danger" id="errNamaLender"></small>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <div class="form-group">
                                     <label>Email Lender</label>
                                     <input class="form-control" id="emailLender" placeholder="Email Lender"></input>
@@ -160,7 +160,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <div class="form-group">
                                     <label>Telepon</label>
                                     <input class="form-control" id="telepon" placeholder="62535252"
@@ -173,7 +173,7 @@
                     <div class="col-md-6">
                         <div class="row">
 
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <div class="form-group">
                                     <label>Provinsi</label>
                                     <select class="form-control" id="provinsiSelect" style="width: 100%">
@@ -187,7 +187,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <div class="form-group">
                                     <label>Kabupaten / Kota</label>
                                     <select class="form-control" id="kabupatenSelect" style="width: 100%">
@@ -197,7 +197,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <div class="form-group">
                                     <label>Kecamatan</label>
                                     <select class="form-control" id="kecamatanSelect" style="width: 100%">
@@ -208,7 +208,7 @@
                             </div>
 
 
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <div class="form-group">
                                     <label>Desa</label>
                                     <select class="form-control" id="desaSelect" style="width: 100%">
@@ -228,7 +228,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <div class="form-group">
                                     <label>No. perjanjian kerja sama Lender x TOMI</label>
                                     <input class="form-control" id="nomor_pks" placeholder="012/TOMIKSP-FIT/VIII/2025"
@@ -237,7 +237,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <div class="form-group">
                                     <label>File PKS</label>
                                     <input class="form-control" id="filePKS" type="file"></input>
@@ -245,7 +245,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <div class="form-group">
                                     <label>Logo Lender</label>
                                     <input class="form-control" id="logoLender" type="file"></input>
@@ -253,7 +253,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <label>Tema Warna Lender</label>
                                 <input class="form-control" type="color" id="colorLender" name="color" value="#188ae2">
                                 <small class="text-danger" id="errColorLender"></small>
@@ -321,7 +321,7 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="row">
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <div class="form-group">
                                     <label>Nama PIC Lender</label>
                                     <input class="form-control" id="namaPicLenderEdit" placeholder="PIC Lender"></input>
@@ -330,7 +330,7 @@
                             </div>
 
 
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <div class="form-group">
                                     <label>Nama PIC HC / HRD</label>
                                     <input class="form-control" id="namaPicInternalEdit"
@@ -346,7 +346,7 @@
                                     <small class="text-danger" id="errNamaLenderEdit"></small>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <div class="form-group">
                                     <label>Email Lender</label>
                                     <input class="form-control" id="emailLenderEdit" placeholder="Email Lender"></input>
@@ -354,7 +354,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <div class="form-group">
                                     <label>Telepon</label>
                                     <input class="form-control" id="teleponEdit" placeholder="62535252"
@@ -367,7 +367,7 @@
                     <div class="col-md-6">
                         <div class="row">
 
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <div class="form-group">
                                     <label>Provinsi</label>
                                     <select class="form-control" id="provinsiSelectEdit" style="width: 100%">
@@ -381,7 +381,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <div class="form-group">
                                     <label>Kabupaten / Kota</label>
                                     <select class="form-control" id="kabupatenSelectEdit" style="width: 100%">
@@ -391,7 +391,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <div class="form-group">
                                     <label>Kecamatan</label>
                                     <select class="form-control" id="kecamatanSelectEdit" style="width: 100%">
@@ -402,7 +402,7 @@
                             </div>
 
 
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <div class="form-group">
                                     <label>Desa</label>
                                     <select class="form-control" id="desaSelectEdit" style="width: 100%">
@@ -422,7 +422,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <div class="form-group">
                                     <label>No. perjanjian kerja sama Lender x TOMI</label>
                                     <input class="form-control" id="nomor_pksEdit"
@@ -431,7 +431,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <div class="form-group">
                                     <label>File PKS</label>
                                     <input class="form-control" id="filePKSEdit" type="file"></input>
@@ -441,7 +441,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <div class="form-group">
                                     <label>Logo Lender</label>
                                     <input class="form-control" id="logoLenderEdit" type="file"></input>
@@ -451,7 +451,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <label>Tema Warna Lender</label>
                                 <input class="form-control" type="color" id="colorLenderEdit" name="color"
                                     value="#188ae2">

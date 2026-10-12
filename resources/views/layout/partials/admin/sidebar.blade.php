@@ -67,6 +67,78 @@
         ])->values();
     }
 
+    $normalizeMenuName = fn ($name) => strtolower(trim((string) $name));
+    $tomiDanaMenu = $allMenus->first(fn ($menu) => $normalizeMenuName($menu->name) === 'tomi dana');
+
+    if (! $tomiDanaMenu) {
+        $tomiDanaMenu = (object) [
+            'id' => -1010,
+            'parent_id' => null,
+            'project_id' => null,
+            'feature_id' => null,
+            'name' => 'Tomi Dana',
+            'icon' => 'fa-solid fa-hand-holding-dollar',
+            'route' => null,
+            'sort_order' => 97,
+            'status' => 'show',
+        ];
+
+        $allMenus = $allMenus->push($tomiDanaMenu)->values();
+    }
+
+    if (! $allMenus->contains('route', 'admin.disbursements.index') && \Illuminate\Support\Facades\Route::has('admin.disbursements.index')) {
+        $fallbackDisbursementMenu = (object) [
+            'id' => -1003,
+            'parent_id' => $tomiDanaMenu->id,
+            'project_id' => $tomiDanaMenu->project_id,
+            'feature_id' => null,
+            'name' => 'Pencairan Dana',
+            'icon' => 'fa-solid fa-money-bill-transfer',
+            'route' => 'admin.disbursements.index',
+            'sort_order' => 97,
+            'status' => 'show',
+        ];
+
+        $allMenus = $allMenus->push($fallbackDisbursementMenu)->sortBy([
+            ['parent_id', 'asc'],
+            ['sort_order', 'asc'],
+            ['name', 'asc'],
+        ])->values();
+    }
+
+    if (! $allMenus->contains('route', 'admin.repayments.index') && \Illuminate\Support\Facades\Route::has('admin.repayments.index')) {
+        $fallbackRepaymentMenu = (object) [
+            'id' => -1004,
+            'parent_id' => $tomiDanaMenu->id,
+            'project_id' => $tomiDanaMenu->project_id,
+            'feature_id' => null,
+            'name' => 'Pembayaran',
+            'icon' => 'fa-solid fa-receipt',
+            'route' => 'admin.repayments.index',
+            'sort_order' => 98,
+            'status' => 'show',
+        ];
+
+        $allMenus = $allMenus->push($fallbackRepaymentMenu)->sortBy([
+            ['parent_id', 'asc'],
+            ['sort_order', 'asc'],
+            ['name', 'asc'],
+        ])->values();
+    }
+
+    $allMenus->each(function ($menu) use ($tomiDanaMenu) {
+        if (in_array($menu->route, ['admin.disbursements.index', 'admin.repayments.index'], true)) {
+            $menu->parent_id = $tomiDanaMenu->id;
+            $menu->project_id = $tomiDanaMenu->project_id;
+        }
+    });
+
+    $allMenus = $allMenus->sortBy([
+        ['parent_id', 'asc'],
+        ['sort_order', 'asc'],
+        ['name', 'asc'],
+    ])->values();
+
     if ($limitedProductRole) {
         $limitedHiddenRoots = ['PPOB', 'Daily', 'Mobile', 'Management'];
         $hiddenRootIds = $allMenus
@@ -142,7 +214,7 @@
         'disabled' => 'dinonaktifkan',
     ];
 
-    $renderMenuItem = function ($menu) use (&$renderMenuItem, $menusByParent, $menuUrl, $hasStatusColumn, $statusLabels) {
+    $renderMenuItem = function ($menu, int $level = 0) use (&$renderMenuItem, $menusByParent, $menuUrl, $hasStatusColumn, $statusLabels) {
         $children = $menusByParent->get($menu->id, collect());
         $hasChildren = $children->isNotEmpty();
         $icon = $menu->icon ?: 'fa-solid fa-circle';
@@ -152,14 +224,16 @@
         if ($hasChildren) {
             echo '<li>';
             echo '<a href="javascript: void(0);">';
-            echo '<i class="'.e($icon).'"></i>';
+            if ($level === 0) {
+                echo '<i class="'.e($icon).'"></i>';
+            }
             echo '<span> '.e($menu->name).' </span>';
             echo '<span class="menu-arrow"></span>';
             echo '</a>';
             echo '<ul class="nav-second-level" aria-expanded="false">';
 
             foreach ($children as $child) {
-                $renderMenuItem($child);
+                $renderMenuItem($child, $level + 1);
             }
 
             echo '</ul>';
@@ -175,7 +249,7 @@
             echo '<a href="javascript: void(0);" class="js-sidebar-status-alert" data-menu-name="'.e($menu->name).'" data-status-label="'.e($statusLabel).'">';
         }
 
-        if (filled($menu->icon)) {
+        if ($level === 0 && filled($menu->icon)) {
             echo '<i class="'.e($menu->icon).'"></i>';
             echo '<span> '.e($menu->name).' </span>';
         } else {

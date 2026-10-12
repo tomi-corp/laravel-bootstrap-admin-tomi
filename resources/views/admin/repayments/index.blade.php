@@ -1,6 +1,6 @@
 @extends('layout.app')
 
-@section('title', 'Admin Repayment')
+@section('title', 'Admin Pembayaran')
 
 @section('content')
 <div class="row">
@@ -9,10 +9,10 @@
             <div class="page-title-right">
                 <ol class="breadcrumb m-0">
                     <li class="breadcrumb-item"><a href="javascript: void(0);">Admin</a></li>
-                    <li class="breadcrumb-item active">Repayment</li>
+                    <li class="breadcrumb-item active">Pembayaran</li>
                 </ol>
             </div>
-            <h4 class="page-title">Repayment</h4>
+            <h4 class="page-title">Pembayaran</h4>
         </div>
     </div>
 
@@ -21,7 +21,7 @@
             <div class="card-body">
                 <div class="d-flex justify-content-end mb-3">
                     <button type="button" class="btn btn-sm btn-primary" onclick="openCreateModal()">
-                        <i class="fa-solid fa-circle-plus"></i> Tambah Repayment
+                        <i class="fa-solid fa-circle-plus"></i> Tambah Pembayaran
                     </button>
                 </div>
 
@@ -84,7 +84,7 @@
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="repaymentModalTitle">Tambah Repayment</h5>
+                <h5 class="modal-title" id="repaymentModalTitle">Tambah Pembayaran</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
             </div>
             <form id="repaymentForm" enctype="multipart/form-data">
@@ -143,7 +143,7 @@
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Detail Repayment</h5>
+                <h5 class="modal-title">Detail Pembayaran</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
             </div>
             <div class="modal-body">
@@ -160,8 +160,8 @@
         responsive: true,
         order: [[0, 'asc']],
         language: {
-            emptyTable: 'Belum ada repayment.',
-            zeroRecords: 'Repayment tidak ditemukan.',
+            emptyTable: 'Belum ada pembayaran.',
+            zeroRecords: 'Pembayaran tidak ditemukan.',
             search: 'Cari:',
             lengthMenu: 'Tampilkan _MENU_ data',
             info: 'Menampilkan _START_ sampai _END_ dari _TOTAL_ data',
@@ -173,7 +173,7 @@
         clearErrors();
         $('#repaymentForm')[0].reset();
         $('#repaymentId').val('');
-        $('#repaymentModalTitle').text('Tambah Repayment');
+        $('#repaymentModalTitle').text('Tambah Pembayaran');
         $('#repaymentModal').modal('show');
     }
 
@@ -181,7 +181,7 @@
         clearErrors();
         $('#repaymentForm')[0].reset();
         $('#repaymentId').val(id);
-        $('#repaymentModalTitle').text('Ubah Repayment');
+        $('#repaymentModalTitle').text('Ubah Pembayaran');
 
         $.get('{{ route('admin.repayments.show', ':id') }}'.replace(':id', id))
             .done(function (response) {
@@ -193,7 +193,7 @@
                 $('#repaymentModal').modal('show');
             })
             .fail(function () {
-                toastr.error('Gagal mengambil detail repayment.');
+                toastr.error('Gagal mengambil detail pembayaran.');
             });
     }
 
@@ -221,12 +221,12 @@
                 $('#detailModal').modal('show');
             })
             .fail(function () {
-                toastr.error('Gagal mengambil detail repayment.');
+                toastr.error('Gagal mengambil detail pembayaran.');
             });
     }
 
     function deleteRepayment(id) {
-        if (!confirm('Hapus repayment ini?')) {
+        if (!confirm('Hapus pembayaran ini?')) {
             return;
         }
 
@@ -239,7 +239,7 @@
                 window.location.reload();
             },
             error: function () {
-                toastr.error('Gagal menghapus repayment.');
+                toastr.error('Gagal menghapus pembayaran.');
             }
         });
     }
@@ -278,7 +278,7 @@
                     return;
                 }
 
-                toastr.error('Gagal menyimpan repayment.');
+                toastr.error('Gagal menyimpan pembayaran.');
             },
             complete: function () {
                 $('#saveRepaymentButton').attr('disabled', false);

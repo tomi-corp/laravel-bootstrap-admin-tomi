@@ -1,6 +1,6 @@
 @extends('layout.app')
 
-@section('title', 'Admin Disbursement')
+@section('title', 'Admin Pencairan Dana')
 
 @section('content')
 <div class="row">
@@ -9,10 +9,10 @@
             <div class="page-title-right">
                 <ol class="breadcrumb m-0">
                     <li class="breadcrumb-item"><a href="javascript: void(0);">Admin</a></li>
-                    <li class="breadcrumb-item active">Disbursement</li>
+                    <li class="breadcrumb-item active">Pencairan Dana</li>
                 </ol>
             </div>
-            <h4 class="page-title">Disbursement</h4>
+            <h4 class="page-title">Pencairan Dana</h4>
         </div>
     </div>
 
@@ -21,7 +21,7 @@
             <div class="card-body">
                 <div class="d-flex justify-content-end mb-3">
                     <button type="button" class="btn btn-sm btn-primary" onclick="openCreateModal()">
-                        <i class="fa-solid fa-circle-plus"></i> Tambah Disbursement
+                        <i class="fa-solid fa-circle-plus"></i> Tambah Pencairan Dana
                     </button>
                 </div>
 
@@ -84,7 +84,7 @@
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="disbursementModalTitle">Tambah Disbursement</h5>
+                <h5 class="modal-title" id="disbursementModalTitle">Tambah Pencairan Dana</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
             </div>
             <form id="disbursementForm" enctype="multipart/form-data">
@@ -158,7 +158,7 @@
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Detail Disbursement</h5>
+                <h5 class="modal-title">Detail Pencairan Dana</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
             </div>
             <div class="modal-body">
@@ -175,8 +175,8 @@
         responsive: true,
         order: [[0, 'asc']],
         language: {
-            emptyTable: 'Belum ada disbursement.',
-            zeroRecords: 'Disbursement tidak ditemukan.',
+            emptyTable: 'Belum ada pencairan dana.',
+            zeroRecords: 'Pencairan dana tidak ditemukan.',
             search: 'Cari:',
             lengthMenu: 'Tampilkan _MENU_ data',
             info: 'Menampilkan _START_ sampai _END_ dari _TOTAL_ data',
@@ -188,7 +188,7 @@
         clearErrors();
         $('#disbursementForm')[0].reset();
         $('#disbursementId').val('');
-        $('#disbursementModalTitle').text('Tambah Disbursement');
+        $('#disbursementModalTitle').text('Tambah Pencairan Dana');
         $('#disbursementModal').modal('show');
     }
 
@@ -196,7 +196,7 @@
         clearErrors();
         $('#disbursementForm')[0].reset();
         $('#disbursementId').val(id);
-        $('#disbursementModalTitle').text('Ubah Disbursement');
+        $('#disbursementModalTitle').text('Ubah Pencairan Dana');
 
         $.get('{{ route('admin.disbursements.show', ':id') }}'.replace(':id', id))
             .done(function (response) {
@@ -210,7 +210,7 @@
                 $('#disbursementModal').modal('show');
             })
             .fail(function () {
-                toastr.error('Gagal mengambil detail disbursement.');
+                toastr.error('Gagal mengambil detail pencairan dana.');
             });
     }
 
@@ -239,12 +239,12 @@
                 $('#detailModal').modal('show');
             })
             .fail(function () {
-                toastr.error('Gagal mengambil detail disbursement.');
+                toastr.error('Gagal mengambil detail pencairan dana.');
             });
     }
 
     function deleteDisbursement(id) {
-        if (!confirm('Hapus disbursement ini?')) {
+        if (!confirm('Hapus pencairan dana ini?')) {
             return;
         }
 
@@ -257,7 +257,7 @@
                 window.location.reload();
             },
             error: function () {
-                toastr.error('Gagal menghapus disbursement.');
+                toastr.error('Gagal menghapus pencairan dana.');
             }
         });
     }
@@ -296,7 +296,7 @@
                     return;
                 }
 
-                toastr.error('Gagal menyimpan disbursement.');
+                toastr.error('Gagal menyimpan pencairan dana.');
             },
             complete: function () {
                 $('#saveDisbursementButton').attr('disabled', false);

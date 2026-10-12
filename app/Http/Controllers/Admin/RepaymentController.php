@@ -33,7 +33,7 @@ class RepaymentController extends Controller
         $repayment = repayment::query()->create($this->validatedData($request));
 
         return response()->json([
-            'message' => 'Repayment berhasil ditambahkan.',
+            'message' => 'Pembayaran berhasil ditambahkan.',
             'data' => ['id' => $repayment->id],
         ]);
     }
@@ -63,7 +63,7 @@ class RepaymentController extends Controller
         $repayment->update($this->validatedData($request, $repayment));
 
         return response()->json([
-            'message' => 'Repayment berhasil diperbarui.',
+            'message' => 'Pembayaran berhasil diperbarui.',
             'data' => ['id' => $repayment->id],
         ]);
     }
@@ -73,7 +73,7 @@ class RepaymentController extends Controller
         $repayment->delete();
 
         return response()->json([
-            'message' => 'Repayment berhasil dihapus.',
+            'message' => 'Pembayaran berhasil dihapus.',
         ]);
     }
 
