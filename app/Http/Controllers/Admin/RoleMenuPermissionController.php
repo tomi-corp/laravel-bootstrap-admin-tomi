@@ -40,7 +40,7 @@ class RoleMenuPermissionController extends Controller
         $roleMenuPermission = RoleMenuPermission::create($request->validated());
 
         return response()->json([
-            'message' => 'Permission role menu berhasil ditambahkan.',
+            'message' => 'Hak akses menu berhasil ditambahkan.',
             'data' => ['id' => $roleMenuPermission->id],
         ]);
     }
@@ -59,7 +59,7 @@ class RoleMenuPermissionController extends Controller
         $roleMenuPermission->update($request->validated());
 
         return response()->json([
-            'message' => 'Permission role menu berhasil diperbarui.',
+            'message' => 'Hak akses menu berhasil diperbarui.',
             'data' => ['id' => $roleMenuPermission->id],
         ]);
     }
@@ -69,7 +69,7 @@ class RoleMenuPermissionController extends Controller
         $roleMenuPermission->delete();
 
         return response()->json([
-            'message' => 'Permission role menu berhasil dihapus.',
+            'message' => 'Hak akses menu berhasil dihapus.',
         ]);
     }
 }

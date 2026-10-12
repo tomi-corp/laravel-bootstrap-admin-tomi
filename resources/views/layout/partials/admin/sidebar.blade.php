@@ -46,6 +46,27 @@
         ])->values();
     }
 
+    if (! $allMenus->contains('route', 'admin.role-menu-permissions.index') && \Illuminate\Support\Facades\Route::has('admin.role-menu-permissions.index')) {
+        $managementMenu = $allMenus->firstWhere('name', 'Management');
+        $fallbackRoleMenuPermissionMenu = (object) [
+            'id' => -1002,
+            'parent_id' => $managementMenu?->id,
+            'project_id' => $managementMenu?->project_id,
+            'feature_id' => null,
+            'name' => 'Hak Akses Menu',
+            'icon' => 'fa-solid fa-key',
+            'route' => 'admin.role-menu-permissions.index',
+            'sort_order' => 96,
+            'status' => 'show',
+        ];
+
+        $allMenus = $allMenus->push($fallbackRoleMenuPermissionMenu)->sortBy([
+            ['parent_id', 'asc'],
+            ['sort_order', 'asc'],
+            ['name', 'asc'],
+        ])->values();
+    }
+
     if ($limitedProductRole) {
         $limitedHiddenRoots = ['PPOB', 'Daily', 'Mobile', 'Management'];
         $hiddenRootIds = $allMenus

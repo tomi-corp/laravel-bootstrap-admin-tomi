@@ -1,6 +1,6 @@
 @extends('layout.app')
 
-@section('title', 'Admin Role Menu Permission')
+@section('title', 'Admin Hak Akses Menu')
 
 @section('content')
 <div class="row">
@@ -9,10 +9,10 @@
             <div class="page-title-right">
                 <ol class="breadcrumb m-0">
                     <li class="breadcrumb-item"><a href="javascript: void(0);">Admin</a></li>
-                    <li class="breadcrumb-item active">Role Menu Permission</li>
+                    <li class="breadcrumb-item active">Hak Akses Menu</li>
                 </ol>
             </div>
-            <h4 class="page-title">Role Menu Permission</h4>
+            <h4 class="page-title">Hak Akses Menu</h4>
         </div>
     </div>
 
@@ -21,7 +21,7 @@
             <div class="card-body">
                 <div class="d-flex justify-content-end mb-3">
                     <button type="button" class="btn btn-sm btn-primary" onclick="openCreateModal()">
-                        <i class="fa-solid fa-circle-plus"></i> Tambah Permission
+                        <i class="fa-solid fa-circle-plus"></i> Tambah Hak Akses
                     </button>
                 </div>
 
@@ -29,9 +29,9 @@
                     <thead>
                         <tr>
                             <th>No</th>
-                            <th>Role</th>
+                            <th>Peran</th>
                             <th>Menu</th>
-                            <th>Permission Aktif</th>
+                            <th>Hak Akses Aktif</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
@@ -82,7 +82,7 @@
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="roleMenuPermissionModalTitle">Tambah Permission</h5>
+                <h5 class="modal-title" id="roleMenuPermissionModalTitle">Tambah Hak Akses</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
             </div>
             <form id="roleMenuPermissionForm">
@@ -91,9 +91,9 @@
 
                     <div class="row">
                         <div class="col-md-6 form-group">
-                            <label>Role</label>
+                            <label>Peran</label>
                             <select class="form-control" name="role_id" id="role_id">
-                                <option value="">Pilih Role</option>
+                                <option value="">Pilih Peran</option>
                                 @foreach ($roles as $role)
                                     <option value="{{ $role->id }}">{{ $role->name }} - {{ $role->project?->name ?? '-' }}</option>
                                 @endforeach
@@ -145,8 +145,8 @@
         responsive: true,
         order: [[0, 'asc']],
         language: {
-            emptyTable: 'Belum ada permission role menu.',
-            zeroRecords: 'Permission role menu tidak ditemukan.',
+            emptyTable: 'Belum ada hak akses menu.',
+            zeroRecords: 'Hak akses menu tidak ditemukan.',
             search: 'Cari:',
             lengthMenu: 'Tampilkan _MENU_ data',
             info: 'Menampilkan _START_ sampai _END_ dari _TOTAL_ data',
@@ -162,7 +162,7 @@
         $('#roleMenuPermissionForm')[0].reset();
         $('#roleMenuPermissionId').val('');
         $('.permission-checkbox').prop('checked', false);
-        $('#roleMenuPermissionModalTitle').text('Tambah Permission');
+        $('#roleMenuPermissionModalTitle').text('Tambah Hak Akses');
         $('#roleMenuPermissionModal').modal('show');
     }
 
@@ -171,7 +171,7 @@
         $('#roleMenuPermissionForm')[0].reset();
         $('#roleMenuPermissionId').val(id);
         $('.permission-checkbox').prop('checked', false);
-        $('#roleMenuPermissionModalTitle').text('Ubah Permission');
+        $('#roleMenuPermissionModalTitle').text('Ubah Hak Akses');
 
         $.get('{{ route('admin.role-menu-permissions.show', ':id') }}'.replace(':id', id))
             .done(function (response) {
@@ -186,12 +186,12 @@
                 $('#roleMenuPermissionModal').modal('show');
             })
             .fail(function () {
-                toastr.error('Gagal mengambil detail permission.');
+                toastr.error('Gagal mengambil detail hak akses.');
             });
     }
 
     function deleteRoleMenuPermission(id) {
-        if (!confirm('Hapus permission ini?')) {
+        if (!confirm('Hapus hak akses ini?')) {
             return;
         }
 
@@ -204,7 +204,7 @@
                 window.location.reload();
             },
             error: function () {
-                toastr.error('Gagal menghapus permission.');
+                toastr.error('Gagal menghapus hak akses.');
             }
         });
     }
@@ -238,7 +238,7 @@
                     return;
                 }
 
-                toastr.error('Gagal menyimpan permission.');
+                toastr.error('Gagal menyimpan hak akses.');
             },
             complete: function () {
                 $('#saveRoleMenuPermissionButton').attr('disabled', false);
