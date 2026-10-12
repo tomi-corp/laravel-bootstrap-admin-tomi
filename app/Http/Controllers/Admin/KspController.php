@@ -1558,14 +1558,14 @@ class KspController extends Controller
             ->addColumn(
                 'id_code_perusahaan',
                 function ($row) {
-                    return "<b>{$row->perusahaan->id_code_perusahaan}</b>";
+                    return '<b>' . e($row->perusahaan?->id_code_perusahaan ?? '-') . '</b>';
                 }
             )
 
             ->addColumn(
                 'nama_perusahaan',
                 function ($row) {
-                    return "<b>{$row->perusahaan->nama}</b>";
+                    return '<b>' . e($row->perusahaan?->nama ?? '-') . '</b>';
                 }
             )
 
@@ -1638,10 +1638,17 @@ class KspController extends Controller
     {
         $dec = decryptSecure($id);
         $invoice = invoicing_pinjaman::where('id', $dec)->first();
+        if (!$invoice) {
+            abort(404, 'Invoice tidak ditemukan');
+        }
+
         $periodMonth = Carbon::parse($invoice->period)->format('m');
         $periodMonthT = Carbon::parse($invoice->period)->format('M');
         $jatuhTempo  = jatuh_tempo::whereMonth('jatuh_tempo', $periodMonth)->get();
         $perusahaan = ListPerusahaan::where('id', $invoice->id_list_perusahaan)->first();
+        if (!$perusahaan) {
+            abort(404, 'Perusahaan invoice tidak ditemukan');
+        }
 
         $invoice = invoicing_pinjaman::where('id', $dec)
             ->with(['pinjaman' => function ($query) use ($periodMonth) {
