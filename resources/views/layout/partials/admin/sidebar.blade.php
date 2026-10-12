@@ -25,6 +25,27 @@
 
     $allMenus = $menusQuery->get();
 
+    if (! $allMenus->contains('route', 'admin.roles.index') && \Illuminate\Support\Facades\Route::has('admin.roles.index')) {
+        $managementMenu = $allMenus->firstWhere('name', 'Management');
+        $fallbackRoleMenu = (object) [
+            'id' => -1001,
+            'parent_id' => $managementMenu?->id,
+            'project_id' => $managementMenu?->project_id,
+            'feature_id' => null,
+            'name' => 'Peran',
+            'icon' => 'fa-solid fa-user-shield',
+            'route' => 'admin.roles.index',
+            'sort_order' => 95,
+            'status' => 'show',
+        ];
+
+        $allMenus = $allMenus->push($fallbackRoleMenu)->sortBy([
+            ['parent_id', 'asc'],
+            ['sort_order', 'asc'],
+            ['name', 'asc'],
+        ])->values();
+    }
+
     if ($limitedProductRole) {
         $limitedHiddenRoots = ['PPOB', 'Daily', 'Mobile', 'Management'];
         $hiddenRootIds = $allMenus

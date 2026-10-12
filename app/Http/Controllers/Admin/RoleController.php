@@ -30,7 +30,7 @@ class RoleController extends Controller
         $role = Role::create($request->validated());
 
         return response()->json([
-            'message' => 'Role berhasil ditambahkan.',
+            'message' => 'Peran berhasil ditambahkan.',
             'data' => ['id' => $role->id],
         ]);
     }
@@ -47,7 +47,7 @@ class RoleController extends Controller
         $role->update($request->validated());
 
         return response()->json([
-            'message' => 'Role berhasil diperbarui.',
+            'message' => 'Peran berhasil diperbarui.',
             'data' => ['id' => $role->id],
         ]);
     }
@@ -57,7 +57,7 @@ class RoleController extends Controller
         $role->delete();
 
         return response()->json([
-            'message' => 'Role berhasil dihapus.',
+            'message' => 'Peran berhasil dihapus.',
         ]);
     }
 }

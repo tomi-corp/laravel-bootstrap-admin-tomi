@@ -1,6 +1,6 @@
 @extends('layout.app')
 
-@section('title', 'Admin Role')
+@section('title', 'Admin Peran')
 
 @section('content')
 <div class="row">
@@ -9,10 +9,10 @@
             <div class="page-title-right">
                 <ol class="breadcrumb m-0">
                     <li class="breadcrumb-item"><a href="javascript: void(0);">Admin</a></li>
-                    <li class="breadcrumb-item active">Role</li>
+                    <li class="breadcrumb-item active">Peran</li>
                 </ol>
             </div>
-            <h4 class="page-title">Role</h4>
+            <h4 class="page-title">Peran</h4>
         </div>
     </div>
 
@@ -21,7 +21,7 @@
             <div class="card-body">
                 <div class="d-flex justify-content-end mb-3">
                     <button type="button" class="btn btn-sm btn-primary" onclick="openCreateModal()">
-                        <i class="fa-solid fa-circle-plus"></i> Tambah Role
+                        <i class="fa-solid fa-circle-plus"></i> Tambah Peran
                     </button>
                 </div>
 
@@ -30,7 +30,7 @@
                         <tr>
                             <th>No</th>
                             <th>Project</th>
-                            <th>Nama Role</th>
+                            <th>Nama Peran</th>
                             <th>Deskripsi</th>
                             <th>Status</th>
                             <th>Aksi</th>
@@ -71,7 +71,7 @@
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="roleModalTitle">Tambah Role</h5>
+                <h5 class="modal-title" id="roleModalTitle">Tambah Peran</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
             </div>
             <form id="roleForm">
@@ -90,7 +90,7 @@
                             <small class="text-danger error-project_id"></small>
                         </div>
                         <div class="col-md-6 form-group">
-                            <label>Nama Role</label>
+                            <label>Nama Peran</label>
                             <input class="form-control" name="name" id="name" placeholder="Manager">
                             <small class="text-danger error-name"></small>
                         </div>
@@ -128,8 +128,8 @@
         responsive: true,
         order: [[0, 'asc']],
         language: {
-            emptyTable: 'Belum ada role.',
-            zeroRecords: 'Role tidak ditemukan.',
+            emptyTable: 'Belum ada peran.',
+            zeroRecords: 'Peran tidak ditemukan.',
             search: 'Cari:',
             lengthMenu: 'Tampilkan _MENU_ data',
             info: 'Menampilkan _START_ sampai _END_ dari _TOTAL_ data',
@@ -146,7 +146,7 @@
         $('#roleId').val('');
         $('#project_id').val('');
         $('#is_active').val('1');
-        $('#roleModalTitle').text('Tambah Role');
+        $('#roleModalTitle').text('Tambah Peran');
         $('#roleModal').modal('show');
     }
 
@@ -154,7 +154,7 @@
         clearErrors();
         $('#roleForm')[0].reset();
         $('#roleId').val(id);
-        $('#roleModalTitle').text('Ubah Role');
+        $('#roleModalTitle').text('Ubah Peran');
 
         $.get('{{ route('admin.roles.show', ':id') }}'.replace(':id', id))
             .done(function (response) {
@@ -166,12 +166,12 @@
                 $('#roleModal').modal('show');
             })
             .fail(function () {
-                toastr.error('Gagal mengambil detail role.');
+                toastr.error('Gagal mengambil detail peran.');
             });
     }
 
     function deleteRole(id) {
-        if (!confirm('Hapus role ini?')) {
+        if (!confirm('Hapus peran ini?')) {
             return;
         }
 
@@ -184,7 +184,7 @@
                 window.location.reload();
             },
             error: function () {
-                toastr.error('Gagal menghapus role.');
+                toastr.error('Gagal menghapus peran.');
             }
         });
     }
@@ -216,7 +216,7 @@
                     return;
                 }
 
-                toastr.error('Gagal menyimpan role.');
+                toastr.error('Gagal menyimpan peran.');
             },
             complete: function () {
                 $('#saveRoleButton').attr('disabled', false);
