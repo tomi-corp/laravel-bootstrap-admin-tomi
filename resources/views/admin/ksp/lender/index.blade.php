@@ -168,6 +168,10 @@
                                     <small class="text-danger" id="errTelepon"></small>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="row">
 
                             <div class="col-md-6">
                                 <div class="form-group">
@@ -257,8 +261,6 @@
                             </div>
 
                         </div>
-                    </div>
-                    <div class="col-md-6">
                         <div class="row">
                             <div class="col-md-12">
                                 <label>Nama Bank</label>
@@ -308,7 +310,7 @@
         role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalCenterTitle">Ubah Perusahaan
+                <h5 class="modal-title" id="exampleModalCenterTitle">Ubah Lender
                 </h5>
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
 
@@ -360,6 +362,10 @@
                                     <small class="text-danger" id="errTeleponEdit"></small>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="row">
 
                             <div class="col-md-6">
                                 <div class="form-group">
@@ -453,8 +459,6 @@
 
                             </div>
                         </div>
-                    </div>
-                    <div class="col-md-6">
                         <div class="row">
                             <div class="col-md-12">
                                 <label>Nama Bank</label>
