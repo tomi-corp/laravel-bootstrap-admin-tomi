@@ -566,23 +566,7 @@ class PrivyController extends Controller
         $sessionId = trim((string) $request->input('session_id'));
         $token = $request->input('token');
 
-        $this->logPrivyCallbackDebug('callback_received', [
-            'session_id' => $sessionId ?: null,
-            'has_token' => is_string($token) && $token !== '',
-            'token_length' => is_string($token) ? strlen($token) : null,
-            'token_hash' => is_string($token) && $token !== '' ? substr(hash('sha256', $token), 0, 12) : null,
-            'event' => $request->input('event'),
-            'state' => $request->input('state'),
-            'has_exchange_code' => filled($request->input('exchange_code')),
-            'has_shared_data' => filled($request->input('shared_data')),
-            'ip' => $request->ip(),
-        ]);
-
         if (! is_string($token) || $token === '') {
-            $this->logPrivyCallbackDebug('callback_rejected_missing_token', [
-                'session_id' => $sessionId ?: null,
-            ]);
-
             Log::warning('Privy Digital ID callback invalid', [
                 'has_session_id' => $sessionId !== '',
                 'has_token' => is_string($token) && $token !== '',
@@ -596,24 +580,9 @@ class PrivyController extends Controller
 
         if ($sessionId === '') {
             try {
-                $this->logPrivyCallbackDebug('callback_session_id_missing_verify_token_started');
-
                 $payload = app(PrivyDigitalIdClient::class)->verifyToken($token);
                 $sessionId = trim((string) ($payload['session_id'] ?? $payload['data']['session_id'] ?? ''));
-
-                $this->logPrivyCallbackDebug('callback_session_id_from_token', [
-                    'session_id' => $sessionId ?: null,
-                    'payload_keys' => array_keys($payload),
-                    'payload_data_keys' => is_array($payload['data'] ?? null) ? array_keys($payload['data']) : [],
-                    'status' => $payload['status'] ?? $payload['verification_status'] ?? $payload['data']['status'] ?? null,
-                ]);
             } catch (PrivyDigitalIdException $e) {
-                $this->logPrivyCallbackDebug('callback_token_verify_failed', [
-                    'code' => $e->errorCode,
-                    'http_status' => $e->httpStatus,
-                    'privy_status' => $e->privyStatus,
-                ]);
-
                 Log::warning('Privy Digital ID callback token invalid', [
                     'code' => $e->errorCode,
                     'http_status' => $e->httpStatus,
@@ -627,8 +596,6 @@ class PrivyController extends Controller
         }
 
         if ($sessionId === '') {
-            $this->logPrivyCallbackDebug('callback_rejected_session_id_not_found');
-
             Log::warning('Privy Digital ID callback invalid', [
                 'has_session_id' => false,
                 'has_token' => true,
@@ -643,11 +610,6 @@ class PrivyController extends Controller
         $session = PrivyDigitalIdSession::where('privy_session_id', $sessionId)->latest()->first();
 
         if (! $session) {
-            $this->logPrivyCallbackDebug('callback_session_unknown', [
-                'session_id' => $sessionId,
-                'event' => $request->input('event'),
-            ]);
-
             Log::warning('Privy Digital ID callback unknown session', [
                 'session_id' => $sessionId,
                 'event' => $request->input('event'),
@@ -659,30 +621,13 @@ class PrivyController extends Controller
             ], 200);
         }
 
-        $this->logPrivyCallbackDebug('callback_session_found', [
-            'session_id' => $sessionId,
-            'local_id' => $session->id,
-            'user_id' => $session->user_id,
-            'status' => $session->status,
-            'expires_at' => optional($session->expires_at)->toDateTimeString(),
-        ]);
-
         app(PrivyDigitalIdService::class)->markReceived($sessionId, 'callback');
-
-        $this->logPrivyCallbackDebug('callback_mark_received_done', [
-            'session_id' => $sessionId,
-        ]);
 
         $sharedData = $request->input('shared_data', []);
         if (is_string($sharedData)) {
             $decodedSharedData = json_decode($sharedData, true);
             $sharedData = is_array($decodedSharedData) ? $decodedSharedData : [];
         }
-
-        $this->logPrivyCallbackDebug('callback_shared_data_normalized', [
-            'session_id' => $sessionId,
-            'shared_data_keys' => is_array($sharedData) ? array_keys($sharedData) : [],
-        ]);
 
         $session->forceFill([
             'exchange_code' => $request->input('exchange_code') ?: $session->exchange_code,
@@ -691,33 +636,9 @@ class PrivyController extends Controller
             'callback_shared_data' => is_array($sharedData) ? $sharedData : [],
         ])->save();
 
-        $this->logPrivyCallbackDebug('callback_session_payload_saved', [
-            'session_id' => $sessionId,
-            'local_id' => $session->id,
-            'has_exchange_code' => filled($session->exchange_code),
-            'callback_state' => $session->callback_state,
-        ]);
-
         try {
-            $this->logPrivyCallbackDebug('callback_process_started', [
-                'session_id' => $sessionId,
-            ]);
-
-            $result = $this->processDigitalIdResult($session, $token, 'callback', $request->input('state') ?? $request->input('event'));
-
-            $this->logPrivyCallbackDebug('callback_process_finished', [
-                'session_id' => $sessionId,
-                'status' => $result['status'] ?? null,
-                'has_privy_id' => filled($result['privy_id'] ?? null),
-            ]);
+            $this->processDigitalIdResult($session, $token, 'callback', $request->input('state') ?? $request->input('event'));
         } catch (PrivyDigitalIdException $e) {
-            $this->logPrivyCallbackDebug('callback_process_failed', [
-                'session_id' => $sessionId,
-                'code' => $e->errorCode,
-                'http_status' => $e->httpStatus,
-                'privy_status' => $e->privyStatus,
-            ]);
-
             Log::warning('Privy Digital ID callback processing failed', [
                 'session_id' => $sessionId,
                 'code' => $e->errorCode,
@@ -733,25 +654,10 @@ class PrivyController extends Controller
     private function processDigitalIdResult(PrivyDigitalIdSession $session, string $token, string $source, mixed $event = null): array
     {
         $digitalIdService = app(PrivyDigitalIdService::class);
-
-        $this->logPrivyCallbackDebug('result_process_claim_started', [
-            'session_id' => $session->privy_session_id,
-            'source' => $source,
-            'event' => is_scalar($event) ? (string) $event : null,
-            'current_status' => $session->status,
-        ]);
-
         $claimed = $digitalIdService->claimSession($session->privy_session_id, $source);
 
         if (! $claimed) {
             $session->refresh();
-
-            $this->logPrivyCallbackDebug('result_process_already_claimed', [
-                'session_id' => $session->privy_session_id,
-                'source' => $source,
-                'status' => $session->status,
-                'has_privy_id' => filled($session->privy_id),
-            ]);
 
             return [
                 'status' => strtoupper($session->status),
@@ -760,38 +666,14 @@ class PrivyController extends Controller
         }
 
         try {
-            $this->logPrivyCallbackDebug('result_verify_token_started', [
-                'session_id' => $session->privy_session_id,
-                'source' => $source,
-            ]);
-
             $payload = app(PrivyDigitalIdClient::class)->verifyToken($token);
             $identity = [];
             $encryptedIdentity = $payload['data']['my_identity']
                 ?? $payload['my_identity']
                 ?? null;
 
-            $this->logPrivyCallbackDebug('result_verify_token_finished', [
-                'session_id' => $session->privy_session_id,
-                'source' => $source,
-                'payload_keys' => array_keys($payload),
-                'payload_data_keys' => is_array($payload['data'] ?? null) ? array_keys($payload['data']) : [],
-                'has_encrypted_identity' => is_string($encryptedIdentity) && $encryptedIdentity !== '',
-            ]);
-
             if (is_string($encryptedIdentity) && $encryptedIdentity !== '') {
-                $this->logPrivyCallbackDebug('result_decrypt_identity_started', [
-                    'session_id' => $session->privy_session_id,
-                    'source' => $source,
-                ]);
-
                 $identity = app(PrivyDigitalIdClient::class)->decryptIdentity($encryptedIdentity);
-
-                $this->logPrivyCallbackDebug('result_decrypt_identity_finished', [
-                    'session_id' => $session->privy_session_id,
-                    'source' => $source,
-                    'identity_keys' => array_keys($identity),
-                ]);
             }
 
             $status = strtoupper((string) (
@@ -818,14 +700,6 @@ class PrivyController extends Controller
                 ?? $identity['enterpriseToken']
                 ?? null;
 
-            $this->logPrivyCallbackDebug('result_payload_mapped', [
-                'session_id' => $session->privy_session_id,
-                'source' => $source,
-                'status' => $status,
-                'has_privy_id' => filled($privyId),
-                'has_enterprise_token' => is_string($enterpriseToken) && $enterpriseToken !== '',
-            ]);
-
             if ($privyId && in_array($status, ['', 'VERIFIED', 'SUCCESS', 'COMPLETED', 'APPROVED'], true)) {
                 $user = User::find($session->user_id);
 
@@ -837,12 +711,6 @@ class PrivyController extends Controller
                     'status' => 'VERIFIED',
                     'event' => is_scalar($event) ? (string) $event : null,
                     'privy_id' => (string) $privyId,
-                ]);
-
-                $this->logPrivyCallbackDebug('result_finished_verified', [
-                    'session_id' => $session->privy_session_id,
-                    'source' => $source,
-                    'user_id' => $session->user_id,
                 ]);
 
                 return [
@@ -858,25 +726,11 @@ class PrivyController extends Controller
                     'privy_id' => $privyId ? (string) $privyId : null,
                 ]);
 
-                $this->logPrivyCallbackDebug('result_finished_failed', [
-                    'session_id' => $session->privy_session_id,
-                    'source' => $source,
-                    'status' => $status,
-                    'has_privy_id' => filled($privyId),
-                ]);
-
                 return [
                     'status' => 'FAILED',
                     'privy_id' => $privyId ? (string) $privyId : null,
                 ];
             }
-
-            $this->logPrivyCallbackDebug('result_still_processing', [
-                'session_id' => $session->privy_session_id,
-                'source' => $source,
-                'status' => $status,
-                'has_privy_id' => filled($privyId),
-            ]);
 
             return [
                 'status' => 'PROCESSING',
@@ -884,14 +738,6 @@ class PrivyController extends Controller
             ];
         } catch (PrivyDigitalIdException $e) {
             $digitalIdService->failSession($session->privy_session_id, $e->errorCode, $e->getMessage());
-
-            $this->logPrivyCallbackDebug('result_process_exception', [
-                'session_id' => $session->privy_session_id,
-                'source' => $source,
-                'code' => $e->errorCode,
-                'http_status' => $e->httpStatus,
-                'privy_status' => $e->privyStatus,
-            ]);
 
             Log::warning('Privy Digital ID result processing failed', [
                 'session_id' => $session->privy_session_id,
@@ -902,15 +748,6 @@ class PrivyController extends Controller
 
             throw $e;
         }
-    }
-
-    private function logPrivyCallbackDebug(string $step, array $context = []): void
-    {
-        if (! config('app.debug')) {
-            return;
-        }
-
-        Log::channel('privylog')->info('Privy Digital ID debug: '.$step, $context);
     }
 
     private function markUserPrivyVerified(User $user, string $privyId, ?string $enterpriseToken, bool $wasVerified): void
