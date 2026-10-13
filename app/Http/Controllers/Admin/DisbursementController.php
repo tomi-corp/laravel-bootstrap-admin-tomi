@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\DisbursementRequest;
-use App\Models\bank;
 use App\Models\disbursement;
+use App\Models\invoicing_pinjaman;
+use App\Models\notification;
 use App\Models\pinjaman;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -17,92 +19,78 @@ class DisbursementController extends Controller
     public function index(): View
     {
         return view('admin.disbursements.index', [
-            'disbursements' => disbursement::query()
-                ->with(['pinjaman.user', 'pinjaman.perusahaan', 'admin', 'bank'])
+            'loans' => pinjaman::query()
+                ->where('status', 'pending')
+                ->where('document_privy', 'y')
+                ->with(['user', 'perusahaan', 'data_karyawan.bank', 'disbursement'])
                 ->latest()
                 ->get(),
-            'pinjamanList' => pinjaman::query()
-                ->with(['user', 'perusahaan'])
-                ->latest()
-                ->limit(1000)
-                ->get(['id', 'id_pinjaman', 'user_id', 'id_perusahaan', 'nominal', 'jumlah_yang_diterima']),
-            'banks' => bank::query()
-                ->orderBy('code_bank')
-                ->get(['id', 'code_bank', 'description']),
         ]);
     }
 
-    public function store(DisbursementRequest $request): JsonResponse
+    public function store(DisbursementRequest $request): RedirectResponse
     {
-        $disbursement = disbursement::query()->create($this->validatedData($request));
+        DB::transaction(function () use ($request) {
+            $loan = pinjaman::query()
+                ->where('status', 'pending')
+                ->where('document_privy', 'y')
+                ->with(['data_karyawan.bank', 'perusahaan', 'angsuran', 'user'])
+                ->findOrFail($request->validated('pinjaman_id'));
 
-        return response()->json([
-            'message' => 'Pencairan dana berhasil ditambahkan.',
-            'data' => ['id' => $disbursement->id],
-        ]);
-    }
+            disbursement::query()->create($this->disbursementData($loan, $request));
 
-    public function show(disbursement $disbursement): JsonResponse
-    {
-        $disbursement->load(['pinjaman.user', 'pinjaman.perusahaan', 'admin', 'bank']);
+            foreach ($loan->angsuran as $jatuhTempo) {
+                $period = Carbon::parse($jatuhTempo->jatuh_tempo);
 
-        return response()->json([
-            'data' => [
-                'id' => $disbursement->id,
-                'pinjaman_id' => $disbursement->pinjaman_id,
-                'ksp_admin_id' => $disbursement->ksp_admin_id,
-                'bank_id' => $disbursement->bank_id,
-                'dana_yang_dicairkan' => $disbursement->dana_yang_dicairkan,
-                'atas_nama' => $disbursement->atas_nama,
-                'nomor_rekening' => $disbursement->nomor_rekening,
-                'transfer_date' => optional($disbursement->transfer_date)->format('Y-m-d'),
-                'transfer_proof' => $disbursement->transfer_proof,
-                'transfer_proof_url' => $disbursement->transfer_proof ? Storage::url($disbursement->transfer_proof) : null,
-                'pinjaman' => $disbursement->pinjaman,
-                'admin' => $disbursement->admin,
-                'bank' => $disbursement->bank,
-            ],
-        ]);
-    }
+                $invoice = invoicing_pinjaman::query()
+                    ->whereYear('period', $period->year)
+                    ->whereMonth('period', $period->month)
+                    ->where('id_list_perusahaan', $loan->id_perusahaan)
+                    ->first();
 
-    public function update(DisbursementRequest $request, disbursement $disbursement): JsonResponse
-    {
-        $disbursement->update($this->validatedData($request, $disbursement));
+                if (! $invoice) {
+                    $invoice = new invoicing_pinjaman();
+                    $invoice->id_list_perusahaan = $loan->id_perusahaan;
+                    $invoice->period = $period->toDateString();
+                    $invoice->status = 'belum_lunas';
+                    $invoice->save();
 
-        return response()->json([
-            'message' => 'Pencairan dana berhasil diperbarui.',
-            'data' => ['id' => $disbursement->id],
-        ]);
-    }
+                    $invoice->no_invoice = 'INV-'.$period->format('M').'-'.($loan->perusahaan?->id_code_perusahaan ?? $loan->id_perusahaan).'-'.$invoice->id;
+                }
 
-    public function destroy(disbursement $disbursement): JsonResponse
-    {
-        $disbursement->delete();
-
-        return response()->json([
-            'message' => 'Pencairan dana berhasil dihapus.',
-        ]);
-    }
-
-    private function validatedData(DisbursementRequest $request, ?disbursement $disbursement = null): array
-    {
-        $data = $request->validated();
-        $data['ksp_admin_id'] = auth('admin')->id();
-
-        if ($request->hasFile('transfer_proof')) {
-            if ($disbursement?->transfer_proof) {
-                Storage::disk('public')->delete($disbursement->transfer_proof);
+                $invoice->status = 'belum_lunas';
+                $invoice->save();
             }
 
-            $loan = pinjaman::query()->find($data['pinjaman_id']);
-            $baseName = Str::slug($loan?->id_pinjaman ?: 'disbursement');
-            $file = $request->file('transfer_proof');
-            $fileName = $baseName.'-'.now()->format('YmdHis').'.'.$file->getClientOriginalExtension();
-            $data['transfer_proof'] = $file->storeAs('disbursements/bukti-transfer', $fileName, 'public');
-        } else {
-            unset($data['transfer_proof']);
-        }
+            $loan->status = 'approve';
+            $loan->save();
 
-        return $data;
+            $notification = new notification();
+            $notification->user_id = $loan->user_id;
+            $notification->title = 'Pengajuan Anda Telah Diperbarui';
+            $notification->description = 'Selamat! Status pengajuan Anda telah berhasil dikirimkan ke rekening anda!';
+            $notification->type = 'pinjaman_payroll';
+            $notification->read = 'belum';
+            $notification->save();
+        });
+
+        return redirect()->route('admin.disbursements.index')->with('success', 'Pinjaman berhasil dicairkan.');
+    }
+
+    private function disbursementData(pinjaman $loan, DisbursementRequest $request): array
+    {
+        $file = $request->file('transfer_proof');
+        $fileName = Str::slug($loan->id_pinjaman ?: 'disbursement').'-'.now()->format('YmdHis').'.'.$file->getClientOriginalExtension();
+
+        return [
+            'pinjaman_id' => $loan->id,
+            'ksp_admin_id' => auth('admin')->id(),
+            'bank_id' => $loan->data_karyawan?->id_nama_bank,
+            'dana_yang_dicairkan' => $loan->jumlah_yang_diterima ?? $loan->nominal,
+            'atas_nama' => $loan->data_karyawan?->nama_rekening ?? $loan->user?->name ?? '-',
+            'nomor_rekening' => $loan->data_karyawan?->nomor_bank ?? '-',
+            'transfer_date' => $request->validated('transfer_date'),
+            'transfer_proof' => $file->storeAs('disbursements/bukti-transfer', $fileName, 'public'),
+        ];
     }
 }

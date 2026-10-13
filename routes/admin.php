@@ -110,12 +110,16 @@ Route::middleware(['AdminMiddleware'])->group(
                     ->names('admin.role-menu-permissions');
 
                 Route::resource('/disbursements', DisbursementController::class)
-                    ->except(['create', 'edit'])
+                    ->only(['index', 'store'])
                     ->names('admin.disbursements');
 
                 Route::resource('/repayments', RepaymentController::class)
-                    ->except(['create', 'edit'])
+                    ->only(['index'])
                     ->names('admin.repayments');
+                Route::get('/repayments/invoice/{invoice}/download', [RepaymentController::class, 'downloadInvoice'])
+                    ->name('admin.repayments.invoice.download');
+                Route::post('/repayments/invoice/{invoice}/proof', [RepaymentController::class, 'uploadProof'])
+                    ->name('admin.repayments.invoice.proof');
 
                 // menu mobile
                 Route::get('/mobile/menu', [MenuMobileController::class, 'index'])->name('admin.menumobile.index');

@@ -2,6 +2,16 @@
 
 @section('title', 'Admin Pencairan Dana')
 
+@push('css')
+<style>
+    #disbursementsTable th,
+    #disbursementsTable td {
+        white-space: nowrap;
+        vertical-align: middle;
+    }
+</style>
+@endpush
+
 @section('content')
 <div class="row">
     <div class="col-12">
@@ -13,63 +23,56 @@
                 </ol>
             </div>
             <h4 class="page-title">Pencairan Dana</h4>
+            <p class="text-muted mb-0">Pinjaman yang belum dicairkan.</p>
         </div>
     </div>
 
     <div class="col-12">
         <div class="card">
             <div class="card-body">
-                <div class="d-flex justify-content-end mb-3">
-                    <button type="button" class="btn btn-sm btn-primary" onclick="openCreateModal()">
-                        <i class="fa-solid fa-circle-plus"></i> Tambah Pencairan Dana
-                    </button>
-                </div>
+                @if (session('success'))
+                    <div class="alert alert-success">{{ session('success') }}</div>
+                @endif
 
-                <table id="disbursementsTable" class="table dt-responsive table-hover text-center" style="width:100%">
+                <table id="disbursementsTable" class="table table-hover text-center nowrap" style="width:100%">
                     <thead>
                         <tr>
-                            <th>No</th>
                             <th>ID Pinjaman</th>
-                            <th>Nama</th>
+                            <th>User</th>
                             <th>Perusahaan</th>
-                            <th>Bank</th>
-                            <th>Dana Dicairkan</th>
-                            <th>Tanggal Transfer</th>
-                            <th>Bukti</th>
+                            <th>Nominal</th>
+                            <th>Diterima</th>
+                            <th>Tenor</th>
+                            <th>Status</th>
+                            <th>Rekening</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($disbursements as $item)
+                        @foreach ($loans as $loan)
+                            @php
+                                $bankName = trim(($loan->data_karyawan?->bank?->code_bank ?? '-').' '.($loan->data_karyawan?->bank?->description ?? ''));
+                                $accountName = $loan->data_karyawan?->nama_rekening ?? $loan->user?->name ?? '-';
+                                $accountNumber = $loan->data_karyawan?->nomor_bank ?? '-';
+                                $disbursementAmount = $loan->jumlah_yang_diterima ?? $loan->nominal;
+                            @endphp
                             <tr>
-                                <td>{{ $loop->iteration }}</td>
-                                <td>{{ $item->pinjaman?->id_pinjaman ?? '-' }}</td>
-                                <td>{{ $item->atas_nama }}</td>
-                                <td>{{ $item->pinjaman?->perusahaan?->nama ?? '-' }}</td>
-                                <td>{{ trim(($item->bank?->code_bank ?? '').' '.($item->bank?->description ?? '')) ?: '-' }}</td>
-                                <td>Rp {{ number_format($item->dana_yang_dicairkan, 0, ',', '.') }}</td>
-                                <td>{{ $item->transfer_date ? $item->transfer_date->format('d/m/Y') : '-' }}</td>
+                                <td>{{ $loan->id_pinjaman ?? '#'.$loan->id }}</td>
+                                <td>{{ $loan->user?->name ?? $loan->user?->nama_lengkap ?? '-' }}</td>
+                                <td>{{ $loan->perusahaan?->nama ?? '-' }}</td>
+                                <td>Rp. {{ number_format($loan->nominal ?? 0, 0, ',', '.') }}</td>
+                                <td>Rp. {{ number_format($disbursementAmount ?? 0, 0, ',', '.') }}</td>
+                                <td>{{ $loan->tenor ?? '-' }} bulan</td>
+                                <td>{{ strtoupper(str_replace('_', ' ', $loan->status ?? '-')) }}</td>
                                 <td>
-                                    @if ($item->transfer_proof)
-                                        <a class="btn btn-sm btn-info" href="{{ asset('storage/'.$item->transfer_proof) }}" target="_blank">
-                                            <i class="fa-solid fa-file"></i>
-                                        </a>
-                                    @else
-                                        -
-                                    @endif
+                                    <button type="button" class="btn btn-sm btn-outline-info" data-toggle="modal" data-target="#accountModal{{ $loan->id }}">
+                                        <i class="fa-solid fa-building-columns"></i>
+                                    </button>
                                 </td>
                                 <td>
-                                    <div class="btn-group">
-                                        <button type="button" class="btn btn-sm btn-info" onclick="showDisbursement({{ $item->id }})">
-                                            <i class="fa-solid fa-eye"></i>
-                                        </button>
-                                        <button type="button" class="btn btn-sm btn-primary" onclick="editDisbursement({{ $item->id }})">
-                                            <i class="fa-solid fa-pen"></i>
-                                        </button>
-                                        <button type="button" class="btn btn-sm btn-danger" onclick="deleteDisbursement({{ $item->id }})">
-                                            <i class="fa-solid fa-trash-can"></i>
-                                        </button>
-                                    </div>
+                                    <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#disbursementModal{{ $loan->id }}">
+                                        Cairkan
+                                    </button>
                                 </td>
                             </tr>
                         @endforeach
@@ -80,237 +83,104 @@
     </div>
 </div>
 
-<div class="modal fade" id="disbursementModal" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="disbursementModalTitle">Tambah Pencairan Dana</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-            </div>
-            <form id="disbursementForm" enctype="multipart/form-data">
-                <div class="modal-body">
-                    <input type="hidden" id="disbursementId">
+@foreach ($loans as $loan)
+    @php
+        $bankName = trim(($loan->data_karyawan?->bank?->code_bank ?? '-').' '.($loan->data_karyawan?->bank?->description ?? ''));
+        $accountName = $loan->data_karyawan?->nama_rekening ?? $loan->user?->name ?? '-';
+        $accountNumber = $loan->data_karyawan?->nomor_bank ?? '-';
+        $disbursementAmount = $loan->jumlah_yang_diterima ?? $loan->nominal;
+    @endphp
 
-                    <div class="row">
-                        <div class="col-md-6 form-group">
-                            <label>Pinjaman</label>
-                            <select class="form-control" name="pinjaman_id" id="pinjaman_id">
-                                <option value="">Pilih Pinjaman</option>
-                                @foreach ($pinjamanList as $pinjaman)
-                                    <option value="{{ $pinjaman->id }}">
-                                        {{ $pinjaman->id_pinjaman ?? 'PIN-'.$pinjaman->id }} - {{ $pinjaman->user?->name ?? $pinjaman->user?->nama_lengkap ?? '-' }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            <small class="text-danger error-pinjaman_id"></small>
-                        </div>
-                        <div class="col-md-6 form-group">
-                            <label>Bank</label>
-                            <select class="form-control" name="bank_id" id="bank_id">
-                                <option value="">Pilih Bank</option>
-                                @foreach ($banks as $bank)
-                                    <option value="{{ $bank->id }}">{{ $bank->code_bank }} - {{ $bank->description }}</option>
-                                @endforeach
-                            </select>
-                            <small class="text-danger error-bank_id"></small>
-                        </div>
-                        <div class="col-md-6 form-group">
-                            <label>Dana Dicairkan</label>
-                            <input class="form-control" name="dana_yang_dicairkan" id="dana_yang_dicairkan" placeholder="5000000">
-                            <small class="text-danger error-dana_yang_dicairkan"></small>
-                        </div>
-                        <div class="col-md-6 form-group">
-                            <label>Tanggal Transfer</label>
-                            <input type="date" class="form-control" name="transfer_date" id="transfer_date">
-                            <small class="text-danger error-transfer_date"></small>
-                        </div>
-                        <div class="col-md-6 form-group">
-                            <label>Atas Nama</label>
-                            <input class="form-control" name="atas_nama" id="atas_nama">
-                            <small class="text-danger error-atas_nama"></small>
-                        </div>
-                        <div class="col-md-6 form-group">
-                            <label>Nomor Rekening</label>
-                            <input class="form-control" name="nomor_rekening" id="nomor_rekening">
-                            <small class="text-danger error-nomor_rekening"></small>
-                        </div>
-                        <div class="col-12 form-group">
-                            <label>Bukti Transfer</label>
-                            <input type="file" class="form-control" name="transfer_proof" id="transfer_proof" accept=".jpg,.jpeg,.png,.pdf">
-                            <small class="text-muted d-block">Format jpg, jpeg, png, atau pdf. Maksimal 5 MB.</small>
-                            <small class="text-danger error-transfer_proof"></small>
+    <div class="modal fade" id="accountModal{{ $loan->id }}" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-md modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Rekening Pencairan</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                </div>
+                <div class="modal-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">Bank</dt>
+                        <dd class="col-sm-8">{{ $bankName ?: '-' }}</dd>
+                        <dt class="col-sm-4">Atas Nama</dt>
+                        <dd class="col-sm-8">{{ $accountName }}</dd>
+                        <dt class="col-sm-4">Nomor Rekening</dt>
+                        <dd class="col-sm-8">{{ $accountNumber }}</dd>
+                        <dt class="col-sm-4">Dana Dicairkan</dt>
+                        <dd class="col-sm-8">Rp. {{ number_format($disbursementAmount ?? 0, 0, ',', '.') }}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="disbursementModal{{ $loan->id }}" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Cairkan Pinjaman</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+                </div>
+                <form action="{{ route('admin.disbursements.store') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <input type="hidden" name="pinjaman_id" value="{{ $loan->id }}">
+                    <div class="modal-body">
+                        <dl class="row">
+                            <dt class="col-sm-4">ID Pinjaman</dt>
+                            <dd class="col-sm-8">{{ $loan->id_pinjaman ?? '#'.$loan->id }}</dd>
+                            <dt class="col-sm-4">Bank</dt>
+                            <dd class="col-sm-8">{{ $bankName ?: '-' }}</dd>
+                            <dt class="col-sm-4">Atas Nama</dt>
+                            <dd class="col-sm-8">{{ $accountName }}</dd>
+                            <dt class="col-sm-4">Nomor Rekening</dt>
+                            <dd class="col-sm-8">{{ $accountNumber }}</dd>
+                            <dt class="col-sm-4">Dana Dicairkan</dt>
+                            <dd class="col-sm-8">Rp. {{ number_format($disbursementAmount ?? 0, 0, ',', '.') }}</dd>
+                        </dl>
+
+                        <div class="row">
+                            <div class="col-md-6 form-group">
+                                <label>Tanggal Transfer</label>
+                                <input type="date" name="transfer_date" value="{{ now()->toDateString() }}" class="form-control">
+                                @error('transfer_date') <small class="text-danger">{{ $message }}</small> @enderror
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label>Bukti Transfer</label>
+                                <input type="file" name="transfer_proof" accept=".jpg,.jpeg,.png,.pdf" class="form-control" required>
+                                <small class="text-muted d-block">Format jpg, jpeg, png, atau pdf. Maksimal 5 MB.</small>
+                                @error('transfer_proof') <small class="text-danger">{{ $message }}</small> @enderror
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-light" data-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary" id="saveDisbursementButton">
-                        <span id="saveSpinner" role="status" aria-hidden="true"></span>
-                        Simpan
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="detailModal" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Detail Pencairan Dana</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
-            </div>
-            <div class="modal-body">
-                <dl class="row mb-0" id="detailList"></dl>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary">Simpan Pencairan</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
-</div>
+@endforeach
 @endsection
 
 @push('js')
 <script>
     $('#disbursementsTable').DataTable({
-        responsive: true,
-        order: [[0, 'asc']],
+        responsive: false,
+        scrollX: true,
+        scrollY: '420px',
+        scrollCollapse: true,
+        autoWidth: false,
+        pageLength: 10,
+        lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'Semua']],
         language: {
-            emptyTable: 'Belum ada pencairan dana.',
-            zeroRecords: 'Pencairan dana tidak ditemukan.',
+            emptyTable: 'Tidak ada pinjaman yang belum dicairkan.',
+            zeroRecords: 'Pinjaman tidak ditemukan.',
             search: 'Cari:',
             lengthMenu: 'Tampilkan _MENU_ data',
             info: 'Menampilkan _START_ sampai _END_ dari _TOTAL_ data',
             paginate: { previous: 'Sebelumnya', next: 'Berikutnya' }
         }
     });
-
-    function openCreateModal() {
-        clearErrors();
-        $('#disbursementForm')[0].reset();
-        $('#disbursementId').val('');
-        $('#disbursementModalTitle').text('Tambah Pencairan Dana');
-        $('#disbursementModal').modal('show');
-    }
-
-    function editDisbursement(id) {
-        clearErrors();
-        $('#disbursementForm')[0].reset();
-        $('#disbursementId').val(id);
-        $('#disbursementModalTitle').text('Ubah Pencairan Dana');
-
-        $.get('{{ route('admin.disbursements.show', ':id') }}'.replace(':id', id))
-            .done(function (response) {
-                var item = response.data;
-                $('#pinjaman_id').val(item.pinjaman_id);
-                $('#bank_id').val(item.bank_id);
-                $('#dana_yang_dicairkan').val(item.dana_yang_dicairkan);
-                $('#atas_nama').val(item.atas_nama);
-                $('#nomor_rekening').val(item.nomor_rekening);
-                $('#transfer_date').val(item.transfer_date);
-                $('#disbursementModal').modal('show');
-            })
-            .fail(function () {
-                toastr.error('Gagal mengambil detail pencairan dana.');
-            });
-    }
-
-    function showDisbursement(id) {
-        $.get('{{ route('admin.disbursements.show', ':id') }}'.replace(':id', id))
-            .done(function (response) {
-                var item = response.data;
-                var proof = item.transfer_proof_url ? '<a href="' + item.transfer_proof_url + '" target="_blank">Lihat bukti</a>' : '-';
-                var rows = {
-                    'ID Pinjaman': item.pinjaman && item.pinjaman.id_pinjaman ? item.pinjaman.id_pinjaman : '-',
-                    'Admin': item.admin && item.admin.nama ? item.admin.nama : '-',
-                    'Bank': item.bank ? ((item.bank.code_bank || '') + ' ' + (item.bank.description || '')) : '-',
-                    'Dana Dicairkan': formatRupiah(item.dana_yang_dicairkan),
-                    'Atas Nama': item.atas_nama || '-',
-                    'Nomor Rekening': item.nomor_rekening || '-',
-                    'Tanggal Transfer': item.transfer_date || '-',
-                    'Bukti Transfer': proof
-                };
-
-                var html = '';
-                Object.keys(rows).forEach(function (label) {
-                    html += '<dt class="col-sm-4">' + label + '</dt><dd class="col-sm-8">' + rows[label] + '</dd>';
-                });
-
-                $('#detailList').html(html);
-                $('#detailModal').modal('show');
-            })
-            .fail(function () {
-                toastr.error('Gagal mengambil detail pencairan dana.');
-            });
-    }
-
-    function deleteDisbursement(id) {
-        if (!confirm('Hapus pencairan dana ini?')) {
-            return;
-        }
-
-        $.ajax({
-            url: '{{ route('admin.disbursements.destroy', ':id') }}'.replace(':id', id),
-            type: 'DELETE',
-            data: { _token: '{{ csrf_token() }}' },
-            success: function (response) {
-                toastr.success(response.message);
-                window.location.reload();
-            },
-            error: function () {
-                toastr.error('Gagal menghapus pencairan dana.');
-            }
-        });
-    }
-
-    $('#disbursementForm').on('submit', function (event) {
-        event.preventDefault();
-        clearErrors();
-
-        var id = $('#disbursementId').val();
-        var url = id ? '{{ route('admin.disbursements.update', ':id') }}'.replace(':id', id) : '{{ route('admin.disbursements.store') }}';
-        var formData = new FormData(this);
-        formData.append('_token', '{{ csrf_token() }}');
-
-        if (id) {
-            formData.append('_method', 'PUT');
-        }
-
-        $('#saveDisbursementButton').attr('disabled', true);
-        $('#saveSpinner').addClass('spinner-border spinner-border-sm');
-
-        $.ajax({
-            url: url,
-            type: 'POST',
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: function (response) {
-                toastr.success(response.message);
-                window.location.reload();
-            },
-            error: function (xhr) {
-                if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
-                    Object.keys(xhr.responseJSON.errors).forEach(function (key) {
-                        $('.error-' + key).text(xhr.responseJSON.errors[key][0]);
-                    });
-                    return;
-                }
-
-                toastr.error('Gagal menyimpan pencairan dana.');
-            },
-            complete: function () {
-                $('#saveDisbursementButton').attr('disabled', false);
-                $('#saveSpinner').removeClass('spinner-border spinner-border-sm');
-            }
-        });
-    });
-
-    function clearErrors() {
-        $('[class*="error-"]').text('');
-    }
-
-    function formatRupiah(value) {
-        return 'Rp ' + new Intl.NumberFormat('id-ID').format(value || 0);
-    }
 </script>
 @endpush
