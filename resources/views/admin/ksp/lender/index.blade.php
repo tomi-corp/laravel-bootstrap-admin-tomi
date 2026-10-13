@@ -20,6 +20,24 @@
         white-space: nowrap !important;
         vertical-align: middle;
     }
+
+    #lenderPicFormModal {
+        z-index: 1065;
+    }
+
+    .modal-backdrop.lender-pic-form-backdrop {
+        z-index: 1060;
+    }
+
+    #lenderPicFormModal .modal-content {
+        max-height: calc(100vh - 3.5rem);
+    }
+
+    #lenderPicFormModal .modal-body {
+        max-height: calc(100vh - 12rem);
+        overflow-y: auto;
+    }
+
 </style>
 @endpush
 
@@ -104,23 +122,6 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label>Nama PIC Lender</label>
-                                    <input class="form-control" id="namaPicLender" placeholder="PIC Lender"></input>
-                                    <small class="text-danger" id="errNamaPicLender"></small>
-                                </div>
-                            </div>
-
-
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label>Nama PIC HC / HRD</label>
-                                    <input class="form-control" id="namaPicInternal" placeholder="PIC Internal"></input>
-                                    <small class="text-danger" id="errNamaPicInternal"></small>
-                                </div>
-                            </div>
-
-                            <div class="col-md-12">
-                                <div class="form-group">
                                     <label>Nama Lender</label>
                                     <input class="form-control" id="namaLender" placeholder="Nama Lender"></input>
                                     <small class="text-danger" id="errNamaLender"></small>
@@ -141,6 +142,17 @@
                                         type="number"></input>
                                     <small class="text-danger" id="errTelepon"></small>
                                 </div>
+                            </div>
+
+                            <div class="col-md-12">
+                                @include('admin.ksp.lender.partials.pic-table', ['prefix' => 'add_pic_lender', 'title' => 'PIC Lender'])
+                                <small class="text-danger" id="errNamaPicLender"></small>
+                            </div>
+
+
+                            <div class="col-md-12">
+                                @include('admin.ksp.lender.partials.pic-table', ['prefix' => 'add_pic_internal', 'title' => 'PIC HC / HRD'])
+                                <small class="text-danger" id="errNamaPicInternal"></small>
                             </div>
                         </div>
                     </div>
@@ -297,24 +309,6 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label>Nama PIC Lender</label>
-                                    <input class="form-control" id="namaPicLenderEdit" placeholder="PIC Lender"></input>
-                                    <small class="text-danger" id="errNamaPicLenderEdit"></small>
-                                </div>
-                            </div>
-
-
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label>Nama PIC HC / HRD</label>
-                                    <input class="form-control" id="namaPicInternalEdit"
-                                        placeholder="PIC Internal"></input>
-                                    <small class="text-danger" id="errNamaPicInternalEdit"></small>
-                                </div>
-                            </div>
-
-                            <div class="col-md-12">
-                                <div class="form-group">
                                     <label>Nama Lender</label>
                                     <input class="form-control" id="namaLenderEdit" placeholder="Nama Lender"></input>
                                     <small class="text-danger" id="errNamaLenderEdit"></small>
@@ -335,6 +329,17 @@
                                         type="number"></input>
                                     <small class="text-danger" id="errTeleponEdit"></small>
                                 </div>
+                            </div>
+
+                            <div class="col-md-12">
+                                @include('admin.ksp.lender.partials.pic-table', ['prefix' => 'edit_pic_lender', 'title' => 'PIC Lender'])
+                                <small class="text-danger" id="errNamaPicLenderEdit"></small>
+                            </div>
+
+
+                            <div class="col-md-12">
+                                @include('admin.ksp.lender.partials.pic-table', ['prefix' => 'edit_pic_internal', 'title' => 'PIC HC / HRD'])
+                                <small class="text-danger" id="errNamaPicInternalEdit"></small>
                             </div>
                         </div>
                     </div>
@@ -481,6 +486,23 @@
                 <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                 <button class="btn btn-primary" type="button" id="buttonSubmitEdit">Save <div id="loadingTextEdit">
                     </div></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="lenderPicFormModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="lenderPicFormModalTitle">Form PIC</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+            </div>
+            <div class="modal-body" id="lenderPicFormModalBody"></div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" type="button" data-dismiss="modal">Batal</button>
+                <button class="btn btn-primary" type="button" onclick="saveLenderPicFormModal()">Simpan</button>
             </div>
         </div>
     </div>
@@ -648,6 +670,19 @@
     var akhir = "";
     var editID = "";
     var deleteID = "";
+    var activeLenderPicModal = null;
+    var lenderPicTitles = {
+        add_pic_lender: 'PIC Lender',
+        add_pic_internal: 'PIC HC / HRD',
+        edit_pic_lender: 'PIC Lender',
+        edit_pic_internal: 'PIC HC / HRD',
+    };
+    var lenderPicFields = [
+        'national_id_number', 'birth_place', 'birth_date', 'gender', 'blood_type',
+        'address', 'rt', 'rw', 'province_id', 'city_id', 'district_id', 'village_id',
+        'postal_code', 'religion', 'marital_status', 'occupation', 'nationality',
+        'phone_number', 'email', 'password'
+    ];
 
     var dataTable = {
         "_token": "{{ csrf_token() }}",
@@ -663,6 +698,212 @@
     $('#kabupatenSelectEdit').select2();
     $('#kecamatanSelectEdit').select2();
     $('#desaSelectEdit').select2();
+
+    function escapeHtml(value) {
+        return $('<div>').text(value || '').html();
+    }
+
+    function lenderPicFieldValue(prefix, field) {
+        return $('#' + prefix + '_' + field).val() || '';
+    }
+
+    function renderLenderPicTable(prefix) {
+        var title = lenderPicTitles[prefix];
+        var name = lenderPicFieldValue(prefix, 'name');
+        var nik = lenderPicFieldValue(prefix, 'national_id_number');
+        var phone = lenderPicFieldValue(prefix, 'phone_number');
+        var email = lenderPicFieldValue(prefix, 'email');
+        var body = $('#' + prefix + '_table_body');
+
+        if (!name && !nik && !phone && !email) {
+            body.html('<tr><td colspan="5">Belum ada ' + title + '</td></tr>');
+            return;
+        }
+
+        body.html(
+            '<tr>'
+            + '<td>' + escapeHtml(name || '-') + '</td>'
+            + '<td>' + escapeHtml(nik || '-') + '</td>'
+            + '<td>' + escapeHtml(phone || '-') + '</td>'
+            + '<td>' + escapeHtml(email || '-') + '</td>'
+            + '<td><button type="button" class="btn btn-sm btn-primary" onclick="openLenderPicFormModal(\'' + prefix + '\')"><i class="fa-solid fa-pen"></i></button></td>'
+            + '</tr>'
+        );
+    }
+
+    function resetLenderPicForm(prefix) {
+        $('#' + prefix + '_name').val('');
+        lenderPicFields.forEach(function (field) {
+            $('#' + prefix + '_' + field).val(field === 'nationality' ? 'WNI' : '');
+        });
+        resetLenderPicRegionSelect('#' + prefix + '_city_id', 'Pilih Kota/Kabupaten');
+        resetLenderPicRegionSelect('#' + prefix + '_district_id', 'Pilih Kecamatan');
+        resetLenderPicRegionSelect('#' + prefix + '_village_id', 'Pilih Kelurahan/Desa');
+        renderLenderPicTable(prefix);
+    }
+
+    function fillLenderPicForm(prefix, pic) {
+        $('#' + prefix + '_name').val(pic.name || '');
+        lenderPicFields.forEach(function (field) {
+            $('#' + prefix + '_' + field).val(pic[field] || '');
+        });
+
+        if (pic.province_id) {
+            loadLenderPicCities(prefix, pic.province_id, pic.city_id)
+                .then(function () {
+                    return loadLenderPicDistricts(prefix, pic.city_id, pic.district_id);
+                })
+                .then(function () {
+                    return loadLenderPicVillages(prefix, pic.district_id, pic.village_id);
+                });
+        }
+
+        renderLenderPicTable(prefix);
+    }
+
+    function appendLenderPicFormData(formData, prefix, requestPrefix) {
+        formData.append(requestPrefix, lenderPicFieldValue(prefix, 'name'));
+        lenderPicFields.forEach(function (field) {
+            formData.append(requestPrefix + '_' + field, lenderPicFieldValue(prefix, field));
+        });
+    }
+
+    function returnLenderPicFormToStorage() {
+        if (!activeLenderPicModal) {
+            return;
+        }
+
+        $('#lenderPicFormModalBody .lender-pic-form-fields')
+            .appendTo(activeLenderPicModal.storage)
+            .addClass('d-none');
+
+        activeLenderPicModal = null;
+        $('#lenderPicFormModalBody').empty();
+    }
+
+    function openLenderPicFormModal(prefix) {
+        returnLenderPicFormToStorage();
+
+        var storage = $('.lender-pic-form-storage[data-prefix="' + prefix + '"]');
+        var fields = storage.find('.lender-pic-form-fields');
+
+        activeLenderPicModal = {
+            prefix: prefix,
+            storage: storage,
+        };
+
+        $('#lenderPicFormModalTitle').text('Form ' + lenderPicTitles[prefix]);
+        fields.appendTo('#lenderPicFormModalBody').removeClass('d-none');
+        $('#lenderPicFormModal').modal('show');
+    }
+
+    function saveLenderPicFormModal() {
+        if (activeLenderPicModal) {
+            renderLenderPicTable(activeLenderPicModal.prefix);
+        }
+
+        $('#lenderPicFormModal').modal('hide');
+    }
+
+    $('#lenderPicFormModal')
+        .on('show.bs.modal', function () {
+            $(this).appendTo('body');
+        })
+        .on('shown.bs.modal', function () {
+            $('.modal-backdrop').last().addClass('lender-pic-form-backdrop');
+        })
+        .on('hidden.bs.modal', function () {
+            returnLenderPicFormToStorage();
+            if ($('#modalAdd').hasClass('show') || $('#modalEdit').hasClass('show')) {
+                $('body').addClass('modal-open');
+            }
+        });
+
+    $('#modalAdd').on('show.bs.modal', function () {
+        resetLenderPicForm('add_pic_lender');
+        resetLenderPicForm('add_pic_internal');
+    });
+
+    function resetLenderPicRegionSelect(selector, placeholder) {
+        $(selector).html('<option value="">' + placeholder + '</option>');
+    }
+
+    function fillLenderPicRegionSelect(selector, rows, valueKey, labelKey, placeholder, selectedValue, secondaryLabelKey) {
+        resetLenderPicRegionSelect(selector, placeholder);
+
+        rows.forEach(function (row) {
+            var label = row[labelKey] || '';
+            if (secondaryLabelKey && row[secondaryLabelKey]) {
+                label += ' - ' + row[secondaryLabelKey];
+            }
+            $(selector).append(new Option(label, row[valueKey], false, false));
+        });
+
+        if (selectedValue) {
+            $(selector).val(String(selectedValue));
+        }
+    }
+
+    function loadLenderPicCities(prefix, provinceId, selectedValue) {
+        resetLenderPicRegionSelect('#' + prefix + '_city_id', 'Pilih Kota/Kabupaten');
+        resetLenderPicRegionSelect('#' + prefix + '_district_id', 'Pilih Kecamatan');
+        resetLenderPicRegionSelect('#' + prefix + '_village_id', 'Pilih Kelurahan/Desa');
+
+        if (!provinceId) {
+            return $.Deferred().resolve().promise();
+        }
+
+        return $.get('{{ route('admin.companies.cities') }}', { province_id: provinceId }, function (rows) {
+            fillLenderPicRegionSelect('#' + prefix + '_city_id', rows, 'id', 'kabupaten', 'Pilih Kota/Kabupaten', selectedValue);
+        });
+    }
+
+    function loadLenderPicDistricts(prefix, cityId, selectedValue) {
+        resetLenderPicRegionSelect('#' + prefix + '_district_id', 'Pilih Kecamatan');
+        resetLenderPicRegionSelect('#' + prefix + '_village_id', 'Pilih Kelurahan/Desa');
+
+        if (!cityId) {
+            return $.Deferred().resolve().promise();
+        }
+
+        return $.get('{{ route('admin.companies.districts') }}', { city_id: cityId }, function (rows) {
+            fillLenderPicRegionSelect('#' + prefix + '_district_id', rows, 'id', 'kecamatan', 'Pilih Kecamatan', selectedValue);
+        });
+    }
+
+    function loadLenderPicVillages(prefix, districtId, selectedValue) {
+        resetLenderPicRegionSelect('#' + prefix + '_village_id', 'Pilih Kelurahan/Desa');
+
+        if (!districtId) {
+            return $.Deferred().resolve().promise();
+        }
+
+        return $.get('{{ route('admin.companies.villages') }}', { district_id: districtId }, function (rows) {
+            fillLenderPicRegionSelect('#' + prefix + '_village_id', rows, 'id', 'desa', 'Pilih Kelurahan/Desa', selectedValue, 'kodepos');
+        });
+    }
+
+    $(document).on('change', '.lender-pic-province-select', function () {
+        loadLenderPicCities($(this).data('prefix'), this.value);
+    });
+
+    $(document).on('change', '.lender-pic-city-select', function () {
+        loadLenderPicDistricts($(this).data('prefix'), this.value);
+    });
+
+    $(document).on('change', '.lender-pic-district-select', function () {
+        loadLenderPicVillages($(this).data('prefix'), this.value);
+    });
+
+    function toggleLenderPicPassword(inputId, button) {
+        var input = document.getElementById(inputId);
+        var icon = button.querySelector('i');
+        var isPassword = input.type === 'password';
+
+        input.type = isPassword ? 'text' : 'password';
+        icon.classList.toggle('mdi-eye-off', !isPassword);
+        icon.classList.toggle('mdi-eye', isPassword);
+    }
 
     $('#provinsiSelect').on('change', function () {
         $.ajax({
@@ -859,8 +1100,8 @@
         formData.append('_token', "{{ csrf_token() }}");
 
         // Append all form data using the new IDs
-        formData.append('pic_lender', $("#namaPicLender").val()); // Changed from namaPicPerusahaan
-        formData.append('pic_internal', $("#namaPicInternal").val());
+        appendLenderPicFormData(formData, 'add_pic_lender', 'pic_lender');
+        appendLenderPicFormData(formData, 'add_pic_internal', 'pic_internal');
         formData.append('nama_lender', $("#namaLender").val()); // Changed from namaPerusahaan
         formData.append('email_lender', $("#emailLender").val()); // Changed from emailPerusahaan
         formData.append('telepon', $("#telepon").val());
@@ -945,8 +1186,8 @@
             type: 'POST',
             dataType: 'json',
             success: function (detail) {
-                $("#namaPicLenderEdit").val(detail.data.pic_lender);
-                $("#namaPicInternalEdit").val(detail.data.pic_internal);
+                fillLenderPicForm('edit_pic_lender', detail.data.pic_forms.pic_lender || { name: detail.data.pic_lender });
+                fillLenderPicForm('edit_pic_internal', detail.data.pic_forms.pic_internal || { name: detail.data.pic_internal });
                 $("#namaLenderEdit").val(detail.data.nama);
                 $("#emailLenderEdit").val(detail.data.email_lender);
                 $("#teleponEdit").val(detail.data.telp);
@@ -1000,8 +1241,8 @@
         formData.append('_token', "{{ csrf_token() }}");
         // Append all form data using the new IDs
         formData.append('id', editID); // Changed from namaPicPerusahaan
-        formData.append('pic_lender', $("#namaPicLenderEdit").val()); // Changed from namaPicPerusahaan
-        formData.append('pic_internal', $("#namaPicInternalEdit").val());
+        appendLenderPicFormData(formData, 'edit_pic_lender', 'pic_lender');
+        appendLenderPicFormData(formData, 'edit_pic_internal', 'pic_internal');
         formData.append('nama_lender', $("#namaLenderEdit").val()); // Changed from namaPerusahaan
         formData.append('email_lender', $("#emailLenderEdit").val()); // Changed from emailPerusahaan
         formData.append('telepon', $("#teleponEdit").val());

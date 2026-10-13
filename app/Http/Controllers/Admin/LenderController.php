@@ -10,6 +10,7 @@ use App\Http\Resources\Admin\Lender\DetailLenderResource;
 use App\Http\Resources\Admin\Lender\Invocing\InvoicingUpdateDetailResource;
 use App\Http\Resources\Admin\Lender\LenderDetailResource;
 use App\Http\Resources\Admin\Lender\LenderHistoryUpdateResource;
+use App\Models\Admin;
 use App\Models\bank;
 use App\Models\configurasi_lender;
 use App\Models\disbursement;
@@ -21,14 +22,18 @@ use App\Models\kota;
 use App\Models\lender;
 use App\Models\lender_update;
 use App\Models\pinjaman;
+use App\Models\Project;
 use App\Models\provinsi;
 use App\Models\rekening_pandu;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Yajra\DataTables\Facades\DataTables;
 
 class LenderController extends Controller
@@ -97,6 +102,7 @@ class LenderController extends Controller
         $lender->created_by = auth('admin')->user()->id;
 
         $lender->save();
+        $this->syncLenderPicAdmins($lender, $req);
 
         return response()->json([
             'status' => 200,
@@ -289,6 +295,7 @@ class LenderController extends Controller
         $lender->color = $req->colorLender;
         $lender->update_by = auth('admin')->user()->id;
         $lender->save();
+        $this->syncLenderPicAdmins($lender, $req);
 
         return response()->json([
             'status' => 200,
@@ -305,6 +312,147 @@ class LenderController extends Controller
             'status' => 200,
             'message' => 'Lender berhasil dihapus',
         ], 200);
+    }
+
+    private function syncLenderPicAdmins(lender $lender, Request $request): void
+    {
+        foreach ([
+            'pic_lender' => 'PIC Lender',
+            'pic_internal' => 'PIC HC / HRD',
+        ] as $prefix => $label) {
+            if (! $request->filled($prefix)) {
+                continue;
+            }
+
+            Admin::withoutEvents(function () use ($lender, $request, $prefix, $label) {
+                $admin = Admin::query()
+                    ->where('lender_id', $lender->id)
+                    ->where('username', $this->lenderPicUsername($prefix, $lender->id))
+                    ->first();
+
+                if (! $admin && $request->filled("{$prefix}_email")) {
+                    $admin = Admin::query()
+                        ->where('lender_id', $lender->id)
+                        ->where('email', $request->input("{$prefix}_email"))
+                        ->first();
+                }
+
+                $admin ??= new Admin();
+
+                foreach ($this->filterAdminColumns($this->lenderPicAdminPayload($lender, $request, $prefix, $label, $admin->exists)) as $field => $value) {
+                    $admin->{$field} = $value;
+                }
+
+                $admin->save();
+            });
+        }
+    }
+
+    private function lenderPicAdminPayload(lender $lender, Request $request, string $prefix, string $label, bool $exists): array
+    {
+        [$firstName, $lastName] = $this->splitAdminName($request->input($prefix, ''));
+
+        $payload = [
+            'project_id' => $this->lenderProjectId(),
+            'lender_id' => $lender->id,
+            'nik' => $request->input("{$prefix}_national_id_number"),
+            'first_name' => $firstName,
+            'last_name' => $lastName,
+            'birth_place' => $request->input("{$prefix}_birth_place"),
+            'birth_date' => $request->input("{$prefix}_birth_date"),
+            'gender' => $request->input("{$prefix}_gender"),
+            'blood_type' => $request->input("{$prefix}_blood_type"),
+            'address' => $request->input("{$prefix}_address"),
+            'rt' => $request->input("{$prefix}_rt"),
+            'rw' => $request->input("{$prefix}_rw"),
+            'wilayah_provinsi_net_id' => $request->input("{$prefix}_province_id"),
+            'wilayah_kabupaten_net_id' => $request->input("{$prefix}_city_id"),
+            'wilayah_kecamatan_net_id' => $request->input("{$prefix}_district_id"),
+            'wilayah_desa_net_id' => $request->input("{$prefix}_village_id"),
+            'postal_code' => $request->input("{$prefix}_postal_code"),
+            'religion' => $this->adminReligion($request->input("{$prefix}_religion")),
+            'marital_status' => $request->input("{$prefix}_marital_status"),
+            'occupation' => $request->input("{$prefix}_occupation") ?: $label,
+            'nationality' => $request->input("{$prefix}_nationality") ?: 'WNI',
+            'phone' => $request->input("{$prefix}_phone_number"),
+            'username' => $this->lenderPicUsername($prefix, $lender->id),
+            'email' => $request->input("{$prefix}_email") ?: $this->lenderPicFallbackEmail($prefix, $lender),
+        ];
+
+        if (Schema::hasColumn('admins', 'type')) {
+            $payload['type'] = 'pic';
+        }
+
+        if (Schema::hasColumn('admins', 'role')) {
+            $payload['role'] = 'pic';
+        }
+
+        if (Schema::hasColumn('admins', 'role_id')) {
+            $payload['role_id'] = $this->picRoleId($payload['project_id']);
+        }
+
+        if (! $exists || $request->filled("{$prefix}_password")) {
+            $payload['password'] = Hash::make(
+                $request->input("{$prefix}_password") ?: Str::random(16)
+            );
+        }
+
+        return $payload;
+    }
+
+    private function splitAdminName(string $name): array
+    {
+        $parts = preg_split('/\s+/', trim($name), 2);
+
+        return [$parts[0] ?? null, $parts[1] ?? null];
+    }
+
+    private function lenderPicUsername(string $prefix, int $lenderId): string
+    {
+        return $prefix . '_lender_' . $lenderId;
+    }
+
+    private function lenderPicFallbackEmail(string $prefix, lender $lender): string
+    {
+        return $prefix . '_lender_' . $lender->id . '@tomi.local';
+    }
+
+    private function lenderProjectId(): ?int
+    {
+        return Project::query()
+            ->where('code', 'lender')
+            ->orWhere('name', 'Lender')
+            ->value('id');
+    }
+
+    private function picRoleId(?int $projectId): ?int
+    {
+        if (! $projectId || ! class_exists(\App\Models\Role::class)) {
+            return null;
+        }
+
+        return \App\Models\Role::query()
+            ->where('project_id', $projectId)
+            ->whereRaw('LOWER(name) = ?', ['pic'])
+            ->value('id');
+    }
+
+    private function adminReligion(?string $religion): ?string
+    {
+        return match ($religion) {
+            'christian' => 'kristen',
+            'catholic' => 'katolik',
+            'buddhist' => 'buddha',
+            'confucian' => 'konghucu',
+            default => $religion,
+        };
+    }
+
+    private function filterAdminColumns(array $payload): array
+    {
+        $columns = Schema::getColumnListing('admins');
+
+        return array_intersect_key($payload, array_flip($columns));
     }
 
     public function approvalTableLender()
