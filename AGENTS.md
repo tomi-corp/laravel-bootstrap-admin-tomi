@@ -230,6 +230,18 @@ Get-ChildItem -Force .env*
 - Jangan tampilkan desimal kecuali kebutuhan bisnis secara eksplisit meminta desimal.
 - Setiap field password di UI harus menyediakan tombol lihat/sembunyikan password, tanpa menampilkan nilai password di log, tabel, screenshot, atau response publik.
 
+## Standar Form Identitas dan Dokumen
+
+- Setiap form data `users`, `karyawan`, `perusahaan`, dan `lender` mengikuti pola data identitas KTP selama konteks bisnisnya membutuhkan identitas personal atau penanggung jawab.
+- Data identitas KTP minimal mencakup NIK, nama, tempat lahir, tanggal lahir, gender, alamat KTP, provinsi, kota/kabupaten, kecamatan, kelurahan/desa, RT, RW, kode pos, agama, status perkawinan, pekerjaan, kewarganegaraan, telepon/WhatsApp, dan email.
+- Data rekening minimal mencakup bank, nomor rekening, nama pemilik rekening, dan file buku rekening/buku tabungan jika tersedia di alur tersebut.
+- Form `karyawan` wajib menyimpan data identitas KTP dan rekening karyawan secara konsisten dengan template import maupun form manual.
+- Form `perusahaan` wajib menyimpan data profil perusahaan, PIC, alamat, rekening perusahaan, dokumen buku rekening, dan logo perusahaan jika struktur data sudah tersedia.
+- Form `lender` wajib menyimpan data profil lender, PIC/pengurus, alamat, rekening lender, dokumen buku rekening, dan logo lender.
+- Untuk pengurus/PIC lender atau perusahaan, gunakan pola form identitas KTP seperti referral/pengurus lender agar field personal tidak berbeda-beda antar modul.
+- Jangan menambahkan field upload, kolom, atau tabel baru tanpa konfirmasi eksplisit jika struktur database belum tersedia. Jika kebutuhan logo, file KTP, atau buku rekening belum memiliki kolom, jelaskan kebutuhan migrasi terlebih dahulu.
+- File upload identitas hanya menerima format aman seperti `jpg`, `jpeg`, `png`, atau `pdf`, dengan validasi ukuran sesuai kebutuhan modul. Jangan menampilkan file identitas di log atau response publik.
+
 ## Cara Kerja Perubahan Iteratif
 
 - Perlakukan permintaan terbaru user sebagai arahan aktif.
