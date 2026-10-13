@@ -172,6 +172,8 @@ Modal dipakai untuk tambah/edit data yang masih ringkas. Jika form sudah memilik
 
 Aturan umum modal:
 
+- Jangan membuat modal yang terlalu besar atau memuat seluruh alur kompleks dalam satu layar.
+- Data utama yang sering dipindai harus berada di bagian atas modal; data pendukung seperti PIC, rekening, dokumen, dan konfigurasi dipisahkan ke area yang lebih ringkas atau modal kecil terpisah.
 - Gunakan ukuran modal sesuai kompleksitas form.
 - Body modal boleh scroll, footer tetap terlihat.
 - Tombol utama berada di footer.
@@ -427,6 +429,7 @@ Field nominal rupiah memakai input tampilan dan hidden input nilai asli.
 
 ## Aturan Layout
 
+- Hindari modal besar sebagai solusi default; jika form terasa panjang, pecah menjadi halaman detail, halaman konfigurasi, tabel ringkas, atau modal kecil khusus bagian tertentu.
 - Modal utama perusahaan dibatasi tinggi `calc(100vh - 3.5rem)`.
 - Body modal utama dibatasi tinggi `calc(100vh - 12rem)` dan dapat di-scroll.
 - Footer modal dibuat tetap terlihat dengan `flex-shrink: 0`.
