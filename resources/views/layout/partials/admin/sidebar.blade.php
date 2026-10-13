@@ -475,6 +475,43 @@
             ->values();
     }
 
+    if (filled($admin?->role_id)) {
+        $roleMenuPermissions = \Illuminate\Support\Facades\DB::table('role_menu_permissions')
+            ->whereNull('deleted_at')
+            ->where('role_id', $admin->role_id)
+            ->get();
+
+        if ($roleMenuPermissions->isNotEmpty()) {
+            $viewableMenuIds = $roleMenuPermissions
+                ->where('can_view', true)
+                ->pluck('menu_id')
+                ->all();
+
+            $viewableRoutes = \Illuminate\Support\Facades\DB::table('menus')
+                ->whereNull('deleted_at')
+                ->whereIn('id', $viewableMenuIds)
+                ->pluck('route')
+                ->filter()
+                ->all();
+
+            $menuAllowed = function ($menu) use (&$menuAllowed, $allMenus, $viewableMenuIds, $viewableRoutes) {
+                if (in_array($menu->id, $viewableMenuIds, true)) {
+                    return true;
+                }
+
+                if (filled($menu->route) && in_array($menu->route, $viewableRoutes, true)) {
+                    return true;
+                }
+
+                return $allMenus
+                    ->where('parent_id', $menu->id)
+                    ->contains(fn ($child) => $menuAllowed($child));
+            };
+
+            $allMenus = $allMenus->filter(fn ($menu) => $menuAllowed($menu))->values();
+        }
+    }
+
     $menusByParent = $allMenus->groupBy(fn ($menu) => $menu->parent_id ?: 0);
     $menusById = $allMenus->keyBy('id');
 

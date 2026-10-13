@@ -114,12 +114,14 @@ class AuthController extends Controller
 
     public function loginAction(Request $request)
     {
+        $remember = $request->boolean('remember');
+
         if (filter_var($request->identity, FILTER_VALIDATE_EMAIL)) {
             if (auth('admin')
                 ->attempt([
                     'email' => $request->identity,
                     'password' => $request->password
-                ], $request->remember === 'on' ? true : false)
+                ], $remember)
             ) {
                 $user = auth('admin')->user();
                 if (! blank($user->google2fa_secret)) {
@@ -135,7 +137,7 @@ class AuthController extends Controller
                 ->attempt([
                     'username' => $request->identity,
                     'password' => $request->password
-                ], $request->remember === 'on' ? true : false)
+                ], $remember)
             ) {
                 $user = auth('admin')->user();
                 if (! blank($user->google2fa_secret)) {

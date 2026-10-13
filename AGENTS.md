@@ -228,6 +228,7 @@ Get-ChildItem -Force .env*
 - Rupiah memakai format `Rp. 1.000.000.000`.
 - Angka biasa memakai format `1.000.000.000`.
 - Jangan tampilkan desimal kecuali kebutuhan bisnis secara eksplisit meminta desimal.
+- Setiap field password di UI harus menyediakan tombol lihat/sembunyikan password, tanpa menampilkan nilai password di log, tabel, screenshot, atau response publik.
 
 ## Cara Kerja Perubahan Iteratif
 

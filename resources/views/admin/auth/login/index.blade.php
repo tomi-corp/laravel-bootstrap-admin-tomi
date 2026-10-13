@@ -19,7 +19,7 @@
                                 <div class="form-group mb-3">
                                     <label for="username">Username or Email</label>
                                     <input class="form-control" type="text" id="username" name="identity" required=""
-                                        placeholder="Username or Email">
+                                        placeholder="Username or Email" value="{{ old('identity') }}">
                                 </div>
 
                                 <div class="form-group mb-3">
@@ -32,7 +32,8 @@
 
 
                                 <div class="custom-control custom-checkbox mb-3">
-                                    <input type="checkbox" class="custom-control-input" name="remember" id="remember">
+                                    <input type="checkbox" class="custom-control-input" name="remember" id="remember"
+                                        value="1" {{ old('remember') ? 'checked' : '' }}>
                                     <label class="custom-control-label" for="remember">Remember me</label>
                                 </div>
 
