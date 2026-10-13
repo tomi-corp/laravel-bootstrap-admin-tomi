@@ -7,6 +7,14 @@ use Illuminate\Validation\Rule;
 
 class CompanyRequest extends FormRequest
 {
+    private const REFERRAL_PREFIXES = [
+        'tomi_dana',
+        'tomi_dana_plus',
+        'tomi_gawai',
+        'tomi_gaji',
+        'tomi_invoice',
+    ];
+
     public function authorize(): bool
     {
         return true;
@@ -56,5 +64,22 @@ class CompanyRequest extends FormRequest
             'active_tanggal' => ['required', 'integer', 'min:0', 'max:31'],
             'max_plafon' => ['nullable', 'numeric', 'min:0'],
         ];
+    }
+
+    public function withValidator($validator): void
+    {
+        $validator->after(function ($validator) {
+            foreach (self::REFERRAL_PREFIXES as $prefix) {
+                $first = $this->input("{$prefix}_referral_1_id");
+                $second = $this->input("{$prefix}_referral_2_id");
+
+                if ($first && $second && (string) $first === (string) $second) {
+                    $validator->errors()->add(
+                        "{$prefix}_referral_2_id",
+                        'Refferal 2 harus berbeda dari Refferal 1.'
+                    );
+                }
+            }
+        });
     }
 }

@@ -59,6 +59,12 @@
         border-top: 1px solid #dee2e6;
         background-color: #fff;
     }
+
+    .referral-form-actions {
+        align-items: center;
+        display: flex;
+        gap: .5rem;
+    }
 </style>
 @endpush
 
@@ -277,10 +283,13 @@
                                         </div>
                                         <div class="col-md-6 form-group">
                                             <label>Referral</label>
-                                            <select class="form-control" name="active_profesional_fee" id="active_profesional_fee">
-                                                <option value="active">Active</option>
-                                                <option value="nonactive">Nonactive</option>
-                                            </select>
+                                            <input type="hidden" name="active_profesional_fee" id="active_profesional_fee" value="active">
+                                            <div class="referral-form-actions">
+                                                <button type="button" class="btn btn-sm btn-outline-primary add-referral-button" data-prefix="tomi_dana">
+                                                    <i class="fa-solid fa-plus"></i> Tambah Refferal
+                                                </button>
+                                                <small class="text-muted">Maksimal 2 refferal</small>
+                                            </div>
                                             <small class="text-danger error-active_profesional_fee"></small>
                                         </div>
                                         <div class="col-md-6 form-group">
@@ -306,7 +315,7 @@
                                             <input class="form-control" name="h_min_jatuh_tempo" id="h_min_jatuh_tempo" type="number" min="0" max="31">
                                             <small class="text-danger error-h_min_jatuh_tempo"></small>
                                         </div>
-                                        <div class="col-md-6 form-group tomi-dana-referral-field">
+                                        <div class="col-md-6 form-group tomi-dana-referral-field feature-referral-slot d-none" data-prefix="tomi_dana" data-index="1">
                                             <label>Refferal 1</label>
                                             <select class="form-control feature-referral-select" name="tomi_dana_referral_1_id" id="tomi_dana_referral_1_id">
                                                 <option value="">Pilih Refferal 1</option>
@@ -318,7 +327,7 @@
                                             </select>
                                             <small class="text-danger error-tomi_dana_referral_1_id"></small>
                                         </div>
-                                        <div class="col-md-6 form-group tomi-dana-referral-field">
+                                        <div class="col-md-6 form-group tomi-dana-referral-field feature-referral-slot d-none" data-prefix="tomi_dana" data-index="2">
                                             <label>Refferal 2</label>
                                             <select class="form-control feature-referral-select" name="tomi_dana_referral_2_id" id="tomi_dana_referral_2_id">
                                                 <option value="">Pilih Refferal 2</option>
@@ -373,10 +382,12 @@
                                         </div>
                                         <div class="col-md-6 form-group">
                                             <label>Referral</label>
-                                            <select class="form-control" id="tomi_dana_plus_referral">
-                                                <option value="active">Active</option>
-                                                <option value="nonactive">Nonactive</option>
-                                            </select>
+                                            <div class="referral-form-actions">
+                                                <button type="button" class="btn btn-sm btn-outline-primary add-referral-button" data-prefix="tomi_dana_plus">
+                                                    <i class="fa-solid fa-plus"></i> Tambah Refferal
+                                                </button>
+                                                <small class="text-muted">Maksimal 2 refferal</small>
+                                            </div>
                                         </div>
                                         <div class="col-md-6 form-group">
                                             <label>Set Pinjaman</label>
@@ -397,7 +408,7 @@
                                             <label>H-Min Jatuh Tempo</label>
                                             <input class="form-control" id="tomi_dana_plus_h_min_jatuh_tempo" type="number" min="0" max="31">
                                         </div>
-                                        <div class="col-md-6 form-group tomi-dana-plus-referral-field">
+                                        <div class="col-md-6 form-group tomi-dana-plus-referral-field feature-referral-slot d-none" data-prefix="tomi_dana_plus" data-index="1">
                                             <label>Refferal 1</label>
                                             <select class="form-control feature-referral-select" name="tomi_dana_plus_referral_1_id" id="tomi_dana_plus_referral_1_id">
                                                 <option value="">Pilih Refferal 1</option>
@@ -409,7 +420,7 @@
                                             </select>
                                             <small class="text-danger error-tomi_dana_plus_referral_1_id"></small>
                                         </div>
-                                        <div class="col-md-6 form-group tomi-dana-plus-referral-field">
+                                        <div class="col-md-6 form-group tomi-dana-plus-referral-field feature-referral-slot d-none" data-prefix="tomi_dana_plus" data-index="2">
                                             <label>Refferal 2</label>
                                             <select class="form-control feature-referral-select" name="tomi_dana_plus_referral_2_id" id="tomi_dana_plus_referral_2_id">
                                                 <option value="">Pilih Refferal 2</option>
@@ -427,12 +438,14 @@
                                     <div class="row">
                                         <div class="col-md-6 form-group">
                                             <label>Referral</label>
-                                            <select class="form-control feature-referral-toggle" id="tomi_gawai_referral">
-                                                <option value="active">Active</option>
-                                                <option value="nonactive">Nonactive</option>
-                                            </select>
+                                            <div class="referral-form-actions">
+                                                <button type="button" class="btn btn-sm btn-outline-primary add-referral-button" data-prefix="tomi_gawai">
+                                                    <i class="fa-solid fa-plus"></i> Tambah Refferal
+                                                </button>
+                                                <small class="text-muted">Maksimal 2 refferal</small>
+                                            </div>
                                         </div>
-                                        <div class="col-md-6 form-group tomi-gawai-referral-field">
+                                        <div class="col-md-6 form-group tomi-gawai-referral-field feature-referral-slot d-none" data-prefix="tomi_gawai" data-index="1">
                                             <label>Refferal 1</label>
                                             <select class="form-control feature-referral-select" name="tomi_gawai_referral_1_id" id="tomi_gawai_referral_1_id">
                                                 <option value="">Pilih Refferal 1</option>
@@ -444,7 +457,7 @@
                                             </select>
                                             <small class="text-danger error-tomi_gawai_referral_1_id"></small>
                                         </div>
-                                        <div class="col-md-6 form-group tomi-gawai-referral-field">
+                                        <div class="col-md-6 form-group tomi-gawai-referral-field feature-referral-slot d-none" data-prefix="tomi_gawai" data-index="2">
                                             <label>Refferal 2</label>
                                             <select class="form-control feature-referral-select" name="tomi_gawai_referral_2_id" id="tomi_gawai_referral_2_id">
                                                 <option value="">Pilih Refferal 2</option>
@@ -468,12 +481,14 @@
                                         </div>
                                         <div class="col-md-6 form-group">
                                             <label>Referral</label>
-                                            <select class="form-control feature-referral-toggle" id="tomi_gaji_referral">
-                                                <option value="active">Active</option>
-                                                <option value="nonactive">Nonactive</option>
-                                            </select>
+                                            <div class="referral-form-actions">
+                                                <button type="button" class="btn btn-sm btn-outline-primary add-referral-button" data-prefix="tomi_gaji">
+                                                    <i class="fa-solid fa-plus"></i> Tambah Refferal
+                                                </button>
+                                                <small class="text-muted">Maksimal 2 refferal</small>
+                                            </div>
                                         </div>
-                                        <div class="col-md-6 form-group tomi-gaji-referral-field">
+                                        <div class="col-md-6 form-group tomi-gaji-referral-field feature-referral-slot d-none" data-prefix="tomi_gaji" data-index="1">
                                             <label>Refferal 1</label>
                                             <select class="form-control feature-referral-select" name="tomi_gaji_referral_1_id" id="tomi_gaji_referral_1_id">
                                                 <option value="">Pilih Refferal 1</option>
@@ -485,7 +500,7 @@
                                             </select>
                                             <small class="text-danger error-tomi_gaji_referral_1_id"></small>
                                         </div>
-                                        <div class="col-md-6 form-group tomi-gaji-referral-field">
+                                        <div class="col-md-6 form-group tomi-gaji-referral-field feature-referral-slot d-none" data-prefix="tomi_gaji" data-index="2">
                                             <label>Refferal 2</label>
                                             <select class="form-control feature-referral-select" name="tomi_gaji_referral_2_id" id="tomi_gaji_referral_2_id">
                                                 <option value="">Pilih Refferal 2</option>
@@ -507,12 +522,14 @@
                                         </div>
                                         <div class="col-md-6 form-group">
                                             <label>Referral</label>
-                                            <select class="form-control feature-referral-toggle" id="tomi_invoice_referral">
-                                                <option value="active">Active</option>
-                                                <option value="nonactive">Nonactive</option>
-                                            </select>
+                                            <div class="referral-form-actions">
+                                                <button type="button" class="btn btn-sm btn-outline-primary add-referral-button" data-prefix="tomi_invoice">
+                                                    <i class="fa-solid fa-plus"></i> Tambah Refferal
+                                                </button>
+                                                <small class="text-muted">Maksimal 2 refferal</small>
+                                            </div>
                                         </div>
-                                        <div class="col-md-6 form-group tomi-invoice-referral-field">
+                                        <div class="col-md-6 form-group tomi-invoice-referral-field feature-referral-slot d-none" data-prefix="tomi_invoice" data-index="1">
                                             <label>Refferal 1</label>
                                             <select class="form-control feature-referral-select" name="tomi_invoice_referral_1_id" id="tomi_invoice_referral_1_id">
                                                 <option value="">Pilih Refferal 1</option>
@@ -524,7 +541,7 @@
                                             </select>
                                             <small class="text-danger error-tomi_invoice_referral_1_id"></small>
                                         </div>
-                                        <div class="col-md-6 form-group tomi-invoice-referral-field">
+                                        <div class="col-md-6 form-group tomi-invoice-referral-field feature-referral-slot d-none" data-prefix="tomi_invoice" data-index="2">
                                             <label>Refferal 2</label>
                                             <select class="form-control feature-referral-select" name="tomi_invoice_referral_2_id" id="tomi_invoice_referral_2_id">
                                                 <option value="">Pilih Refferal 2</option>
@@ -743,7 +760,7 @@
         $('#id_lender, #id_provinsi, #bank, .feature-referral-select').val('').trigger('change');
         $('#id_kabupaten, #id_kecamatan, #id_desa').empty().trigger('change');
         $('#status, #active_profesional_fee, #active_set_pinjaman').val('active');
-        $('#tomi_dana_plus_status, #tomi_dana_plus_referral, #tomi_dana_plus_set_pinjaman, #tomi_gawai_referral, #tomi_gaji_referral, #tomi_invoice_referral').val('active');
+        $('#tomi_dana_plus_status, #tomi_dana_plus_set_pinjaman').val('active');
         $('#payment_date').val(25);
         $('#h_min_jatuh_tempo').val(9);
         $('#active_tanggal').val(1);
@@ -752,7 +769,7 @@
         $('#tomi_dana_plus_h_min_jatuh_tempo').val(9);
         setRupiahField('#max_plafon_view', '#max_plafon', '');
         setRupiahField('#tomi_invoice_max_plafon', null, '');
-        syncAllFeatureReferralFields();
+        resetAllReferralForms();
         toggleTomiDanaConfiguration();
         $('#tomi-dana-tab').tab('show');
         $('#companyModalTitle').text('Tambah Perusahaan');
@@ -778,7 +795,7 @@
 
             setRupiahField('#max_plafon_view', '#max_plafon', company.max_plafon);
             syncFeaturePreviewFields(company);
-            syncAllFeatureReferralFields();
+            hydrateAllReferralForms(company);
             toggleTomiDanaConfiguration();
             isHydratingForm = false;
             $('#tomi-dana-tab').tab('show');
@@ -788,7 +805,6 @@
 
     function syncFeaturePreviewFields(company) {
         $('#tomi_dana_plus_status').val(company.status || 'active');
-        $('#tomi_dana_plus_referral').val(company.active_profesional_fee || 'active');
         $('#tomi_dana_plus_set_pinjaman').val(company.active_set_pinjaman || 'active');
         $('#tomi_dana_plus_active_tanggal').val(company.active_tanggal || 1);
         $('#tomi_dana_plus_payment_date').val(company.payment_date || 25);
@@ -798,30 +814,82 @@
 
     function toggleTomiDanaReferralFields() {
         var isActive = $('#active_profesional_fee').val() === 'active';
-        $('.tomi-dana-referral-field').toggleClass('d-none', !isActive);
+        $('.feature-referral-slot[data-prefix="tomi_dana"]').toggleClass('d-none', !isActive);
 
         if (!isActive) {
             $('#tomi_dana_referral_1_id, #tomi_dana_referral_2_id').val('').trigger('change');
         }
 
+        updateReferralButton('tomi_dana');
         syncTenorReferralConfigFields();
     }
 
-    function toggleFeatureReferralFields(toggleSelector, fieldSelector, selectSelector) {
-        var isActive = $(toggleSelector).val() === 'active';
-        $(fieldSelector).toggleClass('d-none', !isActive);
-
-        if (!isActive) {
-            $(selectSelector).val('').trigger('change');
-        }
+    function referralSelect(prefix, index) {
+        return $('#' + prefix + '_referral_' + index + '_id');
     }
 
-    function syncAllFeatureReferralFields() {
-        toggleTomiDanaReferralFields();
-        toggleFeatureReferralFields('#tomi_dana_plus_referral', '.tomi-dana-plus-referral-field', '#tomi_dana_plus_referral_1_id, #tomi_dana_plus_referral_2_id');
-        toggleFeatureReferralFields('#tomi_gawai_referral', '.tomi-gawai-referral-field', '#tomi_gawai_referral_1_id, #tomi_gawai_referral_2_id');
-        toggleFeatureReferralFields('#tomi_gaji_referral', '.tomi-gaji-referral-field', '#tomi_gaji_referral_1_id, #tomi_gaji_referral_2_id');
-        toggleFeatureReferralFields('#tomi_invoice_referral', '.tomi-invoice-referral-field', '#tomi_invoice_referral_1_id, #tomi_invoice_referral_2_id');
+    function visibleReferralCount(prefix) {
+        return $('.feature-referral-slot[data-prefix="' + prefix + '"]:not(.d-none)').length;
+    }
+
+    function updateReferralButton(prefix) {
+        $('.add-referral-button[data-prefix="' + prefix + '"]').prop('disabled', visibleReferralCount(prefix) >= 2);
+    }
+
+    function showReferralSlot(prefix, index) {
+        $('.feature-referral-slot[data-prefix="' + prefix + '"][data-index="' + index + '"]').removeClass('d-none');
+        updateReferralButton(prefix);
+    }
+
+    function addReferralSlot(prefix) {
+        var count = visibleReferralCount(prefix);
+
+        if (count >= 2) {
+            return;
+        }
+
+        if (prefix === 'tomi_dana') {
+            $('#active_profesional_fee').val('active');
+            syncTenorReferralConfigFields();
+        }
+
+        showReferralSlot(prefix, count + 1);
+    }
+
+    function resetReferralForm(prefix) {
+        referralSelect(prefix, 1).val('').trigger('change');
+        referralSelect(prefix, 2).val('').trigger('change');
+        $('.feature-referral-slot[data-prefix="' + prefix + '"]').addClass('d-none');
+        updateReferralButton(prefix);
+    }
+
+    function hydrateReferralForm(prefix, company) {
+        resetReferralForm(prefix);
+
+        [1, 2].forEach(function (index) {
+            var key = prefix + '_referral_' + index + '_id';
+            if (company[key]) {
+                showReferralSlot(prefix, index);
+                referralSelect(prefix, index).val(company[key]).trigger('change');
+            }
+        });
+    }
+
+    function resetAllReferralForms() {
+        ['tomi_dana', 'tomi_dana_plus', 'tomi_gawai', 'tomi_gaji', 'tomi_invoice'].forEach(resetReferralForm);
+        $('#active_profesional_fee').val('active');
+        syncTenorReferralConfigFields();
+    }
+
+    function hydrateAllReferralForms(company) {
+        ['tomi_dana', 'tomi_dana_plus', 'tomi_gawai', 'tomi_gaji', 'tomi_invoice'].forEach(function (prefix) {
+            hydrateReferralForm(prefix, company);
+        });
+
+        $('#active_profesional_fee').val(
+            company.active_profesional_fee === 'nonactive' && !visibleReferralCount('tomi_dana') ? 'nonactive' : 'active'
+        );
+        syncTenorReferralConfigFields();
     }
 
     function toggleTomiDanaConfiguration() {
@@ -956,8 +1024,9 @@
         initCompanyTenorTable();
     }
 
-    $('#active_profesional_fee').on('change', toggleTomiDanaReferralFields);
-    $('#tomi_dana_plus_referral, #tomi_gawai_referral, #tomi_gaji_referral, #tomi_invoice_referral').on('change', syncAllFeatureReferralFields);
+    $(document).on('click', '.add-referral-button', function () {
+        addReferralSlot($(this).data('prefix'));
+    });
 
     $('#tenorConfigModal').on('show.bs.modal', function () {
         $(this).appendTo('body');
