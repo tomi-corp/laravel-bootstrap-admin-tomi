@@ -15,6 +15,30 @@ class CompanyRequest extends FormRequest
         'tomi_invoice',
     ];
 
+    private const REFERRAL_FORM_RULES = [
+        'birth_place' => ['nullable', 'string', 'max:100'],
+        'birth_date' => ['nullable', 'date'],
+        'gender' => ['nullable'],
+        'blood_type' => ['nullable'],
+        'address' => ['nullable', 'string'],
+        'rt' => ['nullable', 'string', 'max:3'],
+        'rw' => ['nullable', 'string', 'max:3'],
+        'province_id' => ['nullable', 'integer', 'exists:wilayah_provinsi_net,id'],
+        'city_id' => ['nullable', 'integer', 'exists:wilayah_kabupaten_net,id'],
+        'district_id' => ['nullable', 'integer', 'exists:wilayah_kecamatan_net,id'],
+        'village_id' => ['nullable', 'integer', 'exists:wilayah_desa_net,id'],
+        'postal_code' => ['nullable', 'string', 'max:10'],
+        'religion' => ['nullable'],
+        'marital_status' => ['nullable'],
+        'occupation' => ['nullable', 'string', 'max:100'],
+        'nationality' => ['nullable', 'string', 'max:50'],
+        'bank_id' => ['nullable', 'exists:banks,id'],
+        'bank_account_number' => ['nullable', 'string', 'max:100'],
+        'bank_account_name' => ['nullable', 'string', 'max:255'],
+        'is_active' => ['nullable', 'boolean'],
+        'notes' => ['nullable', 'string'],
+    ];
+
     public function authorize(): bool
     {
         return true;
@@ -24,7 +48,7 @@ class CompanyRequest extends FormRequest
     {
         $companyId = $this->route('company')?->id;
 
-        return [
+        $rules = [
             'id_lender' => ['nullable', 'exists:lenders,id'],
             'pic_perusahaan' => ['required', 'string', 'max:255'],
             'pic_internal' => ['required', 'string', 'max:255'],
@@ -64,6 +88,25 @@ class CompanyRequest extends FormRequest
             'active_tanggal' => ['required', 'integer', 'min:0', 'max:31'],
             'max_plafon' => ['nullable', 'numeric', 'min:0'],
         ];
+
+        foreach (self::REFERRAL_PREFIXES as $prefix) {
+            foreach ([1, 2] as $index) {
+                $rules["{$prefix}_referral_{$index}_name"] = ['nullable', 'string', 'max:255'];
+                $rules["{$prefix}_referral_{$index}_national_id_number"] = [
+                    "required_with:{$prefix}_referral_{$index}_name",
+                    'nullable',
+                    'digits:16',
+                ];
+                $rules["{$prefix}_referral_{$index}_phone_number"] = ['nullable', 'string', 'max:30'];
+                $rules["{$prefix}_referral_{$index}_email"] = ['nullable', 'email', 'max:255'];
+
+                foreach (self::REFERRAL_FORM_RULES as $field => $fieldRules) {
+                    $rules["{$prefix}_referral_{$index}_{$field}"] = $fieldRules;
+                }
+            }
+        }
+
+        return $rules;
     }
 
     public function withValidator($validator): void

@@ -18,19 +18,19 @@
 
     @foreach ([
     ['tenor', 'Tenor (bulan)', 'number', '1', '1'],
-    ['rate', 'Rate', 'number', '0.01', '0'],
-    ['asuransi', 'Asuransi', 'number', '0.01', '0'],
-    ['provisi', 'Provisi', 'number', '0.01', '0'],
-    ['biaya_admin', 'Biaya Admin', 'number', '0.01', '0'],
-    ['fee_tomi', 'Fee TOMI', 'number', '0.01', '0'],
+    ['rate', 'Biaya Bunga', 'number', '0.01', '0'],
+    ['asuransi', 'Biaya Asuransi', 'number', '0.01', '0'],
+    ['provisi', 'Biaya Provisi', 'number', '0.01', '0'],
     ['biaya_layanan', 'Biaya Layanan', 'number', '1', '0'],
+    ['biaya_admin', 'Biaya Admin', 'number', '0.01', '0'],
+    ['ksp', 'Lender', 'number', '0.01', '0'],
+    ['fee_tomi', 'Tomi', 'number', '0.01', '0'],
+    ['profesional_fee_1', 'Ref 1', 'number', '0.01', '0'],
+    ['profesional_fee_2', 'Ref 2', 'number', '0.01', '0'],
+    ['maximal_nominal', 'Maximal Nominal', 'number', '1', '0'],
     ['minimal_nominal', 'Minimal Nominal', 'number', '1', '0'],
-    ['maximal_nominal', 'Maksimal Nominal', 'number', '1', '0'],
-    ['profesional_fee_1', 'Refferal 1', 'number', '0.01', '0'],
-    ['profesional_fee_2', 'Refferal 2', 'number', '0.01', '0'],
-    ['ksp', 'KSP', 'number', '0.01', '0'],
     ] as [$field, $label, $type, $step, $min])
-    <div>
+    <div @class(['md:col-span-2' => ! in_array($field, ['maximal_nominal', 'minimal_nominal'], true)])>
         <label class="mb-1 block text-sm font-medium text-slate-900">{{ $label }}</label>
         @php
         $isCurrency = in_array($field, ['biaya_layanan', 'minimal_nominal', 'maximal_nominal'], true);

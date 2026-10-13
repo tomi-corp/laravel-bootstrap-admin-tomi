@@ -98,18 +98,17 @@
                     <thead>
                         <tr>
                             <th>Tenor</th>
-                            <th>Rate</th>
-                            <th>Asuransi</th>
-                            <th>Provisi</th>
-                            <th>Biaya Admin</th>
-                            <th>Fee Tomi</th>
-                            <th>Referal 1</th>
-                            <th>Referal 2</th>
-                            <th>KSP</th>
-                            <th>Iuran Anggota</th>
+                            <th>Biaya Bunga</th>
+                            <th>Biaya Asuransi</th>
+                            <th>Biaya Provisi</th>
                             <th>Biaya Layanan</th>
-                            <th>Minimal Nominal</th>
+                            <th>Biaya Admin</th>
+                            <th>Lender</th>
+                            <th>Tomi</th>
+                            <th>Ref 1</th>
+                            <th>Ref 2</th>
                             <th>Maximal Nominal</th>
+                            <th>Minimal Nominal</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -143,7 +142,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Rate</label>
+                    <label>Biaya Bunga</label>
                     <div class="input-group"> <input class="form-control" id="rate" placeholder="Rate" type="number">
                         <span class="input-group-text">%</span>
                     </div>
@@ -169,34 +168,11 @@
                 </div>
 
 
-                @if ($list_perusahaan->active_profesional_fee == 'active')
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label>Referal 1</label>
-                            <input type="number" step="0.01" class="form-control hitung-admin" id="profesional_fee_1"
-                                placeholder="0.00">
-                        </div>
-                        <small class="text-danger" id="errProfesional_fee_1"></small>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label>Referal 2</label>
-                            <input type="number" step="0.01" class="form-control hitung-admin" id="profesional_fee_2"
-                                placeholder="0.00">
-                        </div>
-                        <small class="text-danger" id="errProfesional_fee_2"></small>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label>KSP</label>
-                            <input type="number" step="0.01" class="form-control hitung-admin" id="ksp"
-                                placeholder="0.00">
-                        </div>
-                        <small class="text-danger" id="errKsp"></small>
-                    </div>
+                <div class="form-group">
+                    <label>Biaya Layanan</label>
+                    <input class="form-control rupiah-input" id="biayalayanan" placeholder="Biaya Layanan" type="text"
+                        data-original-value="0"> <small class="text-danger" id="errBiayalayanan"></small>
                 </div>
-                @endif
 
                 <div class="form-group">
                     <label>Biaya Admin</label>
@@ -208,37 +184,67 @@
                     <small class="text-danger" id="errBiayaAdmin"></small>
                 </div>
 
+                @if ($list_perusahaan->active_profesional_fee == 'active')
+                <div class="row">
+                    <div class="col-12">
+                        <div class="form-group">
+                            <label>Lender</label>
+                            <input type="number" step="0.01" class="form-control hitung-admin" id="ksp"
+                                placeholder="0.00">
+                        </div>
+                        <small class="text-danger" id="errKsp"></small>
+                    </div>
+                    <div class="col-12">
+                        <div class="form-group">
+                            <label>Tomi</label>
+                            <input class="form-control" id="feeTomi" placeholder="Tomi"
+                                type="number">
+                        </div>
+                        <small class="text-danger" id="errfeeTomi"></small>
+                    </div>
+                    <div class="col-12">
+                        <div class="form-group">
+                            <label>Ref 1</label>
+                            <input type="number" step="0.01" class="form-control hitung-admin" id="profesional_fee_1"
+                                placeholder="0.00">
+                        </div>
+                        <small class="text-danger" id="errProfesional_fee_1"></small>
+                    </div>
+                    <div class="col-12">
+                        <div class="form-group">
+                            <label>Ref 2</label>
+                            <input type="number" step="0.01" class="form-control hitung-admin" id="profesional_fee_2"
+                                placeholder="0.00">
+                        </div>
+                        <small class="text-danger" id="errProfesional_fee_2"></small>
+                    </div>
+                </div>
+                @else
                 <div class="form-group">
-                    <label>Fee Tomi</label>
-                    <div class="input-group"> <input class="form-control" id="feeTomi" placeholder="Fee Tomi"
+                    <label>Tomi</label>
+                    <div class="input-group"> <input class="form-control" id="feeTomi" placeholder="Tomi"
                             type="number">
                         <span class="input-group-text">%</span>
                     </div>
                     <small class="text-danger" id="errfeeTomi"></small>
                 </div>
-
-
-                <div class="form-group">
-                    <label>Biaya Layanan</label>
-                    <input class="form-control rupiah-input" id="biayalayanan" placeholder="Biaya Layanan" type="text"
-                        data-original-value="0"> <small class="text-danger" id="errBiayalayanan"></small>
-                </div>
+                @endif
 
                 <div class="row">
-                    <div class="col-6">
-                        <div class="form-group">
-                            <label>Minimal Nominal</label>
-                            <input class="form-control rupiah-input" id="minimalNominalTenor"
-                                placeholder="Minimal Nominal Tenor" type="text" data-original-value="0">
-                            <small class="text-danger" id="errMinimalNominalTenor"></small>
-                        </div>
-                    </div>
                     <div class="col-6">
                         <div class="form-group">
                             <label>Maximal Nominal</label>
                             <input class="form-control rupiah-input" id="maximalNominalTenor"
                                 placeholder="Maximal Nominal Tenor" type="text" data-original-value="0">
                             <small class="text-danger" id="errMaximalNominalTenor"></small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-group">
+                            <label>Minimal Nominal</label>
+                            <input class="form-control rupiah-input" id="minimalNominalTenor"
+                                placeholder="Minimal Nominal Tenor" type="text" data-original-value="0">
+                            <small class="text-danger" id="errMinimalNominalTenor"></small>
                         </div>
                     </div>
                 </div>
@@ -283,54 +289,13 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Rate</label>
+                    <label>Biaya Bunga</label>
                     <div class="input-group"> <input class="form-control" id="rateEdit" placeholder="Rate"
                             type="number">
                         <span class="input-group-text">%</span>
                     </div>
                     <small class="text-danger" id="errRateEdit"></small>
                 </div>
-
-
-                @if ($list_perusahaan->active_profesional_fee == 'active')
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label>Referal 1</label>
-                            <input type="number" step="0.01" class="form-control hitung-adminEdit"
-                                id="profesional_fee_1Edit" placeholder="0.00">
-                        </div>
-                        <small class="text-danger" id="errEditProfesional_fee_1Edit"></small>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label>Referal 2</label>
-                            <input type="number" step="0.01" class="form-control hitung-adminEdit"
-                                id="profesional_fee_2Edit" placeholder="0.00">
-                        </div>
-                        <small class="text-danger" id="errEditProfesional_fee_2Edit"></small>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label>KSP</label>
-                            <input type="number" step="0.01" class="form-control hitung-adminEdit" id="kspEdit"
-                                placeholder="0.00">
-                        </div>
-                        <small class="text-danger" id="errKspEdit"></small>
-                    </div>
-                </div>
-                @endif
-
-                <div class="form-group">
-                    <label>Biaya Admin</label>
-                    <div class="input-group">
-                        <input class="form-control" id="biayaadminEdit" placeholder="Biaya Admin" type="number"
-                            step="0.01" {{ $list_perusahaan->active_profesional_fee == 'active' ? 'readonly' : '' }}>
-                        <span class="input-group-text">%</span>
-                    </div>
-                    <small class="text-danger" id="errBiayaAdminEdit"></small>
-                </div>
-
 
 
                 <div class="form-group">
@@ -352,37 +317,83 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Fee Tomi</label>
-                    <div class="input-group"> <input class="form-control" id="feeTomiEdit" placeholder="Fee Tomi"
-                            type="number">
-                        <span class="input-group-text">%</span>
-                    </div>
-                    <small class="text-danger" id="errfeeTomiEdit"></small>
-                </div>
-
-                <div class="form-group">
                     <label>Biaya Layanan</label>
                     <input class="form-control rupiah-input-edit" id="biayalayananEdit" placeholder="Biaya Layanan"
                         type="text" data-original-value="0">
                     <small class="text-danger" id="errBiayaLayananEdit"></small>
                 </div>
 
+                <div class="form-group">
+                    <label>Biaya Admin</label>
+                    <div class="input-group">
+                        <input class="form-control" id="biayaadminEdit" placeholder="Biaya Admin" type="number"
+                            step="0.01" {{ $list_perusahaan->active_profesional_fee == 'active' ? 'readonly' : '' }}>
+                        <span class="input-group-text">%</span>
+                    </div>
+                    <small class="text-danger" id="errBiayaAdminEdit"></small>
+                </div>
+
+                @if ($list_perusahaan->active_profesional_fee == 'active')
+                <div class="row">
+                    <div class="col-12">
+                        <div class="form-group">
+                            <label>Lender</label>
+                            <input type="number" step="0.01" class="form-control hitung-adminEdit" id="kspEdit"
+                                placeholder="0.00">
+                        </div>
+                        <small class="text-danger" id="errKspEdit"></small>
+                    </div>
+                    <div class="col-12">
+                        <div class="form-group">
+                            <label>Tomi</label>
+                            <input class="form-control" id="feeTomiEdit" placeholder="Tomi"
+                                type="number">
+                        </div>
+                        <small class="text-danger" id="errfeeTomiEdit"></small>
+                    </div>
+                    <div class="col-12">
+                        <div class="form-group">
+                            <label>Ref 1</label>
+                            <input type="number" step="0.01" class="form-control hitung-adminEdit"
+                                id="profesional_fee_1Edit" placeholder="0.00">
+                        </div>
+                        <small class="text-danger" id="errEditProfesional_fee_1Edit"></small>
+                    </div>
+                    <div class="col-12">
+                        <div class="form-group">
+                            <label>Ref 2</label>
+                            <input type="number" step="0.01" class="form-control hitung-adminEdit"
+                                id="profesional_fee_2Edit" placeholder="0.00">
+                        </div>
+                        <small class="text-danger" id="errEditProfesional_fee_2Edit"></small>
+                    </div>
+                </div>
+                @else
+                <div class="form-group">
+                    <label>Tomi</label>
+                    <div class="input-group"> <input class="form-control" id="feeTomiEdit" placeholder="Tomi"
+                            type="number">
+                        <span class="input-group-text">%</span>
+                    </div>
+                    <small class="text-danger" id="errfeeTomiEdit"></small>
+                </div>
+                @endif
 
                 <div class="row">
-                    <div class="col-6">
-                        <div class="form-group">
-                            <label>Minimal Nominal</label>
-                            <input class="form-control rupiah-input-edit" id="minimalNominalTenorEdit"
-                                placeholder="Minimal Nominal Tenor" type="text" data-original-value="0">
-                            <small class="text-danger" id="errMinimalNominalTenorEdit"></small>
-                        </div>
-                    </div>
                     <div class="col-6">
                         <div class="form-group">
                             <label>Maximal Nominal</label>
                             <input class="form-control rupiah-input-edit" id="maximalNominalTenorEdit"
                                 placeholder="Maximal Nominal Tenor" type="text" data-original-value="0">
                             <small class="text-danger" id="errMaximalNominalTenorEdit"></small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-group">
+                            <label>Minimal Nominal</label>
+                            <input class="form-control rupiah-input-edit" id="minimalNominalTenorEdit"
+                                placeholder="Minimal Nominal Tenor" type="text" data-original-value="0">
+                            <small class="text-danger" id="errMinimalNominalTenorEdit"></small>
                         </div>
                     </div>
                 </div>
@@ -510,7 +521,11 @@
         }, {
             data: 'provisi'
         }, {
+            data: 'biaya_layanan'
+        }, {
             data: 'biaya_admin'
+        }, {
+            data: 'ksp'
         }, {
             data: 'fee_tomi'
         }, {
@@ -518,15 +533,9 @@
         }, {
             data: 'profesional_fee_2'
         }, {
-            data: 'ksp'
-        }, {
-            data: 'iuran_anggota'
-        }, {
-            data: 'biaya_layanan'
+            data: 'maximal_nominal'
         }, {
             data: 'minimal_nominal'
-        }, {
-            data: 'maximal_nominal'
         }, {
             data: 'action'
         }]

@@ -88,6 +88,46 @@ class ListPerusahaan extends Model
         return $this->belongsTo(Referral::class, 'tomi_dana_referral_2_id');
     }
 
+    public function tomiDanaPlusReferral1()
+    {
+        return $this->belongsTo(Referral::class, 'tomi_dana_plus_referral_1_id');
+    }
+
+    public function tomiDanaPlusReferral2()
+    {
+        return $this->belongsTo(Referral::class, 'tomi_dana_plus_referral_2_id');
+    }
+
+    public function tomiGawaiReferral1()
+    {
+        return $this->belongsTo(Referral::class, 'tomi_gawai_referral_1_id');
+    }
+
+    public function tomiGawaiReferral2()
+    {
+        return $this->belongsTo(Referral::class, 'tomi_gawai_referral_2_id');
+    }
+
+    public function tomiGajiReferral1()
+    {
+        return $this->belongsTo(Referral::class, 'tomi_gaji_referral_1_id');
+    }
+
+    public function tomiGajiReferral2()
+    {
+        return $this->belongsTo(Referral::class, 'tomi_gaji_referral_2_id');
+    }
+
+    public function tomiInvoiceReferral1()
+    {
+        return $this->belongsTo(Referral::class, 'tomi_invoice_referral_1_id');
+    }
+
+    public function tomiInvoiceReferral2()
+    {
+        return $this->belongsTo(Referral::class, 'tomi_invoice_referral_2_id');
+    }
+
     public function karyawanPending()
     {
         $adminType = auth('admin')->user()?->type;

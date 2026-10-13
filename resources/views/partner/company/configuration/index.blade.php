@@ -95,10 +95,17 @@
                     <thead class="bg-slate-50 text-slate-600 text-xs uppercase">
                         <tr>
                             <th class="px-4 py-3">Tenor</th>
-                            <th class="px-4 py-3">Rate</th>
-                            <th class="px-4 py-3">Asuransi</th>
-                            <th class="px-4 py-3">Provisi</th>
-                            <th class="px-4 py-3">Admin</th>
+                            <th class="px-4 py-3">Biaya Bunga</th>
+                            <th class="px-4 py-3">Biaya Asuransi</th>
+                            <th class="px-4 py-3">Biaya Provisi</th>
+                            <th class="px-4 py-3">Biaya Layanan</th>
+                            <th class="px-4 py-3">Biaya Admin</th>
+                            <th class="px-4 py-3">Lender</th>
+                            <th class="px-4 py-3">Tomi</th>
+                            <th class="px-4 py-3">Ref 1</th>
+                            <th class="px-4 py-3">Ref 2</th>
+                            <th class="px-4 py-3">Maximal Nominal</th>
+                            <th class="px-4 py-3">Minimal Nominal</th>
                             <th class="px-4 py-3">Action</th>
                         </tr>
                     </thead>
@@ -121,15 +128,23 @@
             <button onclick="document.getElementById('modalAdd').classList.add('hidden')">✕</button>
         </div>
 
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 gap-4">
 
             <input id="tenor" class="border p-2 rounded-lg text-sm" placeholder="Tenor">
-            <input id="rate" class="border p-2 rounded-lg text-sm" placeholder="Rate">
+            <input id="rate" class="border p-2 rounded-lg text-sm" placeholder="Biaya Bunga">
 
-            <input id="asuransi" class="border p-2 rounded-lg text-sm" placeholder="Asuransi">
-            <input id="provisi" class="border p-2 rounded-lg text-sm" placeholder="Provisi">
-
-            <input id="feeTomi" class="border p-2 rounded-lg text-sm" placeholder="Fee Tomi">
+            <input id="asuransi" class="border p-2 rounded-lg text-sm" placeholder="Biaya Asuransi">
+            <input id="provisi" class="border p-2 rounded-lg text-sm" placeholder="Biaya Provisi">
+            <input id="biayalayanan" class="border p-2 rounded-lg text-sm" placeholder="Biaya Layanan">
+            <input id="biayaadmin" class="border p-2 rounded-lg text-sm" placeholder="Biaya Admin">
+            <input id="ksp" class="border p-2 rounded-lg text-sm" placeholder="Lender">
+            <input id="feeTomi" class="border p-2 rounded-lg text-sm" placeholder="Tomi">
+            <input id="profesional_fee_1" class="border p-2 rounded-lg text-sm" placeholder="Ref 1">
+            <input id="profesional_fee_2" class="border p-2 rounded-lg text-sm" placeholder="Ref 2">
+            <div class="grid grid-cols-2 gap-4">
+                <input id="maximalNominalTenor" class="border p-2 rounded-lg text-sm" placeholder="Maximal Nominal">
+                <input id="minimalNominalTenor" class="border p-2 rounded-lg text-sm" placeholder="Minimal Nominal">
+            </div>
 
         </div>
 

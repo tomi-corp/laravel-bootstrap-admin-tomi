@@ -42,17 +42,17 @@
                     <tr>
                         <th>Perusahaan</th>
                         <th>Tenor</th>
-                        <th>Rate</th>
-                        <th>Asuransi</th>
-                        <th>Provisi</th>
-                        <th>Biaya Admin</th>
-                        <th>Fee TOMI</th>
+                        <th>Biaya Bunga</th>
+                        <th>Biaya Asuransi</th>
+                        <th>Biaya Provisi</th>
                         <th>Biaya Layanan</th>
-                        <th>Minimal</th>
-                        <th>Maksimal</th>
-                        <th>PF 1</th>
-                        <th>PF 2</th>
-                        <th>KSP</th>
+                        <th>Biaya Admin</th>
+                        <th>Lender</th>
+                        <th>Tomi</th>
+                        <th>Ref 1</th>
+                        <th>Ref 2</th>
+                        <th>Maximal Nominal</th>
+                        <th>Minimal Nominal</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
@@ -64,14 +64,14 @@
                             <td>{{ number_format($tenor->rate, 2, ',', '.') }}</td>
                             <td>{{ number_format($tenor->asuransi, 2, ',', '.') }}</td>
                             <td>{{ number_format($tenor->provisi, 2, ',', '.') }}</td>
-                            <td>{{ number_format($tenor->biaya_admin, 2, ',', '.') }}</td>
-                            <td>{{ number_format($tenor->fee_tomi, 2, ',', '.') }}</td>
                             <td>Rp. {{ number_format($tenor->biaya_layanan ?? 0, 0, ',', '.') }}</td>
-                            <td>Rp. {{ number_format($tenor->minimal_nominal ?? 0, 0, ',', '.') }}</td>
-                            <td>Rp. {{ number_format($tenor->maximal_nominal ?? 0, 0, ',', '.') }}</td>
+                            <td>{{ number_format($tenor->biaya_admin, 2, ',', '.') }}</td>
+                            <td>{{ number_format($tenor->ksp, 2, ',', '.') }}</td>
+                            <td>{{ number_format($tenor->fee_tomi, 2, ',', '.') }}</td>
                             <td>{{ number_format($tenor->profesional_fee_1, 2, ',', '.') }}</td>
                             <td>{{ number_format($tenor->profesional_fee_2, 2, ',', '.') }}</td>
-                            <td>{{ number_format($tenor->ksp, 2, ',', '.') }}</td>
+                            <td>Rp. {{ number_format($tenor->maximal_nominal ?? 0, 0, ',', '.') }}</td>
+                            <td>Rp. {{ number_format($tenor->minimal_nominal ?? 0, 0, ',', '.') }}</td>
                             <td>
                                 <div class="flex items-center gap-2">
                                     <a href="{{ route('lender.configurations.edit', $tenor) }}" class="rounded-md bg-yellow-500 px-3 py-1.5 text-sm font-medium text-white hover:bg-yellow-600">
