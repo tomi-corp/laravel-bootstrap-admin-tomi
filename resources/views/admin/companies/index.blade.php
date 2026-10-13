@@ -87,8 +87,16 @@
         align-items: center;
         display: flex;
         gap: .5rem;
+        justify-content: flex-end;
     }
 
+    .referral-form-actions .add-referral-button {
+        order: 2;
+    }
+
+    .referral-form-actions .text-muted {
+        order: 1;
+    }
 </style>
 @endpush
 
@@ -306,12 +314,35 @@
                                             <small class="text-danger error-status"></small>
                                         </div>
                                         <div class="col-md-6 form-group">
+                                            <label>Set Pinjaman</label>
+                                            <select class="form-control" name="active_set_pinjaman" id="active_set_pinjaman">
+                                                <option value="active">Active</option>
+                                                <option value="nonactive">Nonactive</option>
+                                            </select>
+                                            <small class="text-danger error-active_set_pinjaman"></small>
+                                        </div>
+                                        <div class="col-md-6 form-group">
                                             <label>Referral</label>
                                             <select class="form-control" name="active_profesional_fee" id="active_profesional_fee">
                                                 <option value="active">Active</option>
                                                 <option value="nonactive">Nonactive</option>
                                             </select>
                                             <small class="text-danger error-active_profesional_fee"></small>
+                                        </div>
+                                        <div class="col-md-6 form-group">
+                                            <label>Tanggal Aktif</label>
+                                            <input class="form-control" name="active_tanggal" id="active_tanggal" type="number" min="0" max="31">
+                                            <small class="text-danger error-active_tanggal"></small>
+                                        </div>
+                                        <div class="col-md-6 form-group">
+                                            <label>Payment Date</label>
+                                            <input class="form-control" name="payment_date" id="payment_date" type="number" min="1" max="31">
+                                            <small class="text-danger error-payment_date"></small>
+                                        </div>
+                                        <div class="col-md-6 form-group">
+                                            <label>H-Min Jatuh Tempo</label>
+                                            <input class="form-control" name="h_min_jatuh_tempo" id="h_min_jatuh_tempo" type="number" min="0" max="31">
+                                            <small class="text-danger error-h_min_jatuh_tempo"></small>
                                         </div>
                                         <div class="col-12 form-group feature-referral-wrapper" data-prefix="tomi_dana">
                                             <div class="referral-form-actions">
@@ -338,29 +369,6 @@
                                                 </table>
                                             </div>
                                         </div>
-                                        <div class="col-md-6 form-group">
-                                            <label>Set Pinjaman</label>
-                                            <select class="form-control" name="active_set_pinjaman" id="active_set_pinjaman">
-                                                <option value="active">Active</option>
-                                                <option value="nonactive">Nonactive</option>
-                                            </select>
-                                            <small class="text-danger error-active_set_pinjaman"></small>
-                                        </div>
-                                        <div class="col-md-6 form-group">
-                                            <label>Tanggal Aktif</label>
-                                            <input class="form-control" name="active_tanggal" id="active_tanggal" type="number" min="0" max="31">
-                                            <small class="text-danger error-active_tanggal"></small>
-                                        </div>
-                                        <div class="col-md-6 form-group">
-                                            <label>Payment Date</label>
-                                            <input class="form-control" name="payment_date" id="payment_date" type="number" min="1" max="31">
-                                            <small class="text-danger error-payment_date"></small>
-                                        </div>
-                                        <div class="col-md-6 form-group">
-                                            <label>H-Min Jatuh Tempo</label>
-                                            <input class="form-control" name="h_min_jatuh_tempo" id="h_min_jatuh_tempo" type="number" min="0" max="31">
-                                            <small class="text-danger error-h_min_jatuh_tempo"></small>
-                                        </div>
                                         <div class="feature-referral-slot d-none" data-prefix="tomi_dana" data-index="1">
                                             <div class="d-none referral-slot-storage">
                                                 @include('admin.companies.partials.referral-form', ['prefix' => 'tomi_dana', 'index' => 1])
@@ -373,7 +381,7 @@
                                         </div>
                                         <div class="col-12 form-group d-none" id="tomi_dana_configuration_wrapper">
                                             <div class="d-flex justify-content-between align-items-center mb-2">
-                                                <label class="mb-0">Konfigurasi Tomi Dana</label>
+                                                <label class="mb-0">Daftar Konfigurasi Tomi Dana</label>
                                                 <button type="button" class="btn btn-sm btn-outline-primary" id="addTenorConfigButton" onclick="openTenorConfigModal()">
                                                     <i class="fa-solid fa-plus"></i> Tambah Konfigurasi
                                                 </button>
@@ -413,15 +421,6 @@
                                             </select>
                                         </div>
                                         <div class="col-md-6 form-group">
-                                            <label>Referral</label>
-                                            <div class="referral-form-actions">
-                                                <button type="button" class="btn btn-sm btn-outline-primary add-referral-button" data-prefix="tomi_dana_plus">
-                                                    <i class="fa-solid fa-plus"></i> Tambah Refferal
-                                                </button>
-                                                <small class="text-muted">Maksimal 2 refferal</small>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6 form-group">
                                             <label>Set Pinjaman</label>
                                             <select class="form-control" id="tomi_dana_plus_set_pinjaman">
                                                 <option value="active">Active</option>
@@ -441,6 +440,12 @@
                                             <input class="form-control" id="tomi_dana_plus_h_min_jatuh_tempo" type="number" min="0" max="31">
                                         </div>
                                         <div class="col-12 form-group feature-referral-wrapper" data-prefix="tomi_dana_plus">
+                                            <div class="referral-form-actions">
+                                                <button type="button" class="btn btn-sm btn-outline-primary add-referral-button" data-prefix="tomi_dana_plus">
+                                                    <i class="fa-solid fa-plus"></i> Tambah Refferal
+                                                </button>
+                                                <small class="text-muted">Maksimal 2 refferal</small>
+                                            </div>
                                             <div class="table-responsive">
                                                 <table class="table table-sm table-bordered text-center mb-0">
                                                     <thead>
@@ -623,7 +628,7 @@
 </div>
 
 <div class="modal fade" id="referralFormModal" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="referralFormModalTitle">Form Refferal</h5>

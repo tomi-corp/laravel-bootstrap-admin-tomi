@@ -56,21 +56,6 @@
         <small class="text-danger error-{{ $fieldPrefix }}_blood_type"></small>
     </div>
     <div class="col-md-6 form-group">
-        <label>Alamat</label>
-        <textarea class="form-control text-uppercase referral-form-input" name="{{ $fieldPrefix }}_address" id="{{ $fieldPrefix }}_address" rows="2"></textarea>
-        <small class="text-danger error-{{ $fieldPrefix }}_address"></small>
-    </div>
-    <div class="col-md-6 form-group">
-        <label>RT</label>
-        <input class="form-control referral-form-input" name="{{ $fieldPrefix }}_rt" id="{{ $fieldPrefix }}_rt" maxlength="3">
-        <small class="text-danger error-{{ $fieldPrefix }}_rt"></small>
-    </div>
-    <div class="col-md-6 form-group">
-        <label>RW</label>
-        <input class="form-control referral-form-input" name="{{ $fieldPrefix }}_rw" id="{{ $fieldPrefix }}_rw" maxlength="3">
-        <small class="text-danger error-{{ $fieldPrefix }}_rw"></small>
-    </div>
-    <div class="col-md-6 form-group">
         <label>Provinsi</label>
         <select class="form-control referral-form-input referral-province-select" name="{{ $fieldPrefix }}_province_id" id="{{ $fieldPrefix }}_province_id" data-prefix="{{ $fieldPrefix }}">
             <option value="">Pilih Provinsi</option>
@@ -94,6 +79,21 @@
         <label>Kelurahan/Desa</label>
         <select class="form-control referral-form-input referral-village-select" name="{{ $fieldPrefix }}_village_id" id="{{ $fieldPrefix }}_village_id" data-prefix="{{ $fieldPrefix }}"></select>
         <small class="text-danger error-{{ $fieldPrefix }}_village_id"></small>
+    </div>
+    <div class="col-md-6 form-group">
+        <label>RT</label>
+        <input class="form-control referral-form-input" name="{{ $fieldPrefix }}_rt" id="{{ $fieldPrefix }}_rt" maxlength="3">
+        <small class="text-danger error-{{ $fieldPrefix }}_rt"></small>
+    </div>
+    <div class="col-md-6 form-group">
+        <label>RW</label>
+        <input class="form-control referral-form-input" name="{{ $fieldPrefix }}_rw" id="{{ $fieldPrefix }}_rw" maxlength="3">
+        <small class="text-danger error-{{ $fieldPrefix }}_rw"></small>
+    </div>
+    <div class="col-md-6 form-group">
+        <label>Alamat</label>
+        <textarea class="form-control text-uppercase referral-form-input" name="{{ $fieldPrefix }}_address" id="{{ $fieldPrefix }}_address" rows="2"></textarea>
+        <small class="text-danger error-{{ $fieldPrefix }}_address"></small>
     </div>
     <div class="col-md-6 form-group">
         <label>Kode Pos</label>
