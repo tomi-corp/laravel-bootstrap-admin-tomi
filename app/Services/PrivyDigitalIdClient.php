@@ -91,6 +91,8 @@ class PrivyDigitalIdClient
 
     public function verifyToken(string $token, ?int $now = null): array
     {
+        $this->ensureSodiumAvailable();
+
         $config = $this->config();
         $parts = explode('.', $token);
 
@@ -113,7 +115,7 @@ class PrivyDigitalIdClient
         $message = $parts[0].'.'.$parts[1];
         $publicKey = $this->ed25519PublicKeyFromJwk($jwk);
 
-        if (! sodium_crypto_sign_verify_detached($signature, $message, $publicKey)) {
+        if (! \sodium_crypto_sign_verify_detached($signature, $message, $publicKey)) {
             throw new PrivyDigitalIdException('Tanda tangan JWT tidak valid', 'jwt_bad_signature', 401);
         }
 
@@ -159,7 +161,7 @@ class PrivyDigitalIdClient
         }
 
         $plain = null;
-        $ok = openssl_private_decrypt($ciphertext, $plain, $pem, OPENSSL_PKCS1_PADDING);
+        $ok = openssl_private_decrypt($ciphertext, $plain, $pem, \OPENSSL_PKCS1_PADDING);
 
         if (! $ok || ! is_string($plain)) {
             throw new PrivyDigitalIdException('Dekripsi identitas gagal (cek private key RSA)', 'identity_decrypt_failed', 422);
@@ -359,12 +361,20 @@ class PrivyDigitalIdClient
     private function ed25519PublicKeyFromJwk(array $jwk): string
     {
         $publicKey = $this->base64UrlDecode((string) ($jwk['x'] ?? ''));
+        $publicKeyBytes = \constant('SODIUM_CRYPTO_SIGN_PUBLICKEYBYTES');
 
-        if (strlen($publicKey) !== SODIUM_CRYPTO_SIGN_PUBLICKEYBYTES) {
+        if (strlen($publicKey) !== $publicKeyBytes) {
             throw new PrivyDigitalIdException('Ukuran public key Ed25519 tidak valid', 'jwt_bad_key', 401);
         }
 
         return $publicKey;
+    }
+
+    private function ensureSodiumAvailable(): void
+    {
+        if (! \function_exists('sodium_crypto_sign_verify_detached') || ! \defined('SODIUM_CRYPTO_SIGN_PUBLICKEYBYTES')) {
+            throw new PrivyDigitalIdException('Ekstensi PHP Sodium belum aktif untuk verifikasi JWT Privy', 'sodium_missing', 500);
+        }
     }
 
     private function normalizePrivateKeyPem(?string $raw): string
