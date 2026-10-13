@@ -45,6 +45,10 @@
         z-index: 1065;
     }
 
+    #picFormModal {
+        z-index: 1065;
+    }
+
     .modal-backdrop.tenor-config-backdrop {
         z-index: 1060;
     }
@@ -53,11 +57,19 @@
         z-index: 1060;
     }
 
+    .modal-backdrop.pic-form-backdrop {
+        z-index: 1060;
+    }
+
     #tenorConfigModal .modal-content {
         max-height: calc(100vh - 3.5rem);
     }
 
     #referralFormModal .modal-content {
+        max-height: calc(100vh - 3.5rem);
+    }
+
+    #picFormModal .modal-content {
         max-height: calc(100vh - 3.5rem);
     }
 
@@ -71,6 +83,11 @@
         overflow-y: auto;
     }
 
+    #picFormModal .modal-body {
+        max-height: calc(100vh - 12rem);
+        overflow-y: auto;
+    }
+
     #tenorConfigModal .modal-footer {
         flex-shrink: 0;
         border-top: 1px solid #dee2e6;
@@ -78,6 +95,12 @@
     }
 
     #referralFormModal .modal-footer {
+        flex-shrink: 0;
+        border-top: 1px solid #dee2e6;
+        background-color: #fff;
+    }
+
+    #picFormModal .modal-footer {
         flex-shrink: 0;
         border-top: 1px solid #dee2e6;
         background-color: #fff;
@@ -200,14 +223,58 @@
                             <small class="text-danger error-email_perusahaan"></small>
                         </div>
                         <div class="col-12 form-group">
-                            <label>PIC Perusahaan</label>
-                            <input class="form-control text-uppercase" name="pic_perusahaan" id="pic_perusahaan">
-                            <small class="text-danger error-pic_perusahaan"></small>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <label class="mb-0">PIC Perusahaan</label>
+                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="openPicFormModal('pic_perusahaan')">
+                                    <i class="fa-solid fa-pen"></i> Isi PIC Perusahaan
+                                </button>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-sm table-bordered text-center mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Nama</th>
+                                            <th>NIK</th>
+                                            <th>Telepon</th>
+                                            <th>Email</th>
+                                            <th>Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="pic_perusahaan_table_body">
+                                        <tr><td colspan="5">Belum ada PIC Perusahaan</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="d-none pic-form-storage" data-prefix="pic_perusahaan">
+                                @include('admin.companies.partials.pic-form', ['prefix' => 'pic_perusahaan', 'title' => 'PIC Perusahaan'])
+                            </div>
                         </div>
                         <div class="col-12 form-group">
-                            <label>PIC Internal</label>
-                            <input class="form-control text-uppercase" name="pic_internal" id="pic_internal">
-                            <small class="text-danger error-pic_internal"></small>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <label class="mb-0">PIC Internal</label>
+                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="openPicFormModal('pic_internal')">
+                                    <i class="fa-solid fa-pen"></i> Isi PIC Internal
+                                </button>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-sm table-bordered text-center mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Nama</th>
+                                            <th>NIK</th>
+                                            <th>Telepon</th>
+                                            <th>Email</th>
+                                            <th>Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="pic_internal_table_body">
+                                        <tr><td colspan="5">Belum ada PIC Internal</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="d-none pic-form-storage" data-prefix="pic_internal">
+                                @include('admin.companies.partials.pic-form', ['prefix' => 'pic_internal', 'title' => 'PIC Internal'])
+                            </div>
                         </div>
                         <div class="col-12 form-group">
                             <label>Telepon</label>
@@ -627,6 +694,22 @@
     </div>
 </div>
 
+<div class="modal fade" id="picFormModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="picFormModalTitle">Form PIC</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>
+            </div>
+            <div class="modal-body" id="picFormModalBody"></div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" type="button" data-dismiss="modal">Batal</button>
+                <button class="btn btn-primary" type="button" onclick="savePicFormModal()">Simpan</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="modal fade" id="referralFormModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
         <div class="modal-content">
@@ -766,6 +849,17 @@
     var pendingTenorConfigs = [];
     var pendingTenorConfigKey = 1;
     var activeReferralModal = null;
+    var activePicModal = null;
+    var picTitles = {
+        pic_perusahaan: 'PIC Perusahaan',
+        pic_internal: 'PIC Internal',
+    };
+    var picFormFields = [
+        'national_id_number', 'birth_place', 'birth_date', 'gender', 'blood_type',
+        'address', 'rt', 'rw', 'province_id', 'city_id', 'district_id', 'village_id',
+        'postal_code', 'religion', 'marital_status', 'occupation', 'nationality',
+        'phone_number', 'email', 'password'
+    ];
     var referralFormFields = [
         'id', 'national_id_number', 'name', 'is_active', 'birth_place', 'birth_date', 'gender', 'blood_type',
         'address', 'rt', 'rw', 'province_id', 'city_id', 'district_id', 'village_id', 'postal_code',
@@ -849,6 +943,7 @@
         $('#tomi_dana_plus_h_min_jatuh_tempo').val(9);
         setRupiahField('#max_plafon_view', '#max_plafon', '');
         setRupiahField('#tomi_invoice_max_plafon', null, '');
+        resetAllPicForms();
         resetAllReferralForms();
         toggleTomiDanaConfiguration();
         $('#tomi-dana-tab').tab('show');
@@ -874,6 +969,7 @@
             });
 
             setRupiahField('#max_plafon_view', '#max_plafon', company.max_plafon);
+            hydrateAllPicForms(response.pic_forms || {});
             syncFeaturePreviewFields(company);
             hydrateAllReferralForms(response.referral_forms || {});
             toggleTomiDanaConfiguration();
@@ -1016,6 +1112,117 @@
         return $('<div>').text(value || '').html();
     }
 
+    function picFieldValue(prefix, field) {
+        var fieldId = field === 'name' ? prefix : prefix + '_' + field;
+        return $('#' + fieldId).val() || '';
+    }
+
+    function renderPicTable(prefix) {
+        var title = picTitles[prefix];
+        var name = picFieldValue(prefix, 'name');
+        var nik = picFieldValue(prefix, 'national_id_number');
+        var phone = picFieldValue(prefix, 'phone_number');
+        var email = picFieldValue(prefix, 'email');
+        var body = $('#' + prefix + '_table_body');
+
+        if (!name && !nik && !phone && !email) {
+            body.html('<tr><td colspan="5">Belum ada ' + title + '</td></tr>');
+            return;
+        }
+
+        body.html(
+            '<tr>'
+            + '<td>' + escapeHtml(name || '-') + '</td>'
+            + '<td>' + escapeHtml(nik || '-') + '</td>'
+            + '<td>' + escapeHtml(phone || '-') + '</td>'
+            + '<td>' + escapeHtml(email || '-') + '</td>'
+            + '<td><button type="button" class="btn btn-sm btn-primary" onclick="openPicFormModal(\'' + prefix + '\')"><i class="fa-solid fa-pen"></i></button></td>'
+            + '</tr>'
+        );
+    }
+
+    function renderAllPicTables() {
+        Object.keys(picTitles).forEach(renderPicTable);
+    }
+
+    function resetPicForm(prefix) {
+        $('#' + prefix).val('');
+        picFormFields.forEach(function (field) {
+            $('#' + prefix + '_' + field).val(field === 'nationality' ? 'WNI' : '');
+        });
+        resetReferralRegionSelect('#' + prefix + '_city_id', 'Pilih Kota/Kabupaten');
+        resetReferralRegionSelect('#' + prefix + '_district_id', 'Pilih Kecamatan');
+        resetReferralRegionSelect('#' + prefix + '_village_id', 'Pilih Kelurahan/Desa');
+        renderPicTable(prefix);
+    }
+
+    function resetAllPicForms() {
+        Object.keys(picTitles).forEach(resetPicForm);
+    }
+
+    function fillPicForm(prefix, pic) {
+        $('#' + prefix).val(pic.name || '');
+
+        picFormFields.forEach(function (field) {
+            $('#' + prefix + '_' + field).val(pic[field] || '');
+        });
+
+        if (pic.province_id) {
+            loadPicCities(prefix, pic.province_id, pic.city_id)
+                .then(function () {
+                    return loadPicDistricts(prefix, pic.city_id, pic.district_id);
+                })
+                .then(function () {
+                    return loadPicVillages(prefix, pic.district_id, pic.village_id);
+                });
+        }
+
+        renderPicTable(prefix);
+    }
+
+    function hydrateAllPicForms(picForms) {
+        Object.keys(picTitles).forEach(function (prefix) {
+            fillPicForm(prefix, picForms[prefix] || {});
+        });
+    }
+
+    function returnPicFormToStorage() {
+        if (!activePicModal) {
+            return;
+        }
+
+        $('#picFormModalBody .pic-form-fields')
+            .appendTo(activePicModal.storage)
+            .addClass('d-none');
+
+        activePicModal = null;
+        $('#picFormModalBody').empty();
+    }
+
+    function openPicFormModal(prefix) {
+        returnPicFormToStorage();
+
+        var storage = $('.pic-form-storage[data-prefix="' + prefix + '"]');
+        var fields = storage.find('.pic-form-fields');
+
+        activePicModal = {
+            prefix: prefix,
+            storage: storage,
+        };
+
+        $('#picFormModalTitle').text('Form ' + picTitles[prefix]);
+        fields.appendTo('#picFormModalBody').removeClass('d-none');
+        $('#picFormModal').modal('show');
+    }
+
+    function savePicFormModal() {
+        if (activePicModal) {
+            renderPicTable(activePicModal.prefix);
+        }
+
+        $('#picFormModal').modal('hide');
+    }
+
     function referralFieldValue(prefix, index, field) {
         var fieldPrefix = prefix + '_referral_' + index;
         return $('#' + fieldPrefix + '_' + field).val() || '';
@@ -1110,6 +1317,20 @@
             }
         });
 
+    $('#picFormModal')
+        .on('show.bs.modal', function () {
+            $(this).appendTo('body');
+        })
+        .on('shown.bs.modal', function () {
+            $('.modal-backdrop').last().addClass('pic-form-backdrop');
+        })
+        .on('hidden.bs.modal', function () {
+            returnPicFormToStorage();
+            if ($('#companyModal').hasClass('show')) {
+                $('body').addClass('modal-open');
+            }
+        });
+
     function resetReferralRegionSelect(selector, placeholder) {
         $(selector).html('<option value="">' + placeholder + '</option>');
     }
@@ -1168,6 +1389,18 @@
         return $.get('{{ route('admin.companies.villages') }}', { district_id: districtId }, function (rows) {
             fillReferralRegionSelect('#' + fieldPrefix + '_village_id', rows, 'id', 'desa', 'Pilih Kelurahan/Desa', selectedValue, 'kodepos');
         });
+    }
+
+    function loadPicCities(prefix, provinceId, selectedValue) {
+        return loadReferralCities(prefix, provinceId, selectedValue);
+    }
+
+    function loadPicDistricts(prefix, cityId, selectedValue) {
+        return loadReferralDistricts(prefix, cityId, selectedValue);
+    }
+
+    function loadPicVillages(prefix, districtId, selectedValue) {
+        return loadReferralVillages(prefix, districtId, selectedValue);
     }
 
     function toggleTomiDanaConfiguration() {
@@ -1575,6 +1808,36 @@
         loadReferralVillages($(this).data('prefix'), this.value);
     });
 
+    $(document).on('change', '[id$="_province_id"]', function () {
+        var prefix = this.id.replace('_province_id', '');
+
+        if (!picTitles[prefix]) {
+            return;
+        }
+
+        loadPicCities(prefix, this.value);
+    });
+
+    $(document).on('change', '[id$="_city_id"]', function () {
+        var prefix = this.id.replace('_city_id', '');
+
+        if (!picTitles[prefix]) {
+            return;
+        }
+
+        loadPicDistricts(prefix, this.value);
+    });
+
+    $(document).on('change', '[id$="_district_id"]', function () {
+        var prefix = this.id.replace('_district_id', '');
+
+        if (!picTitles[prefix]) {
+            return;
+        }
+
+        loadPicVillages(prefix, this.value);
+    });
+
     $('#companyForm').on('submit', function (event) {
         event.preventDefault();
         clearErrors();
@@ -1655,6 +1918,16 @@
 
     function clearErrors() {
         $('[class*="error-"]').text('');
+    }
+
+    function togglePicPassword(inputId, button) {
+        var input = document.getElementById(inputId);
+        var icon = button.querySelector('i');
+        var isPassword = input.type === 'password';
+
+        input.type = isPassword ? 'text' : 'password';
+        icon.classList.toggle('mdi-eye-off', !isPassword);
+        icon.classList.toggle('mdi-eye', isPassword);
     }
 
     function onlyDigits(value) {

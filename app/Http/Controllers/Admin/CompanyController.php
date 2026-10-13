@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\CompanyRequest;
+use App\Models\Admin;
 use App\Models\bank;
 use App\Models\ListPerusahaan;
 use App\Models\Referral;
@@ -78,11 +79,59 @@ class CompanyController extends Controller
 
         return response()->json([
             'data' => $company,
+            'pic_forms' => $this->picForms($company),
             'referral_forms' => $this->referralForms($company),
             'cities' => $this->regions->citiesByProvinceName(optional($company->provinsi)->provinsi),
             'districts' => $this->regions->districtsByCityName(optional($company->kabupaten)->kabupaten),
             'villages' => $this->regions->villagesByDistrictName(optional($company->kecamatan)->kecamatan),
         ]);
+    }
+
+    private function picForms(ListPerusahaan $company): array
+    {
+        return collect([
+            'pic_perusahaan' => $company->pic_perusahaan,
+            'pic_internal' => $company->pic_internal,
+        ])->map(function (?string $name, string $prefix) use ($company) {
+            $admin = Admin::query()
+                ->where('company_id', $company->id)
+                ->where('username', "{$prefix}_{$company->id}")
+                ->first();
+
+            return [
+                'name' => $name,
+                'national_id_number' => $admin?->nik,
+                'birth_place' => $admin?->birth_place,
+                'birth_date' => $admin?->birth_date ? substr((string) $admin->birth_date, 0, 10) : null,
+                'gender' => $admin?->gender,
+                'blood_type' => $admin?->blood_type,
+                'address' => $admin?->address,
+                'rt' => $admin?->rt,
+                'rw' => $admin?->rw,
+                'province_id' => $admin?->wilayah_provinsi_net_id,
+                'city_id' => $admin?->wilayah_kabupaten_net_id,
+                'district_id' => $admin?->wilayah_kecamatan_net_id,
+                'village_id' => $admin?->wilayah_desa_net_id,
+                'postal_code' => $admin?->postal_code,
+                'religion' => $this->formReligion($admin?->religion),
+                'marital_status' => $admin?->marital_status,
+                'occupation' => $admin?->occupation,
+                'nationality' => $admin?->nationality,
+                'phone_number' => $admin?->phone,
+                'email' => $admin?->email,
+            ];
+        })->all();
+    }
+
+    private function formReligion(?string $religion): ?string
+    {
+        return match ($religion) {
+            'kristen' => 'christian',
+            'katolik' => 'catholic',
+            'buddha' => 'buddhist',
+            'konghucu' => 'confucian',
+            default => $religion,
+        };
     }
 
     private function referralForms(ListPerusahaan $company): array
