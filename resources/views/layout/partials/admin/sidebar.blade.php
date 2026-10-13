@@ -8,11 +8,15 @@
     $menuColumns = \Illuminate\Support\Facades\Schema::getColumnListing('menus');
     $hasStatusColumn = in_array('status', $menuColumns, true);
     $hasIsActiveColumn = in_array('is_active', $menuColumns, true);
+    $menuProjectCode = $isLenderAdmin ? 'lender' : 'internal';
+    $menuProject = \Illuminate\Support\Facades\DB::table('projects')
+        ->where('code', $menuProjectCode)
+        ->first();
 
     $menusQuery = \Illuminate\Support\Facades\DB::table('menus')
         ->leftJoin('projects', 'projects.id', '=', 'menus.project_id')
         ->whereNull('menus.deleted_at')
-        ->where('projects.code', 'internal')
+        ->where('projects.code', $menuProjectCode)
         ->select('menus.*')
         ->orderBy('menus.parent_id')
         ->orderBy('menus.sort_order')
@@ -81,7 +85,7 @@
         $tomiDanaMenu = (object) [
             'id' => -1010,
             'parent_id' => null,
-            'project_id' => null,
+            'project_id' => $menuProject?->id,
             'feature_id' => null,
             'name' => 'TomiDana',
             'icon' => 'fa-solid fa-hand-holding-dollar',
@@ -143,26 +147,6 @@
         ], true))
         ->values();
 
-    if (! $allMenus->contains('route', 'admin.disbursements.index') && \Illuminate\Support\Facades\Route::has('admin.disbursements.index')) {
-        $fallbackDisbursementMenu = (object) [
-            'id' => -1003,
-            'parent_id' => $tomiDanaMenu->id,
-            'project_id' => $tomiDanaMenu->project_id,
-            'feature_id' => null,
-            'name' => 'Pencairan Dana',
-            'icon' => 'fa-solid fa-money-bill-transfer',
-            'route' => 'admin.disbursements.index',
-            'sort_order' => 97,
-            'status' => 'show',
-        ];
-
-        $allMenus = $allMenus->push($fallbackDisbursementMenu)->sortBy([
-            ['parent_id', 'asc'],
-            ['sort_order', 'asc'],
-            ['name', 'asc'],
-        ])->values();
-    }
-
     if (\Illuminate\Support\Facades\Route::has('admin.product-configurations.tenor.companies')) {
         $fallbackTenorMenu = (object) [
             'id' => -1005,
@@ -203,35 +187,14 @@
         ])->values();
     }
 
-    if (! $allMenus->contains('route', 'admin.repayments.index') && \Illuminate\Support\Facades\Route::has('admin.repayments.index')) {
-        $fallbackRepaymentMenu = (object) [
-            'id' => -1004,
-            'parent_id' => $tomiDanaMenu->id,
-            'project_id' => $tomiDanaMenu->project_id,
-            'feature_id' => null,
-            'name' => 'Pembayaran',
-            'icon' => 'fa-solid fa-receipt',
-            'route' => 'admin.repayments.index',
-            'sort_order' => 98,
-            'status' => 'show',
-        ];
-
-        $allMenus = $allMenus->push($fallbackRepaymentMenu)->sortBy([
-            ['parent_id', 'asc'],
-            ['sort_order', 'asc'],
-            ['name', 'asc'],
-        ])->values();
+    if (! $isLenderAdmin) {
+        $allMenus = $allMenus
+            ->reject(fn ($menu) => in_array($menu->route, [
+                'admin.disbursements.index',
+                'admin.repayments.index',
+            ], true))
+            ->values();
     }
-
-    $allMenus->each(function ($menu) use ($tomiDanaMenu) {
-        if (in_array($menu->route, [
-            'admin.disbursements.index',
-            'admin.repayments.index',
-        ], true)) {
-            $menu->parent_id = $tomiDanaMenu->id;
-            $menu->project_id = $tomiDanaMenu->project_id;
-        }
-    });
 
     $allMenus->each(function ($menu) use ($tomiDanaConfigurationMenu, $tomiDanaMenu) {
         if (in_array($menu->route, [
