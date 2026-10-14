@@ -171,16 +171,11 @@ class PinjamanController extends Controller
 
     private function hasVerifiedPrivy(User $user): bool
     {
-        if (in_array($user->verified_privy, ['y', '1', 1, true], true) && ! empty($user->id_privy)) {
+        if ($user->hasLegacyPrivyVerification()) {
             return true;
         }
 
-        $verifiedSession = PrivyDigitalIdSession::where('user_id', $user->id)
-            ->where('status', 'verified')
-            ->whereNotNull('privy_id')
-            ->latest('verified_at')
-            ->latest('id')
-            ->first();
+        $verifiedSession = $user->verifiedDigitalIdSession();
 
         if (! $verifiedSession) {
             return false;

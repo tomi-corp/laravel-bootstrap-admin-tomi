@@ -58,6 +58,30 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasOne(PrivyDigitalIdSession::class, 'user_id', 'id')->latestOfMany();
     }
 
+    public function hasLegacyPrivyVerification(): bool
+    {
+        return in_array($this->verified_privy, ['y', '1', 1, true], true) && ! empty($this->id_privy);
+    }
+
+    public function verifiedDigitalIdSession(): ?PrivyDigitalIdSession
+    {
+        return PrivyDigitalIdSession::where('user_id', $this->id)
+            ->where('status', 'verified')
+            ->whereNotNull('privy_id')
+            ->latest('verified_at')
+            ->latest('id')
+            ->first();
+    }
+
+    public function hasVerifiedPrivy(): bool
+    {
+        if ($this->hasLegacyPrivyVerification()) {
+            return true;
+        }
+
+        return $this->verifiedDigitalIdSession() !== null;
+    }
+
     protected function casts(): array
     {
         return [
