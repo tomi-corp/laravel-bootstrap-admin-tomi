@@ -116,26 +116,71 @@ class PinjamanController extends Controller
 
     private function hasVerifiedPrivy(User $user): bool
     {
-        if (in_array($user->verified_privy, ['y', '1', 1, true], true) && ! empty($user->id_privy)) {
+        $status = $this->privyVerificationStatus($user);
+
+        if ($status['user_verified']) {
             return true;
         }
 
-        $verifiedSession = PrivyDigitalIdSession::where('user_id', $user->id)
-            ->where('status', 'verified')
-            ->whereNotNull('privy_id')
-            ->latest('verified_at')
-            ->latest('id')
-            ->first();
-
-        if (! $verifiedSession) {
+        if (! $status['session_verified']) {
             return false;
         }
 
-        $user->id_privy = $user->id_privy ?: $verifiedSession->privy_id;
+        $user->id_privy = $user->id_privy ?: $status['session']->privy_id;
         $user->verified_privy = 'y';
         $user->save();
 
         return true;
+    }
+
+    private function privyVerificationStatus(User $user): array
+    {
+        $session = PrivyDigitalIdSession::where('user_id', $user->id)
+            ->latest('verified_at')
+            ->latest('id')
+            ->first();
+
+        $userVerified = in_array($user->verified_privy, ['y', '1', 1, true], true) && ! empty($user->id_privy);
+        $sessionVerified = $session && $session->status === 'verified' && ! empty($session->privy_id);
+
+        return [
+            'user_verified' => $userVerified,
+            'user_has_privy_data' => in_array($user->verified_privy, ['y', '1', 1, true], true) || ! empty($user->id_privy),
+            'session' => $session,
+            'session_exists' => $session !== null,
+            'session_verified' => $sessionVerified,
+        ];
+    }
+
+    private function privyVerificationFailureMessage(User $user): array
+    {
+        $status = $this->privyVerificationStatus($user);
+
+        if (! $status['user_has_privy_data'] && ! $status['session_exists']) {
+            return [
+                'message' => 'Verifikasi Privy belum ditemukan di data user maupun Privy Digital ID Session.',
+                'reason' => 'privy_not_found_in_user_and_session',
+            ];
+        }
+
+        if (! $status['user_has_privy_data'] && $status['session_exists']) {
+            return [
+                'message' => 'Verifikasi Privy belum ditemukan di data user, dan data Privy Digital ID Session belum berstatus verified.',
+                'reason' => 'privy_not_found_in_user_session_not_verified',
+            ];
+        }
+
+        if ($status['user_has_privy_data'] && ! $status['session_exists']) {
+            return [
+                'message' => 'Verifikasi Privy di data user belum lengkap, dan data Privy Digital ID Session belum ditemukan.',
+                'reason' => 'privy_user_incomplete_session_not_found',
+            ];
+        }
+
+        return [
+            'message' => 'Verifikasi Privy di data user belum lengkap, dan data Privy Digital ID Session belum berstatus verified.',
+            'reason' => 'privy_user_incomplete_session_not_verified',
+        ];
     }
 
     private function renderPkHtml(pinjaman $pinjaman, User $user)
@@ -587,6 +632,7 @@ class PinjamanController extends Controller
                     'message' => 'Maksimal nominal pinjaman Rp ' . number_format($maksimal),
                 ], 400);
             } elseif (! $this->hasVerifiedPrivy($user)) {
+                $privyFailure = $this->privyVerificationFailureMessage($user);
 
                 if (isset($user->nik) && isset($user->nama_lengkap) && isset($user->dob) && isset($user->kyc->selfie) && isset($user->kyc->ktp)) {
                     $kycExpiredResponse = $this->kycExpiredResponse($user);
@@ -596,34 +642,46 @@ class PinjamanController extends Controller
 
                     if ($user->register_token_privy == null) {
                         // tampilkan consent privy
-                        return $this->privyVerificationRequiredResponse('User wajib verifikasi Privy terlebih dahulu');
+                        return $this->privyVerificationRequiredResponse(
+                            $privyFailure['message'].' Silakan lakukan verifikasi Privy terlebih dahulu.',
+                            $privyFailure['reason']
+                        );
                     } else {
                         if ($user->resend_privy == 1) {
                             $reason = json_decode($user->reason_privy);
                             $reasonMessage = $reason->reason ?? null;
 
                             return $this->privyVerificationRequiredResponse(
-                                ($reasonMessage ? $reasonMessage . ', ' : '') . 'Harap perbarui kembali data anda',
-                                $reasonMessage
+                                $privyFailure['message'].' '.($reasonMessage ? $reasonMessage.', ' : '').'Harap perbarui kembali data anda',
+                                $reasonMessage ?: $privyFailure['reason']
                             );
                         } elseif ($user->resend_privy == 0 && $user->reason_privy != null) {
                             $reason = json_decode($user->reason_privy);
                             $reasonMessage = $reason->reason ?? null;
 
                             return $this->privyVerificationRequiredResponse(
-                                ($reasonMessage ? $reasonMessage . ', ' : '') . 'Harap hubungi customer service untuk merubah data anda',
-                                $reasonMessage
+                                $privyFailure['message'].' '.($reasonMessage ? $reasonMessage.', ' : '').'Harap hubungi customer service untuk merubah data anda',
+                                $reasonMessage ?: $privyFailure['reason']
                             );
                         } else {
-                            return $this->privyVerificationRequiredResponse('Harap menunggu, data anda sedang proses verifikasi');
+                            return $this->privyVerificationRequiredResponse(
+                                $privyFailure['message'].' Harap menunggu, data anda sedang proses verifikasi.',
+                                $privyFailure['reason']
+                            );
                         }
                     }
                 } else {
                     if (! isset($user->nik) || ! isset($user->nama_lengkap) && ! isset($user->dob)) {
-                        return $this->privyVerificationRequiredResponse('Harap lengkapi data anda terlebih dahulu');
+                        return $this->privyVerificationRequiredResponse(
+                            $privyFailure['message'].' Harap lengkapi data anda terlebih dahulu.',
+                            $privyFailure['reason']
+                        );
                     } else {
                         if ($user->kyc == null) {
-                            return $this->privyVerificationRequiredResponse('Maaf, proses tidak dapat dilanjutkan. Kami memerlukan pembaruan foto selfie dan KTP Anda.');
+                            return $this->privyVerificationRequiredResponse(
+                                $privyFailure['message'].' Maaf, proses tidak dapat dilanjutkan. Kami memerlukan pembaruan foto selfie dan KTP Anda.',
+                                $privyFailure['reason']
+                            );
                         }
                     }
                 }
