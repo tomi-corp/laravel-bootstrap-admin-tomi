@@ -23,6 +23,7 @@ use App\Models\rekening_tomi;
 use App\Models\tenor_pinjaman;
 use App\Models\User;
 use App\Models\verif_otp_pengajuan;
+use App\Services\PrivyDigitalIdClient;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Hash;
@@ -97,21 +98,98 @@ class PinjamanController extends Controller
         return strtolower(trim((string) $karyawan?->status)) === 'tetap';
     }
 
-    private function privyVerificationRequiredResponse(string $message, ?string $reason = null)
+    private function privyVerificationRequiredResponse(string $message, ?string $reason = null, ?User $user = null)
     {
+        $httpStatus = 400;
         $response = [
             'status' => 400,
             'message' => $message,
             'action_required' => 'privy_verification',
             'privy_verification_required' => true,
             'next_endpoint' => '/v1/api/privy/digital-id/session',
+            'button_label' => 'Lanjutkan',
+            'primary_action' => [
+                'type' => 'open_url',
+                'label' => 'Lanjutkan',
+                'url' => null,
+            ],
         ];
 
         if ($reason !== null) {
             $response['reason'] = $reason;
         }
 
-        return response()->json($response, 400);
+        if ($user) {
+            $session = $this->createPrivyDigitalIdSession($user);
+
+            if ($session) {
+                $httpStatus = 200;
+                $response['status'] = 200;
+                $response['message'] = $message;
+                $response['data'] = $session;
+                $response['session_url'] = $session['session_url'];
+                $response['redirect_url'] = $session['session_url'];
+                $response['action_url'] = $session['session_url'];
+                $response['button_text'] = 'Lanjutkan';
+                $response['primary_action']['url'] = $session['session_url'];
+            }
+        }
+
+        return response()->json($response, $httpStatus);
+    }
+
+    private function createPrivyDigitalIdSession(User $user): ?array
+    {
+        if (empty($user->nik) || empty($user->nama_lengkap) || empty($user->dob) || empty($user->email) || empty($user->nohp)) {
+            return null;
+        }
+
+        $activeSession = PrivyDigitalIdSession::where('user_id', $user->id)
+            ->whereIn('status', ['created', 'pending', 'processing'])
+            ->whereNotNull('session_url')
+            ->where(function ($query) {
+                $query->whereNull('expires_at')
+                    ->orWhere('expires_at', '>', now());
+            })
+            ->latest()
+            ->first();
+
+        if ($activeSession) {
+            return [
+                'session_id' => $activeSession->privy_session_id,
+                'session_url' => $activeSession->session_url,
+                'expires_at' => $activeSession->expires_at?->toISOString(),
+            ];
+        }
+
+        $referenceNumber = 'TOMIDIGITALID'.$user->id.now('Asia/Jakarta')->format('YmdHis');
+
+        try {
+            $session = app(PrivyDigitalIdClient::class)->createSession();
+
+            PrivyDigitalIdSession::create([
+                'user_id' => $user->id,
+                'reference_number' => $referenceNumber,
+                'privy_session_id' => $session['session_id'],
+                'session_url' => $session['session_url'],
+                'status' => 'created',
+                'expires_at' => $session['expires_at'] ? Carbon::parse($session['expires_at'])->toDateTimeString() : null,
+            ]);
+
+            return [
+                'session_id' => $session['session_id'],
+                'session_url' => $session['session_url'],
+                'expires_at' => $session['expires_at'],
+            ];
+        } catch (\Throwable $e) {
+            Log::warning('Privy Digital ID session creation from loan request failed', [
+                'user_id' => $user->id,
+                'reference_number' => $referenceNumber,
+                'message' => $e->getMessage(),
+            ]);
+
+            return null;
+        }
     }
 
     private function hasVerifiedPrivy(User $user): bool
@@ -644,7 +722,8 @@ class PinjamanController extends Controller
                         // tampilkan consent privy
                         return $this->privyVerificationRequiredResponse(
                             $privyFailure['message'].' Silakan lakukan verifikasi Privy terlebih dahulu.',
-                            $privyFailure['reason']
+                            $privyFailure['reason'],
+                            $user
                         );
                     } else {
                         if ($user->resend_privy == 1) {
@@ -653,7 +732,8 @@ class PinjamanController extends Controller
 
                             return $this->privyVerificationRequiredResponse(
                                 $privyFailure['message'].' '.($reasonMessage ? $reasonMessage.', ' : '').'Harap perbarui kembali data anda',
-                                $reasonMessage ?: $privyFailure['reason']
+                                $reasonMessage ?: $privyFailure['reason'],
+                                $user
                             );
                         } elseif ($user->resend_privy == 0 && $user->reason_privy != null) {
                             $reason = json_decode($user->reason_privy);
@@ -661,12 +741,14 @@ class PinjamanController extends Controller
 
                             return $this->privyVerificationRequiredResponse(
                                 $privyFailure['message'].' '.($reasonMessage ? $reasonMessage.', ' : '').'Harap hubungi customer service untuk merubah data anda',
-                                $reasonMessage ?: $privyFailure['reason']
+                                $reasonMessage ?: $privyFailure['reason'],
+                                $user
                             );
                         } else {
                             return $this->privyVerificationRequiredResponse(
                                 $privyFailure['message'].' Harap menunggu, data anda sedang proses verifikasi.',
-                                $privyFailure['reason']
+                                $privyFailure['reason'],
+                                $user
                             );
                         }
                     }
@@ -674,13 +756,15 @@ class PinjamanController extends Controller
                     if (! isset($user->nik) || ! isset($user->nama_lengkap) && ! isset($user->dob)) {
                         return $this->privyVerificationRequiredResponse(
                             $privyFailure['message'].' Harap lengkapi data anda terlebih dahulu.',
-                            $privyFailure['reason']
+                            $privyFailure['reason'],
+                            $user
                         );
                     } else {
                         if ($user->kyc == null) {
                             return $this->privyVerificationRequiredResponse(
                                 $privyFailure['message'].' Maaf, proses tidak dapat dilanjutkan. Kami memerlukan pembaruan foto selfie dan KTP Anda.',
-                                $privyFailure['reason']
+                                $privyFailure['reason'],
+                                $user
                             );
                         }
                     }
