@@ -104,8 +104,10 @@ class PinjamanController extends Controller
         $response = [
             'status' => 400,
             'message' => $message,
+            'pinjaman' => false,
             'action_required' => 'privy_verification',
             'privy_verification_required' => true,
+            'next_step' => 'privy_verification',
             'next_endpoint' => '/v1/api/privy/digital-id/session',
             'button_label' => 'Lanjutkan',
             'primary_action' => [
@@ -126,10 +128,20 @@ class PinjamanController extends Controller
                 $httpStatus = 200;
                 $response['status'] = 200;
                 $response['message'] = $message;
-                $response['data'] = $session;
+                $response['data'] = [
+                    'session_id' => $session['session_id'],
+                    'session_url' => $session['session_url'],
+                    'redirect_url' => $session['session_url'],
+                    'action_url' => $session['session_url'],
+                    'url' => $session['session_url'],
+                    'expires_at' => $session['expires_at'],
+                ];
                 $response['session_url'] = $session['session_url'];
                 $response['redirect_url'] = $session['session_url'];
                 $response['action_url'] = $session['session_url'];
+                $response['url'] = $session['session_url'];
+                $response['link'] = $session['session_url'];
+                $response['webview_url'] = $session['session_url'];
                 $response['button_text'] = 'Lanjutkan';
                 $response['primary_action']['url'] = $session['session_url'];
             }
