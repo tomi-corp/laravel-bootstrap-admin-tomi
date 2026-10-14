@@ -18,6 +18,7 @@ use App\Models\cost;
 use App\Models\jatuh_tempo;
 use App\Models\ListPerusahaan;
 use App\Models\pinjaman;
+use App\Models\PrivyDigitalIdSession;
 use App\Models\rekening_tomi;
 use App\Models\tenor_pinjaman;
 use App\Models\User;
@@ -111,6 +112,30 @@ class PinjamanController extends Controller
         }
 
         return response()->json($response, 400);
+    }
+
+    private function hasVerifiedPrivy(User $user): bool
+    {
+        if (in_array($user->verified_privy, ['y', '1', 1, true], true) && ! empty($user->id_privy)) {
+            return true;
+        }
+
+        $verifiedSession = PrivyDigitalIdSession::where('user_id', $user->id)
+            ->where('status', 'verified')
+            ->whereNotNull('privy_id')
+            ->latest('verified_at')
+            ->latest('id')
+            ->first();
+
+        if (! $verifiedSession) {
+            return false;
+        }
+
+        $user->id_privy = $user->id_privy ?: $verifiedSession->privy_id;
+        $user->verified_privy = 'y';
+        $user->save();
+
+        return true;
     }
 
     private function renderPkHtml(pinjaman $pinjaman, User $user)
@@ -561,7 +586,7 @@ class PinjamanController extends Controller
                     'status' => 400,
                     'message' => 'Maksimal nominal pinjaman Rp ' . number_format($maksimal),
                 ], 400);
-            } elseif (! in_array($user->verified_privy, ['y', '1', 1, true], true) || empty($user->id_privy)) {
+            } elseif (! $this->hasVerifiedPrivy($user)) {
 
                 if (isset($user->nik) && isset($user->nama_lengkap) && isset($user->dob) && isset($user->kyc->selfie) && isset($user->kyc->ktp)) {
                     $kycExpiredResponse = $this->kycExpiredResponse($user);
