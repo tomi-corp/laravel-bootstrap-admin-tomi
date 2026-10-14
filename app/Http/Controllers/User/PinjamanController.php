@@ -127,6 +127,10 @@ class PinjamanController extends Controller
                 $response['status'] = 200;
                 $response['message'] = 'Silakan lanjutkan verifikasi Privy untuk memproses pengajuan.';
                 $response['data'] = $session;
+                $response['session_url'] = $session['session_url'];
+                $response['redirect_url'] = $session['session_url'];
+                $response['action_url'] = $session['session_url'];
+                $response['button_text'] = 'Lanjutkan';
                 $response['primary_action']['url'] = $session['session_url'];
             }
         }
