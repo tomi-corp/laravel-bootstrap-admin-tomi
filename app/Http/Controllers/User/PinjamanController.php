@@ -110,10 +110,25 @@ class PinjamanController extends Controller
             'next_step' => 'privy_verification',
             'next_endpoint' => '/v1/api/privy/digital-id/session',
             'button_label' => 'Lanjutkan',
+            'after_verification' => [
+                'type' => 'retry_request',
+                'method' => 'POST',
+                'endpoint' => '/v1/api/action/pinjaman',
+                'success_next_step' => 'loan_otp',
+                'success_action' => 'show_otp_modal',
+                'otp_endpoint' => '/v1/api/action/pinjaman/otp',
+                'resend_otp_endpoint' => '/v1/api/action/pinjaman/otp/ulang',
+            ],
             'primary_action' => [
                 'type' => 'open_url',
                 'label' => 'Lanjutkan',
                 'url' => null,
+                'after_success' => [
+                    'type' => 'retry_request',
+                    'method' => 'POST',
+                    'endpoint' => '/v1/api/action/pinjaman',
+                    'success_action' => 'show_otp_modal',
+                ],
             ],
         ];
 
@@ -966,6 +981,14 @@ class PinjamanController extends Controller
                 return response()->json([
                     'status' => 200,
                     'pinjaman' => true,
+                    'action_required' => 'loan_otp',
+                    'next_step' => 'loan_otp',
+                    'next_endpoint' => '/v1/api/action/pinjaman/otp',
+                    'resend_endpoint' => '/v1/api/action/pinjaman/otp/ulang',
+                    'modal' => [
+                        'type' => 'otp',
+                        'show' => true,
+                    ],
                     'message' => 'success, harap periksa OTP yang telah dikirimkan melalui whatsapp ' . $mask,
                 ], 200);
             }
