@@ -100,54 +100,19 @@ class PinjamanController extends Controller
 
     private function privyVerificationRequiredResponse(string $message, ?string $reason = null, ?User $user = null)
     {
-        $httpStatus = 400;
         $response = [
             'status' => 400,
             'message' => $message,
-            'pinjaman' => false,
             'action_required' => 'privy_verification',
             'privy_verification_required' => true,
-            'next_step' => 'privy_verification',
             'next_endpoint' => '/v1/api/privy/digital-id/session',
-            'button_label' => 'Lanjutkan',
-            'primary_action' => [
-                'type' => 'open_url',
-                'label' => 'Lanjutkan',
-                'url' => null,
-            ],
         ];
 
         if ($reason !== null) {
             $response['reason'] = $reason;
         }
 
-        if ($user) {
-            $session = $this->createPrivyDigitalIdSession($user);
-
-            if ($session) {
-                $httpStatus = 200;
-                $response['status'] = 200;
-                $response['message'] = $message;
-                $response['data'] = [
-                    'session_id' => $session['session_id'],
-                    'session_url' => $session['session_url'],
-                    'redirect_url' => $session['session_url'],
-                    'action_url' => $session['session_url'],
-                    'url' => $session['session_url'],
-                    'expires_at' => $session['expires_at'],
-                ];
-                $response['session_url'] = $session['session_url'];
-                $response['redirect_url'] = $session['session_url'];
-                $response['action_url'] = $session['session_url'];
-                $response['url'] = $session['session_url'];
-                $response['link'] = $session['session_url'];
-                $response['webview_url'] = $session['session_url'];
-                $response['button_text'] = 'Lanjutkan';
-                $response['primary_action']['url'] = $session['session_url'];
-            }
-        }
-
-        return response()->json($response, $httpStatus);
+        return response()->json($response, 400);
     }
 
     private function createPrivyDigitalIdSession(User $user): ?array
@@ -206,71 +171,26 @@ class PinjamanController extends Controller
 
     private function hasVerifiedPrivy(User $user): bool
     {
-        $status = $this->privyVerificationStatus($user);
-
-        if ($status['user_verified']) {
+        if (in_array($user->verified_privy, ['y', '1', 1, true], true) && ! empty($user->id_privy)) {
             return true;
         }
 
-        if (! $status['session_verified']) {
-            return false;
-        }
-
-        $user->id_privy = $user->id_privy ?: $status['session']->privy_id;
-        $user->verified_privy = 'y';
-        $user->save();
-
-        return true;
-    }
-
-    private function privyVerificationStatus(User $user): array
-    {
-        $session = PrivyDigitalIdSession::where('user_id', $user->id)
+        $verifiedSession = PrivyDigitalIdSession::where('user_id', $user->id)
+            ->where('status', 'verified')
+            ->whereNotNull('privy_id')
             ->latest('verified_at')
             ->latest('id')
             ->first();
 
-        $userVerified = in_array($user->verified_privy, ['y', '1', 1, true], true) && ! empty($user->id_privy);
-        $sessionVerified = $session && $session->status === 'verified' && ! empty($session->privy_id);
-
-        return [
-            'user_verified' => $userVerified,
-            'user_has_privy_data' => in_array($user->verified_privy, ['y', '1', 1, true], true) || ! empty($user->id_privy),
-            'session' => $session,
-            'session_exists' => $session !== null,
-            'session_verified' => $sessionVerified,
-        ];
-    }
-
-    private function privyVerificationFailureMessage(User $user): array
-    {
-        $status = $this->privyVerificationStatus($user);
-
-        if (! $status['user_has_privy_data'] && ! $status['session_exists']) {
-            return [
-                'message' => 'Verifikasi Privy belum ditemukan di data user maupun Privy Digital ID Session.',
-                'reason' => 'privy_not_found_in_user_and_session',
-            ];
+        if (! $verifiedSession) {
+            return false;
         }
 
-        if (! $status['user_has_privy_data'] && $status['session_exists']) {
-            return [
-                'message' => 'Verifikasi Privy belum ditemukan di data user, dan data Privy Digital ID Session belum berstatus verified.',
-                'reason' => 'privy_not_found_in_user_session_not_verified',
-            ];
-        }
+        $user->id_privy = $user->id_privy ?: $verifiedSession->privy_id;
+        $user->verified_privy = 'y';
+        $user->save();
 
-        if ($status['user_has_privy_data'] && ! $status['session_exists']) {
-            return [
-                'message' => 'Verifikasi Privy di data user belum lengkap, dan data Privy Digital ID Session belum ditemukan.',
-                'reason' => 'privy_user_incomplete_session_not_found',
-            ];
-        }
-
-        return [
-            'message' => 'Verifikasi Privy di data user belum lengkap, dan data Privy Digital ID Session belum berstatus verified.',
-            'reason' => 'privy_user_incomplete_session_not_verified',
-        ];
+        return true;
     }
 
     private function renderPkHtml(pinjaman $pinjaman, User $user)
@@ -720,7 +640,7 @@ class PinjamanController extends Controller
                     'status' => 400,
                     'message' => 'Maksimal nominal pinjaman Rp '.number_format($maksimal),
                 ], 400);
-            } elseif (! in_array($user->verified_privy, ['y', '1', 1, true], true) || empty($user->id_privy)) {
+            } elseif (! $this->hasVerifiedPrivy($user)) {
 
                 if (isset($user->nik) && isset($user->nama_lengkap) && isset($user->dob) && isset($user->kyc->selfie) && isset($user->kyc->ktp)) {
                     $kycExpiredResponse = $this->kycExpiredResponse($user);
@@ -730,7 +650,7 @@ class PinjamanController extends Controller
 
                     if ($user->register_token_privy == null) {
                         // tampilkan consent privy
-                        return $this->privyVerificationRequiredResponse('User wajib verifikasi Privy terlebih dahulu');
+                        return $this->privyVerificationRequiredResponse('User wajib verifikasi Privy terlebih dahulu', null, $user);
                     } else {
                         if ($user->resend_privy == 1) {
                             $reason = json_decode($user->reason_privy);
@@ -738,7 +658,8 @@ class PinjamanController extends Controller
 
                             return $this->privyVerificationRequiredResponse(
                                 ($reasonMessage ? $reasonMessage.', ' : '').'Harap perbarui kembali data anda',
-                                $reasonMessage
+                                $reasonMessage,
+                                $user
                             );
                         } elseif ($user->resend_privy == 0 && $user->reason_privy != null) {
                             $reason = json_decode($user->reason_privy);
@@ -746,10 +667,11 @@ class PinjamanController extends Controller
 
                             return $this->privyVerificationRequiredResponse(
                                 ($reasonMessage ? $reasonMessage.', ' : '').'Harap hubungi customer service untuk merubah data anda',
-                                $reasonMessage
+                                $reasonMessage,
+                                $user
                             );
                         } else {
-                            return $this->privyVerificationRequiredResponse('Harap menunggu, data anda sedang proses verifikasi');
+                            return $this->privyVerificationRequiredResponse('Harap menunggu, data anda sedang proses verifikasi', null, $user);
                         }
                     }
                 } else {
