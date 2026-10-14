@@ -635,49 +635,6 @@ class PinjamanController extends Controller
                     'status' => 400,
                     'message' => 'Maksimal nominal pinjaman Rp '.number_format($maksimal),
                 ], 400);
-            } elseif (! $this->hasVerifiedPrivy($user)) {
-
-                if (isset($user->nik) && isset($user->nama_lengkap) && isset($user->dob) && isset($user->kyc->selfie) && isset($user->kyc->ktp)) {
-                    $kycExpiredResponse = $this->kycExpiredResponse($user);
-                    if ($kycExpiredResponse) {
-                        return $kycExpiredResponse;
-                    }
-
-                    if ($user->register_token_privy == null) {
-                        // tampilkan consent privy
-                        return $this->privyVerificationRequiredResponse('User wajib verifikasi Privy terlebih dahulu', null, $user);
-                    } else {
-                        if ($user->resend_privy == 1) {
-                            $reason = json_decode($user->reason_privy);
-                            $reasonMessage = $reason->reason ?? null;
-
-                            return $this->privyVerificationRequiredResponse(
-                                ($reasonMessage ? $reasonMessage.', ' : '').'Harap perbarui kembali data anda',
-                                $reasonMessage,
-                                $user
-                            );
-                        } elseif ($user->resend_privy == 0 && $user->reason_privy != null) {
-                            $reason = json_decode($user->reason_privy);
-                            $reasonMessage = $reason->reason ?? null;
-
-                            return $this->privyVerificationRequiredResponse(
-                                ($reasonMessage ? $reasonMessage.', ' : '').'Harap hubungi customer service untuk merubah data anda',
-                                $reasonMessage,
-                                $user
-                            );
-                        } else {
-                            return $this->privyVerificationRequiredResponse('Harap menunggu, data anda sedang proses verifikasi', null, $user);
-                        }
-                    }
-                } else {
-                    if (! isset($user->nik) || ! isset($user->nama_lengkap) && ! isset($user->dob)) {
-                        return $this->privyVerificationRequiredResponse('Harap lengkapi data anda terlebih dahulu');
-                    } else {
-                        if ($user->kyc == null) {
-                            return $this->privyVerificationRequiredResponse('Maaf, proses tidak dapat dilanjutkan. Kami memerlukan pembaruan foto selfie dan KTP Anda.');
-                        }
-                    }
-                }
             } else {
 
                 if ($user->kyc == null) {
@@ -1044,6 +1001,10 @@ class PinjamanController extends Controller
                 // untuk ambil document yg sudah ditanda tanganin
                 $pinjaman->save();
                 $verif->delete();
+
+                if (! $this->hasVerifiedPrivy($user)) {
+                    return $this->privyVerificationRequiredResponse('User wajib verifikasi Privy terlebih dahulu', null, $user);
+                }
 
                 return response()->json([
                     'status' => 200,
