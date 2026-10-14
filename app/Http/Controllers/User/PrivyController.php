@@ -5,6 +5,7 @@ namespace App\Http\Controllers\User;
 use App\Exceptions\PrivyDigitalIdException;
 use App\Http\Controllers\Controller;
 use App\Models\cost;
+use App\Models\kyc_user;
 use App\Models\privy;
 use App\Models\privy_pse;
 use App\Models\PrivyDigitalIdSession;
@@ -16,6 +17,7 @@ use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class PrivyController extends Controller
 {
@@ -704,6 +706,7 @@ class PrivyController extends Controller
                 $user = User::find($session->user_id);
 
                 if ($user) {
+                    $this->syncDigitalIdKyc($user, $identity, $payload, $session->callback_shared_data ?? []);
                     $this->markUserPrivyVerified($user, (string) $privyId, is_string($enterpriseToken) ? $enterpriseToken : null, $user->verified_privy == 'y');
                 }
 
@@ -774,5 +777,128 @@ class PrivyController extends Controller
         $newPSEPrivy->cost = $cost->biaya;
         $newPSEPrivy->keterangan = 'Penerbitan sertifikat elektronik';
         $newPSEPrivy->save();
+    }
+
+    private function syncDigitalIdKyc(User $user, array $identity, array $payload, array $sharedData): void
+    {
+        $sources = [$identity, $payload['data'] ?? [], $payload, $sharedData];
+        $selfie = $this->firstDigitalIdImage($sources, [
+            'selfie',
+            'selfie_image',
+            'selfie_photo',
+            'face_image',
+            'face_photo',
+            'liveness_image',
+            'liveness_photo',
+            'photo_selfie',
+        ]);
+        $ktp = $this->firstDigitalIdImage($sources, [
+            'ktp',
+            'ktp_image',
+            'ktp_photo',
+            'identity',
+            'identity_image',
+            'identity_photo',
+            'id_card',
+            'id_card_image',
+            'id_card_photo',
+            'identity_card',
+            'identity_card_image',
+            'identity_card_photo',
+            'nik_image',
+        ]);
+
+        if ($selfie === null && $ktp === null) {
+            return;
+        }
+
+        $kyc = kyc_user::where('user_id', $user->id)->latest()->first() ?: new kyc_user;
+        $kyc->user_id = $user->id;
+
+        if ($selfie !== null) {
+            $kyc->selfie = $this->storeDigitalIdImage($user, $selfie, 'selfie');
+        }
+
+        if ($ktp !== null) {
+            $kyc->ktp = $this->storeDigitalIdImage($user, $ktp, 'ktp');
+        }
+
+        $kyc->save();
+    }
+
+    private function firstDigitalIdImage(array $sources, array $keys): ?string
+    {
+        foreach ($sources as $source) {
+            if (! is_array($source)) {
+                continue;
+            }
+
+            foreach ($keys as $key) {
+                $value = data_get($source, $key) ?? $this->findDigitalIdValueByKey($source, $key);
+
+                if (is_string($value) && trim($value) !== '') {
+                    return trim($value);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private function findDigitalIdValueByKey(array $source, string $key): mixed
+    {
+        foreach ($source as $sourceKey => $value) {
+            if ((string) $sourceKey === $key) {
+                return $value;
+            }
+
+            if (is_array($value)) {
+                $nested = $this->findDigitalIdValueByKey($value, $key);
+
+                if ($nested !== null) {
+                    return $nested;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private function storeDigitalIdImage(User $user, string $value, string $type): string
+    {
+        $binary = $this->decodeDigitalIdImage($value);
+        $extension = $this->imageExtension($binary);
+        $fileName = $user->nik.'_'.$type.'_'.$user->id.'_digital_id_'.now('Asia/Jakarta')->format('YmdHis').'.'.$extension;
+
+        Storage::disk('local')->put('assets/users/'.$fileName, $binary);
+
+        return $fileName;
+    }
+
+    private function decodeDigitalIdImage(string $value): string
+    {
+        if (preg_match('/^data:image\/[a-zA-Z0-9.+-]+;base64,(.+)$/', $value, $matches)) {
+            $value = $matches[1];
+        }
+
+        if (filter_var($value, FILTER_VALIDATE_URL)) {
+            $response = (new Client(['timeout' => 30, 'http_errors' => false]))->request('GET', $value);
+
+            if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
+                return (string) $response->getBody();
+            }
+        }
+
+        $decoded = base64_decode($value, true);
+
+        return $decoded !== false ? $decoded : $value;
+    }
+
+    private function imageExtension(string $binary): string
+    {
+        return match (substr($binary, 0, 4)) {
+            "\x89PNG" => 'png',
+            default => 'jpg',
+        };
     }
 }
