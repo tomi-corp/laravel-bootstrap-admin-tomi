@@ -100,42 +100,19 @@ class PinjamanController extends Controller
 
     private function privyVerificationRequiredResponse(string $message, ?string $reason = null, ?User $user = null)
     {
-        $httpStatus = 400;
         $response = [
             'status' => 400,
             'message' => $message,
             'action_required' => 'privy_verification',
             'privy_verification_required' => true,
             'next_endpoint' => '/v1/api/privy/digital-id/session',
-            'button_label' => 'Lanjutkan',
-            'primary_action' => [
-                'type' => 'open_url',
-                'label' => 'Lanjutkan',
-                'url' => null,
-            ],
         ];
 
         if ($reason !== null) {
             $response['reason'] = $reason;
         }
 
-        if ($user) {
-            $session = $this->createPrivyDigitalIdSession($user);
-
-            if ($session) {
-                $httpStatus = 200;
-                $response['status'] = 200;
-                $response['message'] = 'Silakan lanjutkan verifikasi Privy untuk memproses pengajuan.';
-                $response['data'] = $session;
-                $response['session_url'] = $session['session_url'];
-                $response['redirect_url'] = $session['session_url'];
-                $response['action_url'] = $session['session_url'];
-                $response['button_text'] = 'Lanjutkan';
-                $response['primary_action']['url'] = $session['session_url'];
-            }
-        }
-
-        return response()->json($response, $httpStatus);
+        return response()->json($response, 400);
     }
 
     private function createPrivyDigitalIdSession(User $user): ?array
