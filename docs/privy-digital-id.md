@@ -4,6 +4,13 @@ Status: rencana implementasi, belum diterapkan.
 
 Branch: `feature/privy-digital-id-integration`, dibuat dari `local`.
 
+## Perubahan action pinjaman
+
+`POST /v1/api/action/pinjaman` memeriksa verifikasi Privy sebelum validasi NIP dan sebelum pembuatan pinjaman atau OTP. Akun dengan verifikasi Privy lama atau sesi Digital ID berstatus `verified` dapat melanjutkan ke validasi pinjaman berikutnya. Akun belum terverifikasi menerima HTTP 400 dengan `action_required: privy_verification` dan `next_endpoint: /v1/api/privy/digital-id/session`. Syarat KYC pinjaman tetap berlaku terpisah; pemeriksaan ini tidak menyalin foto Digital ID ke `kyc_user`.
+
+Bagian rencana di bawah merupakan acuan historis; perilaku action pinjaman mengikuti perubahan di atas.
+
+
 ## Acuan dan keputusan
 
 Panduan teknis: `Privy_Digital_ID_v2_API_Documentation_v1.5.pdf`, versi dokumen 1.5, terbit 5 Oktober 2026, API versi 1.0.0. Dokumen sumber tidak disalin ke repo. Ketentuan teknis panduan menjadi referensi kontrak API; cakupan pekerjaan mengikuti keputusan proyek di bawah ini.

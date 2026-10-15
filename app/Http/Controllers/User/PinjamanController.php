@@ -595,6 +595,10 @@ class PinjamanController extends Controller
             ->with('kyc')
             ->first();
 
+        if (! $this->hasVerifiedPrivy($user)) {
+            return $this->privyVerificationRequiredResponse('Silakan verifikasi identitas Privy terlebih dahulu sebelum mengajukan pinjaman.');
+        }
+
         $nip = explode('-', $req->nip);
 
         $perusahaan = ListPerusahaan::where('unique_code', $nip[0])
@@ -649,13 +653,6 @@ class PinjamanController extends Controller
                     return $kycExpiredResponse;
                 }
 
-                if ($user->register_token_privy != null && $user->id_privy == null) {
-                    $checkStatusPrivy = checkStatus();
-                    if ($checkStatusPrivy['data']['privy_id']) {
-                        $user->id_privy = $checkStatusPrivy['data']['privy_id'];
-                        $user->save();
-                    }
-                }
 
                 $cekPinjamanData = pinjaman::where('id_karyawan', $perusahaan->karyawanSingle->id)
                     ->where(function ($q) {
