@@ -28,6 +28,16 @@ class PrivyDigitalIdSession extends Model
         'callback_received_at',
         'processing_started_at',
         'verified_at',
+        'decrypted_privy_id',
+        'decrypted_name',
+        'decrypted_identity_number',
+        'decrypted_dob',
+        'decrypted_email',
+        'decrypted_phone',
+        'decrypted_raw',
+        'decrypted_at',
+        'local_ktp_path',
+        'local_selfie_path',
     ];
 
     protected $casts = [
@@ -37,7 +47,10 @@ class PrivyDigitalIdSession extends Model
         'callback_received_at' => 'datetime',
         'processing_started_at' => 'datetime',
         'verified_at' => 'datetime',
+        'decrypted_at' => 'datetime',
         'attempts' => 'integer',
         'callback_shared_data' => 'array',
+        'decrypted_raw' => 'array',
+        'decrypted_dob' => 'date',
     ];
 }

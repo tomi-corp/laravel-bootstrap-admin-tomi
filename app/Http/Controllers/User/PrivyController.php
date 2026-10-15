@@ -696,18 +696,39 @@ class PrivyController extends Controller
                 ?? null;
             $enterpriseToken = $payload['enterprise_token']
                 ?? $payload['enterpriseToken']
-                ?? $payload['data']['enterprise_token']
-                ?? $payload['data']['enterpriseToken']
-                ?? $identity['enterprise_token']
-                ?? $identity['enterpriseToken']
-                ?? null;
-
+                ?? $payload['data']['enterprise_token'];
             if ($privyId && in_array($status, ['', 'VERIFIED', 'SUCCESS', 'COMPLETED', 'APPROVED'], true)) {
                 $user = User::find($session->user_id);
 
                 if ($user) {
-                    $this->syncDigitalIdKyc($user, $identity, $payload, $session->callback_shared_data ?? []);
+                    $nikMatch = !empty($identity['identity_number']) && $identity['identity_number'] === $user->nik;
+                    $dobMatch = !empty($identity['dob']) && $identity['dob'] === $user->dob;
+
+                    if (! $nikMatch || ! $dobMatch) {
+                        $digitalIdService->finishSession($session->privy_session_id, [
+                            'status' => 'identity_mismatch',
+                            'event' => is_scalar($event) ? (string) $event : null,
+                            'privy_id' => (string) $privyId,
+                        ]);
+
+                        if (!empty($identity)) {
+                            $digitalIdService->updateDecryptedIdentity($session->privy_session_id, $identity);
+                        }
+
+                        return [
+                            'status' => 'IDENTITY_MISMATCH',
+                            'privy_id' => (string) $privyId,
+                            'nik_match' => $nikMatch,
+                            'dob_match' => $dobMatch,
+                        ];
+                    }
+
+                    $this->syncDigitalIdKyc($session, $user, $identity, $payload, $session->callback_shared_data ?? []);
                     $this->markUserPrivyVerified($user, (string) $privyId, is_string($enterpriseToken) ? $enterpriseToken : null, $user->verified_privy == 'y');
+                }
+
+                if (!empty($identity)) {
+                    $digitalIdService->updateDecryptedIdentity($session->privy_session_id, $identity);
                 }
 
                 $digitalIdService->finishSession($session->privy_session_id, [
@@ -779,7 +800,7 @@ class PrivyController extends Controller
         $newPSEPrivy->save();
     }
 
-    private function syncDigitalIdKyc(User $user, array $identity, array $payload, array $sharedData): void
+    private function syncDigitalIdKyc(PrivyDigitalIdSession $session, User $user, array $identity, array $payload, array $sharedData): void
     {
         $sources = [$identity, $payload['data'] ?? [], $payload, $sharedData];
         $selfie = $this->firstDigitalIdImage($sources, [
@@ -812,18 +833,19 @@ class PrivyController extends Controller
             return;
         }
 
-        $kyc = kyc_user::where('user_id', $user->id)->latest()->first() ?: new kyc_user;
-        $kyc->user_id = $user->id;
+        $updateData = [];
 
         if ($selfie !== null) {
-            $kyc->selfie = $this->storeDigitalIdImage($user, $selfie, 'selfie');
+            $updateData['local_selfie_path'] = $this->storeDigitalIdImage($user, $selfie, 'selfie');
         }
 
         if ($ktp !== null) {
-            $kyc->ktp = $this->storeDigitalIdImage($user, $ktp, 'ktp');
+            $updateData['local_ktp_path'] = $this->storeDigitalIdImage($user, $ktp, 'ktp');
         }
 
-        $kyc->save();
+        if (!empty($updateData)) {
+            $session->update($updateData);
+        }
     }
 
     private function firstDigitalIdImage(array $sources, array $keys): ?string
@@ -868,11 +890,13 @@ class PrivyController extends Controller
     {
         $binary = $this->decodeDigitalIdImage($value);
         $extension = $this->imageExtension($binary);
-        $fileName = $user->nik.'_'.$type.'_'.$user->id.'_digital_id_'.now('Asia/Jakarta')->format('YmdHis').'.'.$extension;
+        $timestamp = now('Asia/Jakarta')->format('YmdHis');
+        $fileName = 'privy_'.$type.'_'.$user->id.'_'.$timestamp.'.'.$extension;
+        $path = 'assets/users/'.$fileName;
 
-        Storage::disk('local')->put('assets/users/'.$fileName, $binary);
+        Storage::disk('local')->put($path, $binary);
 
-        return $fileName;
+        return $path;
     }
 
     private function decodeDigitalIdImage(string $value): string

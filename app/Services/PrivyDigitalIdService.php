@@ -120,4 +120,18 @@ class PrivyDigitalIdService
                 'error_message' => substr((string) $errorMessage, 0, 255),
             ]);
     }
+
+    public function updateDecryptedIdentity(string $sessionId, array $identity): int
+    {
+        return PrivyDigitalIdSession::where('privy_session_id', $sessionId)->update([
+            'decrypted_privy_id' => $identity['privy_id'] ?? null,
+            'decrypted_name' => $identity['name'] ?? null,
+            'decrypted_identity_number' => $identity['identity_number'] ?? null,
+            'decrypted_dob' => isset($identity['dob']) ? \Carbon\Carbon::parse($identity['dob'])->format('Y-m-d') : null,
+            'decrypted_email' => $identity['email'] ?? null,
+            'decrypted_phone' => $identity['phone'] ?? null,
+            'decrypted_raw' => $identity,
+            'decrypted_at' => now(),
+        ]);
+    }
 }
