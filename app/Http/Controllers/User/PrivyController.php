@@ -408,7 +408,7 @@ class PrivyController extends Controller
             ], 200);
         }
 
-        $usedByOtherUser = PrivyDigitalIdSession::where('exchange_code', $exchangeCode)
+        $usedByOtherUser = PrivyDigitalIdSession::withTrashed()->where('exchange_code', $exchangeCode)
             ->where('user_id', '!=', $user->id)
             ->exists();
 
@@ -579,22 +579,23 @@ class PrivyController extends Controller
             ], 400);
         }
 
-        if ($sessionId === '') {
-            try {
-                $payload = app(PrivyDigitalIdClient::class)->verifyToken($token);
-                $sessionId = trim((string) ($payload['session_id'] ?? $payload['data']['session_id'] ?? ''));
-            } catch (PrivyDigitalIdException $e) {
-                Log::warning('Privy Digital ID callback token invalid', [
-                    'code' => $e->errorCode,
-                    'http_status' => $e->httpStatus,
-                ]);
+        try {
+            $payload = app(PrivyDigitalIdClient::class)->verifyToken($token);
+        } catch (PrivyDigitalIdException $e) {
+            Log::warning('Privy Digital ID callback token invalid', [
+                'code' => $e->errorCode,
+                'http_status' => $e->httpStatus,
+            ]);
 
-                return response()->json([
-                    'received' => false,
-                    'message' => 'token callback tidak valid',
-                ], 401);
-            }
+            return response()->json([
+                'received' => false,
+                'message' => 'token callback tidak valid',
+            ], 401);
         }
+
+        $requestSessionId = $sessionId;
+        $signedSessionId = $payload['session_id'] ?? $payload['data']['session_id'] ?? null;
+        $sessionId = is_string($signedSessionId) ? trim($signedSessionId) : '';
 
         if ($sessionId === '') {
             Log::warning('Privy Digital ID callback invalid', [
@@ -606,6 +607,13 @@ class PrivyController extends Controller
                 'received' => false,
                 'message' => 'session_id tidak ditemukan pada callback',
             ], 400);
+        }
+
+        if ($request->exists('session_id') && $requestSessionId !== $sessionId) {
+            return response()->json([
+                'received' => false,
+                'message' => 'token callback tidak valid',
+            ], 401);
         }
 
         $session = PrivyDigitalIdSession::where('privy_session_id', $sessionId)->latest()->first();
@@ -622,7 +630,14 @@ class PrivyController extends Controller
             ], 200);
         }
 
-        app(PrivyDigitalIdService::class)->markReceived($sessionId, 'callback');
+        $session = app(PrivyDigitalIdService::class)->acceptCallback($session);
+
+        if (! $session) {
+            return response()->json([
+                'received' => true,
+                'processed' => false,
+            ], 200);
+        }
 
         $sharedData = $request->input('shared_data', []);
         if (is_string($sharedData)) {
@@ -638,7 +653,7 @@ class PrivyController extends Controller
         ])->save();
 
         try {
-            $this->processDigitalIdResult($session, $token, 'callback', $request->input('state') ?? $request->input('event'));
+            $this->processDigitalIdResult($session, $token, 'callback', $request->input('state') ?? $request->input('event'), $payload);
         } catch (PrivyDigitalIdException $e) {
             Log::warning('Privy Digital ID callback processing failed', [
                 'session_id' => $sessionId,
@@ -652,7 +667,7 @@ class PrivyController extends Controller
         ], 200);
     }
 
-    private function processDigitalIdResult(PrivyDigitalIdSession $session, string $token, string $source, mixed $event = null): array
+    private function processDigitalIdResult(PrivyDigitalIdSession $session, string $token, string $source, mixed $event = null, ?array $verifiedPayload = null): array
     {
         $digitalIdService = app(PrivyDigitalIdService::class);
         $claimed = $digitalIdService->claimSession($session->privy_session_id, $source);
@@ -667,7 +682,7 @@ class PrivyController extends Controller
         }
 
         try {
-            $payload = app(PrivyDigitalIdClient::class)->verifyToken($token);
+            $payload = $verifiedPayload ?? app(PrivyDigitalIdClient::class)->verifyToken($token);
             $identity = [];
             $encryptedIdentity = $payload['data']['my_identity']
                 ?? $payload['my_identity']

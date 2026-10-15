@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\PrivyDigitalIdSession;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
 class PrivyDigitalIdService
@@ -58,6 +59,37 @@ class PrivyDigitalIdService
     public function getSession(string $sessionId): ?PrivyDigitalIdSession
     {
         return PrivyDigitalIdSession::where('privy_session_id', $sessionId)->first();
+    }
+
+    public function acceptCallback(PrivyDigitalIdSession $session): ?PrivyDigitalIdSession
+    {
+        return DB::transaction(function () use ($session) {
+            $owner = User::whereKey($session->user_id)->lockForUpdate()->first();
+
+            if (! $owner) {
+                return null;
+            }
+
+            $activeSession = PrivyDigitalIdSession::whereKey($session->getKey())
+                ->where('user_id', $owner->getKey())
+                ->lockForUpdate()
+                ->first();
+
+            if (! $activeSession) {
+                return null;
+            }
+
+            if ($activeSession->callback_received_at === null) {
+                PrivyDigitalIdSession::where('user_id', $owner->getKey())
+                    ->where('id', '!=', $activeSession->getKey())
+                    ->delete();
+
+                $activeSession->callback_received_at = now();
+                $activeSession->save();
+            }
+
+            return $activeSession;
+        });
     }
 
     public function markReceived(string $sessionId, string $source): int

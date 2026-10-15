@@ -10,6 +10,19 @@ Branch: `feature/privy-digital-id-integration`, dibuat dari `local`.
 
 Bagian rencana di bawah merupakan acuan historis; perilaku action pinjaman mengikuti perubahan di atas.
 
+## Penerimaan callback dan soft delete sesi
+
+Callback memverifikasi signature dan issuer JWT sebelum penulisan apa pun, termasuk pada sesi yang sudah selesai. ID sesi harus berupa string tidak kosong dari klaim bertanda tangan `session_id` atau `data.session_id`; ID request yang disertakan harus cocok. Token tidak valid atau ID bertentangan menghasilkan 401, sedangkan klaim ID yang tidak tersedia menghasilkan 400. ID peminjam dari request tidak menentukan kepemilikan callback.
+
+Pada penerimaan callback pertama, transaksi mengunci pengguna dan sesi aktif, lalu mengisi `deleted_at` seluruh sesi aktif lain milik pengguna tersebut tanpa memandang status atau kedaluwarsa. Sesi penerima tetap aktif. Ini berlaku sebelum pemrosesan hasil, termasuk FAILED/REJECTED/ERROR, identity_mismatch, kegagalan dekripsi, dan sesi yang sudah verified melalui exchange. Tidak ada panggilan provider atau unduhan foto di dalam transaksi.
+
+`callback_received_at` menandai penerimaan pertama: callback ulang tidak menghapus sesi yang dibuat setelahnya. Sesi yang sudah dihapus tidak dipulihkan; callback untuk sesi tidak dikenal atau terhapus mendapat HTTP 200 dengan `received: true, processed: false`. Baris historis dengan penanda penerimaan yang sudah terisi tidak memicu penghapusan retroaktif.
+
+Migration `2026_10_15_220000_add_soft_deletes_to_privy_digital_id_sessions_table.php` hanya menambahkan kolom nullable `deleted_at`, tanpa menghapus sesi lama. Soft delete mempertahankan baris fisik dan berkas foto. Pembacaan/pembaruan Eloquent biasa mengabaikan sesi terhapus; hanya pemeriksaan kepemilikan historis exchange code menggunakan `withTrashed()` agar kode pengguna lain tetap ditolak dengan 403. Flag verifikasi pengguna, pencocokan NIK/DOB, dan kebijakan KYC tidak berubah.
+
+Pengujian regresi: `php artisan test --filter=PrivyDigitalIdCallbackTest`. Suite menggunakan SQLite dalam memori dengan skema minimal, bukan database `.env` atau migration aplikasi yang tidak terkait.
+
+
 
 ## Acuan dan keputusan
 
