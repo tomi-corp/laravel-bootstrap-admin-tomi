@@ -5,7 +5,6 @@ namespace App\Http\Controllers\User;
 use App\Exceptions\PrivyDigitalIdException;
 use App\Http\Controllers\Controller;
 use App\Models\cost;
-use App\Models\kyc_user;
 use App\Models\privy;
 use App\Models\privy_pse;
 use App\Models\PrivyDigitalIdSession;
@@ -696,13 +695,13 @@ class PrivyController extends Controller
                 ?? null;
             $enterpriseToken = $payload['enterprise_token']
                 ?? $payload['enterpriseToken']
-                ?? $payload['data']['enterprise_token'];
+                ?? $payload['data']['enterprise_token'] ?? null;
             if ($privyId && in_array($status, ['', 'VERIFIED', 'SUCCESS', 'COMPLETED', 'APPROVED'], true)) {
                 $user = User::find($session->user_id);
 
                 if ($user) {
-                    $nikMatch = !empty($identity['identity_number']) && $identity['identity_number'] === $user->nik;
-                    $dobMatch = !empty($identity['dob']) && $identity['dob'] === $user->dob;
+                    $nikMatch = ! empty($identity['identity_number']) && $identity['identity_number'] === $user->nik;
+                    $dobMatch = ! empty($identity['dob']) && $identity['dob'] === $user->dob;
 
                     if (! $nikMatch || ! $dobMatch) {
                         $digitalIdService->finishSession($session->privy_session_id, [
@@ -711,7 +710,7 @@ class PrivyController extends Controller
                             'privy_id' => (string) $privyId,
                         ]);
 
-                        if (!empty($identity)) {
+                        if (! empty($identity)) {
                             $digitalIdService->updateDecryptedIdentity($session->privy_session_id, $identity);
                         }
 
@@ -727,7 +726,7 @@ class PrivyController extends Controller
                     $this->markUserPrivyVerified($user, (string) $privyId, is_string($enterpriseToken) ? $enterpriseToken : null, $user->verified_privy == 'y');
                 }
 
-                if (!empty($identity)) {
+                if (! empty($identity)) {
                     $digitalIdService->updateDecryptedIdentity($session->privy_session_id, $identity);
                 }
 
@@ -843,7 +842,7 @@ class PrivyController extends Controller
             $updateData['local_ktp_path'] = $this->storeDigitalIdImage($user, $ktp, 'ktp');
         }
 
-        if (!empty($updateData)) {
+        if (! empty($updateData)) {
             $session->update($updateData);
         }
     }
