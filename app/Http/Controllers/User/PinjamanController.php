@@ -491,112 +491,351 @@ class PinjamanController extends Controller
         // }
     }
 
+    // public function actionPinjaman(ActionPinjamRequest $req)
+    // {
+    //     /**
+    //      * ☠️═══════════════════════════════════════════════════════════════════════☠️
+    //      *                     ☠️ FINAL BOSS - PRODUCTION CORE ☠️
+    //      * ☠️═══════════════════════════════════════════════════════════════════════☠️
+    //      *
+    //      * ⚠️ BERHENTI.
+    //      *
+    //      * Jika tujuanmu membuka function ini hanya karena ingin
+    //      * "rapihin dikit" atau "biar lebih clean",
+    //      * tutup editor sekarang.
+    //      *
+    //      * =======================================================================
+    //      *                     ☠️ AREA DENGAN RISIKO TERTINGGI ☠️
+    //      * =======================================================================
+    //      *
+    //      * Function ini adalah jantung proses pengajuan pinjaman.
+    //      *
+    //      * Hampir seluruh proses bisnis melewati tempat ini.
+    //      *
+    //      * Sedikit perubahan dapat menyebabkan:
+    //      *
+    //      * ☠️ Pengajuan gagal.
+    //      * ☠️ OTP tidak terkirim.
+    //      * ☠️ Simulasi pinjaman salah.
+    //      * ☠️ Data pinjaman tidak tersimpan.
+    //      * ☠️ Jadwal jatuh tempo tidak terbentuk.
+    //      * ☠️ User tidak bisa mencairkan pinjaman.
+    //      * ☠️ Dan yang paling menakutkan...
+    //      *     Semua terlihat normal sampai Production digunakan pelanggan.
+    //      *
+    //      * =======================================================================
+    //      *                    ☠️ SEBELUM MENYENTUH FUNCTION INI ☠️
+    //      * =======================================================================
+    //      *
+    //      * Tanyakan pada dirimu sendiri:
+    //      *
+    //      * □ Apakah saya memahami seluruh flow bisnisnya?
+    //      * □ Apakah saya tahu setiap return 400 dibuat untuk kondisi apa?
+    //      * □ Apakah saya sudah membaca semua requirement bisnis?
+    //      * □ Apakah saya sudah menyiapkan rollback?
+    //      * □ Apakah saya sudah melakukan testing end-to-end?
+    //      *
+    //      * Jika ada satu saja jawaban "Tidak"...
+    //      *
+    //      * Jangan lanjutkan.
+    //      *
+    //      * =======================================================================
+    //      *                     ☠️ HUKUM LEGACY CODE ☠️
+    //      * =======================================================================
+    //      *
+    //      * Legacy Code bukan berarti kode ini buruk.
+    //      *
+    //      * Legacy Code berarti:
+    //      *
+    //      * - Sudah digunakan oleh ribuan transaksi.
+    //      * - Sudah melewati banyak perubahan requirement.
+    //      * - Sudah menyimpan banyak cerita yang tidak ada di dokumentasi.
+    //      *
+    //      * Jangan pernah menghapus sesuatu hanya karena
+    //      * "kelihatannya tidak dipakai."
+    //      *
+    //      * Production sering memiliki pendapat yang berbeda.
+    //      *
+    //      * =======================================================================
+    //      *                     ☠️ SATU BARIS, SERIBU DAMPAK ☠️
+    //      * =======================================================================
+    //      *
+    //      * Ingat...
+    //      *
+    //      * Bug di sini tidak selalu muncul hari ini.
+    //      * Kadang muncul minggu depan.
+    //      * Kadang muncul saat jam kerja.
+    //      * Kadang muncul pukul 02:00 pagi.
+    //      *
+    //      * Dan Production...
+    //      * Selalu memilih waktu yang paling tidak tepat.
+    //      *
+    //      * =======================================================================
+    //      *                         ☠️ LAST WARNING ☠️
+    //      * =======================================================================
+    //      *
+    //      * Jika setelah mengubah function ini:
+    //      *
+    //      * ☠️ Finance mulai bertanya.
+    //      * ☠️ Customer Service mulai menerima banyak komplain.
+    //      * ☠️ QA mengirim pesan "Mas, ada yang aneh."
+    //      * ☠️ Senior Developer berjalan ke arah mejamu.
+    //      *
+    //      * Ketahuilah...
+    //      *
+    //      * Boss Fight telah dimulai.
+    //      *
+    //      * Semoga commit-mu kecil.
+    //      * Semoga rollback-mu mudah.
+    //      * Dan semoga Production tidak pernah mengingat namamu.
+    //      *
+    //      *                        ☠️ ENTER AT YOUR OWN RISK ☠️
+    //      */
+    //     $user = User::where('id', auth('api')->user()->id)
+    //         ->with('kyc')
+    //         ->first();
+
+    //     if (! $this->hasVerifiedPrivy($user)) {
+    //         return $this->privyVerificationRequiredResponse('Silakan verifikasi identitas Privy terlebih dahulu sebelum mengajukan pinjaman.');
+    //     }
+
+    //     $nip = explode('-', $req->nip);
+
+    //     $perusahaan = ListPerusahaan::where('unique_code', $nip[0])
+    //         ->with(['karyawanSingle' => function ($q) use ($nip) {
+    //             $q->where('nip', '=', $nip[1]);
+    //             $q->first();
+    //         }, 'amount_pinjaman', 'lender'])
+    //         ->first();
+
+    //     if (! isset($perusahaan) || ! isset($perusahaan->karyawanSingle)) {
+    //         return response()->json([
+    //             'status' => 400,
+    //             'message' => 'Data NIP tidak ditemukan',
+    //         ], 400);
+    //     } else {
+    //         if (! $this->isKaryawanTetap($perusahaan->karyawanSingle)) {
+    //             return response()->json([
+    //                 'status' => 400,
+    //                 'message' => 'Mohon maaf, pengajuan pinjaman Anda belum dapat diproses. Silakan hubungi Human Capital (HC) Perusahaan Anda untuk informasi lebih lanjut.',
+    //             ], 400);
+    //         }
+
+    //         // $pendapatan = 70 / 100 * $perusahaan->karyawanSingle->penghasilan;
+    //         if ($perusahaan->karyawanSingle->max_plafon > $perusahaan->amount_pinjaman->maximal) {
+    //             $maksimal = $perusahaan->amount_pinjaman->maximal;
+    //         } elseif ($perusahaan->karyawanSingle->max_plafon < $perusahaan->amount_pinjaman->maximal) {
+    //             $maksimal = $perusahaan->karyawanSingle->max_plafon;
+    //         }
+
+    //         $tenor = tenor_pinjaman::where('id_perusahaan', $perusahaan->id)
+    //             ->where('id', $req->id_tenor_pinjaman)
+    //             ->with('amount_pinjaman')
+    //             ->orderBy('tenor')
+    //             ->first();
+
+    //         if (! ($tenor->minimal_nominal <= $req->nominal) && ! ($maksimal <= $tenor->maximal_nominal)) {
+    //             return response()->json([
+    //                 'status' => 400,
+    //                 'message' => 'Maksimal nominal pinjaman Rp '.number_format($maksimal),
+    //             ], 400);
+    //         } else {
+
+    //             if ($user->kyc == null) {
+    //                 return response()->json([
+    //                     'status' => 400,
+    //                     'message' => 'Maaf, proses tidak dapat dilanjutkan. Kami memerlukan pembaruan foto selfie dan KTP Anda.',
+    //                 ], 400);
+    //             }
+
+    //             $kycExpiredResponse = $this->kycExpiredResponse($user);
+    //             if ($kycExpiredResponse) {
+    //                 return $kycExpiredResponse;
+    //             }
+
+    //             $cekPinjamanData = pinjaman::where('id_karyawan', $perusahaan->karyawanSingle->id)
+    //                 ->where(function ($q) {
+    //                     $q->orWhere('status', 'pending')
+    //                         ->orWhere('status', 'on_proses')
+    //                         ->orWhere('status', 'approve');
+    //                 })
+    //                 ->where('id_karyawan', $perusahaan->karyawanSingle->id)
+    //                 ->where('status_otp', 'success')
+    //                 ->first();
+
+    //             $cekPinjamanUser = pinjaman::where('user_id', auth('api')->user()->id)
+    //                 ->where(function ($q) {
+    //                     $q->orWhere('status', 'pending')
+    //                         ->orWhere('status', 'on_proses')
+    //                         ->orWhere('status', 'approve');
+    //                 })
+    //                 ->where('id_karyawan', $perusahaan->karyawanSingle->id)
+    //                 ->where('status_otp', 'success')
+    //                 ->first();
+
+    //             // where('user_id', auth('api')->user()->id)
+    //             $cekPinjamanPendingOTP = pinjaman::where('id_karyawan', $perusahaan->karyawanSingle->id)
+    //                 ->where('status', 'on_proses')
+    //                 ->where('status_otp', 'pending')
+    //                 ->first();
+
+    //             // pinjaman aktif
+    //             if (isset($cekPinjamanData) || isset($cekPinjamanUser)) {
+    //                 return response()->json([
+    //                     'status' => 400,
+    //                     'message' => 'Mohon maaf, saat ini Anda masih memiliki pinjaman aktif. Terima kasih',
+    //                 ], 400);
+    //             }
+
+    //             // pembaruan data karyawan tiap tanggal 1
+    //             if ($perusahaan->karyawanSingle->updated_at && Carbon::parse($perusahaan->karyawanSingle->updated_at)->lessThan(Carbon::now()->startOfMonth())) {
+    //                 return response()->json([
+    //                     'status' => 400,
+    //                     'message' => 'Kami melihat pembaruan data Anda sudah melewati batas waktu yang ditentukan, Mohon bantuannya untuk segera menghubungi Human Capital (HC) Perusahaan Anda agar mereka dapat memproses dan mengirimkan data terbaru Anda ke aplikasi TOMI. Kami siap membantu menyelesaikan prosesnya setelah data dari HC kami terima. Terima kasih!',
+    //                 ], 400);
+    //             }
+
+    //             if (isset($cekPinjamanPendingOTP)) {
+    //                 return response()->json([
+    //                     'status' => 200,
+    //                     'pinjaman' => false,
+    //                     'message' => 'Anda memiliki validasi otp yang belum diselesaikan',
+    //                 ], 200);
+    //             }
+
+    //             while (true) {
+    //                 $code = '#LOAN-'.Carbon::now()->format('Y-m-d').'-'.auth('api')->user()->id.Carbon::now()->format('s').rand(100, 999);
+    //                 $pinjaman = pinjaman::where('id_pinjaman', $code)->first();
+    //                 if (! isset($pinjaman)) {
+    //                     break;
+    //                 }
+    //             }
+
+    //             $codeOTP = rand(1000, 9999);
+
+    //             $otp = new verif_otp_pengajuan;
+    //             $otp->user_id = auth('api')->user()->id;
+    //             $otp->failed = 0;
+    //             $otp->otp = $codeOTP;
+
+    //             $otp->expired = Carbon::now()->addHour(24);
+
+    //             $pinjaman = new pinjaman;
+    //             $pinjaman->user_id = auth('api')->user()->id;
+    //             $pinjaman->id_perusahaan = $perusahaan->id;
+    //             $pinjaman->id_karyawan = $perusahaan->karyawanSingle->id;
+    //             $pinjaman->id_lender = $perusahaan->id_lender;
+    //             $pinjaman->id_kyc = $user->kyc->id;
+    //             $pinjaman->id_pinjaman = $code;
+    //             $pinjaman->nominal = $req->nominal;
+    //             $pinjaman->tenor = $tenor->tenor;
+    //             $pinjaman->rate = $tenor->rate;
+    //             $pinjaman->asuransi = $tenor->asuransi;
+    //             $pinjaman->provisi = $tenor->provisi;
+    //             $pinjaman->biaya_admin = $tenor->biaya_admin;
+    //             $pinjaman->status = 'on_proses';
+    //             $pinjaman->status_otp = 'pending';
+
+    //             $data = [
+    //                 'id_tenor_pinjaman' => $tenor->id,
+    //                 'nominal' => $req->nominal,
+    //             ];
+
+    //             $simulation = $this->simulation($data);
+    //             $pinjaman->total_biaya_admin = $simulation['biaya_admin'];
+    //             $pinjaman->biaya_admin_ksp = $simulation['biaya_admin'];
+    //             $pinjaman->dpp_adm_ksp = round($pinjaman->biaya_admin_ksp / 111 * 100);
+    //             $pinjaman->ppn_adm_ksp = round($pinjaman->dpp_adm_ksp * 11 / 100);
+    //             $pinjaman->biaya_admin_pandu = $simulation['biaya_admin_tomi'];
+    //             $pinjaman->dpp_adm_pandu = round($pinjaman->biaya_admin_pandu / 111 * 100);
+    //             $pinjaman->ppn_adm_pandu = round($pinjaman->dpp_adm_pandu * 11 / 100);
+    //             $pinjaman->pendapatan_bunga = $req->nominal * $tenor->rate / 100 * $tenor->tenor;
+
+    //             $pinjaman->dpp_bunga = round($pinjaman->pendapatan_bunga / 111 * 100);
+    //             $pinjaman->ppn_bunga = round($pinjaman->dpp_bunga * 11 / 100);
+
+    //             $pinjaman->total_angsuran_perbulan = $simulation['angsuran_perbulan'];
+    //             $pinjaman->jumlah_yang_diterima = $simulation['jumlah_diterima'];
+    //             $pinjaman->jumlah_asuransi = $simulation['asuransi'];
+    //             $pinjaman->jumlah_provisi = $simulation['provisi'];
+    //             $pinjaman->profesional_fee_1 = $tenor->profesional_fee_1 ?? 0;
+    //             $pinjaman->profesional_fee_2 = $tenor->profesional_fee_2 ?? 0;
+    //             $pinjaman->jumlah_profesional_1 = $pinjaman->profesional_fee_1 / 100 * $req->nominal;
+    //             $pinjaman->jumlah_profesional_2 = $pinjaman->profesional_fee_2 / 100 * $req->nominal;
+    //             $pinjaman->ksp_fee = ($tenor->ksp ?? 0) / 100 * $req->nominal;
+
+    //             $pinjaman->iuran_anggota = $simulation['iuran_anggota'];
+    //             $pinjaman->biaya_layanan = $simulation['biaya_layanan'];
+
+    //             $cost = cost::get()->toArray();
+    //             $totalCost = $cost[3]['biaya'] + $cost[1]['biaya'];
+    //             $pinjaman->cost_ksp = $totalCost;
+    //             $pinjaman->description_cost_ksp = 'Biaya disbursment + PK Otomation';
+
+    //             sendOTPWhatsapp($perusahaan->karyawanSingle->whatsapp, $codeOTP);
+    //             $pinjaman->save();
+
+    //             // jatuh tempo langsung tercreate sesuai tenor
+    //             $tanggal_sekarang = Carbon::now();
+    //             $oppca = 1;
+    //             while (true) {
+    //                 $jatuh_tempo = new jatuh_tempo;
+    //                 $jatuh_tempo->id_pinjaman = $pinjaman->id;
+    //                 $jatuh_tempo->pembayaran = $oppca;
+    //                 if ($oppca == 1) {
+    //                     if ($tanggal_sekarang->format('d') <= $perusahaan->payment_date - $perusahaan->h_min_jatuh_tempo) {
+    //                         $jatuh_tempo->jatuh_tempo = $tanggal_sekarang->day($perusahaan->payment_date);
+    //                     } else {
+    //                         $jatuh_tempo->jatuh_tempo = $tanggal_sekarang->day($perusahaan->payment_date)->addMonth(1);
+    //                     }
+    //                 } else {
+    //                     $jatuh_tempo_last = jatuh_tempo::where('id_pinjaman', $pinjaman->id)
+    //                         ->orderBy('id', 'desc')
+    //                         ->first();
+    //                     $jatuh_tempo->jatuh_tempo = Carbon::parse($jatuh_tempo_last->jatuh_tempo)
+    //                         ->addMonth(1);
+    //                 }
+
+    //                 $jatuh_tempo->status = 'belum';
+    //                 $jatuh_tempo->save();
+    //                 if ($oppca == $tenor->tenor) {
+    //                     break;
+    //                 }
+    //                 $oppca++;
+    //             }
+
+    //             $otp->pinjaman_id = $pinjaman->id;
+    //             $otp->save();
+
+    //             $nomorWa = $perusahaan->karyawanSingle->whatsapp;
+
+    //             $mask = substr($nomorWa, 0, 4)
+    //                 .str_repeat('x', strlen($nomorWa) - 7)
+    //                 .substr($nomorWa, -3);
+
+    //             return response()->json([
+    //                 'status' => 200,
+    //                 'pinjaman' => true,
+    //                 'message' => 'success, harap periksa OTP yang telah dikirimkan melalui whatsapp '.$mask,
+    //             ], 200);
+    //         }
+    //     }
+    // }
     public function actionPinjaman(ActionPinjamRequest $req)
     {
-        /**
-         * ☠️═══════════════════════════════════════════════════════════════════════☠️
-         *                     ☠️ FINAL BOSS - PRODUCTION CORE ☠️
-         * ☠️═══════════════════════════════════════════════════════════════════════☠️
-         *
-         * ⚠️ BERHENTI.
-         *
-         * Jika tujuanmu membuka function ini hanya karena ingin
-         * "rapihin dikit" atau "biar lebih clean",
-         * tutup editor sekarang.
-         *
-         * =======================================================================
-         *                     ☠️ AREA DENGAN RISIKO TERTINGGI ☠️
-         * =======================================================================
-         *
-         * Function ini adalah jantung proses pengajuan pinjaman.
-         *
-         * Hampir seluruh proses bisnis melewati tempat ini.
-         *
-         * Sedikit perubahan dapat menyebabkan:
-         *
-         * ☠️ Pengajuan gagal.
-         * ☠️ OTP tidak terkirim.
-         * ☠️ Simulasi pinjaman salah.
-         * ☠️ Data pinjaman tidak tersimpan.
-         * ☠️ Jadwal jatuh tempo tidak terbentuk.
-         * ☠️ User tidak bisa mencairkan pinjaman.
-         * ☠️ Dan yang paling menakutkan...
-         *     Semua terlihat normal sampai Production digunakan pelanggan.
-         *
-         * =======================================================================
-         *                    ☠️ SEBELUM MENYENTUH FUNCTION INI ☠️
-         * =======================================================================
-         *
-         * Tanyakan pada dirimu sendiri:
-         *
-         * □ Apakah saya memahami seluruh flow bisnisnya?
-         * □ Apakah saya tahu setiap return 400 dibuat untuk kondisi apa?
-         * □ Apakah saya sudah membaca semua requirement bisnis?
-         * □ Apakah saya sudah menyiapkan rollback?
-         * □ Apakah saya sudah melakukan testing end-to-end?
-         *
-         * Jika ada satu saja jawaban "Tidak"...
-         *
-         * Jangan lanjutkan.
-         *
-         * =======================================================================
-         *                     ☠️ HUKUM LEGACY CODE ☠️
-         * =======================================================================
-         *
-         * Legacy Code bukan berarti kode ini buruk.
-         *
-         * Legacy Code berarti:
-         *
-         * - Sudah digunakan oleh ribuan transaksi.
-         * - Sudah melewati banyak perubahan requirement.
-         * - Sudah menyimpan banyak cerita yang tidak ada di dokumentasi.
-         *
-         * Jangan pernah menghapus sesuatu hanya karena
-         * "kelihatannya tidak dipakai."
-         *
-         * Production sering memiliki pendapat yang berbeda.
-         *
-         * =======================================================================
-         *                     ☠️ SATU BARIS, SERIBU DAMPAK ☠️
-         * =======================================================================
-         *
-         * Ingat...
-         *
-         * Bug di sini tidak selalu muncul hari ini.
-         * Kadang muncul minggu depan.
-         * Kadang muncul saat jam kerja.
-         * Kadang muncul pukul 02:00 pagi.
-         *
-         * Dan Production...
-         * Selalu memilih waktu yang paling tidak tepat.
-         *
-         * =======================================================================
-         *                         ☠️ LAST WARNING ☠️
-         * =======================================================================
-         *
-         * Jika setelah mengubah function ini:
-         *
-         * ☠️ Finance mulai bertanya.
-         * ☠️ Customer Service mulai menerima banyak komplain.
-         * ☠️ QA mengirim pesan "Mas, ada yang aneh."
-         * ☠️ Senior Developer berjalan ke arah mejamu.
-         *
-         * Ketahuilah...
-         *
-         * Boss Fight telah dimulai.
-         *
-         * Semoga commit-mu kecil.
-         * Semoga rollback-mu mudah.
-         * Dan semoga Production tidak pernah mengingat namamu.
-         *
-         *                        ☠️ ENTER AT YOUR OWN RISK ☠️
-         */
         $user = User::where('id', auth('api')->user()->id)
             ->with('kyc')
             ->first();
 
+        // [PERUBAHAN 1]: Memastikan response menyertakan action_required: "privy_verification" jika Privy belum terverifikasi
         if (! $this->hasVerifiedPrivy($user)) {
-            return $this->privyVerificationRequiredResponse('Silakan verifikasi identitas Privy terlebih dahulu sebelum mengajukan pinjaman.');
+            // Jika method helper privyVerificationRequiredResponse mendukung array/custom key, pastikan memuat 'action_required' => 'privy_verification'
+            // Di bawah ini disesuaikan agar response JSON pasti mengembalikan field action_required yang dibaca oleh aplikasi:
+            return response()->json([
+                'status' => 400,
+                'action_required' => 'privy_verification',
+                'message' => 'Silakan verifikasi identitas Privy terlebih dahulu sebelum mengajukan pinjaman.',
+            ], 400);
         }
 
         $nip = explode('-', $req->nip);
@@ -621,7 +860,6 @@ class PinjamanController extends Controller
                 ], 400);
             }
 
-            // $pendapatan = 70 / 100 * $perusahaan->karyawanSingle->penghasilan;
             if ($perusahaan->karyawanSingle->max_plafon > $perusahaan->amount_pinjaman->maximal) {
                 $maksimal = $perusahaan->amount_pinjaman->maximal;
             } elseif ($perusahaan->karyawanSingle->max_plafon < $perusahaan->amount_pinjaman->maximal) {
@@ -641,18 +879,23 @@ class PinjamanController extends Controller
                 ], 400);
             } else {
 
-                if ($user->kyc == null) {
-                    return response()->json([
-                        'status' => 400,
-                        'message' => 'Maaf, proses tidak dapat dilanjutkan. Kami memerlukan pembaruan foto selfie dan KTP Anda.',
-                    ], 400);
-                }
+                // [PERUBAHAN 2]: Pengecekan KYC (Foto Selfie & KTP) diabaikan jika nasabah sudah terverifikasi Privy.
+                // Identitas dan liveness sudah diverifikasi langsung melalui Privy.
+                $isPrivyVerified = $this->hasVerifiedPrivy($user);
 
-                $kycExpiredResponse = $this->kycExpiredResponse($user);
-                if ($kycExpiredResponse) {
-                    return $kycExpiredResponse;
-                }
+                if (! $isPrivyVerified) {
+                    if ($user->kyc == null) {
+                        return response()->json([
+                            'status' => 400,
+                            'message' => 'Maaf, proses tidak dapat dilanjutkan. Kami memerlukan pembaruan foto selfie dan KTP Anda.',
+                        ], 400);
+                    }
 
+                    $kycExpiredResponse = $this->kycExpiredResponse($user);
+                    if ($kycExpiredResponse) {
+                        return $kycExpiredResponse;
+                    }
+                }
 
                 $cekPinjamanData = pinjaman::where('id_karyawan', $perusahaan->karyawanSingle->id)
                     ->where(function ($q) {
@@ -674,7 +917,6 @@ class PinjamanController extends Controller
                     ->where('status_otp', 'success')
                     ->first();
 
-                // where('user_id', auth('api')->user()->id)
                 $cekPinjamanPendingOTP = pinjaman::where('id_karyawan', $perusahaan->karyawanSingle->id)
                     ->where('status', 'on_proses')
                     ->where('status_otp', 'pending')
@@ -718,7 +960,6 @@ class PinjamanController extends Controller
                 $otp->user_id = auth('api')->user()->id;
                 $otp->failed = 0;
                 $otp->otp = $codeOTP;
-
                 $otp->expired = Carbon::now()->addHour(24);
 
                 $pinjaman = new pinjaman;
@@ -726,7 +967,10 @@ class PinjamanController extends Controller
                 $pinjaman->id_perusahaan = $perusahaan->id;
                 $pinjaman->id_karyawan = $perusahaan->karyawanSingle->id;
                 $pinjaman->id_lender = $perusahaan->id_lender;
-                $pinjaman->id_kyc = $user->kyc->id;
+
+                // [PERUBAHAN 3]: Set id_kyc ke null jika data kyc tidak tersedia bagi user yang Privy Verified
+                $pinjaman->id_kyc = $user->kyc->id ?? null;
+
                 $pinjaman->id_pinjaman = $code;
                 $pinjaman->nominal = $req->nominal;
                 $pinjaman->tenor = $tenor->tenor;
@@ -745,15 +989,7 @@ class PinjamanController extends Controller
                 $simulation = $this->simulation($data);
                 $pinjaman->total_biaya_admin = $simulation['biaya_admin'];
                 $pinjaman->biaya_admin_ksp = $simulation['biaya_admin'];
-                $pinjaman->dpp_adm_ksp = round($pinjaman->biaya_admin_ksp / 111 * 100);
-                $pinjaman->ppn_adm_ksp = round($pinjaman->dpp_adm_ksp * 11 / 100);
                 $pinjaman->biaya_admin_pandu = $simulation['biaya_admin_tomi'];
-                $pinjaman->dpp_adm_pandu = round($pinjaman->biaya_admin_pandu / 111 * 100);
-                $pinjaman->ppn_adm_pandu = round($pinjaman->dpp_adm_pandu * 11 / 100);
-                $pinjaman->pendapatan_bunga = $req->nominal * $tenor->rate / 100 * $tenor->tenor;
-
-                $pinjaman->dpp_bunga = round($pinjaman->pendapatan_bunga / 111 * 100);
-                $pinjaman->ppn_bunga = round($pinjaman->dpp_bunga * 11 / 100);
 
                 $pinjaman->total_angsuran_perbulan = $simulation['angsuran_perbulan'];
                 $pinjaman->jumlah_yang_diterima = $simulation['jumlah_diterima'];
@@ -761,9 +997,6 @@ class PinjamanController extends Controller
                 $pinjaman->jumlah_provisi = $simulation['provisi'];
                 $pinjaman->profesional_fee_1 = $tenor->profesional_fee_1 ?? 0;
                 $pinjaman->profesional_fee_2 = $tenor->profesional_fee_2 ?? 0;
-                $pinjaman->jumlah_profesional_1 = $pinjaman->profesional_fee_1 / 100 * $req->nominal;
-                $pinjaman->jumlah_profesional_2 = $pinjaman->profesional_fee_2 / 100 * $req->nominal;
-                $pinjaman->ksp_fee = ($tenor->ksp ?? 0) / 100 * $req->nominal;
 
                 $pinjaman->iuran_anggota = $simulation['iuran_anggota'];
                 $pinjaman->biaya_layanan = $simulation['biaya_layanan'];
