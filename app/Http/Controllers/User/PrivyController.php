@@ -807,14 +807,14 @@ class PrivyController extends Controller
             ], 200);
         }
 
-        // 4. Idempotensi: Cek apakah sesi/borrower sudah pernah terverifikasi sebelumnya
-        $borrower = $session->borrower ?? null;
-        if ($borrower && $borrower->privy_verified === true) {
+        // 4. Idempotensi: cek apakah user/sesi sudah pernah terverifikasi sebelumnya.
+        $user = User::find($session->user_id);
+        if ($user && $user->hasLegacyPrivyVerification()) {
             return response()->json([
                 'status' => true,
                 'message' => 'Callback sudah diproses sebelumnya',
                 'privy_verified' => true,
-                'privy_id' => $borrower->privy_id,
+                'privy_id' => $user->id_privy,
             ], 200);
         }
 
@@ -846,7 +846,7 @@ class PrivyController extends Controller
         try {
             // 5. Proses hasil verifikasi (Pastikan method ini memperbarui data borrower:
             //    privy_verified = true, privy_id, status_privy, status_privy_terbaru)
-            $this->processDigitalIdResult($session, $token, 'callback', $request->input('state') ?? $event, $payload);
+            $result = $this->processDigitalIdResult($session, $token, 'callback', $request->input('state') ?? $event, $payload);
         } catch (PrivyDigitalIdException $e) {
             Log::warning('Privy Digital ID callback processing failed', [
                 'session_id' => $sessionId,
@@ -860,15 +860,20 @@ class PrivyController extends Controller
             ], 500);
         }
 
-        // Ambil data borrower terbaru setelah berhasil diproses untuk endpoint /v1/api/me
-        $borrower = $session->fresh()->borrower;
+        $session = $session->fresh();
+        $user = User::find($session->user_id);
+        $privyId = $result['privy_id'] ?? $session->privy_id ?? $user?->id_privy;
+        $privyVerified = $result['status'] === 'VERIFIED'
+            && $privyId !== null;
 
         return response()->json([
-            'status' => true,
-            'message' => 'Verifikasi identitas berhasil',
-            'privy_verified' => $borrower ? (bool) $borrower->privy_verified : true,
-            'privy_id' => $borrower ? $borrower->privy_id : null,
-        ], 200);
+            'status' => $privyVerified,
+            'message' => $privyVerified
+                ? 'Verifikasi identitas berhasil'
+                : 'Verifikasi identitas: '.$result['status'],
+            'privy_verified' => $privyVerified,
+            'privy_id' => $privyId,
+        ], $privyVerified ? 200 : 422);
     }
 
     private function isTokenlessFailureEvent(string $event): bool
