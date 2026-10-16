@@ -23,6 +23,7 @@ use Tests\TestCase;
 class PrivyDigitalIdCallbackTest extends TestCase
 {
     private array $originalEnvironment = [];
+
     private int $sessionSequence = 0;
 
     public function createApplication()
@@ -237,6 +238,44 @@ class PrivyDigitalIdCallbackTest extends TestCase
 
         $this->assertSame(400, $response->getStatusCode());
         $this->assertSame($before, DB::table('privy_digital_id_sessions')->get()->toJson());
+    }
+
+    /** @dataProvider tokenlessFailureReasons */
+    public function test_tokenless_identity_failure_callback_marks_session_failed(string $reason): void
+    {
+        $owner = $this->user();
+        $session = $this->createSession($owner);
+        $client = Mockery::mock(PrivyDigitalIdClient::class);
+        $client->shouldNotReceive('verifyToken');
+        $this->app->instance(PrivyDigitalIdClient::class, $client);
+
+        $response = $this->invokeCallback([
+            'token' => null,
+            'session_id' => $session->privy_session_id,
+            'event' => 'identity.'.$reason,
+        ]);
+
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame(['received' => true], $response->getData(true));
+        $session->refresh();
+        $this->assertSame('failed', $session->status);
+        $this->assertSame('identity.'.$reason, $session->event);
+        $this->assertNull($session->callback_token);
+        $this->assertNotNull($session->callback_received_at);
+    }
+
+    public static function tokenlessFailureReasons(): array
+    {
+        return array_map(static fn (string $reason): array => [$reason], [
+            'cancelled',
+            'user_back',
+            'consent_denied',
+            'too_many_attempts',
+            'session_expired',
+            'liveness_blocked',
+            'fallback_manual',
+            'error',
+        ]);
     }
 
     public function test_nested_signed_session_id_is_accepted(): void

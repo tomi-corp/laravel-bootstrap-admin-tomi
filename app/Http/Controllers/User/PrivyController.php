@@ -20,6 +20,17 @@ use Illuminate\Support\Facades\Storage;
 
 class PrivyController extends Controller
 {
+    private const TOKENLESS_FAILURE_REASONS = [
+        'cancelled',
+        'user_back',
+        'consent_denied',
+        'too_many_attempts',
+        'session_expired',
+        'liveness_blocked',
+        'fallback_manual',
+        'error',
+    ];
+
     public function registerPrivy()
     {
         //
@@ -566,6 +577,11 @@ class PrivyController extends Controller
     {
         $sessionId = trim((string) $request->input('session_id'));
         $token = $request->input('token');
+        $event = is_string($request->input('event')) ? strtolower(trim($request->input('event'))) : '';
+
+        if ((! is_string($token) || $token === '') && $sessionId !== '' && $this->isTokenlessFailureEvent($event)) {
+            return $this->handleTokenlessFailureCallback($request, $sessionId, $event);
+        }
 
         if (! is_string($token) || $token === '') {
             Log::warning('Privy Digital ID callback invalid', [
@@ -659,6 +675,64 @@ class PrivyController extends Controller
                 'session_id' => $sessionId,
                 'code' => $e->errorCode,
                 'http_status' => $e->httpStatus,
+            ]);
+        }
+
+        return response()->json([
+            'received' => true,
+        ], 200);
+    }
+
+    private function isTokenlessFailureEvent(string $event): bool
+    {
+        if (! str_starts_with($event, 'identity.')) {
+            return false;
+        }
+
+        return in_array(substr($event, strlen('identity.')), self::TOKENLESS_FAILURE_REASONS, true);
+    }
+
+    private function handleTokenlessFailureCallback(Request $request, string $sessionId, string $event)
+    {
+        $session = PrivyDigitalIdSession::where('privy_session_id', $sessionId)->latest()->first();
+
+        if (! $session) {
+            Log::warning('Privy Digital ID tokenless failure callback unknown session', [
+                'session_id' => $sessionId,
+                'event' => $event,
+            ]);
+
+            return response()->json([
+                'received' => true,
+                'processed' => false,
+            ], 200);
+        }
+
+        $session = app(PrivyDigitalIdService::class)->acceptCallback($session);
+
+        if (! $session) {
+            return response()->json([
+                'received' => true,
+                'processed' => false,
+            ], 200);
+        }
+
+        $sharedData = $request->input('shared_data', []);
+        if (is_string($sharedData)) {
+            $decodedSharedData = json_decode($sharedData, true);
+            $sharedData = is_array($decodedSharedData) ? $decodedSharedData : [];
+        }
+
+        $session->forceFill([
+            'callback_state' => $request->input('state'),
+            'callback_shared_data' => is_array($sharedData) ? $sharedData : [],
+        ])->save();
+
+        $digitalIdService = app(PrivyDigitalIdService::class);
+        if ($digitalIdService->claimSession($sessionId, 'callback')) {
+            $digitalIdService->finishSession($sessionId, [
+                'status' => 'FAILED',
+                'event' => $event,
             ]);
         }
 
