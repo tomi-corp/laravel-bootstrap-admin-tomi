@@ -641,7 +641,15 @@ class PinjamanController extends Controller
                 ], 400);
             } else {
 
-                if ($user->kyc == null) {
+                // KYC lama menjadi sumber utama. Untuk user yang sudah selesai
+                // verifikasi lewat Privy Digital ID, gunakan sesi verified sebagai
+                // fallback karena flow tersebut tidak selalu membuat record user_kyc.
+                $kyc = $user->kyc;
+                $privyDigitalIdSession = $kyc
+                    ? null
+                    : $user->verifiedDigitalIdSession();
+
+                if ($kyc === null && $privyDigitalIdSession === null) {
                     return response()->json([
                         'status' => 400,
                         'message' => 'Maaf, proses tidak dapat dilanjutkan. Kami memerlukan pembaruan foto selfie dan KTP Anda.',
@@ -726,7 +734,7 @@ class PinjamanController extends Controller
                 $pinjaman->id_perusahaan = $perusahaan->id;
                 $pinjaman->id_karyawan = $perusahaan->karyawanSingle->id;
                 $pinjaman->id_lender = $perusahaan->id_lender;
-                $pinjaman->id_kyc = $user->kyc->id;
+                $pinjaman->id_kyc = $kyc?->id;
                 $pinjaman->id_pinjaman = $code;
                 $pinjaman->nominal = $req->nominal;
                 $pinjaman->tenor = $tenor->tenor;
