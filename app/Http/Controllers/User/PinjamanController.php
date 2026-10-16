@@ -649,11 +649,10 @@ class PinjamanController extends Controller
                     ? null
                     : $user->verifiedDigitalIdSession();
 
-                if ($kyc === null && $privyDigitalIdSession === null) {
-                    return response()->json([
-                        'status' => 400,
-                        'message' => 'Maaf, proses tidak dapat dilanjutkan. Kami memerlukan pembaruan foto selfie dan KTP Anda.',
-                    ], 400);
+                // Nasabah terverifikasi Privy (users.verified_privy + users.id_privy) tidak wajib
+                // memiliki KYC lama: identitas & liveness sudah diverifikasi oleh Privy.
+                if ($kyc === null && $privyDigitalIdSession === null && ! $user->hasLegacyPrivyVerification()) {
+                    return $this->privyVerificationRequiredResponse('Maaf, proses tidak dapat dilanjutkan. Kami memerlukan pembaruan foto selfie dan KTP Anda.');
                 }
 
                 $kycExpiredResponse = $this->kycExpiredResponse($user);

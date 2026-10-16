@@ -6,6 +6,7 @@ use App\Exceptions\PrivyDigitalIdException;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class PrivyDigitalIdClient
@@ -122,7 +123,8 @@ class PrivyDigitalIdClient
         $payload = $this->base64UrlJson($parts[1], 'payload');
         $nowSec = $now ?? time();
 
-        if (($payload['iss'] ?? null) !== $config['issuer']) {
+        // Dokumen v1.5 menulis issuer dengan "/" di akhir, token sandbox dikirim tanpa "/"
+        if (rtrim((string) ($payload['iss'] ?? ''), '/') !== rtrim((string) $config['issuer'], '/')) {
             throw new PrivyDigitalIdException('Issuer JWT tidak sesuai: '.($payload['iss'] ?? ''), 'jwt_bad_iss', 401);
         }
 
@@ -160,20 +162,78 @@ class PrivyDigitalIdClient
             throw new PrivyDigitalIdException('data.my_identity bukan base64 valid', 'identity_invalid', 422);
         }
 
-        $plain = null;
-        $ok = openssl_private_decrypt($ciphertext, $plain, $pem, \OPENSSL_PKCS1_PADDING);
+        $key = openssl_pkey_get_private($pem);
 
-        if (! $ok || ! is_string($plain)) {
-            throw new PrivyDigitalIdException('Dekripsi identitas gagal (cek private key RSA)', 'identity_decrypt_failed', 422);
+        if ($key === false) {
+            throw new PrivyDigitalIdException('Private key RSA Privy tidak bisa dibaca (cek DIGITAL_IDV2_PRIVY_PRIVATE_KEY)', 'config_invalid', 500);
         }
 
-        $data = json_decode($plain, true);
+        // RSA-4096 menghasilkan ciphertext 512 byte; ukuran lain = key pair tidak cocok dengan key di Privy
+        $keyBytes = intdiv((int) (openssl_pkey_get_details($key)['bits'] ?? 0), 8);
+
+        if ($keyBytes > 0 && strlen($ciphertext) !== $keyBytes) {
+            throw new PrivyDigitalIdException(
+                'Ukuran data.my_identity ('.strlen($ciphertext).' byte) tidak sesuai private key ('.$keyBytes.' byte)',
+                'identity_key_mismatch',
+                422,
+            );
+        }
+
+        // Dokumen v1.5 §12.3: RSA-4096 dengan padding PKCS#1 v1.5 langsung (tanpa AES/hybrid)
+        $plain = null;
+        $ok = openssl_private_decrypt($ciphertext, $plain, $key, \OPENSSL_PKCS1_PADDING);
+        $data = $ok && is_string($plain) ? json_decode($plain, true) : null;
 
         if (! is_array($data)) {
-            throw new PrivyDigitalIdException('Hasil dekripsi identitas bukan JSON', 'identity_not_json', 422);
+            $opensslError = $this->opensslErrors();
+            // Cadangan bila OpenSSL server menolak PKCS#1 v1.5 (kebijakan crypto / implicit rejection)
+            $plain = $this->decryptPkcs1WithPhpseclib($ciphertext, $pem);
+            $data = is_string($plain) ? json_decode($plain, true) : null;
+
+            if (! is_array($data)) {
+                Log::warning('Privy Digital ID decrypt my_identity failed', [
+                    'openssl_ok' => $ok,
+                    'openssl_error' => $opensslError,
+                    'phpseclib_available' => class_exists(\phpseclib3\Crypt\PublicKeyLoader::class),
+                ]);
+
+                throw new PrivyDigitalIdException(
+                    $ok ? 'Hasil dekripsi identitas bukan JSON (private key tidak cocok)' : 'Dekripsi identitas gagal (cek private key RSA)',
+                    $ok ? 'identity_not_json' : 'identity_decrypt_failed',
+                    422,
+                );
+            }
         }
 
         return $data;
+    }
+
+    private function decryptPkcs1WithPhpseclib(string $ciphertext, string $pem): ?string
+    {
+        if (! class_exists(\phpseclib3\Crypt\PublicKeyLoader::class)) {
+            return null;
+        }
+
+        try {
+            $key = \phpseclib3\Crypt\PublicKeyLoader::loadPrivateKey($pem)
+                ->withPadding(\phpseclib3\Crypt\RSA::ENCRYPTION_PKCS1);
+            $plain = $key->decrypt($ciphertext);
+
+            return is_string($plain) ? $plain : null;
+        } catch (\Throwable) {
+            return null;
+        }
+    }
+
+    private function opensslErrors(): ?string
+    {
+        $errors = [];
+
+        while (($error = openssl_error_string()) !== false) {
+            $errors[] = $error;
+        }
+
+        return $errors ? implode(' | ', $errors) : null;
     }
 
     private function privyRequest(string $method, string $path, ?array $body, string $kind, array $options = []): array
@@ -383,10 +443,12 @@ class PrivyDigitalIdClient
             throw new PrivyDigitalIdException('DIGITAL_IDV2_PRIVY_PRIVATE_KEY belum di-set', 'config_missing', 500);
         }
 
-        $pem = trim(str_replace('\\n', "\n", $raw));
+        // Nilai env bisa PEM (dengan "\n") atau base64 dari PEM; tanda kutip & padding "=" bisa hilang
+        $pem = trim(str_replace('\\n', "\n", trim($raw, " \t\n\r\0\x0B\"'")));
 
         if (! str_contains($pem, '-----BEGIN')) {
-            $decoded = base64_decode($pem, true);
+            $compact = preg_replace('/\s+/', '', $pem);
+            $decoded = base64_decode($compact.str_repeat('=', (4 - strlen($compact) % 4) % 4), true);
 
             if (is_string($decoded) && str_contains($decoded, '-----BEGIN')) {
                 $pem = trim($decoded);
