@@ -236,6 +236,8 @@ Get-ChildItem -Force .env*
 - Jangan mengembalikan ke versi lama kecuali user eksplisit meminta revert.
 - Untuk revisi UI bertahap, pertahankan bagian yang tidak disentuh permintaan terbaru.
 - Jika instruksi ambigu, pilih perubahan paling kecil dan mudah direvisi.
+- Setelah menyelesaikan setiap perubahan yang diminta, segera commit perubahan tersebut agar tidak menumpuk dengan perubahan berikutnya.
+- Commit hanya file yang terkait dengan perubahan yang baru diselesaikan; jangan ikut commit perubahan pengguna lain atau file yang berisi secret.
 
 ## Aturan Migrasi Database
 
