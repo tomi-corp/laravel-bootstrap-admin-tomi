@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><title>Privy Digital ID — Panduan Manajemen TOMI</title>
+<style>
+@page{size:A4;margin:16mm 17mm}*{box-sizing:border-box}body{font-family:Arial,sans-serif;font-size:10.5pt;line-height:1.48;color:#1f2937;margin:0}section{break-after:page;position:relative;min-height:257mm;padding-bottom:12mm}section:last-child{break-after:auto}h1{font-size:30pt;line-height:1.13;color:#162d46;margin:25mm 0 8mm}h2{font-size:21pt;line-height:1.2;color:#162d46;margin:6mm 0}h3{font-size:12pt;color:#162d46;margin:6mm 0 2mm}p{margin:2.5mm 0}ul,ol{padding-left:6mm;margin:3mm 0}li{margin:2mm 0}.eyebrow{font-size:9pt;text-transform:uppercase;letter-spacing:1.5px;color:#516579;border-bottom:2px solid #b7c7d6;padding:3mm 0}.lead{font-size:14pt;line-height:1.5}.box{padding:4mm 5mm;background:#eef3f7;border-left:3px solid #516c85;margin:5mm 0}.note{font-size:9pt;color:#526171}.footer{position:absolute;bottom:0;left:0;right:0;border-top:1px solid #cbd5e1;padding-top:3mm;font-size:8pt;color:#526171;display:flex;justify-content:space-between}table{width:100%;border-collapse:collapse;font-size:9.5pt;margin:4mm 0}th,td{text-align:left;vertical-align:top;border:1px solid #cbd5e1;padding:2.5mm 3mm}th{background:#eef3f7}a{color:#214c74;overflow-wrap:anywhere}.step{display:flex;gap:4mm;margin:3mm 0}.num{flex:0 0 8mm;height:8mm;line-height:8mm;text-align:center;background:#e4ecf3;font-weight:bold}.step p{margin:0}.small{font-size:9pt}code{font-family:Consolas,monospace;font-size:8.4pt;overflow-wrap:anywhere}.refs p{font-size:9pt;margin:3mm 0} @media screen{body{background:#dce2e8}section{background:white;width:210mm;min-height:297mm;margin:12px auto;padding:16mm 17mm} .footer{left:17mm;right:17mm;bottom:16mm}}
+@media print{body{font-size:9.5pt;line-height:1.38}section{min-height:260mm;padding-bottom:10mm;display:flow-root}table{font-size:9pt}th,td{padding:2mm 2.5mm}li{margin:1.5mm 0}h3{margin-top:4mm}.box{margin:4mm 0;padding:3mm 4mm}.note{font-size:8.5pt}.refs p{font-size:8.5pt;margin:2mm 0}}
+</style></head><body>
+<section>
+<div class="eyebrow">TOMI • Dokumentasi untuk manajemen • Versi 1.0</div>
+<h1>Privy Digital ID</h1>
+<p class="lead">Proses verifikasi identitas digital dan kaitannya dengan layanan TOMI serta tanda tangan elektronik.</p>
+<div class="box"><strong>Pesan utama</strong><p>Privy memverifikasi identitas. TOMI menghubungkan hasil tersebut dengan akun pengguna dan memeriksa kecocokan data. Identitas terverifikasi tidak otomatis berarti pinjaman disetujui, dokumen sudah ditandatangani, atau dana sudah dicairkan.</p></div>
+<h3>Tujuan dokumen</h3>
+<p>Memberikan gambaran proses, pembagian tanggung jawab, penanganan kendala, dan kontrol yang perlu diketahui manajemen tanpa memerlukan pemahaman API.</p>
+<h3>Cakupan dan dasar penyusunan</h3>
+<ul><li>Alur Digital ID berbasis sesi yang ditemukan pada kode backend <strong>tomiV2</strong>.</li><li>Hubungan dengan integrasi registrasi serta penandatanganan Privy lama.</li><li>Penjelasan produk dari situs resmi Privy; referensi tercantum pada halaman 6.</li></ul>
+<p class="note">Disusun 16 Oktober 2026. Dokumen internal, tanpa nilai kredensial maupun data pribadi pengguna. Pemeriksaan dilakukan pada kode lokal dan sumber publik, bukan transaksi produksi atau pengujian layanan Privy secara langsung.</p>
+<h3>Peta baca</h3>
+<p>2 — Ringkasan eksekutif dan istilah<br>3 — Alur proses ujung ke ujung<br>4 — Status, kendala, dan tindak lanjut<br>5 — Tanggung jawab, risiko, dan kontrol<br>6 — Kesiapan implementasi, indikator, dan referensi</p>
+<div class="footer"><span>TOMI | Privy Digital ID | Internal</span><span>1 / 6</span></div>
+</section>
+<section>
+<div class="eyebrow">Ringkasan eksekutif</div><h2>Identitas adalah prasyarat,<br>bukan keputusan bisnis</h2>
+<p>Menurut Privy, identitas yang telah diverifikasi menjadi dasar penerbitan Sertifikat Elektronik dan dapat digunakan untuk interaksi digital, termasuk tanda tangan elektronik. Privy membedakan identitas individu (PrivyID) dari identitas bisnis (EnterpriseID). [P1]</p>
+<h3>Nilai bagi manajemen</h3>
+<ul><li><strong>Kepastian identitas:</strong> mengurangi ketergantungan pada input profil yang belum diverifikasi.</li><li><strong>Proses terhubung:</strong> hasil dari halaman Privy diproses oleh backend TOMI, kemudian dikaitkan dengan akun pengguna.</li><li><strong>Ketertelusuran:</strong> kode menyimpan sesi, waktu proses, sumber penerimaan hasil, serta informasi kesalahan untuk mendukung penanganan kasus. [R1–R3]</li></ul>
+<p class="note">Manfaat tersebut merupakan tujuan penggunaan; dokumen ini tidak mengklaim besaran penghematan, tingkat keberhasilan, atau penurunan fraud yang sudah terukur.</p>
+<table><thead><tr><th>Istilah</th><th>Arti bagi manajemen</th></tr></thead><tbody>
+<tr><td>Digital ID / e-KYC</td><td>Proses pembuktian identitas pengguna secara elektronik; bukan analisis kelayakan kredit.</td></tr>
+<tr><td>PrivyID</td><td>Identitas pengguna di layanan Privy; berbeda dari nomor akun internal TOMI.</td></tr>
+<tr><td>Sertifikat Elektronik</td><td>Sertifikat untuk identitas terverifikasi. Bukan gambar tanda tangan atau bukti bahwa suatu perjanjian telah disetujui.</td></tr>
+<tr><td>Sesi verifikasi</td><td>Satu rangkaian verifikasi dengan tautan dan masa berlaku. Sesi dibuat belum berarti verifikasi berhasil.</td></tr>
+<tr><td>Exchange / callback</td><td>Dua jalur penerimaan hasil: aplikasi menukar kode hasil, atau server Privy mengirim hasil langsung ke TOMI.</td></tr>
+<tr><td>Tanda tangan elektronik</td><td>Proses tersendiri untuk menyetujui dokumen menggunakan identitas terverifikasi. Tidak selesai hanya karena Digital ID berhasil.</td></tr>
+</tbody></table>
+<div class="box"><strong>Batas legal dan komersial</strong><p>Privy menjelaskan layanan tanda tangan tersertifikasi dan perlindungan integritas dokumen. Kelayakan jenis dokumen, kewenangan penandatangan, kewajiban meterai, serta ketentuan kontrak tetap perlu ditinjau Legal. Tarif, kuota, jaminan, dan SLA mengikuti kesepakatan layanan yang berlaku; bukan asumsi dari kode. [P2]</p></div>
+<div class="footer"><span>TOMI | Privy Digital ID | Internal</span><span>2 / 6</span></div>
+</section>
+<section>
+<div class="eyebrow">Proses operasional</div><h2>Dari profil hingga hasil terverifikasi</h2>
+<div class="step"><div class="num">1</div><p><strong>Pengguna melengkapi profil TOMI.</strong><br>Backend memeriksa keberadaan NIK, nama lengkap, tanggal lahir, email, dan nomor HP. Jika belum lengkap, permintaan sesi ditolak agar data diperbaiki dahulu. [R1:301–328]</p></div>
+<div class="step"><div class="num">2</div><p><strong>TOMI membuat sesi ke Privy.</strong><br>Privy mengembalikan ID sesi, tautan verifikasi, dan waktu kedaluwarsa bila tersedia. TOMI menyimpan sesi dengan status awal <code>created</code> lalu mengembalikan tautan ke aplikasi. [R1:330–352; R2:56–72]</p></div>
+<div class="step"><div class="num">3</div><p><strong>Pengguna mengikuti proses pada halaman Privy.</strong><br>Pengguna membuka tautan dan mengikuti instruksi verifikasi serta persetujuan penggunaan data yang ditampilkan Privy. Detail layar, pengambilan identitas/biometrik, dan perjalanan pengguna harus dikonfirmasi melalui UAT; tidak seluruhnya terlihat dari kode backend ini.</p></div>
+<div class="step"><div class="num">4</div><p><strong>Hasil dikirim kembali ke TOMI.</strong><br>Aplikasi dapat mengirim kode hasil untuk ditukar oleh backend (<em>exchange</em>); server Privy juga dapat mengirim <em>callback</em>. Kedua jalur memakai pemrosesan hasil yang sama. Backend memeriksa keterkaitan sesi sebelum melanjutkan. [R1:369–499, 565–668]</p></div>
+<div class="step"><div class="num">5</div><p><strong>TOMI memvalidasi hasil dan kecocokan identitas.</strong><br>Token diperiksa tanda tangan, penerbit, tujuan merchant, dan masa berlakunya. Identitas terenkripsi didekripsi; NIK dan tanggal lahir dibandingkan secara persis dengan profil TOMI. Hasil sukses tanpa kecocokan tersebut menjadi <code>identity_mismatch</code>, bukan verifikasi akun berhasil. [R2:93–170; R1:684–738]</p></div>
+<div class="step"><div class="num">6</div><p><strong>Status akun dan sesi diperbarui.</strong><br>Pada hasil yang memenuhi syarat, TOMI menyimpan PrivyID, menandai akun terverifikasi, dan menyelesaikan sesi sebagai <code>verified</code>. Gambar KTP/selfie disimpan lokal hanya jika tersedia dalam data yang diterima. Catatan biaya penerbitan sertifikat dibuat jika sebelumnya belum terverifikasi dan konfigurasi biaya tersedia. [R1:740–863]</p></div>
+<div class="box"><strong>Setelah identitas berhasil</strong><p>Alur pinjaman memiliki pemeriksaan verifikasi yang mengenali data legacy maupun sesi Digital ID terverifikasi. Keputusan kredit tetap terpisah. Pengiriman dan pengecekan status dokumen tanda tangan masih memiliki jalur integrasi lama; keberhasilan Digital ID tidak membuktikan dokumen selesai ditandatangani. [R4; R5]</p></div>
+<div class="footer"><span>TOMI | Privy Digital ID | Internal</span><span>3 / 6</span></div>
+</section>
+<section>
+<div class="eyebrow">Status dan penanganan kasus</div><h2>Apa yang dianggap selesai?</h2>
+<p>Ukuran selesai untuk verifikasi identitas adalah hasil backend yang valid, identitas cocok, dan status tersimpan <strong>verified</strong>—bukan sekadar pengguna menutup halaman Privy atau server menerima callback.</p>
+<table><thead><tr><th>Kondisi</th><th>Makna</th><th>Tindak lanjut operasional yang disarankan</th></tr></thead><tbody>
+<tr><td><code>created / pending</code></td><td>Sesi tersedia atau masih menunggu hasil.</td><td>Minta pengguna menyelesaikan instruksi; periksa masa berlaku sesi.</td></tr>
+<tr><td><code>processing</code></td><td>Hasil sedang diproses; belum merupakan keberhasilan.</td><td>Periksa status sesi kembali. Eskalasi jika tertahan melewati batas waktu operasional yang disepakati.</td></tr>
+<tr><td><code>verified</code></td><td>Pemrosesan identitas berhasil.</td><td>Lanjut ke tahapan bisnis yang masih diperlukan; jangan langsung menganggap pinjaman atau tanda tangan selesai.</td></tr>
+<tr><td><code>identity_mismatch</code></td><td>NIK atau tanggal lahir tidak cocok, atau data pembanding tidak tersedia.</td><td>Hentikan kelanjutan berbasis verifikasi tersebut; lakukan klarifikasi data melalui prosedur resmi, bukan mengubah flag menjadi terverifikasi.</td></tr>
+<tr><td><code>failed</code></td><td>Hasil ditolak/gagal atau terjadi kesalahan pemrosesan.</td><td>Tinjau kode kesalahan; bedakan kegagalan identitas dari kendala teknis sebelum mengulang.</td></tr>
+<tr><td>Sesi kedaluwarsa</td><td>Kode/alur tidak dapat dilanjutkan; dapat menghasilkan respons 410.</td><td>Buat sesi baru bila diizinkan. Kedaluwarsa adalah kondisi waktu, tidak selalu status tersimpan tersendiri.</td></tr>
+<tr><td>Token/kode tidak sah, sesi milik akun lain</td><td>Hasil tidak boleh diterapkan ke akun.</td><td>Jangan memaksa sukses; arahkan ke alur sesi yang benar dan eskalasi bila berulang.</td></tr>
+<tr><td>Layanan menolak akses / membatasi permintaan</td><td>Masalah konfigurasi, otorisasi, atau batas layanan.</td><td>IT memeriksa konfigurasi dan kontrak layanan; CS tidak meminta secret atau OTP pengguna.</td></tr>
+</tbody></table>
+<div class="box"><strong>Callback diterima ≠ verifikasi berhasil</strong><p>Kode dapat memberi respons penerimaan callback meskipun sesi tidak dikenal atau pemrosesan hasil gagal. Monitoring harus melihat status sesi dan hasil pemrosesan, bukan hanya HTTP 200 dari callback. [R1:619–667]</p></div>
+<p class="note">Daftar status menggabungkan nilai yang ditangani dalam kode, bukan jaminan semua status akan muncul berurutan. Prosedur eskalasi dan batas waktu di halaman ini adalah rekomendasi operasional, belum bukti SOP yang diterapkan.</p>
+<div class="footer"><span>TOMI | Privy Digital ID | Internal</span><span>4 / 6</span></div>
+</section>
+<section>
+<div class="eyebrow">Tata kelola</div><h2>Peran, kontrol, dan risiko</h2>
+<table><thead><tr><th>Pihak</th><th>Tanggung jawab yang disarankan</th></tr></thead><tbody>
+<tr><td>Manajemen / pemilik proses</td><td>Menetapkan penggunaan Digital ID, pemilik risiko, anggaran, batas eskalasi, dan kriteria kelulusan produksi.</td></tr>
+<tr><td>Operasional / CS</td><td>Mengarahkan pengguna, memantau kasus tertunda, mengklarifikasi ketidakcocokan data; tidak mengambil alih tindakan verifikasi pengguna.</td></tr>
+<tr><td>IT / Security</td><td>Menjaga konfigurasi dan kunci, keterkaitan akun–sesi, endpoint, akses data, monitoring, serta pemulihan gangguan.</td></tr>
+<tr><td>Legal / Compliance</td><td>Meninjau dasar pemrosesan data, pemberitahuan privasi, persetujuan bila diperlukan, retensi, kontrak vendor, dan kewenangan tanda tangan.</td></tr>
+<tr><td>Finance</td><td>Merekonsiliasi biaya yang dicatat TOMI dengan transaksi dan tagihan resmi Privy; menetapkan kontrol duplikasi.</td></tr>
+<tr><td>Pengguna dan Privy</td><td>Pengguna memasukkan data dan menyelesaikan proses; Privy menjalankan layanan verifikasi serta mengirim hasil sesuai kontrak integrasi.</td></tr>
+</tbody></table>
+<h3>Kontrol yang terlihat pada kode</h3>
+<ul><li>Validasi kriptografis token dan klaimnya; pemeriksaan sesi pada exchange dan callback. [R1–R2]</li><li>Pencocokan NIK/tanggal lahir sebelum menandai akun terverifikasi. [R1:714–741]</li><li>Mekanisme klaim pemrosesan sesi dan penguncian pada penerimaan callback untuk mengendalikan proses bersamaan. Ini bukan bukti seluruh efek samping bebas duplikasi. [R3]</li><li>Token callback disimpan menggunakan enkripsi aplikasi. Data identitas yang telah didekripsi dan gambar lokal tetap membutuhkan kontrol akses serta retensi tersendiri. [R1:648–653, 903–913; R3]</li></ul>
+<h3>Risiko yang perlu mendapat keputusan</h3>
+<ul><li><strong>Pengikatan akun:</strong> rute pembuatan sesi dan exchange berada di luar middleware API proyek dan menerima <code>id_borrower</code> ketika tidak ada pengguna terautentikasi. Security perlu memvalidasi model otorisasi sebelum produksi; jangan menganggap seluruh jalur dilindungi login. [R6; R1:303–305, 380–382]</li><li><strong>Data pribadi:</strong> NIK, tanggal lahir, KTP, dan selfie harus dibatasi aksesnya. Jangan cantumkan token, kunci, atau identitas lengkap pada laporan manajemen.</li><li><strong>Transisi legacy:</strong> dua jalur berjalan di kode; perbedaan aturan dan sumber status dapat menimbulkan ketidakkonsistenan tampilan dan tindak lanjut. [R4–R7]</li></ul>
+<div class="footer"><span>TOMI | Privy Digital ID | Internal</span><span>5 / 6</span></div>
+</section>
+<section>
+<div class="eyebrow">Keputusan dan bukti</div><h2>Syarat kesiapan dan referensi</h2>
+<p><strong>Status bukti:</strong> implementasi backend ditemukan pada kode lokal. Aktivasi produksi, integrasi layar mobile, kontrak Privy, SLA, serta keberhasilan transaksi nyata belum diverifikasi dalam penyusunan dokumen ini.</p>
+<h3>Checklist sebelum menyatakan siap produksi</h3>
+<ol class="small"><li>IT mengonfirmasi environment, merchant, kunci, URL callback, serta pengamanan akun–sesi. Digital ID memakai konfigurasi layanan/env; registrasi/tanda tangan legacy memakai tabel <code>privies</code>. Panduan lama tidak boleh diterapkan ke semua jalur. [R2, R5, R7]</li><li>UAT end-to-end: sukses, profil tidak lengkap, NIK/tanggal lahir berbeda, sesi habis, kode salah akun, callback terlambat/berulang, exchange dan callback bersamaan, serta layanan tidak tersedia.</li><li>Operasional menyetujui SOP eskalasi dan pemulihan; Legal/Security menyetujui pengelolaan data; Finance memastikan pencatatan biaya sesuai kontrak.</li><li>Uji terpisah sampai dokumen benar-benar ditandatangani dan arsip dapat diverifikasi. Jangan menggunakan kelulusan Digital ID sebagai bukti kelulusan proses dokumen.</li></ol>
+<h3>Indikator manajemen yang disarankan</h3>
+<p class="small">Tingkat keberhasilan (akun terverifikasi ÷ akun yang memulai verifikasi pada kohort yang sama), waktu penyelesaian median/p95, jumlah sesi tertahan, proporsi ketidakcocokan identitas, serta biaya aktual per akun berhasil. Laporkan pengguna unik terpisah dari jumlah percobaan; tetapkan target setelah baseline tersedia.</p>
+<h3>Sumber resmi Privy</h3>
+<div class="refs"><p>[P1] Identitas Digital Privy — <a href="https://privy.id/id/digital-identity">https://privy.id/id/digital-identity</a><br>[P2] Digital Signature — <a href="https://privy.id/digital-signature">https://privy.id/digital-signature</a><br>Diakses 16 Oktober 2026. Pernyataan produk tidak menggantikan kontrak atau tinjauan hukum.</p></div>
+<h3>Jejak sumber proyek (relatif terhadap tomiV2)</h3>
+<div class="refs">
+<p>[R1] <code>app/Http/Controllers/User/PrivyController.php</code>, baris 301–499 (sesi/exchange), 502–668 (status/callback), 670–863 dan 903–913 (hasil, pencocokan, biaya, gambar).</p>
+<p>[R2] <code>app/Services/PrivyDigitalIdClient.php</code>, baris 56–170 (API, validasi token, dekripsi); <code>config/services.php</code>, baris 45–56 (konfigurasi).</p>
+<p>[R3] <code>app/Services/PrivyDigitalIdService.php</code>, baris 64–164 (penerimaan, klaim, hasil, identitas).</p>
+<p>[R4] <code>app/Http/Controllers/User/PinjamanController.php</code>, baris 101–188; <code>app/Models/User.php</code>, baris 61–81 (verifikasi legacy dan sesi).</p>
+<p>[R5] <code>docs/privy.md</code>, baris 7–32 dan 73–139; <code>app/Helpers/helpers.php</code>, baris 45–85 dan 226–278 (jalur lama).</p>
+<p>[R6] <code>routes/api.php</code>, baris 26–28, 139–147, 161–164 (rute).</p>
+<p>[R7] <code>docs/privy.md</code>, baris 14–56 (panduan konfigurasi legacy). Konfigurasi Digital ID terbaru dirujuk pada [R2].</p>
+</div>
+<div class="footer"><span>TOMI | Privy Digital ID | Internal</span><span>6 / 6</span></div>
+</section></body></html>
