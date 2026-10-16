@@ -241,7 +241,7 @@ class PrivyDigitalIdCallbackTest extends TestCase
     }
 
     /** @dataProvider tokenlessFailureReasons */
-    public function test_tokenless_identity_failure_callback_marks_session_failed(string $reason): void
+    public function test_tokenless_identity_failure_callback_explains_each_failure(string $reason, string $message): void
     {
         $owner = $this->user();
         $session = $this->createSession($owner);
@@ -260,22 +260,24 @@ class PrivyDigitalIdCallbackTest extends TestCase
         $session->refresh();
         $this->assertSame('failed', $session->status);
         $this->assertSame('identity.'.$reason, $session->event);
+        $this->assertSame($reason, $session->error_code);
+        $this->assertSame($message, $session->error_message);
         $this->assertNull($session->callback_token);
         $this->assertNotNull($session->callback_received_at);
     }
 
     public static function tokenlessFailureReasons(): array
     {
-        return array_map(static fn (string $reason): array => [$reason], [
-            'cancelled',
-            'user_back',
-            'consent_denied',
-            'too_many_attempts',
-            'session_expired',
-            'liveness_blocked',
-            'fallback_manual',
-            'error',
-        ]);
+        return [
+            ['cancelled', 'Verifikasi identitas dibatalkan oleh pengguna.'],
+            ['user_back', 'Pengguna kembali sebelum verifikasi identitas selesai.'],
+            ['consent_denied', 'Persetujuan untuk verifikasi identitas ditolak.'],
+            ['too_many_attempts', 'Batas percobaan verifikasi identitas telah tercapai.'],
+            ['session_expired', 'Sesi verifikasi identitas telah kedaluwarsa.'],
+            ['liveness_blocked', 'Verifikasi liveness diblokir karena pemeriksaan tidak memenuhi syarat.'],
+            ['fallback_manual', 'Verifikasi identitas dialihkan ke proses manual.'],
+            ['error', 'Terjadi kesalahan saat verifikasi identitas.'],
+        ];
     }
 
     public function test_nested_signed_session_id_is_accepted(): void

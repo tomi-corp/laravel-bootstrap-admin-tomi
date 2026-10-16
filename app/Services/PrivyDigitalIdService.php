@@ -137,6 +137,14 @@ class PrivyDigitalIdService
             $values['verified_at'] = now();
         }
 
+        if (array_key_exists('error_code', $data)) {
+            $values['error_code'] = $data['error_code'];
+        }
+
+        if (array_key_exists('error_message', $data)) {
+            $values['error_message'] = substr((string) $data['error_message'], 0, 255);
+        }
+
         return PrivyDigitalIdSession::where('privy_session_id', $sessionId)
             ->where('status', 'processing')
             ->update($values);

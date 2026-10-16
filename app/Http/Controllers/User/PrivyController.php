@@ -31,6 +31,17 @@ class PrivyController extends Controller
         'error',
     ];
 
+    private const TOKENLESS_FAILURE_MESSAGES = [
+        'cancelled' => 'Verifikasi identitas dibatalkan oleh pengguna.',
+        'user_back' => 'Pengguna kembali sebelum verifikasi identitas selesai.',
+        'consent_denied' => 'Persetujuan untuk verifikasi identitas ditolak.',
+        'too_many_attempts' => 'Batas percobaan verifikasi identitas telah tercapai.',
+        'session_expired' => 'Sesi verifikasi identitas telah kedaluwarsa.',
+        'liveness_blocked' => 'Verifikasi liveness diblokir karena pemeriksaan tidak memenuhi syarat.',
+        'fallback_manual' => 'Verifikasi identitas dialihkan ke proses manual.',
+        'error' => 'Terjadi kesalahan saat verifikasi identitas.',
+    ];
+
     public function registerPrivy()
     {
         //
@@ -568,6 +579,7 @@ class PrivyController extends Controller
                 'status' => strtoupper($session->status),
                 'privy_id' => $session->status === 'verified' ? $user->id_privy : null,
                 'error_code' => $session->status === 'failed' ? $session->error_code : null,
+                'error_message' => $session->status === 'failed' ? $session->error_message : null,
                 'expires_at' => $session->expires_at,
             ],
         ], 200);
@@ -730,9 +742,12 @@ class PrivyController extends Controller
 
         $digitalIdService = app(PrivyDigitalIdService::class);
         if ($digitalIdService->claimSession($sessionId, 'callback')) {
+            $reason = substr($event, strlen('identity.'));
             $digitalIdService->finishSession($sessionId, [
                 'status' => 'FAILED',
                 'event' => $event,
+                'error_code' => $reason,
+                'error_message' => self::TOKENLESS_FAILURE_MESSAGES[$reason],
             ]);
         }
 
