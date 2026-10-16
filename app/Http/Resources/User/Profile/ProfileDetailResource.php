@@ -14,11 +14,15 @@ class ProfileDetailResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        // Mengambil data dari relasi PrivyDigitalIdSession (misal: relasinya bernama privySession atau privy)
-        // Sesuaikan nama relasi dengan yang ada di Model User Anda.
-        $privySession = $this->privySession; // atau $this->privy
+        // Sesi Privy Digital ID terbaru (relasi User::privy)
+        $privySession = $this->privy;
 
-        $isPrivyVerified = $privySession && $privySession->status === 'verified'; // Atau sesuaikan kondisi status terverifikasi
+        // Sumber utama status Privy: users.verified_privy + users.id_privy (diisi callback / exchange
+        // Digital ID maupun registrasi Privy lama); sesi verified hanya sebagai cadangan.
+        $legacyVerified = $this->resource->hasLegacyPrivyVerification();
+        $sessionVerified = $privySession && $privySession->status === 'verified';
+        $isPrivyVerified = $legacyVerified || $sessionVerified;
+        $privyId = $this->id_privy ?: ($sessionVerified ? $privySession->privy_id : null);
 
         return [
             'name' => $this->name,
@@ -41,10 +45,10 @@ class ProfileDetailResource extends JsonResource
             'status_verifikasi_email' => $this->email_verified_at === null ? 'belum verifikasi' : 'terverifikasi',
 
             // Data Privy diambil dari tabel/model PrivyDigitalIdSession
-            'status_privy' => $privySession ? $privySession->status : null,
+            'status_privy' => $isPrivyVerified ? 'verified' : ($privySession ? $privySession->status : null),
             'status_privy_terbaru' => $isPrivyVerified ? 'terverifikasi' : 'belum terverifikasi',
             'privy_verified' => $isPrivyVerified,
-            'privy_id' => $privySession ? $privySession->privy_id : null,
+            'privy_id' => $isPrivyVerified ? $privyId : null,
             'reference_number' => $privySession ? $privySession->reference_number : null,
             'session_url' => $privySession ? $privySession->session_url : null,
             'reason_privy' => $this->reason_privy, // Tetap ambil dari user jika kolomnya masih ada di user

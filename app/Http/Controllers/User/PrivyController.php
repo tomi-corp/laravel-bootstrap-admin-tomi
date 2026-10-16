@@ -16,6 +16,7 @@ use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 
 class PrivyController extends Controller
@@ -694,80 +695,55 @@ class PrivyController extends Controller
     //         'received' => true,
     //     ], 200);
     // }
+    /**
+     * POST /v1/api/privy/callback — dipanggil aplikasi TomiHub (dengan token login) dan server Privy.
+     *
+     * Berhasil      : { session_id, event: "identity.verified", token }
+     * Tidak berhasil: { session_id, event: "identity.<alasan>" } tanpa token → cukup dicatat, balas 200.
+     * Token diverifikasi sesuai dokumen v1.5 §12.2 (EdDSA, aud, iss, exp) lalu my_identity didekripsi (§12.3).
+     * Proses idempoten per session_id: callback berulang memberi hasil yang sama.
+     */
     public function digitalIdCallback(Request $request)
     {
         $sessionId = trim((string) $request->input('session_id'));
-        $token = $request->input('token');
+        $token = is_string($request->input('token')) ? trim($request->input('token')) : '';
         $event = is_string($request->input('event')) ? strtolower(trim($request->input('event'))) : '';
 
-        $isVerifiedEvent = ($event === 'identity.verified');
+        // Callback dengan token tanpa event diperlakukan sebagai identity.verified
+        if ($event === '' && $token !== '') {
+            $event = 'identity.verified';
+        }
 
-        // 1. Validasi token wajib khusus untuk event identity.verified
-        if ($isVerifiedEvent && (! is_string($token) || $token === '')) {
+        // 1. token wajib hanya untuk identity.verified (required_if:event,identity.verified)
+        if ($event === 'identity.verified' && $token === '') {
             Log::warning('Privy Digital ID callback verified without token', [
                 'session_id' => $sessionId,
                 'event' => $event,
             ]);
 
-            return response()->json([
-                'status' => false,
-                'message' => 'token wajib diisi',
-            ], 400);
+            return $this->digitalIdCallbackResponse(false, 'token wajib diisi', 400);
         }
 
-        // 2. Penanganan event non-verified / gagal (tanpa token) dengan mapping pesan berdasarkan alasan
-        if ((! is_string($token) || $token === '') && $sessionId !== '') {
-            $failureMessages = [
-                'identity.cancelled' => 'Proses verifikasi dibatalkan oleh pengguna.',
-                'identity.user_back' => 'Pengguna keluar dari halaman verifikasi.',
-                'identity.consent_denied' => 'Persetujuan (consent) verifikasi ditolak.',
-                'identity.too_many_attempts' => 'Terlalu banyak percobaan verifikasi yang gagal.',
-                'identity.session_expired' => 'Sesi verifikasi telah kedaluwarsa.',
-                'identity.liveness_blocked' => 'Verifikasi liveness diblokir karena tidak sesuai.',
-                'identity.fallback_manual' => 'Verifikasi dialihkan ke mode manual.',
-                'identity.error' => 'Terjadi kesalahan sistem saat proses verifikasi.',
-            ];
-
-            $customMessage = $failureMessages[$event] ?? 'Proses verifikasi tidak berhasil.';
-
-            $session = PrivyDigitalIdSession::where('privy_session_id', $sessionId)->latest()->first();
-            if ($session) {
-                $session->forceFill([
-                    'callback_state' => $request->input('state') ?: $event,
-                ])->save();
-
-                // Panggil method untuk mencatat status gagal jika ada di service Anda
-                if (method_exists($this, 'processDigitalIdFailureResult')) {
-                    $this->processDigitalIdFailureResult($session, $event, $request->all());
-                }
+        // 2. Event tidak berhasil (tanpa token): catat status sesi, balas 200
+        if ($token === '') {
+            if ($sessionId === '') {
+                return $this->digitalIdCallbackResponse(false, 'session_id wajib diisi', 400);
             }
 
-            Log::info('Privy Digital ID non-verified event received', [
-                'session_id' => $sessionId,
-                'event' => $event,
-                'message' => $customMessage,
-            ]);
-
-            return response()->json([
-                'status' => false,
-                'message' => $customMessage,
-                'event' => $event,
-            ], 200);
+            return $this->handleTokenlessFailureCallback($request, $sessionId, $event);
         }
 
-        // 3. Verifikasi token EdDSA, iss, exp, dll. untuk event yang memerlukan token (misal: identity.verified)
+        // 3. Verifikasi token
         try {
             $payload = app(PrivyDigitalIdClient::class)->verifyToken($token);
         } catch (PrivyDigitalIdException $e) {
             Log::warning('Privy Digital ID callback token invalid', [
+                'session_id' => $sessionId,
                 'code' => $e->errorCode,
                 'http_status' => $e->httpStatus,
             ]);
 
-            return response()->json([
-                'status' => false,
-                'message' => 'token callback tidak valid',
-            ], 401);
+            return $this->digitalIdCallbackResponse(false, 'token callback tidak valid', 401, ['error_code' => $e->errorCode]);
         }
 
         $requestSessionId = $sessionId;
@@ -775,22 +751,14 @@ class PrivyController extends Controller
         $sessionId = is_string($signedSessionId) ? trim($signedSessionId) : '';
 
         if ($sessionId === '') {
-            Log::warning('Privy Digital ID callback invalid: session_id missing in token', [
-                'has_session_id' => false,
-                'has_token' => true,
-            ]);
+            Log::warning('Privy Digital ID callback invalid: session_id missing in token');
 
-            return response()->json([
-                'status' => false,
-                'message' => 'session_id tidak ditemukan pada callback',
-            ], 400);
+            return $this->digitalIdCallbackResponse(false, 'session_id tidak ditemukan pada callback', 400);
         }
 
+        // session_id di body harus sama dengan session_id yang ditandatangani Privy
         if ($request->exists('session_id') && $requestSessionId !== $sessionId) {
-            return response()->json([
-                'status' => false,
-                'message' => 'token callback tidak valid',
-            ], 401);
+            return $this->digitalIdCallbackResponse(false, 'token callback tidak valid', 401);
         }
 
         $session = PrivyDigitalIdSession::where('privy_session_id', $sessionId)->latest()->first();
@@ -803,19 +771,22 @@ class PrivyController extends Controller
 
             return response()->json([
                 'status' => true,
+                'received' => true,
+                'processed' => false,
                 'message' => 'Sesi tidak ditemukan, tetapi callback diterima',
             ], 200);
         }
 
-        // 4. Idempotensi: Cek apakah sesi/borrower sudah pernah terverifikasi sebelumnya
-        $borrower = $session->borrower ?? null;
-        if ($borrower && $borrower->privy_verified === true) {
-            return response()->json([
-                'status' => true,
-                'message' => 'Callback sudah diproses sebelumnya',
-                'privy_verified' => true,
-                'privy_id' => $borrower->privy_id,
-            ], 200);
+        // 4. Bila dipanggil aplikasi (ada token login), sesi wajib milik nasabah yang login
+        $authUser = $this->callbackAuthUser();
+
+        if ($authUser && (int) $authUser->id !== (int) $session->user_id) {
+            Log::warning('Privy Digital ID callback session owned by another user', [
+                'session_id' => $sessionId,
+                'auth_user_id' => $authUser->id,
+            ]);
+
+            return $this->digitalIdCallbackResponse(false, 'Sesi verifikasi bukan milik akun Anda.', 403);
         }
 
         $session = app(PrivyDigitalIdService::class)->acceptCallback($session);
@@ -823,8 +794,15 @@ class PrivyController extends Controller
         if (! $session) {
             return response()->json([
                 'status' => true,
+                'received' => true,
+                'processed' => false,
                 'message' => 'Callback sudah diproses sebelumnya',
             ], 200);
+        }
+
+        // 5. Idempoten: sesi yang sudah verified (lewat exchange / callback sebelumnya) tidak diproses ulang
+        if ($session->status === 'verified') {
+            return $this->digitalIdVerifiedResponse(User::find($session->user_id), $session->privy_id, 'Callback sudah diproses sebelumnya');
         }
 
         $sharedData = $request->input('shared_data', []);
@@ -833,20 +811,16 @@ class PrivyController extends Controller
             $sharedData = is_array($decodedSharedData) ? $decodedSharedData : [];
         }
 
-        // Tangkap exchange_code jika dikirim dari aplikasi/widget complete
-        $exchangeCode = $request->input('exchange_code') ?: $session->exchange_code;
-
         $session->forceFill([
-            'exchange_code' => $exchangeCode,
+            'exchange_code' => $request->input('exchange_code') ?: $session->exchange_code,
             'callback_state' => $request->input('state') ?: $event,
             'callback_token' => Crypt::encryptString($token),
             'callback_shared_data' => is_array($sharedData) ? $sharedData : [],
         ])->save();
 
         try {
-            // 5. Proses hasil verifikasi (Pastikan method ini memperbarui data borrower:
-            //    privy_verified = true, privy_id, status_privy, status_privy_terbaru)
-            $this->processDigitalIdResult($session, $token, 'callback', $request->input('state') ?? $event, $payload);
+            // 6. Verifikasi + dekripsi identitas, simpan users.verified_privy & users.id_privy
+            $result = $this->processDigitalIdResult($session, $token, 'callback', $request->input('state') ?: $event, $payload);
         } catch (PrivyDigitalIdException $e) {
             Log::warning('Privy Digital ID callback processing failed', [
                 'session_id' => $sessionId,
@@ -854,21 +828,71 @@ class PrivyController extends Controller
                 'http_status' => $e->httpStatus,
             ]);
 
-            return response()->json([
-                'status' => false,
-                'message' => 'Gagal memproses hasil verifikasi digital ID',
-            ], 500);
+            return $this->digitalIdCallbackResponse(false, 'Gagal memproses hasil verifikasi digital ID', 500, ['error_code' => $e->errorCode]);
         }
 
-        // Ambil data borrower terbaru setelah berhasil diproses untuk endpoint /v1/api/me
-        $borrower = $session->fresh()->borrower;
+        // Server Privy cukup menerima ack 200; aplikasi menerima status yang sebenarnya
+        $failureStatus = $authUser ? 422 : 200;
 
+        return match ($result['status'] ?? null) {
+            'VERIFIED' => $this->digitalIdVerifiedResponse(User::find($session->user_id), $result['privy_id'] ?? null),
+            'IDENTITY_MISMATCH' => $this->digitalIdCallbackResponse(
+                false,
+                'Data identitas Privy (NIK/tanggal lahir) tidak sesuai dengan data akun TomiHub Anda. Silakan hubungi Customer Service.',
+                $failureStatus,
+                ['privy_verified' => false, 'reason' => 'identity_mismatch'],
+            ),
+            'IDENTITY_CONFLICT' => $this->digitalIdCallbackResponse(
+                false,
+                'NIK pada akun Privy sudah terdaftar di akun TomiHub lain. Silakan hubungi Customer Service.',
+                $failureStatus,
+                ['privy_verified' => false, 'reason' => 'identity_conflict'],
+            ),
+            'FAILED' => $this->digitalIdCallbackResponse(
+                false,
+                'Verifikasi identitas tidak berhasil.',
+                $failureStatus,
+                ['privy_verified' => false, 'reason' => 'failed'],
+            ),
+            default => $this->digitalIdCallbackResponse(
+                false,
+                'Verifikasi identitas sedang diproses.',
+                202,
+                ['privy_verified' => false, 'reason' => 'processing'],
+            ),
+        };
+    }
+
+    private function digitalIdCallbackResponse(bool $ok, string $message, int $httpStatus = 200, array $extra = [])
+    {
+        return response()->json(array_merge([
+            'status' => $ok,
+            'received' => $httpStatus < 400,
+            'message' => $message,
+        ], $extra), $httpStatus);
+    }
+
+    private function digitalIdVerifiedResponse(?User $user, ?string $privyId, string $message = 'Verifikasi identitas berhasil')
+    {
         return response()->json([
             'status' => true,
-            'message' => 'Verifikasi identitas berhasil',
-            'privy_verified' => $borrower ? (bool) $borrower->privy_verified : true,
-            'privy_id' => $borrower ? $borrower->privy_id : null,
+            'received' => true,
+            'message' => $message,
+            'privy_verified' => true,
+            'privy_id' => $user?->id_privy ?: $privyId,
         ], 200);
+    }
+
+    /** Nasabah dari token login aplikasi; null untuk callback server-to-server dari Privy. */
+    private function callbackAuthUser(): ?User
+    {
+        try {
+            $user = auth('api')->user();
+        } catch (\Throwable) {
+            return null;
+        }
+
+        return $user instanceof User ? $user : null;
     }
 
     private function isTokenlessFailureEvent(string $event): bool
@@ -882,6 +906,9 @@ class PrivyController extends Controller
 
     private function handleTokenlessFailureCallback(Request $request, string $sessionId, string $event)
     {
+        $reason = str_starts_with($event, 'identity.') ? substr($event, strlen('identity.')) : '';
+        $reason = $this->isTokenlessFailureEvent($event) ? $reason : 'error';
+        $message = self::TOKENLESS_FAILURE_MESSAGES[$reason];
         $session = PrivyDigitalIdSession::where('privy_session_id', $sessionId)->latest()->first();
 
         if (! $session) {
@@ -891,17 +918,27 @@ class PrivyController extends Controller
             ]);
 
             return response()->json([
+                'status' => true,
                 'received' => true,
                 'processed' => false,
+                'message' => $message,
             ], 200);
+        }
+
+        $authUser = $this->callbackAuthUser();
+
+        if ($authUser && (int) $authUser->id !== (int) $session->user_id) {
+            return $this->digitalIdCallbackResponse(false, 'Sesi verifikasi bukan milik akun Anda.', 403);
         }
 
         $session = app(PrivyDigitalIdService::class)->acceptCallback($session);
 
         if (! $session) {
             return response()->json([
+                'status' => true,
                 'received' => true,
                 'processed' => false,
+                'message' => $message,
             ], 200);
         }
 
@@ -912,23 +949,31 @@ class PrivyController extends Controller
         }
 
         $session->forceFill([
-            'callback_state' => $request->input('state'),
+            'callback_state' => $request->input('state') ?: ($event ?: null),
             'callback_shared_data' => is_array($sharedData) ? $sharedData : [],
         ])->save();
 
+        // Sesi yang sudah verified tidak diturunkan statusnya (claimSession menolak status verified)
         $digitalIdService = app(PrivyDigitalIdService::class);
         if ($digitalIdService->claimSession($sessionId, 'callback')) {
-            $reason = substr($event, strlen('identity.'));
             $digitalIdService->finishSession($sessionId, [
                 'status' => 'FAILED',
-                'event' => $event,
+                'event' => $event !== '' ? $event : 'identity.error',
                 'error_code' => $reason,
-                'error_message' => self::TOKENLESS_FAILURE_MESSAGES[$reason],
+                'error_message' => $message,
             ]);
         }
 
+        Log::info('Privy Digital ID non-verified event received', [
+            'session_id' => $sessionId,
+            'event' => $event,
+        ]);
+
         return response()->json([
+            'status' => true,
             'received' => true,
+            'message' => $message,
+            'event' => $event,
         ], 200);
     }
 
@@ -964,6 +1009,8 @@ class PrivyController extends Controller
                 ?? $event
                 ?? ''
             ));
+            // Event callback/exchange berbentuk "identity.verified" → "VERIFIED"
+            $status = preg_replace('/^IDENTITY\./', '', $status);
             $privyId = $payload['privy_id']
                 ?? $payload['id_privy']
                 ?? $payload['id_user']
@@ -980,12 +1027,11 @@ class PrivyController extends Controller
                 $user = User::find($session->user_id);
 
                 if ($user) {
-                    $nikMatch = ! empty($identity['identity_number']) && $identity['identity_number'] === $user->nik;
-                    $dobMatch = ! empty($identity['dob']) && $identity['dob'] === $user->dob;
+                    $identityCheck = $this->checkDigitalIdIdentity($user, $identity);
 
-                    if (! $nikMatch || ! $dobMatch) {
+                    if ($identityCheck !== null) {
                         $digitalIdService->finishSession($session->privy_session_id, [
-                            'status' => 'identity_mismatch',
+                            'status' => strtolower($identityCheck['status']),
                             'event' => is_scalar($event) ? (string) $event : null,
                             'privy_id' => (string) $privyId,
                         ]);
@@ -994,14 +1040,11 @@ class PrivyController extends Controller
                             $digitalIdService->updateDecryptedIdentity($session->privy_session_id, $identity);
                         }
 
-                        return [
-                            'status' => 'IDENTITY_MISMATCH',
-                            'privy_id' => (string) $privyId,
-                            'nik_match' => $nikMatch,
-                            'dob_match' => $dobMatch,
-                        ];
+                        return $identityCheck + ['privy_id' => (string) $privyId];
                     }
 
+                    // NIK / tanggal lahir / nama lengkap yang masih kosong diisi dari data Privy
+                    $this->fillProfileFromDigitalId($user, $identity);
                     $this->syncDigitalIdKyc($session, $user, $identity, $payload, $session->callback_shared_data ?? []);
                     $this->markUserPrivyVerified($user, (string) $privyId, is_string($enterpriseToken) ? $enterpriseToken : null, $user->verified_privy == 'y');
                 }
@@ -1050,6 +1093,65 @@ class PrivyController extends Controller
             ]);
 
             throw $e;
+        }
+    }
+
+    /**
+     * Cocokkan identitas hasil dekripsi Privy dengan data akun.
+     * NIK / tanggal lahir akun yang masih kosong tidak dianggap berbeda (akan diisi dari Privy).
+     *
+     * @return array|null null = cocok; selain itu hasil IDENTITY_MISMATCH / IDENTITY_CONFLICT
+     */
+    private function checkDigitalIdIdentity(User $user, array $identity): ?array
+    {
+        $privyNik = preg_replace('/\D/', '', (string) ($identity['identity_number'] ?? ''));
+        $privyDob = $this->normalizeDigitalIdDate($identity['dob'] ?? null);
+        $userNik = preg_replace('/\D/', '', (string) $user->nik);
+        $userDob = $this->normalizeDigitalIdDate($user->dob);
+
+        $nikMatch = $privyNik !== '' && ($userNik === '' || $userNik === $privyNik);
+        $dobMatch = $userDob === null || $userDob === $privyDob;
+
+        if (! $nikMatch || ! $dobMatch) {
+            return ['status' => 'IDENTITY_MISMATCH', 'nik_match' => $nikMatch, 'dob_match' => $dobMatch];
+        }
+
+        if ($userNik === '' && User::where('nik', $privyNik)->whereKeyNot($user->getKey())->exists()) {
+            return ['status' => 'IDENTITY_CONFLICT', 'nik_match' => false, 'dob_match' => $dobMatch];
+        }
+
+        return null;
+    }
+
+    private function fillProfileFromDigitalId(User $user, array $identity): void
+    {
+        $privyNik = preg_replace('/\D/', '', (string) ($identity['identity_number'] ?? ''));
+        $privyDob = $this->normalizeDigitalIdDate($identity['dob'] ?? null);
+
+        if (empty($user->nik) && $privyNik !== '') {
+            $user->nik = $privyNik;
+        }
+
+        if (empty($user->dob) && $privyDob !== null) {
+            $user->dob = $privyDob;
+        }
+
+        if (! empty($identity['name']) && empty($user->nama_lengkap) && Schema::hasColumn($user->getTable(), 'nama_lengkap')) {
+            $user->nama_lengkap = (string) $identity['name'];
+        }
+        // Disimpan bersama markUserPrivyVerified()
+    }
+
+    private function normalizeDigitalIdDate(mixed $value): ?string
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        try {
+            return Carbon::parse($value)->format('Y-m-d');
+        } catch (\Throwable) {
+            return null;
         }
     }
 
