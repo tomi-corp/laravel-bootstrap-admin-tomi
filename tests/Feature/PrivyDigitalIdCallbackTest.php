@@ -143,7 +143,8 @@ class PrivyDigitalIdCallbackTest extends TestCase
         $response = $this->invokeCallback(['id_borrower' => $otherOwner->id, 'state' => 'synthetic-state', 'shared_data' => ['source' => 'synthetic']]);
 
         $this->assertSame(200, $response->getStatusCode());
-        $this->assertSame(['received' => true], $response->getData(true));
+        $this->assertTrue($response->getData(true)['received']);
+        $this->assertFalse($response->getData(true)['privy_verified']);
         $this->assertSame([$current->id, $unrelated->id], PrivyDigitalIdSession::orderBy('id')->pluck('id')->all());
         $this->assertSame(count($siblings) + 2, PrivyDigitalIdSession::withTrashed()->count());
         foreach ($siblings as $sibling) {
@@ -222,7 +223,9 @@ class PrivyDigitalIdCallbackTest extends TestCase
         $response = $this->invokeCallback($input + ['state' => 'untrusted', 'exchange_code' => 'untrusted', 'shared_data' => ['untrusted' => true]]);
 
         $this->assertSame($status, $response->getStatusCode());
-        $this->assertSame(['received' => false, 'message' => $message], $response->getData(true));
+        $this->assertFalse($response->getData(true)['status']);
+        $this->assertFalse($response->getData(true)['received']);
+        $this->assertSame($message, $response->getData(true)['message']);
         $this->assertSame($before, DB::table('privy_digital_id_sessions')->orderBy('id')->get()->toJson());
     }
 
@@ -256,7 +259,7 @@ class PrivyDigitalIdCallbackTest extends TestCase
         ]);
 
         $this->assertSame(200, $response->getStatusCode());
-        $this->assertSame(['received' => true], $response->getData(true));
+        $this->assertSame(['status' => true, 'received' => true, 'message' => $message, 'event' => 'identity.'.$reason], $response->getData(true));
         $session->refresh();
         $this->assertSame('failed', $session->status);
         $this->assertSame('identity.'.$reason, $session->event);
@@ -303,7 +306,8 @@ class PrivyDigitalIdCallbackTest extends TestCase
             $this->provider(['session_id' => $signedId, 'status' => 'FAILED']);
             $response = $this->invokeCallback();
             $this->assertSame(200, $response->getStatusCode());
-            $this->assertSame(['received' => true, 'processed' => false], $response->getData(true));
+            $this->assertTrue($response->getData(true)['received']);
+            $this->assertFalse($response->getData(true)['processed']);
             $this->assertSame($before, DB::table('privy_digital_id_sessions')->orderBy('id')->get()->toJson());
         }
     }
@@ -327,7 +331,7 @@ class PrivyDigitalIdCallbackTest extends TestCase
         $this->assertNull(PrivyDigitalIdSession::find($first->id));
         $before = DB::table('privy_digital_id_sessions')->orderBy('id')->get()->toJson();
         $this->provider(['session_id' => $first->privy_session_id, 'status' => 'FAILED']);
-        $this->assertSame(['received' => true, 'processed' => false], $this->invokeCallback()->getData(true));
+        $this->assertFalse($this->invokeCallback()->getData(true)['processed']);
         $this->assertSame($before, DB::table('privy_digital_id_sessions')->orderBy('id')->get()->toJson());
         $this->assertSame([$newer->id], PrivyDigitalIdSession::pluck('id')->all());
     }
@@ -364,7 +368,9 @@ class PrivyDigitalIdCallbackTest extends TestCase
             ->andThrow(new PrivyDigitalIdException('Synthetic decryption failure', 'decrypt_failed'));
         $this->app->instance(PrivyDigitalIdClient::class, $client);
 
-        $this->assertSame(200, $this->invokeCallback()->getStatusCode());
+        $response = $this->invokeCallback();
+        $this->assertSame(500, $response->getStatusCode());
+        $this->assertSame('decrypt_failed', $response->getData(true)['error_code']);
         $this->assertTrue(PrivyDigitalIdSession::withTrashed()->findOrFail($old->id)->trashed());
         $this->assertNotNull($current->fresh()->callback_received_at);
         $this->assertSame('decrypt_failed', $current->fresh()->error_code);
@@ -403,6 +409,113 @@ class PrivyDigitalIdCallbackTest extends TestCase
         $this->assertSame(403, $response->getStatusCode());
         $this->assertSame('Kode verifikasi tidak sesuai dengan akun Anda.', $response->getData(true)['message']);
         $this->assertTrue(PrivyDigitalIdSession::withTrashed()->findOrFail($historical->id)->trashed());
+    }
+
+    /** Payload JWT asli Privy tidak membawa "status"; status berasal dari event identity.verified. */
+    public function test_identity_verified_event_marks_user_verified_and_is_idempotent(): void
+    {
+        $owner = $this->user();
+        $session = $this->createSession($owner);
+        $payload = ['session_id' => $session->privy_session_id, 'data' => ['my_identity' => 'synthetic-ciphertext']];
+        $this->provider($payload, ['identity_number' => '1111111111111111', 'dob' => '1990-01-02', 'privy_id' => 'SYNTHETIC-PRIVY']);
+
+        $response = $this->invokeCallback(['session_id' => $session->privy_session_id, 'event' => 'identity.verified']);
+
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertTrue($response->getData(true)['status']);
+        $this->assertTrue($response->getData(true)['privy_verified']);
+        $this->assertSame('SYNTHETIC-PRIVY', $response->getData(true)['privy_id']);
+        $this->assertSame('y', $owner->fresh()->verified_privy);
+        $this->assertSame('SYNTHETIC-PRIVY', $owner->fresh()->id_privy);
+        $this->assertSame('verified', $session->fresh()->status);
+
+        // Callback kedua (mis. dari server Privy) tidak memproses ulang dan memberi hasil yang sama
+        $client = Mockery::mock(PrivyDigitalIdClient::class);
+        $client->shouldReceive('verifyToken')->once()->andReturn($payload);
+        $client->shouldNotReceive('decryptIdentity');
+        $this->app->instance(PrivyDigitalIdClient::class, $client);
+
+        $again = $this->invokeCallback(['session_id' => $session->privy_session_id, 'event' => 'identity.verified']);
+
+        $this->assertSame(200, $again->getStatusCode());
+        $this->assertTrue($again->getData(true)['privy_verified']);
+        $this->assertSame('SYNTHETIC-PRIVY', $again->getData(true)['privy_id']);
+    }
+
+    public function test_user_without_nik_and_dob_is_verified_and_filled_from_privy(): void
+    {
+        $owner = new User;
+        $owner->forceFill(['verified_privy' => 'n'])->save();
+        $session = $this->createSession($owner);
+        $this->provider(
+            ['session_id' => $session->privy_session_id, 'data' => ['my_identity' => 'synthetic-ciphertext']],
+            ['identity_number' => '3175030605980006', 'dob' => '1998-05-06', 'privy_id' => 'SYNTHETIC-PRIVY'],
+        );
+
+        $response = $this->invokeCallback(['event' => 'identity.verified']);
+
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertTrue($response->getData(true)['privy_verified']);
+        $owner->refresh();
+        $this->assertSame('y', $owner->verified_privy);
+        $this->assertSame('3175030605980006', $owner->nik);
+        $this->assertSame('1998-05-06', $owner->dob);
+    }
+
+    public function test_privy_nik_already_owned_by_another_account_is_rejected(): void
+    {
+        $other = $this->user();
+        $owner = new User;
+        $owner->forceFill(['verified_privy' => 'n'])->save();
+        $session = $this->createSession($owner);
+        $this->provider(
+            ['session_id' => $session->privy_session_id, 'data' => ['my_identity' => 'synthetic-ciphertext']],
+            ['identity_number' => $other->nik, 'dob' => '1990-01-02', 'privy_id' => 'SYNTHETIC-PRIVY'],
+        );
+
+        $response = $this->invokeCallback(['event' => 'identity.verified']);
+
+        $this->assertSame('identity_conflict', $response->getData(true)['reason']);
+        $this->assertSame('identity_conflict', $session->fresh()->status);
+        $this->assertSame('n', $owner->fresh()->verified_privy);
+        $this->assertNull($owner->fresh()->nik);
+    }
+
+    public function test_verified_event_without_token_requires_token(): void
+    {
+        $session = $this->createSession($this->user());
+        $client = Mockery::mock(PrivyDigitalIdClient::class);
+        $client->shouldNotReceive('verifyToken');
+        $this->app->instance(PrivyDigitalIdClient::class, $client);
+
+        $response = $this->invokeCallback(['token' => null, 'session_id' => $session->privy_session_id, 'event' => 'identity.verified']);
+
+        $this->assertSame(400, $response->getStatusCode());
+        $this->assertSame('token wajib diisi', $response->getData(true)['message']);
+        $this->assertSame('created', $session->fresh()->status);
+    }
+
+    public function test_tokenless_failure_does_not_downgrade_verified_session(): void
+    {
+        $session = $this->createSession($this->user(), ['status' => 'verified', 'privy_id' => 'SYNTHETIC-PRIVY']);
+        $this->app->instance(PrivyDigitalIdClient::class, Mockery::mock(PrivyDigitalIdClient::class));
+
+        $response = $this->invokeCallback(['token' => null, 'session_id' => $session->privy_session_id, 'event' => 'identity.cancelled']);
+
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame('verified', $session->fresh()->status);
+    }
+
+    public function test_unknown_tokenless_reason_is_recorded_as_error(): void
+    {
+        $session = $this->createSession($this->user());
+        $this->app->instance(PrivyDigitalIdClient::class, Mockery::mock(PrivyDigitalIdClient::class));
+
+        $response = $this->invokeCallback(['token' => null, 'session_id' => $session->privy_session_id, 'event' => 'identity.something_new']);
+
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame('failed', $session->fresh()->status);
+        $this->assertSame('error', $session->fresh()->error_code);
     }
 
     private function user(): User
