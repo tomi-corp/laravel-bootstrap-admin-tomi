@@ -15,10 +15,10 @@ dan `.env.stagging` tidak boleh di-commit karena dapat berisi credential.
 - Nama file lama `.env.stagging` dipertahankan demi kompatibilitas deployment. Untuk
   penamaan baru gunakan `staging`, tetapi jangan mengganti nama file deployment tanpa
   memperbarui pipeline terkait.
-- Struktur key pada `.env`, `.env.example`, `.env.production`, dan `.env.stagging`
+- Struktur utama key pada `.env`, `.env.example`, `.env.production`, dan `.env.staging`
   harus sama. Jika menambah variabel baru, tambahkan juga ke empat file tersebut.
-- Repository saat ini belum memiliki file `.env.staging`; file staging yang aktif
-  adalah `.env.stagging`. Jangan membuat salinan baru tanpa memperbarui deployment.
+- `.env.staging` dapat mempertahankan key Privy legacy yang sudah berisi konfigurasi
+  existing agar credential staging tidak hilang. Key baru tetap mengikuti `.env`.
 
 ## Kamus variabel
 
