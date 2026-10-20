@@ -101,6 +101,10 @@ if (! function_exists('loginPrivySign')) {
             }
 
             $param = (string) ($item['param'] ?? 'request');
+            $param = match ($param) {
+                'recipients[id_user]' => 'user.id_privy (API: recipients[id_user])',
+                default => $param,
+            };
             $messages = $item['messages'] ?? [];
             $messages = is_array($messages) ? $messages : [$messages];
             $messages = array_filter(array_map('strval', $messages));
@@ -309,6 +313,20 @@ if (! function_exists('ttdPK')) {
      */
     function ttdPK($user, $fileName, $pinjamanId)
     {
+        if (empty($user->id_privy)) {
+            $message = 'Privy ID peminjam (users.id_privy) kosong; dokumen tidak dikirim ke Privy.';
+            Log::warning('Privy Sign TTD PK skipped because borrower Privy ID is missing', [
+                'pinjaman_id' => $pinjamanId,
+                'user_id' => $user->id ?? null,
+            ]);
+
+            return [
+                'error' => true,
+                'status' => 422,
+                'message' => $message,
+            ];
+        }
+
         // Kirim dokumen menggunakan credential khusus Privy Sign.
         try {
             $login = loginPrivySign();
