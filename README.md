@@ -66,17 +66,15 @@ TOMI V2 adalah aplikasi web berbasis Laravel 11 yang dikembangkan untuk kebutuha
    npm run dev
    ```
 
-## Variabel Environment Penting
+## Variabel Environment
 
-- `APP_NAME`, `APP_ENV`, `APP_URL`
-- `APP_KEY`
-- `DB_CONNECTION`, `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`
-- `SESSION_DRIVER`, `CACHE_STORE`, `QUEUE_CONNECTION`
-- `MAIL_MAILER`, `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`
-- `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_DEFAULT_REGION`, `AWS_BUCKET`
-- `VITE_APP_NAME`
+Semua variabel yang dibaca aplikasi tersedia di [`.env.example`](.env.example)
+dengan nilai rahasia dan nilai spesifik server dikosongkan. Penjelasan setiap
+kelompok variabel tersedia di [`docs/environment.md`](docs/environment.md).
 
-> Catatan: proyek ini juga menggunakan variabel tambahan yang mungkin tidak semuanya ada di `.env.example`, seperti `JWT_SECRET`, `KEYDECRYPTION`, `SALTDECRYPTION`, `FCM_SERVER_KEY`, `POSTMARK_TOKEN`, dan layanan pihak ketiga lainnya.
+Salin template tersebut menjadi `.env`, isi konfigurasi sesuai lingkungan, lalu
+jalankan `php artisan key:generate`. Jangan menaruh credential pada repository
+atau pada variabel frontend `VITE_`.
 
 ## Perintah Umum
 
