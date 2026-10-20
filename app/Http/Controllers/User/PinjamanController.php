@@ -1168,6 +1168,14 @@ class PinjamanController extends Controller
                 // Log authentikasi, timestamps otentikasi saat input tanda tangan (OTP), privyid, preference number.
                 // mulai tanda tangan
                 $hasilTTD = ttdPK($user, $pinjaman->document_name, $pinjaman->id);
+
+                if (($hasilTTD['error'] ?? false) === true) {
+                    return response()->json([
+                        'status' => $hasilTTD['status'],
+                        'message' => $hasilTTD['message'],
+                    ], $hasilTTD['status']);
+                }
+
                 // dd($hasilTTD);
                 // masukin data dari tanda tangan ke db pinjaman
                 // habis itu get file yg sudah ditanda tangan

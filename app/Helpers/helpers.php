@@ -295,12 +295,52 @@ if (! function_exists('ttdPK')) {
             'Accept' => 'application/json',
         ];
 
-        $response = $client->request('POST', $url, [
-            'headers' => $headers,
-            'json' => $requestBody,
-        ]);
+        $statusMessages = [
+            400 => 'Payload atau format parameter salah',
+            401 => 'Token salah, kedaluwarsa, atau kredensial tidak valid',
+            403 => 'Hak akses aplikasi atau akun tidak mencukupi',
+            404 => 'Endpoint, resource, atau ID dokumen tidak ditemukan',
+            409 => 'Dokumen atau sesi berada dalam status yang tidak sesuai',
+            422 => 'Field wajib kosong, format data salah, atau identitas tidak terdaftar',
+            429 => 'Batas permintaan API terlampaui',
+            500 => 'Gangguan pada server penyedia layanan',
+            502 => 'Layanan upstream bermasalah atau sedang tidak tersedia',
+            503 => 'Layanan upstream bermasalah atau sedang tidak tersedia',
+        ];
+
+        try {
+            $response = $client->request('POST', $url, [
+                'headers' => $headers,
+                'json' => $requestBody,
+                'http_errors' => false,
+            ]);
+        } catch (RequestException $exception) {
+            return [
+                'error' => true,
+                'status' => 502,
+                'message' => $statusMessages[502],
+            ];
+        }
+
+        $status = $response->getStatusCode();
         $responseBody = $response->getBody()->getContents();
         $decodedResponseBody = json_decode($responseBody, true);
+
+        if ($status < 200 || $status >= 300) {
+            return [
+                'error' => true,
+                'status' => isset($statusMessages[$status]) ? $status : 500,
+                'message' => $statusMessages[$status] ?? 'Gangguan pada server penyedia layanan',
+            ];
+        }
+
+        if (! is_array($decodedResponseBody) || ! isset($decodedResponseBody['data'])) {
+            return [
+                'error' => true,
+                'status' => 502,
+                'message' => $statusMessages[502],
+            ];
+        }
 
         return [
             'data' => $decodedResponseBody['data'],
