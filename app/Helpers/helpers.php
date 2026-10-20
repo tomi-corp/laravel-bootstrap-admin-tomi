@@ -95,22 +95,32 @@ if (! function_exists('loginPrivySign')) {
         $error = is_array($payload['error'] ?? null) ? $payload['error'] : [];
         $details = [];
 
-        foreach (($error['errors'] ?? []) as $item) {
-            if (! is_array($item)) {
-                continue;
-            }
+        $errors = $error['errors'] ?? [];
+        if (is_string($errors) && $errors !== '') {
+            $details[] = $errors;
+        } elseif (is_array($errors)) {
+            foreach ($errors as $item) {
+                if (is_string($item) && $item !== '') {
+                    $details[] = $item;
+                    continue;
+                }
 
-            $param = (string) ($item['param'] ?? 'request');
-            $param = match ($param) {
-                'recipients[id_user]' => 'user.id_privy (API: recipients[id_user])',
-                default => $param,
-            };
-            $messages = $item['messages'] ?? [];
-            $messages = is_array($messages) ? $messages : [$messages];
-            $messages = array_filter(array_map('strval', $messages));
+                if (! is_array($item)) {
+                    continue;
+                }
 
-            if ($messages !== []) {
-                $details[] = $param . ': ' . implode(', ', $messages);
+                $param = (string) ($item['param'] ?? 'request');
+                $param = match ($param) {
+                    'recipients[id_user]' => 'user.id_privy (API: recipients[id_user])',
+                    default => $param,
+                };
+                $messages = $item['messages'] ?? [];
+                $messages = is_array($messages) ? $messages : [$messages];
+                $messages = array_filter(array_map('strval', $messages));
+
+                if ($messages !== []) {
+                    $details[] = $param . ': ' . implode(', ', $messages);
+                }
             }
         }
 
