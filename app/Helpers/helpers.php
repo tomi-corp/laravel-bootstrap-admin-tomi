@@ -129,8 +129,11 @@ if (! function_exists('loginPrivySign')) {
             $details[] = $message;
         }
 
-        return 'Privy Sign menolak request (' . $status . ')'
-            . ($details !== [] ? ': ' . implode('; ', array_unique($details)) : '.');
+        if ($details !== []) {
+            return implode('; ', array_unique($details));
+        }
+
+        return 'Privy Sign error (' . $status . ').';
     }
 
     /** Retrieve an access token using the dedicated Privy Sign credentials. */
