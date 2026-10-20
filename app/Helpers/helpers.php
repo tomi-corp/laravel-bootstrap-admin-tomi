@@ -97,11 +97,15 @@ if (! function_exists('loginPrivySign')) {
 
         $errors = $error['errors'] ?? [];
         if (is_string($errors) && $errors !== '') {
-            $details[] = $errors;
+            $details[] = str_contains($errors, ':')
+                ? trim(substr($errors, strpos($errors, ':') + 1))
+                : $errors;
         } elseif (is_array($errors)) {
             foreach ($errors as $item) {
                 if (is_string($item) && $item !== '') {
-                    $details[] = $item;
+                    $details[] = str_contains($item, ':')
+                        ? trim(substr($item, strpos($item, ':') + 1))
+                        : $item;
                     continue;
                 }
 
