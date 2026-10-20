@@ -64,7 +64,12 @@ dan `.env.stagging` tidak boleh di-commit karena dapat berisi credential.
 | BuyLink | `BUYLINK_BASE_URL`, `BUYLINK_USER_TOKEN`, `BUYLINK_LEADER_TOKEN` | Endpoint dan token integrasi BuyLink. |
 | Privy | `DIGITAL_IDV2_PRIVY_*` | Konfigurasi utama Privy Digital ID v2: environment, issuer, application, client, key, dan merchant. |
 | Privy legacy | `PRIVY_DIGITAL_ID_*`, `PRIVY_URL`, `PRIVY_DIGITAL_ID_ENV`, `PRIVY_DIGITAL_ID_ISSUER` | Nama lama yang dibaca sebagai fallback; gunakan nama v2 untuk konfigurasi baru. |
-| Privy Sign | `PRIVY_SIGN_OWNER_ID`, `PRIVY_SIGN_OWNER_ENTERPRISE_TOKEN` | Credential pemilik tanda tangan Privy. |
+| Privy Sign | `PRIVY_SIGN_USERNAME`, `PRIVY_SIGN_PASSWORD` | Username dan password/secret untuk autentikasi tanda tangan digital. |
+| Privy Sign | `PRIVY_SIGN_API_KEY`, `PRIVY_SIGN_SECRET_KEY` | API key dan secret key dari penyedia tanda tangan digital. |
+| Privy Sign | `PRIVY_SIGN_CHANNEL_ID` | ID channel yang dikirim pada request tanda tangan. |
+| Privy Sign | `PRIVY_SIGN_DOCUMENT_OWNER`, `PRIVY_SIGN_ENTERPRISE_TOKEN` | ID document owner dan enterprise token pemilik dokumen. |
+| Privy Sign | `PRIVY_SIGN_BASE_URL` | Base URL API tanda tangan digital. |
+| Privy Sign legacy | `PRIVY_SIGN_OWNER_ID`, `PRIVY_SIGN_OWNER_ENTERPRISE_TOKEN` | Nama lama untuk owner; dipertahankan demi kompatibilitas konfigurasi sebelumnya. |
 | Slack | `SLACK_BOT_USER_OAUTH_TOKEN`, `SLACK_BOT_USER_DEFAULT_CHANNEL` | Integrasi Slack opsional. |
 | Frontend | `VITE_APP_NAME` | Nama aplikasi yang diekspos ke Vite/browser; jangan menaruh secret pada variabel `VITE_`. |
 
@@ -78,3 +83,23 @@ php artisan about
 
 Pastikan `APP_ENV`, `APP_DEBUG`, `APP_URL`, koneksi database, mail, storage, dan
 endpoint layanan pihak ketiga sesuai dengan lingkungan yang sedang dijalankan.
+
+## Tanda tangan digital
+
+Isi kelompok berikut pada environment yang mengaktifkan tanda tangan digital:
+
+```dotenv
+PRIVY_SIGN_USERNAME=
+PRIVY_SIGN_PASSWORD=
+PRIVY_SIGN_API_KEY=
+PRIVY_SIGN_SECRET_KEY=
+PRIVY_SIGN_CHANNEL_ID=
+PRIVY_SIGN_DOCUMENT_OWNER=
+PRIVY_SIGN_ENTERPRISE_TOKEN=
+PRIVY_SIGN_BASE_URL=
+```
+
+Jangan menaruh nilai tersebut di frontend atau commit ke repository. Integrasi
+legacy saat ini masih menggunakan data pada tabel `privies` untuk sebagian alur,
+sehingga migrasi pemakaian env ke runtime perlu dilakukan terpisah dan diuji per
+environment.
