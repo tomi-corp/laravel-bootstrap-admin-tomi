@@ -222,6 +222,18 @@ if (! function_exists('terbilang')) {
 
 
 if (! function_exists('ttdPK')) {
+    /**
+     * Mengirim dokumen perjanjian pinjaman ke Privy untuk proses tanda tangan.
+     *
+     * Dokumen dikirim menggunakan nama file yang diberikan, lalu dibuatkan
+     * nomor referensi unik berdasarkan NIK user dan ID pinjaman. Helper ini
+     * mengatur dua penerima tanda tangan otomatis: peminjam dan pihak koperasi.
+     *
+     * @param  object  $user       Data user peminjam dengan atribut nik, id, dan id_privy.
+     * @param  string  $fileName   Nama file dokumen yang akan dikirim ke Privy.
+     * @param  int     $pinjamanId ID pinjaman yang digunakan untuk nomor referensi.
+     * @return array{data: mixed} Respons data dari API Privy.
+     */
     function ttdPK($user, $fileName, $pinjamanId)
     {
         // kirim document ke privy
