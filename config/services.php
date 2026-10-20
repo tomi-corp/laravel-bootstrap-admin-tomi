@@ -56,6 +56,17 @@ return [
         'merchant_api_key' => env('DIGITAL_IDV2_PRIVY_MERCHANT_API_KEY', env('PRIVY_DIGITAL_ID_MERCHANT_API_KEY')),
     ],
 
+    'privy_sign' => [
+        'base_url' => env('PRIVY_SIGN_BASE_URL', env('PRIVY_URL')),
+        'username' => env('PRIVY_SIGN_USERNAME'),
+        'password' => env('PRIVY_SIGN_PASSWORD'),
+        'api_key' => env('PRIVY_SIGN_API_KEY', env('PRIVY_SIGN_USERNAME')),
+        'secret_key' => env('PRIVY_SIGN_SECRET_KEY', env('PRIVY_SIGN_PASSWORD')),
+        'channel_id' => env('PRIVY_SIGN_CHANNEL_ID'),
+        'document_owner' => env('PRIVY_SIGN_DOCUMENT_OWNER', env('PRIVY_SIGN_OWNER_ID')),
+        'enterprise_token' => env('PRIVY_SIGN_ENTERPRISE_TOKEN', env('PRIVY_SIGN_OWNER_ENTERPRISE_TOKEN')),
+    ],
+
     'postmark' => [
         'token' => env('POSTMARK_TOKEN'),
     ],

@@ -246,7 +246,7 @@ info
 
 ## Signature
 
-Request ke Privy memakai access token dan signature.
+Request ke Privy memakai access token dan signature dari konfigurasi Privy Sign.
 
 Helper:
 
@@ -259,8 +259,8 @@ Signature dibuat dari:
 
 ```text
 request body
-username dari tabel privies
-password dari tabel privies
+PRIVY_SIGN_API_KEY
+PRIVY_SIGN_SECRET_KEY
 method request
 timestamp
 ```
@@ -286,7 +286,9 @@ Sumber aktif per environment adalah database masing-masing environment.
 | Staging | Tabel `privies` database staging |
 | Production | Tabel `privies` database production |
 
-`PRIVY_URL` di `.env*` saat ini lebih tepat dianggap legacy atau belum aktif selama kode masih memakai `$privy->url`.
+Alur TTD PK dan cek status dokumen menggunakan `PRIVY_SIGN_*` dari konfigurasi
+aplikasi. Alur registrasi dan status identitas Privy lama tetap menggunakan
+tabel `privies` sampai dimigrasikan terpisah.
 
 ## Risiko
 

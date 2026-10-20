@@ -86,6 +86,40 @@ if (! function_exists('loginPrivy')) {
     }
 }
 
+if (! function_exists('loginPrivySign')) {
+    /** Retrieve an access token using the dedicated Privy Sign credentials. */
+    function loginPrivySign()
+    {
+        $client = new Client(['verify' => true]);
+        $baseUrl = rtrim((string) config('services.privy_sign.base_url'), '/');
+        $username = (string) config('services.privy_sign.username');
+        $password = (string) config('services.privy_sign.password');
+
+        $response = $client->request('POST', $baseUrl . '/oauth2/api/v1/token', [
+            'json' => [
+                'client_id' => $username,
+                'client_secret' => $password,
+                'grant_type' => 'client_credentials',
+            ],
+            'headers' => [
+                'Accept' => 'application/json',
+            ],
+        ]);
+
+        $payload = json_decode($response->getBody()->getContents(), true);
+        $token = $payload['data']['access_token'] ?? null;
+
+        if (! is_string($token) || $token === '') {
+            throw new \RuntimeException('Privy Sign tidak mengembalikan access token.');
+        }
+
+        return [
+            'success' => 'true',
+            'token' => $token,
+        ];
+    }
+}
+
 
 if (! function_exists('encodeBase64')) {
     function encodeBase64($tipe, $namefile)
@@ -236,15 +270,15 @@ if (! function_exists('ttdPK')) {
      */
     function ttdPK($user, $fileName, $pinjamanId)
     {
-        // kirim document ke privy
-        $privy = privy::first();
-        $login = loginPrivy();
-        $url =  $privy->url . '/web/api/v2/doc-signing';
-        $client = new Client(['verify' => false]);
+        // Kirim dokumen menggunakan credential khusus Privy Sign.
+        $login = loginPrivySign();
+        $privySign = config('services.privy_sign');
+        $url = rtrim((string) $privySign['base_url'], '/') . '/web/api/v2/doc-signing';
+        $client = new Client(['verify' => true]);
         $reference_number =  'TOMIDOC' . $user->nik .  $pinjamanId;
         $requestBody = [
             "reference_number" => $reference_number,
-            "channel_id" => "Toko_Mikro001",
+            "channel_id" => $privySign['channel_id'],
             "custom_signature_placement" => true,
             "doc_process" => 0,
             "info" => "",
@@ -256,8 +290,8 @@ if (! function_exists('ttdPK')) {
                 "sign_process" => "1"
             ],
             "doc_owner" => [
-                "privyId" => "LOYZRR5016",
-                "enterpriseToken" => "f96bdf97a65a76930272eedd23f8d982f472aa53"
+                "privyId" => $privySign['document_owner'],
+                "enterpriseToken" => $privySign['enterprise_token']
             ],
             "recipients" => [
                 [
@@ -274,9 +308,9 @@ if (! function_exists('ttdPK')) {
                 [
                     "user_type" => "0",
                     "autosign" => "1",
-                    "id_user" => "LOYZRR5016",
+                    "id_user" => $privySign['document_owner'],
                     "signer_type" => "Signer",
-                    "enterpriseToken" => "f96bdf97a65a76930272eedd23f8d982f472aa53",
+                    "enterpriseToken" => $privySign['enterprise_token'],
                     "posX" => 150,
                     "posY" => 910,
                     "signPage" => 9,
@@ -284,7 +318,7 @@ if (! function_exists('ttdPK')) {
                 ]
             ]
         ];
-        $signature = signature($requestBody, $privy->username, $privy->password, 'POST');
+        $signature = signature($requestBody, $privySign['api_key'], $privySign['secret_key'], 'POST');
         $headers = [
             'timestamp' => $signature['timestamp'],
             'Authorization' => 'Bearer ' . $login['token'],
@@ -352,17 +386,17 @@ if (! function_exists('ttdPK')) {
 if (! function_exists('getDocumentPK')) {
     function getDocumentPK($user, $reference_number, $documentToken)
     {
-        $privy = privy::first();
-        $loginDocument = loginPrivy();
-        $urlDocument =  $privy->url . '/web/api/v2/doc-signing/status';
-        $client = new Client(['verify' => false]);
+        $loginDocument = loginPrivySign();
+        $privySign = config('services.privy_sign');
+        $urlDocument = rtrim((string) $privySign['base_url'], '/') . '/web/api/v2/doc-signing/status';
+        $client = new Client(['verify' => true]);
         $requestBodyDocument = [
             "reference_number" => $reference_number,
-            "channel_id" => "Toko_Mikro001",
+            "channel_id" => $privySign['channel_id'],
             "document_token" => $documentToken,
             "info" => ""
         ];
-        $signatureDocument = signature($requestBodyDocument, $privy->username, $privy->password, 'POST');
+        $signatureDocument = signature($requestBodyDocument, $privySign['api_key'], $privySign['secret_key'], 'POST');
 
         $headerDocument = [
             'timestamp' => $signatureDocument['timestamp'],
