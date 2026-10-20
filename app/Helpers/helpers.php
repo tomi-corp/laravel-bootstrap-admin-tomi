@@ -8,6 +8,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Write code on Method
@@ -87,6 +88,37 @@ if (! function_exists('loginPrivy')) {
 }
 
 if (! function_exists('loginPrivySign')) {
+    /** Convert a structured Privy error response into a safe diagnostic message. */
+    function formatPrivySignError(int $status, string $responseBody): string
+    {
+        $payload = json_decode($responseBody, true);
+        $error = is_array($payload['error'] ?? null) ? $payload['error'] : [];
+        $details = [];
+
+        foreach (($error['errors'] ?? []) as $item) {
+            if (! is_array($item)) {
+                continue;
+            }
+
+            $param = (string) ($item['param'] ?? 'request');
+            $messages = $item['messages'] ?? [];
+            $messages = is_array($messages) ? $messages : [$messages];
+            $messages = array_filter(array_map('strval', $messages));
+
+            if ($messages !== []) {
+                $details[] = $param . ': ' . implode(', ', $messages);
+            }
+        }
+
+        $message = $error['message'] ?? $payload['message'] ?? null;
+        if (is_string($message) && $message !== '') {
+            $details[] = $message;
+        }
+
+        return 'Privy Sign menolak request (' . $status . ')'
+            . ($details !== [] ? ': ' . implode('; ', array_unique($details)) : '.');
+    }
+
     /** Retrieve an access token using the dedicated Privy Sign credentials. */
     function loginPrivySign()
     {
@@ -104,9 +136,16 @@ if (! function_exists('loginPrivySign')) {
             'headers' => [
                 'Accept' => 'application/json',
             ],
+            'http_errors' => false,
         ]);
 
-        $payload = json_decode($response->getBody()->getContents(), true);
+        $status = $response->getStatusCode();
+        $responseBody = $response->getBody()->getContents();
+        if ($status < 200 || $status >= 300) {
+            throw new \RuntimeException(formatPrivySignError($status, $responseBody));
+        }
+
+        $payload = json_decode($responseBody, true);
         $token = $payload['data']['access_token'] ?? null;
 
         if (! is_string($token) || $token === '') {
@@ -271,7 +310,22 @@ if (! function_exists('ttdPK')) {
     function ttdPK($user, $fileName, $pinjamanId)
     {
         // Kirim dokumen menggunakan credential khusus Privy Sign.
-        $login = loginPrivySign();
+        try {
+            $login = loginPrivySign();
+        } catch (\Throwable $exception) {
+            Log::warning('Privy Sign authentication failed for TTD PK', [
+                'pinjaman_id' => $pinjamanId,
+                'user_id' => $user->id ?? null,
+                'message' => $exception->getMessage(),
+            ]);
+
+            return [
+                'error' => true,
+                'status' => 502,
+                'message' => $exception->getMessage(),
+            ];
+        }
+
         $privySign = config('services.privy_sign');
         $url = rtrim((string) $privySign['base_url'], '/') . '/web/api/v2/doc-signing';
         $client = new Client(['verify' => true]);
@@ -361,10 +415,20 @@ if (! function_exists('ttdPK')) {
         $decodedResponseBody = json_decode($responseBody, true);
 
         if ($status < 200 || $status >= 300) {
+            $message = formatPrivySignError($status, $responseBody);
+            Log::warning('Privy Sign rejected TTD PK request', [
+                'status' => $status,
+                'pinjaman_id' => $pinjamanId,
+                'user_id' => $user->id ?? null,
+                'privy_id_present' => ! empty($user->id_privy),
+                'document_file_present' => ! empty($requestBody['document']['document_file']),
+                'message' => $message,
+            ]);
+
             return [
                 'error' => true,
-                'status' => isset($statusMessages[$status]) ? $status : 500,
-                'message' => $statusMessages[$status] ?? 'Gangguan pada server penyedia layanan',
+                'status' => $status,
+                'message' => $message,
             ];
         }
 
