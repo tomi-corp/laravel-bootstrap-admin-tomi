@@ -167,7 +167,7 @@ class PrivyDigitalIdCallbackTest extends TestCase
     {
         return [
             'different NIK' => ['9999999999999999', '1990-01-02', 'identity_mismatch'],
-            'different DOB' => ['1111111111111111', '1991-02-03', 'identity_mismatch'],
+            'different DOB with matching NIK' => ['1111111111111111', '1991-02-03', 'verified'],
             'matching identity without photos' => ['1111111111111111', '1990-01-02', 'verified'],
         ];
     }

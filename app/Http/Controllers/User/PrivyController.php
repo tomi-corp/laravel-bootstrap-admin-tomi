@@ -838,7 +838,7 @@ class PrivyController extends Controller
             'VERIFIED' => $this->digitalIdVerifiedResponse(User::find($session->user_id), $result['privy_id'] ?? null),
             'IDENTITY_MISMATCH' => $this->digitalIdCallbackResponse(
                 false,
-                'Data identitas Privy (NIK/tanggal lahir) tidak sesuai dengan data akun TomiHub Anda. Silakan hubungi Customer Service.',
+                'NIK pada identitas Privy tidak sesuai dengan data akun TomiHub Anda. Silakan hubungi Customer Service.',
                 $failureStatus,
                 ['privy_verified' => false, 'reason' => 'identity_mismatch'],
             ),
@@ -1098,26 +1098,23 @@ class PrivyController extends Controller
 
     /**
      * Cocokkan identitas hasil dekripsi Privy dengan data akun.
-     * NIK / tanggal lahir akun yang masih kosong tidak dianggap berbeda (akan diisi dari Privy).
+     * NIK akun yang masih kosong tidak dianggap berbeda (akan diisi dari Privy).
      *
      * @return array|null null = cocok; selain itu hasil IDENTITY_MISMATCH / IDENTITY_CONFLICT
      */
     private function checkDigitalIdIdentity(User $user, array $identity): ?array
     {
         $privyNik = preg_replace('/\D/', '', (string) ($identity['identity_number'] ?? ''));
-        $privyDob = $this->normalizeDigitalIdDate($identity['dob'] ?? null);
         $userNik = preg_replace('/\D/', '', (string) $user->nik);
-        $userDob = $this->normalizeDigitalIdDate($user->dob);
 
         $nikMatch = $privyNik !== '' && ($userNik === '' || $userNik === $privyNik);
-        $dobMatch = $userDob === null || $userDob === $privyDob;
 
-        if (! $nikMatch || ! $dobMatch) {
-            return ['status' => 'IDENTITY_MISMATCH', 'nik_match' => $nikMatch, 'dob_match' => $dobMatch];
+        if (! $nikMatch) {
+            return ['status' => 'IDENTITY_MISMATCH', 'nik_match' => $nikMatch];
         }
 
         if ($userNik === '' && User::where('nik', $privyNik)->whereKeyNot($user->getKey())->exists()) {
-            return ['status' => 'IDENTITY_CONFLICT', 'nik_match' => false, 'dob_match' => $dobMatch];
+            return ['status' => 'IDENTITY_CONFLICT', 'nik_match' => false];
         }
 
         return null;
