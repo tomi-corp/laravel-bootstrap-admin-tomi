@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Server;
 
 use App\Http\Controllers\Controller;
+use App\Models\PrivyDigitalIdSession;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
@@ -42,16 +43,14 @@ class DocumentController extends Controller
     public function image(Request $request)
     {
         $disk = Storage::disk('local');
-        $fileName = $request->image;
+        $path = $this->resolveImagePath($request);
 
-        if ($this->hasInvalidFileName($fileName)) {
+        if ($path === null) {
             return response()->json([
                 'success' => false,
-                'message' => 'Invalid filename',
-            ], 400);
+                'message' => 'Invalid image request',
+            ], 422);
         }
-
-        $path = 'assets/users/' . $fileName;
 
         if (!$disk->exists($path)) {
             return response()->json([
@@ -65,8 +64,44 @@ class DocumentController extends Controller
 
         return Response::make($image, 200, [
             'Content-Type' => $mimeType,
-            'Content-Disposition' => 'inline; filename="' . basename($fileName) . '"',
+            'Content-Disposition' => 'inline; filename="' . basename($path) . '"',
         ]);
+    }
+
+    private function resolveImagePath(Request $request): ?string
+    {
+        $sessionId = $request->input('privy_digital_id_session_id');
+        $imageType = $request->input('image_type');
+
+        if ($sessionId !== null || $imageType !== null) {
+            if (!is_numeric($sessionId) || !in_array($imageType, ['ktp', 'selfie'], true)) {
+                return null;
+            }
+
+            $session = PrivyDigitalIdSession::find($sessionId);
+            $path = $session?->{$imageType === 'ktp' ? 'local_ktp_path' : 'local_selfie_path'};
+
+            return $this->isValidStoredImagePath($path) ? $path : null;
+        }
+
+        $fileName = $request->input('image');
+
+        if ($this->hasInvalidFileName($fileName)) {
+            return null;
+        }
+
+        return 'assets/users/' . $fileName;
+    }
+
+    private function isValidStoredImagePath(?string $path): bool
+    {
+        return filled($path)
+            && !$this->hasInvalidStoragePath($path);
+    }
+
+    private function hasInvalidStoragePath(?string $path): bool
+    {
+        return blank($path) || Str::contains($path, ['..', '\\']) || Str::startsWith($path, '/');
     }
 
     private function hasInvalidFileName(?string $fileName): bool
