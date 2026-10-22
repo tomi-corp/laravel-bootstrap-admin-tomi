@@ -1214,11 +1214,15 @@ class PrivyController extends Controller
         $updateData = [];
 
         if ($selfie !== null) {
-            $updateData['local_selfie_path'] = $this->storeDigitalIdImage($user, $selfie, 'selfie');
+            $selfiePath = $this->storeDigitalIdImage($user, $selfie, 'selfie');
+            $updateData['local_selfie_path'] = $selfiePath;
+            $updateData['selfie'] = basename($selfiePath);
         }
 
         if ($ktp !== null) {
-            $updateData['local_ktp_path'] = $this->storeDigitalIdImage($user, $ktp, 'ktp');
+            $ktpPath = $this->storeDigitalIdImage($user, $ktp, 'ktp');
+            $updateData['local_ktp_path'] = $ktpPath;
+            $updateData['ktp'] = basename($ktpPath);
         }
 
         if (! empty($updateData)) {

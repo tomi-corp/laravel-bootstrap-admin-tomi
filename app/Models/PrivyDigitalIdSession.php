@@ -11,6 +11,13 @@ class PrivyDigitalIdSession extends Model
 
     protected $fillable = [
         'user_id',
+        'nik',
+        'full_name',
+        'dob',
+        'email',
+        'phone',
+        'ktp',
+        'selfie',
         'reference_number',
         'privy_session_id',
         'exchange_code',
@@ -52,6 +59,7 @@ class PrivyDigitalIdSession extends Model
         'verified_at' => 'datetime',
         'decrypted_at' => 'datetime',
         'attempts' => 'integer',
+        'dob' => 'date',
         'callback_shared_data' => 'array',
         'decrypted_raw' => 'array',
         'decrypted_dob' => 'date',

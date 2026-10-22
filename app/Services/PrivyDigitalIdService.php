@@ -165,6 +165,11 @@ class PrivyDigitalIdService
     {
         return PrivyDigitalIdSession::where('privy_session_id', $sessionId)->update([
             'decrypted_privy_id' => $identity['privy_id'] ?? null,
+            'nik' => $identity['identity_number'] ?? null,
+            'full_name' => $identity['name'] ?? null,
+            'dob' => isset($identity['dob']) ? \Carbon\Carbon::parse($identity['dob'])->format('Y-m-d') : null,
+            'email' => $identity['email'] ?? null,
+            'phone' => $identity['phone'] ?? null,
             'decrypted_name' => $identity['name'] ?? null,
             'decrypted_identity_number' => $identity['identity_number'] ?? null,
             'decrypted_dob' => isset($identity['dob']) ? \Carbon\Carbon::parse($identity['dob'])->format('Y-m-d') : null,

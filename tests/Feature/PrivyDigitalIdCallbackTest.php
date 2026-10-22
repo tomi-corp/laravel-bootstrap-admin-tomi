@@ -94,6 +94,9 @@ class PrivyDigitalIdCallbackTest extends TestCase
         Schema::create('privy_digital_id_sessions', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
+            foreach (['nik', 'full_name', 'dob', 'email', 'phone', 'ktp', 'selfie'] as $column) {
+                $table->string($column)->nullable();
+            }
             foreach (['reference_number', 'privy_session_id', 'exchange_code', 'session_url', 'status', 'event', 'privy_id', 'processed_by', 'error_code', 'error_message', 'callback_state', 'decrypted_privy_id', 'decrypted_name', 'decrypted_identity_number', 'decrypted_dob', 'decrypted_email', 'decrypted_phone', 'local_ktp_path', 'local_selfie_path'] as $column) {
                 $table->string($column)->nullable();
             }
@@ -195,6 +198,43 @@ class PrivyDigitalIdCallbackTest extends TestCase
         $this->assertNull($current->local_selfie_path);
         $this->assertNull($current->local_ktp_path);
         $this->assertSame($expected === 'verified' ? 'y' : 'n', $owner->fresh()->verified_privy);
+    }
+
+    public function test_verified_identity_snapshot_stores_image_file_names_without_paths(): void
+    {
+        Storage::fake('local');
+        $owner = $this->user();
+        $session = $this->createSession($owner);
+        $this->provider([
+            'session_id' => $session->privy_session_id,
+            'status' => 'VERIFIED',
+            'privy_id' => 'SYNTHETIC-PRIVY',
+            'my_identity' => 'synthetic-ciphertext',
+            'data' => [
+                'ktp' => base64_encode('synthetic ktp'),
+                'selfie' => base64_encode('synthetic selfie'),
+            ],
+        ], [
+            'identity_number' => '1111111111111111',
+            'name' => 'Synthetic User',
+            'dob' => '1990-01-02',
+            'email' => 'synthetic@example.com',
+            'phone' => '081234567890',
+            'privy_id' => 'SYNTHETIC-PRIVY',
+        ]);
+
+        $this->assertSame(200, $this->invokeCallback()->getStatusCode());
+
+        $session->refresh();
+        $this->assertSame('1111111111111111', $session->nik);
+        $this->assertSame('Synthetic User', $session->full_name);
+        $this->assertSame('1990-01-02', $session->dob->format('Y-m-d'));
+        $this->assertSame('synthetic@example.com', $session->email);
+        $this->assertSame('081234567890', $session->phone);
+        $this->assertSame(basename($session->local_ktp_path), $session->ktp);
+        $this->assertSame(basename($session->local_selfie_path), $session->selfie);
+        $this->assertStringNotContainsString('/', $session->ktp);
+        $this->assertStringNotContainsString('/', $session->selfie);
     }
 
     public static function invalidCallbacks(): array
