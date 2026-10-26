@@ -152,6 +152,16 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                             </a>
                         </li>
                         @endif
+                        <li>
+                            <a href="javascript: void(0);" onclick="alert('Menu Repayment sedang dalam pengembangan.')">
+                                Repayment
+                            </a>
+                        </li>
+                        <li>
+                            <a href="javascript: void(0);" onclick="alert('Menu Disbursement sedang dalam pengembangan.')">
+                                Disbursement
+                            </a>
+                        </li>
                     </ul>
                 </li>
                 @endif
@@ -179,6 +189,16 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                             </a>
                         </li>
                         @endif
+                        <li>
+                            <a href="javascript: void(0);" onclick="alert('Menu Repayment sedang dalam pengembangan.')">
+                                Repayment
+                            </a>
+                        </li>
+                        <li>
+                            <a href="javascript: void(0);" onclick="alert('Menu Disbursement sedang dalam pengembangan.')">
+                                Disbursement
+                            </a>
+                        </li>
                     </ul>
                 </li>
                 @endif
@@ -240,6 +260,16 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                             </a>
                         </li>
                         @endif
+                        <li>
+                            <a href="javascript: void(0);" onclick="alert('Menu Repayment sedang dalam pengembangan.')">
+                                Repayment
+                            </a>
+                        </li>
+                        <li>
+                            <a href="javascript: void(0);" onclick="alert('Menu Disbursement sedang dalam pengembangan.')">
+                                Disbursement
+                            </a>
+                        </li>
                     </ul>
                 </li>
                 @endif
