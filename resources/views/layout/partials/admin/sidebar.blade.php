@@ -167,9 +167,6 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
 
                     <ul class="nav-second-level nav" aria-expanded="false">
                         <li>
-                            <a href="{{ route('admin.salary-financing.index') }}">Dashboard</a>
-                        </li>
-                        <li>
                             <a href="{{ route('admin.salary-financing.companies') }}">Perusahaan</a>
                         </li>
                         <li>
@@ -197,9 +194,6 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                     </a>
 
                     <ul class="nav-second-level nav" aria-expanded="false">
-                        <li>
-                            <a href="{{ route('admin.gadget-installment.index') }}">Dashboard</a>
-                        </li>
                         <li>
                             <a href="{{ route('admin.ksp.index') }}">Perusahaan</a>
                         </li>
@@ -233,9 +227,6 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                     </a>
 
                     <ul class="nav-second-level nav" aria-expanded="false">
-                        <li>
-                            <a href="{{ route('admin.invoice-financing.index') }}">Dashboard</a>
-                        </li>
                         <li>
                             <a href="{{ route('admin.invoice-financing.companies') }}">Perusahaan</a>
                         </li>
