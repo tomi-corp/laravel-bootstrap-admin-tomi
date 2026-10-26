@@ -140,6 +140,11 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                                 <span> Generate Invoice </span>
                             </a>
                         </li>
+                        <li>
+                            <a href="javascript: void(0);" onclick="alert('Menu konfigurasi sedang dalam pengembangan.')">
+                                Konfigurasi
+                            </a>
+                        </li>
                         @endif
                     </ul>
                 </li>
@@ -164,18 +169,46 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                         <li>
                             <a href="{{ route('admin.salary-financing.lenders') }}">Lender</a>
                         </li>
+                        @if ($isInternalAccount)
+                        <li>
+                            <a href="javascript: void(0);" onclick="alert('Menu konfigurasi sedang dalam pengembangan.')">
+                                Konfigurasi
+                            </a>
+                        </li>
+                        @endif
                     </ul>
                 </li>
                 @endif
 
                 {{-- TomiGawai --}}
                 @if ($isInternalAccount || $isCompanyAccount)
+                @if ($isInternalAccount)
+                <li>
+                    <a href="javascript: void(0);">
+                        <i class="dripicons-device-mobile"></i>
+                        <span>TomiGawai</span>
+                        <span class="menu-arrow"></span>
+                    </a>
+
+                    <ul class="nav-second-level nav" aria-expanded="false">
+                        <li>
+                            <a href="{{ route('admin.gadget-installment.index') }}">Dashboard</a>
+                        </li>
+                        <li>
+                            <a href="javascript: void(0);" onclick="alert('Menu konfigurasi sedang dalam pengembangan.')">
+                                Konfigurasi
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                @else
                 <li>
                     <a href="{{ route('admin.gadget-installment.index') }}">
                         <i class="dripicons-device-mobile"></i>
                         <span>TomiGawai</span>
                     </a>
                 </li>
+                @endif
                 @endif
 
                 {{-- TomiInvoice --}}
@@ -197,6 +230,13 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                         <li>
                             <a href="{{ route('admin.invoice-financing.lenders') }}">Lender</a>
                         </li>
+                        @if ($isInternalAccount)
+                        <li>
+                            <a href="javascript: void(0);" onclick="alert('Menu konfigurasi sedang dalam pengembangan.')">
+                                Konfigurasi
+                            </a>
+                        </li>
+                        @endif
                     </ul>
                 </li>
                 @endif
