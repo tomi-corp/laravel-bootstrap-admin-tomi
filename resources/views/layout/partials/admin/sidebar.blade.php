@@ -61,7 +61,7 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                 </li>
                 @endif
 
-                @if ($isInternalAccount || $isLenderAccount)
+                @if ($isInternalAccount)
                 <li>
                     <a href="{{ route('admin.lender.index') }}">
                         <i class="dripicons-user-group"></i>
@@ -70,8 +70,24 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                 </li>
                 @endif
 
+                @if ($isLenderAccount)
+                <li>
+                    <a href="{{ route('admin.ksp.income.index') }}">
+                        <i class="dripicons-network-3"></i>
+                        <span>TomiDana</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="javascript: void(0);" aria-disabled="true" class="text-muted">
+                        <i class="dripicons-network-3"></i>
+                        <span>TomiDana Plus</span>
+                    </a>
+                </li>
+                @endif
+
                 {{-- Tomi Dana tampil sesuai kategori organisasi akun --}}
-                @if ($isInternalAccount || $isLenderAccount || $isCompanyAccount)
+                @if ($isInternalAccount || $isCompanyAccount)
                 <li>
                     <a href="javascript: void(0);">
                         <i class="dripicons-network-3"></i>
@@ -92,7 +108,7 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                         </li>
                         @endif
 
-                        @if ($isInternalAccount || $isLenderAccount)
+                        @if ($isInternalAccount)
                         <li>
                             <a href="{{ route('admin.lender.invoicing.index') }}">Invoice Lender</a>
                         </li>
@@ -110,7 +126,7 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                 @endif
 
                 {{-- TomiGaji --}}
-                @if ($isInternalAccount || $isCompanyAccount)
+                @if ($isInternalAccount || $isCompanyAccount || $isLenderAccount)
                 <li>
                     <a href="javascript: void(0);">
                         <i class="dripicons-wallet"></i>
@@ -133,7 +149,7 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                 @endif
 
                 {{-- TomiGawai --}}
-                @if ($isInternalAccount || $isCompanyAccount)
+                @if ($isInternalAccount || $isCompanyAccount || $isLenderAccount)
                 <li>
                     <a href="{{ route('admin.gadget-installment.index') }}">
                         <i class="dripicons-device-mobile"></i>
@@ -143,7 +159,7 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                 @endif
 
                 {{-- TomiInvoice --}}
-                @if ($isInternalAccount || $isCompanyAccount)
+                @if ($isInternalAccount || $isCompanyAccount || $isLenderAccount)
                 <li>
                     <a href="javascript: void(0);">
                         <i class="dripicons-document"></i>
