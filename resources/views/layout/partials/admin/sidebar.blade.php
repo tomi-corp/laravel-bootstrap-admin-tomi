@@ -72,37 +72,77 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
 
                 @if ($isLenderAccount)
                 <li>
-                    <a href="javascript: void(0);" onclick="alert('Menu sedang dalam pengembangan.')">
+                    <a href="javascript: void(0);">
                         <i class="dripicons-network-3"></i>
                         <span>TomiDana</span>
+                        <span class="menu-arrow"></span>
                     </a>
+                    <ul class="nav-second-level nav" aria-expanded="false">
+                        <li><a href="javascript: void(0);" onclick="alert('Menu Perusahaan TomiDana sedang dalam pengembangan.')">Perusahaan</a></li>
+                        <li><a href="javascript: void(0);" onclick="alert('Menu Pemberi Pinjaman TomiDana sedang dalam pengembangan.')">Pemberi Pinjaman</a></li>
+                        <li><a href="javascript: void(0);" onclick="alert('Menu Pencairan TomiDana sedang dalam pengembangan.')">Pencairan</a></li>
+                        <li><a href="javascript: void(0);" onclick="alert('Menu Pembayaran Angsuran TomiDana sedang dalam pengembangan.')">Pembayaran Angsuran</a></li>
+                        <li><a href="javascript: void(0);" onclick="alert('Menu Konfigurasi TomiDana sedang dalam pengembangan.')">Konfigurasi</a></li>
+                    </ul>
                 </li>
 
                 <li>
-                    <a href="javascript: void(0);" onclick="alert('Menu sedang dalam pengembangan.')">
+                    <a href="javascript: void(0);">
                         <i class="dripicons-network-3"></i>
                         <span>TomiDana Plus</span>
+                        <span class="menu-arrow"></span>
                     </a>
+                    <ul class="nav-second-level nav" aria-expanded="false">
+                        <li><a href="javascript: void(0);" onclick="alert('Menu Perusahaan TomiDana Plus sedang dalam pengembangan.')">Perusahaan</a></li>
+                        <li><a href="javascript: void(0);" onclick="alert('Menu Pemberi Pinjaman TomiDana Plus sedang dalam pengembangan.')">Pemberi Pinjaman</a></li>
+                        <li><a href="javascript: void(0);" onclick="alert('Menu Pencairan TomiDana Plus sedang dalam pengembangan.')">Pencairan</a></li>
+                        <li><a href="javascript: void(0);" onclick="alert('Menu Pembayaran Angsuran TomiDana Plus sedang dalam pengembangan.')">Pembayaran Angsuran</a></li>
+                        <li><a href="javascript: void(0);" onclick="alert('Menu Konfigurasi TomiDana Plus sedang dalam pengembangan.')">Konfigurasi</a></li>
+                    </ul>
                 </li>
                 <li>
-                    <a href="javascript: void(0);" onclick="alert('Menu sedang dalam pengembangan.')">
+                    <a href="javascript: void(0);">
                         <i class="dripicons-device-mobile"></i>
                         <span>TomiGawai</span>
+                        <span class="menu-arrow"></span>
                     </a>
+                    <ul class="nav-second-level nav" aria-expanded="false">
+                        <li><a href="javascript: void(0);" onclick="alert('Menu Perusahaan TomiGawai sedang dalam pengembangan.')">Perusahaan</a></li>
+                        <li><a href="javascript: void(0);" onclick="alert('Menu Pemberi Pinjaman TomiGawai sedang dalam pengembangan.')">Pemberi Pinjaman</a></li>
+                        <li><a href="javascript: void(0);" onclick="alert('Menu Pencairan TomiGawai sedang dalam pengembangan.')">Pencairan</a></li>
+                        <li><a href="javascript: void(0);" onclick="alert('Menu Pembayaran Angsuran TomiGawai sedang dalam pengembangan.')">Pembayaran Angsuran</a></li>
+                        <li><a href="javascript: void(0);" onclick="alert('Menu Konfigurasi TomiGawai sedang dalam pengembangan.')">Konfigurasi</a></li>
+                    </ul>
                 </li>
 
                 <li>
-                    <a href="javascript: void(0);" onclick="alert('Menu sedang dalam pengembangan.')">
+                    <a href="javascript: void(0);">
                         <i class="dripicons-wallet"></i>
                         <span>TomiGaji</span>
+                        <span class="menu-arrow"></span>
                     </a>
+                    <ul class="nav-second-level nav" aria-expanded="false">
+                        <li><a href="javascript: void(0);" onclick="alert('Menu Perusahaan TomiGaji sedang dalam pengembangan.')">Perusahaan</a></li>
+                        <li><a href="javascript: void(0);" onclick="alert('Menu Pemberi Pinjaman TomiGaji sedang dalam pengembangan.')">Pemberi Pinjaman</a></li>
+                        <li><a href="javascript: void(0);" onclick="alert('Menu Pencairan TomiGaji sedang dalam pengembangan.')">Pencairan</a></li>
+                        <li><a href="javascript: void(0);" onclick="alert('Menu Pembayaran Angsuran TomiGaji sedang dalam pengembangan.')">Pembayaran Angsuran</a></li>
+                        <li><a href="javascript: void(0);" onclick="alert('Menu Konfigurasi TomiGaji sedang dalam pengembangan.')">Konfigurasi</a></li>
+                    </ul>
                 </li>
 
                 <li>
-                    <a href="javascript: void(0);" onclick="alert('Menu sedang dalam pengembangan.')">
+                    <a href="javascript: void(0);">
                         <i class="dripicons-document"></i>
                         <span>TomiInvoice</span>
+                        <span class="menu-arrow"></span>
                     </a>
+                    <ul class="nav-second-level nav" aria-expanded="false">
+                        <li><a href="javascript: void(0);" onclick="alert('Menu Perusahaan TomiInvoice sedang dalam pengembangan.')">Perusahaan</a></li>
+                        <li><a href="javascript: void(0);" onclick="alert('Menu Pemberi Pinjaman TomiInvoice sedang dalam pengembangan.')">Pemberi Pinjaman</a></li>
+                        <li><a href="javascript: void(0);" onclick="alert('Menu Pencairan TomiInvoice sedang dalam pengembangan.')">Pencairan</a></li>
+                        <li><a href="javascript: void(0);" onclick="alert('Menu Pembayaran Angsuran TomiInvoice sedang dalam pengembangan.')">Pembayaran Angsuran</a></li>
+                        <li><a href="javascript: void(0);" onclick="alert('Menu Konfigurasi TomiInvoice sedang dalam pengembangan.')">Konfigurasi</a></li>
+                    </ul>
                 </li>
                 @endif
 
@@ -271,6 +311,16 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                         <li>
                             <a href="javascript: void(0);" onclick="alert('Menu konfigurasi sedang dalam pengembangan.')">
                                 Konfigurasi
+                            </a>
+                        </li>
+                        <li>
+                            <a href="javascript: void(0);" onclick="alert('Menu Pembayaran Angsuran TomiGawai sedang dalam pengembangan.')">
+                                Pembayaran Angsuran
+                            </a>
+                        </li>
+                        <li>
+                            <a href="javascript: void(0);" onclick="alert('Menu Pencairan TomiGawai sedang dalam pengembangan.')">
+                                Pencairan
                             </a>
                         </li>
                     </ul>
