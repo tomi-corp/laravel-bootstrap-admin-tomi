@@ -407,6 +407,15 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                     </ul>
                 </li>
                 @endif
+
+                @if ($isInternalAccount || $isLenderAccount)
+                <li>
+                    <a href="{{ route('admin.profile.index') }}">
+                        <i class="dripicons-gear"></i>
+                        <span> Pengaturan </span>
+                    </a>
+                </li>
+                @endif
             </ul>
         </div>
 
