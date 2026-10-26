@@ -174,7 +174,7 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                         </li>
                         @if ($isInternalAccount)
                         <li>
-                            <a href="javascript: void(0);" onclick="alert('Menu konfigurasi sedang dalam pengembangan.')">
+                            <a href="{{ route('admin.salary-financing.configuration') }}">
                                 Konfigurasi
                             </a>
                         </li>
@@ -235,7 +235,7 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                         </li>
                         @if ($isInternalAccount)
                         <li>
-                            <a href="javascript: void(0);" onclick="alert('Menu konfigurasi sedang dalam pengembangan.')">
+                            <a href="{{ route('admin.invoice-financing.configuration') }}">
                                 Konfigurasi
                             </a>
                         </li>

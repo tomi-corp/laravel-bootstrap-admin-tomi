@@ -216,6 +216,12 @@ Route::middleware(['AdminMiddleware'])->group(
 
                 Route::get('/salary-financing/lenders', [SalaryFinancingController::class, 'lenders'])->name('admin.salary-financing.lenders');
 
+                Route::get('/salary-financing/configuration', function () {
+                    return view('admin.product-configurations.index', [
+                        'productName' => 'TomiGaji',
+                    ]);
+                })->name('admin.salary-financing.configuration');
+
                 Route::get('/salary-financing/invoice/{id}/download', [SalaryFinancingController::class, 'downloadInvoice'])->name('admin.salary-financing.invoice.download');
 
                 Route::get('/salary-financing/{id}', [SalaryFinancingController::class, 'show'])->name('admin.salary-financing.show');
@@ -233,6 +239,12 @@ Route::middleware(['AdminMiddleware'])->group(
 
                 Route::get('invoice-financing/lenders', [TomiInvoiceController::class, 'lenders'])
                     ->name('admin.invoice-financing.lenders');
+
+                Route::get('invoice-financing/configuration', function () {
+                    return view('admin.product-configurations.index', [
+                        'productName' => 'TomiInvoice',
+                    ]);
+                })->name('admin.invoice-financing.configuration');
 
                 Route::get('invoice-financing/{id}', [TomiInvoiceController::class, 'show'])
                     ->name('admin.invoice-financing.show');
