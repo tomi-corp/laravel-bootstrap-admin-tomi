@@ -23,7 +23,8 @@
                 <p class="text-muted">Pilih perusahaan untuk melihat dan mengatur konfigurasi tenor pinjaman.</p>
 
                 <div class="table-responsive">
-                    <table class="table table-hover table-bordered mb-0">
+                    <table id="tableKonfigurasiTomiDana"
+                        class="table dt-responsive table-hover table-bordered mb-0" style="width: 100%">
                         <thead class="thead-light">
                             <tr>
                                 <th>Nama Perusahaan</th>
@@ -66,3 +67,29 @@
     </div>
 </div>
 @endsection
+
+@push('js')
+<script>
+    $(function () {
+        $('#tableKonfigurasiTomiDana').DataTable({
+            responsive: true,
+            pageLength: 10,
+            order: [[0, 'asc']],
+            language: {
+                search: 'Cari:',
+                lengthMenu: 'Tampilkan _MENU_ data',
+                info: 'Menampilkan _START_ sampai _END_ dari _TOTAL_ perusahaan',
+                infoEmpty: 'Tidak ada perusahaan',
+                zeroRecords: 'Perusahaan tidak ditemukan',
+                paginate: {
+                    previous: 'Sebelumnya',
+                    next: 'Berikutnya'
+                }
+            },
+            columnDefs: [
+                { targets: 4, orderable: false, searchable: false }
+            ]
+        });
+    });
+</script>
+@endpush
