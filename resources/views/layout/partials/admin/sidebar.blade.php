@@ -117,9 +117,12 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
 
                     <ul class="nav-second-level nav" aria-expanded="false">
                         @if ($isInternalAccount)
+                        {{-- Menu disembunyikan sementara, bukan dihapus. --}}
+                        {{--
                         <li>
                             <a href="{{ route('admin.cost.index') }}">Biaya</a>
                         </li>
+                        --}}
                         <li>
                             <a href="{{ route('admin.ksp.index') }}">Perusahaan</a>
                         </li>
