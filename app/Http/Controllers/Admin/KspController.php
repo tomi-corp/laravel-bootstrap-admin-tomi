@@ -723,6 +723,15 @@ class KspController extends Controller
     //     }
     // }
 
+    public function konfigurasiTomiDanaIndex()
+    {
+        $perusahaans = ListPerusahaan::with('lender')
+            ->orderBy('nama')
+            ->get();
+
+        return view('admin.ksp.konfigurasi.perusahaan', compact('perusahaans'));
+    }
+
     public function konfigurasi($id)
     {
         $dec = decryptSecure($id);

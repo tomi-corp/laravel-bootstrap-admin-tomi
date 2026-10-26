@@ -136,6 +136,7 @@ Route::middleware(['AdminMiddleware'])->group(
                 Route::post('/ksp/detail', [KspController::class, 'detailPengajuan'])->name('admin.ksp.detail');
                 Route::post('/ksp/verifikasi', [KspController::class, 'verifikasiPengajuan'])->name('admin.ksp.verifikasi');
                 // KSP => configurasi
+                Route::get('/ksp/konfigurasi/tomi-dana', [KspController::class, 'konfigurasiTomiDanaIndex'])->name('admin.ksp.konfigurasi.index');
                 Route::get('/ksp/konfigurasi/{id}', [KspController::class, 'konfigurasi'])->name('admin.ksp.konfigurasi');
                 Route::post('/ksp/konfigurasi/amount/pinjaman', [KspController::class, 'konfigurasiAmount'])->name('admin.ksp.konfigurasi.amount');
                 Route::post('/ksp/konfigurasi/table', [KspController::class, 'konfigurasiTable'])->name('admin.ksp.konfigurasi.table');

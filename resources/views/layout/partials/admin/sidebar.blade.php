@@ -141,7 +141,7 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                             </a>
                         </li>
                         <li>
-                            <a href="javascript: void(0);" onclick="alert('Menu konfigurasi sedang dalam pengembangan.')">
+                            <a href="{{ route('admin.ksp.konfigurasi.index') }}">
                                 Konfigurasi
                             </a>
                         </li>
