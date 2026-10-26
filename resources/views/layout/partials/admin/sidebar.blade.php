@@ -129,9 +129,12 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                         @endif
 
                         @if ($isInternalAccount || $isCompanyAccount)
+                        {{-- Menu disembunyikan sementara, bukan dihapus. --}}
+                        {{--
                         <li>
                             <a href="{{ route('admin.ksp.invoicing.index') }}">Daftar Tagihan Perusahaan</a>
                         </li>
+                        --}}
                         @endif
 
                         @if ($isInternalAccount)
@@ -141,11 +144,14 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                         @endif
 
                         @if ($isInternalAccount)
+                        {{-- Menu disembunyikan sementara, bukan dihapus. --}}
+                        {{--
                         <li>
                             <a href="{{ route('admin.generate.invoice.index') }}">
                                 <span> Buat Tagihan </span>
                             </a>
                         </li>
+                        --}}
                         <li>
                             <a href="{{ route('admin.ksp.konfigurasi.index') }}">
                                 Konfigurasi
