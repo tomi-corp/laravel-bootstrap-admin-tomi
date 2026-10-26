@@ -166,6 +166,45 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                 </li>
                 @endif
 
+                {{-- TomiDana Plus tampil sesuai kategori organisasi akun --}}
+                @if ($isInternalAccount || $isCompanyAccount)
+                <li>
+                    <a href="javascript: void(0);">
+                        <i class="dripicons-network-3"></i>
+                        <span> TomiDana Plus </span>
+                        <span class="menu-arrow"></span>
+                    </a>
+
+                    <ul class="nav-second-level nav" aria-expanded="false">
+                        <li>
+                            <a href="javascript: void(0);" onclick="alert('Menu Perusahaan TomiDana Plus sedang dalam pengembangan.')">
+                                Perusahaan
+                            </a>
+                        </li>
+                        <li>
+                            <a href="javascript: void(0);" onclick="alert('Menu Pemberi Pinjaman TomiDana Plus sedang dalam pengembangan.')">
+                                Pemberi Pinjaman
+                            </a>
+                        </li>
+                        <li>
+                            <a href="javascript: void(0);" onclick="alert('Menu Konfigurasi TomiDana Plus sedang dalam pengembangan.')">
+                                Konfigurasi
+                            </a>
+                        </li>
+                        <li>
+                            <a href="javascript: void(0);" onclick="alert('Menu Pembayaran Angsuran TomiDana Plus sedang dalam pengembangan.')">
+                                Pembayaran Angsuran
+                            </a>
+                        </li>
+                        <li>
+                            <a href="javascript: void(0);" onclick="alert('Menu Pencairan TomiDana Plus sedang dalam pengembangan.')">
+                                Pencairan
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                @endif
+
                 {{-- TomiGaji --}}
                 @if ($isInternalAccount || $isCompanyAccount)
                 <li>
