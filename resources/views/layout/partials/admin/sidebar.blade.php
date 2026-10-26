@@ -120,6 +120,12 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                         <li>
                             <a href="{{ route('admin.cost.index') }}">Cost</a>
                         </li>
+                        <li>
+                            <a href="{{ route('admin.ksp.index') }}">Perusahaan</a>
+                        </li>
+                        <li>
+                            <a href="{{ route('admin.lender.index') }}">Lender</a>
+                        </li>
                         @endif
 
                         @if ($isInternalAccount || $isCompanyAccount)
@@ -193,6 +199,12 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                     <ul class="nav-second-level nav" aria-expanded="false">
                         <li>
                             <a href="{{ route('admin.gadget-installment.index') }}">Dashboard</a>
+                        </li>
+                        <li>
+                            <a href="{{ route('admin.ksp.index') }}">Perusahaan</a>
+                        </li>
+                        <li>
+                            <a href="{{ route('admin.lender.index') }}">Lender</a>
                         </li>
                         <li>
                             <a href="javascript: void(0);" onclick="alert('Menu konfigurasi sedang dalam pengembangan.')">
