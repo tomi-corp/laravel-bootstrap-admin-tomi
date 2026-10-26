@@ -17,16 +17,16 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
         <div id="sidebar-menu">
             <ul class="metismenu" id="side-menu">
 
-                <li class="menu-title">Navigation</li>
+                <li class="menu-title">Navigasi</li>
 
                 <li>
                     <a href="{{ route('admin.dashboard.index') }}">
                         <i class="dripicons-align-center"></i>
-                        <span> Dashboard </span>
+                        <span> Dasbor </span>
                     </a>
                 </li>
 
-                <li class="menu-title">Product</li>
+                <li class="menu-title">Produk</li>
 
                 {{-- PPOB hanya tampil selain pic dan staff --}}
                 @if ($isInternalAccount && !$limitedProductRole)
@@ -65,7 +65,7 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                 <li>
                     <a href="{{ route('admin.lender.index') }}">
                         <i class="dripicons-user-group"></i>
-                        <span> Lender </span>
+                        <span> Pemberi Pinjaman </span>
                     </a>
                 </li>
                 @endif
@@ -118,32 +118,32 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                     <ul class="nav-second-level nav" aria-expanded="false">
                         @if ($isInternalAccount)
                         <li>
-                            <a href="{{ route('admin.cost.index') }}">Cost</a>
+                            <a href="{{ route('admin.cost.index') }}">Biaya</a>
                         </li>
                         <li>
                             <a href="{{ route('admin.ksp.index') }}">Perusahaan</a>
                         </li>
                         <li>
-                            <a href="{{ route('admin.lender.index') }}">Lender</a>
+                            <a href="{{ route('admin.lender.index') }}">Pemberi Pinjaman</a>
                         </li>
                         @endif
 
                         @if ($isInternalAccount || $isCompanyAccount)
                         <li>
-                            <a href="{{ route('admin.ksp.invoicing.index') }}">List Invoice Perusahaan</a>
+                            <a href="{{ route('admin.ksp.invoicing.index') }}">Daftar Tagihan Perusahaan</a>
                         </li>
                         @endif
 
                         @if ($isInternalAccount)
                         <li>
-                            <a href="{{ route('admin.lender.invoicing.index') }}">Invoice Lender</a>
+                            <a href="{{ route('admin.lender.invoicing.index') }}">Tagihan Pemberi Pinjaman</a>
                         </li>
                         @endif
 
                         @if ($isInternalAccount)
                         <li>
                             <a href="{{ route('admin.generate.invoice.index') }}">
-                                <span> Generate Invoice </span>
+                                <span> Buat Tagihan </span>
                             </a>
                         </li>
                         <li>
@@ -153,13 +153,13 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                         </li>
                         @endif
                         <li>
-                            <a href="javascript: void(0);" onclick="alert('Menu Repayment sedang dalam pengembangan.')">
-                                Repayment
+                            <a href="javascript: void(0);" onclick="alert('Menu Pembayaran Angsuran sedang dalam pengembangan.')">
+                                Pembayaran Angsuran
                             </a>
                         </li>
                         <li>
-                            <a href="javascript: void(0);" onclick="alert('Menu Disbursement sedang dalam pengembangan.')">
-                                Disbursement
+                            <a href="javascript: void(0);" onclick="alert('Menu Pencairan sedang dalam pengembangan.')">
+                                Pencairan
                             </a>
                         </li>
                     </ul>
@@ -180,7 +180,7 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                             <a href="{{ route('admin.salary-financing.companies') }}">Perusahaan</a>
                         </li>
                         <li>
-                            <a href="{{ route('admin.salary-financing.lenders') }}">Lender</a>
+                            <a href="{{ route('admin.salary-financing.lenders') }}">Pemberi Pinjaman</a>
                         </li>
                         @if ($isInternalAccount)
                         <li>
@@ -190,13 +190,13 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                         </li>
                         @endif
                         <li>
-                            <a href="javascript: void(0);" onclick="alert('Menu Repayment sedang dalam pengembangan.')">
-                                Repayment
+                            <a href="javascript: void(0);" onclick="alert('Menu Pembayaran Angsuran sedang dalam pengembangan.')">
+                                Pembayaran Angsuran
                             </a>
                         </li>
                         <li>
-                            <a href="javascript: void(0);" onclick="alert('Menu Disbursement sedang dalam pengembangan.')">
-                                Disbursement
+                            <a href="javascript: void(0);" onclick="alert('Menu Pencairan sedang dalam pengembangan.')">
+                                Pencairan
                             </a>
                         </li>
                     </ul>
@@ -218,7 +218,7 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                             <a href="{{ route('admin.ksp.index') }}">Perusahaan</a>
                         </li>
                         <li>
-                            <a href="{{ route('admin.lender.index') }}">Lender</a>
+                            <a href="{{ route('admin.lender.index') }}">Pemberi Pinjaman</a>
                         </li>
                         <li>
                             <a href="javascript: void(0);" onclick="alert('Menu konfigurasi sedang dalam pengembangan.')">
@@ -251,7 +251,7 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                             <a href="{{ route('admin.invoice-financing.companies') }}">Perusahaan</a>
                         </li>
                         <li>
-                            <a href="{{ route('admin.invoice-financing.lenders') }}">Lender</a>
+                            <a href="{{ route('admin.invoice-financing.lenders') }}">Pemberi Pinjaman</a>
                         </li>
                         @if ($isInternalAccount)
                         <li>
@@ -261,13 +261,13 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                         </li>
                         @endif
                         <li>
-                            <a href="javascript: void(0);" onclick="alert('Menu Repayment sedang dalam pengembangan.')">
-                                Repayment
+                            <a href="javascript: void(0);" onclick="alert('Menu Pembayaran Angsuran sedang dalam pengembangan.')">
+                                Pembayaran Angsuran
                             </a>
                         </li>
                         <li>
-                            <a href="javascript: void(0);" onclick="alert('Menu Disbursement sedang dalam pengembangan.')">
-                                Disbursement
+                            <a href="javascript: void(0);" onclick="alert('Menu Pencairan sedang dalam pengembangan.')">
+                                Pencairan
                             </a>
                         </li>
                     </ul>
@@ -291,50 +291,50 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                     </a>
                 </li> -->
 
-                <li class="menu-title">Daily</li>
+                <li class="menu-title">Harian</li>
 
                 <li>
                     <a href="{{ route('admin.daily.index') }}">
                         <i class="dripicons-brightness-low"></i>
-                        <span> Daily Checkin </span>
+                        <span> Presensi Harian </span>
                     </a>
                 </li>
 
-                <li class="menu-title">Mobile</li>
+                <li class="menu-title">Seluler</li>
 
                 <li>
                     <a href="javascript: void(0);">
                         <i class="dripicons-view-apps"></i>
-                        <span> Mobile </span>
+                        <span> Seluler </span>
                         <span class="menu-arrow"></span>
                     </a>
 
                     <ul class="nav-second-level" aria-expanded="false">
                         <li>
-                            <a href="{{ route('admin.menumobile.index') }}"> Menu Mobile</a>
+                            <a href="{{ route('admin.menumobile.index') }}"> Menu Seluler</a>
                         </li>
                         <li>
-                            <a href="{{ route('admin.ota.index') }}"> OTA Mobile</a>
+                            <a href="{{ route('admin.ota.index') }}"> Pembaruan OTA Seluler</a>
                         </li>
                         <li>
-                            <a href="{{ route('admin.sendnotif.index') }}"> Send Notification</a>
+                            <a href="{{ route('admin.sendnotif.index') }}"> Kirim Notifikasi</a>
                         </li>
                     </ul>
                 </li>
 
-                <li class="menu-title">Management</li>
+                <li class="menu-title">Manajemen</li>
 
                 <li>
                     <a href="{{ route('admin.manage.admin.index') }}">
                         <i class="dripicons-user-group"></i>
-                        <span> Manage Admin </span>
+                        <span> Kelola Admin </span>
                     </a>
                 </li>
 
                 <li>
                     <a href="{{ route('admin.manage.pic-lender.index') }}">
                         <i class="dripicons-user-id"></i>
-                        <span> PIC Lender </span>
+                        <span> PIC Pemberi Pinjaman </span>
                     </a>
                 </li>
 
@@ -353,7 +353,7 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                     <ul class="nav-second-level" aria-expanded="false">
                         <li>
                             <a href="{{ route('admin.website.invoice.index') }}">
-                                Invoice
+                                Tagihan
                             </a>
                         </li>
                     </ul>
