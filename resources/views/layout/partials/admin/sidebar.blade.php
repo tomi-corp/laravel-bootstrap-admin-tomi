@@ -2,6 +2,10 @@
 @php
 $admin = Auth::guard('admin')->user();
 $roleType = $admin?->type;
+$accountCategory = $admin?->account_category ?? 'internal';
+$isInternalAccount = $accountCategory === 'internal';
+$isLenderAccount = $accountCategory === 'lender';
+$isCompanyAccount = $accountCategory === 'company';
 
 // Role yang hanya boleh melihat e-Kasbon dan Salary Financing
 $limitedProductRole = in_array($roleType, ['pic', 'staff']);
@@ -25,7 +29,7 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                 <li class="menu-title">Product</li>
 
                 {{-- PPOB hanya tampil selain pic dan staff --}}
-                @if (!$limitedProductRole)
+                @if ($isInternalAccount && !$limitedProductRole)
                 <li>
                     <a href="javascript: void(0);">
                         <i class="dripicons-document"></i>
@@ -48,21 +52,26 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                 @endif
 
                 {{-- Perusahaan dan Lender dipakai lintas produk --}}
+                @if ($isInternalAccount || $isCompanyAccount)
                 <li>
                     <a href="{{ route('admin.ksp.index') }}">
                         <i class="dripicons-store"></i>
                         <span> Perusahaan </span>
                     </a>
                 </li>
+                @endif
 
+                @if ($isInternalAccount || $isLenderAccount)
                 <li>
                     <a href="{{ route('admin.lender.index') }}">
                         <i class="dripicons-user-group"></i>
                         <span> Lender </span>
                     </a>
                 </li>
+                @endif
 
-                {{-- Tomi Dana tetap tampil untuk semua role, termasuk pic dan staff --}}
+                {{-- Tomi Dana tampil sesuai kategori organisasi akun --}}
+                @if ($isInternalAccount || $isLenderAccount || $isCompanyAccount)
                 <li>
                     <a href="javascript: void(0);">
                         <i class="dripicons-network-3"></i>
@@ -71,27 +80,37 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                     </a>
 
                     <ul class="nav-second-level nav" aria-expanded="false">
+                        @if ($isInternalAccount)
                         <li>
                             <a href="{{ route('admin.cost.index') }}">Cost</a>
                         </li>
+                        @endif
 
+                        @if ($isInternalAccount || $isCompanyAccount)
                         <li>
                             <a href="{{ route('admin.ksp.invoicing.index') }}">List Invoice Perusahaan</a>
                         </li>
+                        @endif
 
+                        @if ($isInternalAccount || $isLenderAccount)
                         <li>
                             <a href="{{ route('admin.lender.invoicing.index') }}">Invoice Lender</a>
                         </li>
+                        @endif
 
+                        @if ($isInternalAccount)
                         <li>
                             <a href="{{ route('admin.generate.invoice.index') }}">
                                 <span> Generate Invoice </span>
                             </a>
                         </li>
+                        @endif
                     </ul>
                 </li>
+                @endif
 
                 {{-- TomiGaji --}}
+                @if ($isInternalAccount || $isCompanyAccount)
                 <li>
                     <a href="javascript: void(0);">
                         <i class="dripicons-wallet"></i>
@@ -111,16 +130,20 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                         </li>
                     </ul>
                 </li>
+                @endif
 
                 {{-- TomiGawai --}}
+                @if ($isInternalAccount || $isCompanyAccount)
                 <li>
                     <a href="{{ route('admin.gadget-installment.index') }}">
                         <i class="dripicons-device-mobile"></i>
                         <span>TomiGawai</span>
                     </a>
                 </li>
+                @endif
 
                 {{-- TomiInvoice --}}
+                @if ($isInternalAccount || $isCompanyAccount)
                 <li>
                     <a href="javascript: void(0);">
                         <i class="dripicons-document"></i>
@@ -140,9 +163,10 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                         </li>
                     </ul>
                 </li>
+                @endif
 
                 {{-- Menu di bawah ini hanya tampil selain pic dan staff --}}
-                @if (!$limitedProductRole)
+                @if ($isInternalAccount && !$limitedProductRole)
 
                 <!-- <li>
                     <a href="#">
@@ -207,6 +231,7 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
 
                 @endif
 
+                @if ($isInternalAccount)
                 <li class="menu-title">BTA</li>
 
                 <li>
@@ -224,6 +249,7 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                         </li>
                     </ul>
                 </li>
+                @endif
             </ul>
         </div>
 
