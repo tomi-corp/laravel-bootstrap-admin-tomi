@@ -415,6 +415,12 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                         <span> Pengaturan </span>
                     </a>
                 </li>
+                <li>
+                    <a href="javascript: void(0);" onclick="alert('Menu Rekening sedang dalam pengembangan.')">
+                        <i class="dripicons-wallet"></i>
+                        <span> Rekening </span>
+                    </a>
+                </li>
                 @endif
             </ul>
         </div>
