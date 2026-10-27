@@ -1,16 +1,17 @@
 @extends('layout.app')
-@section('title', 'Koperasi Simpan Pinjam')
+@php($isTomiDana = request()->routeIs('admin.tomi-dana.perusahaan'))
+@section('title', $isTomiDana ? 'Perusahaan TomiDana' : 'Koperasi Simpan Pinjam')
 @section('content')
 <div class="row">
     <div class="col-12">
         <div class="page-title-box">
             <div class="page-title-right">
                 <ol class="breadcrumb m-0">
-                    <li class="breadcrumb-item"><a href="javascript: void(0);">Tomi</a></li>
-                    <li class="breadcrumb-item active">MoU perusahaan <i class="dripicons-cross "></i> lender</li>
+                    <li class="breadcrumb-item"><a href="javascript: void(0);">{{ $isTomiDana ? 'TomiDana' : 'Tomi' }}</a></li>
+                    <li class="breadcrumb-item active">{{ $isTomiDana ? 'Perusahaan' : 'MoU perusahaan lender' }}</li>
                 </ol>
             </div>
-            <h4 class="page-title">MoU perusahaan <i class="dripicons-cross "></i> lender</h4>
+            <h4 class="page-title">{{ $isTomiDana ? 'Perusahaan TomiDana' : 'MoU perusahaan lender' }}</h4>
         </div>
     </div>
 
@@ -55,10 +56,10 @@
         <div class="card">
             <div class="card-body">
 
-                {{-- <button type="button" class="btn btn-sm btn-primary float-right waves-effect waves-light"
+                <button type="button" class="btn btn-sm btn-primary float-right waves-effect waves-light"
                     data-toggle="modal" data-target="#modalAdd">
                     <i class="mdi mdi-plus-circle"></i> Tambah Perusahaan
-                </button> --}}
+                </button>
 
                 <table id="tableListPerusahaan" class="table dt-responsive table-hover mt-4 text-center justify-center"
                     style="width:100%">
@@ -119,6 +120,7 @@
                             <th class="none">Nomor PKS</th> <!-- Dokumen terkait -->
 
                             <!-- 6. Aksi -->
+                            <th>Aksi</th>
                         </tr>
                     </thead>
                 </table>
@@ -463,7 +465,7 @@
                     <div class="col-md-6">
                         <div class="form-group">
                             <label>No. perjanjian kerja sama lender x perusahaan</label>
-                            <input class="form-control" id="nomor_pksEdit" placeholder="42151231" type="number"></input>
+                            <input class="form-control" id="nomor_pksEdit" placeholder="012/KSPDUMI-FIT/VIII/2025" type="text"></input>
                             <small class="text-danger" id="errNomor_pksEdit"></small>
                         </div>
                     </div>
@@ -792,6 +794,13 @@
                 data: 'nomor_pks',
                 name: 'nomor_pks',
                 defaultContent: '-'
+            },
+            {
+                data: 'action',
+                name: 'action',
+                orderable: false,
+                searchable: false,
+                defaultContent: '-'
             }
         ]
     });
@@ -965,6 +974,8 @@
             data: {
                 '_token': "{{ csrf_token() }}",
                 'id': editID,
+                'pic_perusahaan': $("#namaPicPerusahaanEdit").val(),
+                'pic_internal': $("#namaPicInternalEdit").val(),
                 'nama_perusahaan': $("#namaPerusahaanEdit").val(),
                 'telepon': $("#teleponEdit").val(),
                 'provinsi': $("#provinsiSelectEdit").val(),
@@ -992,9 +1003,11 @@
             error: function (err) {
                 $('#buttonSubmitEdit').attr("disabled", false);
                 $('#loadingTextEdit').removeClass("spinner-border");
+                $('#errNamaPicPerusahaanEdit').text(err.responseJSON.errors.pic_perusahaan);
+                $('#errNamaPicInternalEdit').text(err.responseJSON.errors.pic_internal);
                 $('#errNamaPerusahaanEdit').text(err.responseJSON.errors.nama_perusahaan);
                 $('#errTeleponEdit').text(err.responseJSON.errors.telepon);
-                $('#errAlamatEdit').text(err.responseJSON.errors.alamat);
+                $('#errAlamatEdit').text(err.responseJSON.errors.alamat_lengkap);
                 $('#errNomor_pksEdit').text(err.responseJSON.errors.nomor_pks);
             }
         });

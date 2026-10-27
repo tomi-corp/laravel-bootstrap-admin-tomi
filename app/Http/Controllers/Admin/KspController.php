@@ -149,9 +149,12 @@ class KspController extends Controller
     public function editPerusahaan(EditPerusahaanRequest $req)
     {
         $perusahaan =  ListPerusahaan::where('id', $req->id)->first();
+        $perusahaan->pic_perusahaan = $req->pic_perusahaan;
+        $perusahaan->pic_internal = $req->pic_internal;
         $perusahaan->nama = $req->nama_perusahaan;
-        $perusahaan->alamat_lengkap = $req->alamat_lengkap;
         $perusahaan->telp = $req->telepon;
+        $perusahaan->alamat_lengkap = $req->alamat_lengkap;
+        $perusahaan->payment_date = $req->payment_date;
         $perusahaan->nomor_pks = $req->nomor_pks;
 
         $provinsi = provinsi::where('provinsi', $req->provinsi)->first();
@@ -167,8 +170,6 @@ class KspController extends Controller
         $perusahaan->id_kecamatan = $kecamatan->id;
         $perusahaan->id_desa = $desa->id;
         $perusahaan->status = $req->status;
-        $perusahaan->id_desa = $desa->id;
-        $perusahaan->bank = $req->status;
 
         $perusahaan->save();
         return response()->json([
@@ -377,6 +378,15 @@ class KspController extends Controller
                     return '<span class="badge badge-secondary">UNKNOWN</span>';
                 })
 
+                ->addColumn('action', function ($row) {
+                    return '<button type="button" class="btn btn-sm btn-primary mr-1" onclick="edit(' . $row->id . ')" title="Ubah perusahaan">
+                        <i class="mdi mdi-pencil"></i>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-danger" onclick="deletePerusahaan(' . $row->id . ')" title="Hapus perusahaan">
+                        <i class="mdi mdi-trash-can"></i>
+                    </button>';
+                })
+
                 ->filterColumn('lender', function ($query, $keyword) {
                     $query->whereHas('lender', function ($q) use ($keyword) {
                         $q->where('nama', 'like', "%{$keyword}%");
@@ -410,6 +420,7 @@ class KspController extends Controller
 
                 ->rawColumns([
                     'status',
+                    'action',
                     'proses_pengajuan',
                     'list_karyawan',
                     'konfigurasi_pinjaman',

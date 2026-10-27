@@ -25,6 +25,8 @@ class EditPerusahaanRequest extends FormRequest
     {
         return [
             'id' => 'required|exists:list_perusahaans,id',
+            'pic_perusahaan' => 'required',
+            'pic_internal' => 'required',
             'nama_perusahaan' => 'required',
             'telepon' => 'required|numeric',
             'provinsi' => 'required',
@@ -33,7 +35,7 @@ class EditPerusahaanRequest extends FormRequest
             'desa' => 'required',
             'alamat_lengkap' => 'required',
             'payment_date' => 'required|numeric',
-            'nomor_pks' => 'required|numeric',
+            'nomor_pks' => 'required|alpha_num',
             'status' => 'required|in:active,nonactive',
         ];
     }
