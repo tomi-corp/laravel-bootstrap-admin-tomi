@@ -31,6 +31,15 @@ class TomiDanaController extends Controller
         return view('admin.tomi-dana.configurations.companies', compact('perusahaans'));
     }
 
+    public function configuration($id)
+    {
+        $companyId = decryptSecure($id);
+        $list_perusahaan = ListPerusahaan::with('amount_pinjaman')->findOrFail($companyId);
+        $max_plafon = list_karyawan::where('id_list_perusahaan', $list_perusahaan->id)->max('max_plafon') ?? 0;
+
+        return view('admin.tomi-dana.configurations.index', compact('list_perusahaan', 'max_plafon'));
+    }
+
     public function lenders()
     {
         return view('admin.tomi-dana.lender.index', [
