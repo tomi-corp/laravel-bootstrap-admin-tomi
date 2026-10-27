@@ -22,6 +22,15 @@ use Yajra\DataTables\Facades\DataTables;
 
 class TomiDanaController extends Controller
 {
+    public function configurations()
+    {
+        $perusahaans = ListPerusahaan::with('lender')
+            ->orderBy('nama')
+            ->get();
+
+        return view('admin.tomi-dana.configurations.companies', compact('perusahaans'));
+    }
+
     public function lenders()
     {
         return view('admin.tomi-dana.lender.index', [
