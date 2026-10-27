@@ -21,8 +21,8 @@
                 @endforeach
 
                 <li class="menu-title">Akun</li>
-                <li><a href="{{ url('/lender/pengaturan') }}"><i class="dripicons-gear"></i><span>Pengaturan</span></a></li>
-                <li><a href="{{ url('/lender/rekening') }}"><i class="dripicons-wallet"></i><span>Rekening</span></a></li>
+                <li><a href="{{ url('/lender/settings') }}"><i class="dripicons-gear"></i><span>Pengaturan</span></a></li>
+                <li><a href="{{ url('/lender/accounts') }}"><i class="dripicons-wallet"></i><span>Rekening</span></a></li>
             </ul>
         </div>
         <div class="clearfix"></div>

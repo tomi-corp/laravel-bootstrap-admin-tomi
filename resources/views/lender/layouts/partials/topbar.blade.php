@@ -6,7 +6,7 @@
                 <span class="pro-user-name ml-1">Lender <i class="mdi mdi-chevron-down"></i></span>
             </a>
             <div class="dropdown-menu dropdown-menu-right profile-dropdown">
-                <a href="{{ url('/lender/pengaturan') }}" class="dropdown-item notify-item">
+                <a href="{{ url('/lender/settings') }}" class="dropdown-item notify-item">
                     <i class="dripicons-gear"></i><span>Pengaturan</span>
                 </a>
             </div>
