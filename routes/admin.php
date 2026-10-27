@@ -59,6 +59,9 @@ Route::middleware(['AdminMiddleware'])->group(
                 Route::post('/profile/enableTwoFactor', [ProfileController::class, 'enableTwoFactor'])->name('admin.profile.enableTwoFactor');
 
                 Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('admin.dashboard.index');
+                Route::get('/lender/dashboard', function () {
+                    return view('lender.dashboard.index');
+                })->name('lender.dashboard.index');
                 // ppob
                 Route::get('/ppob', [PpobController::class, 'index'])->name('admin.ppob.index');
                 Route::get('/ppob/transaction/komisi', [PpobController::class, 'komisiIndex'])->name('admin.ppob.komisi');

@@ -124,6 +124,9 @@ class AuthController extends Controller
                 if (! blank($user->google2fa_secret)) {
                     return redirect()->route('admin.profile.confirmationCode');
                 }
+                if ($user->account_category === 'lender') {
+                    return redirect()->route('lender.dashboard.index');
+                }
                 return redirect()->intended(route('admin.dashboard.index'));
             } else {
                 toastr()->error('Username/email atau password anda salah!');
@@ -139,6 +142,9 @@ class AuthController extends Controller
                 $user = auth('admin')->user();
                 if (! blank($user->google2fa_secret)) {
                     return redirect()->route('admin.profile.confirmationCode');
+                }
+                if ($user->account_category === 'lender') {
+                    return redirect()->route('lender.dashboard.index');
                 }
                 return redirect()->intended(route('admin.dashboard.index'));
             } else {

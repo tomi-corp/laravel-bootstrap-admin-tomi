@@ -18,6 +18,9 @@ class LoginAdminMiddleware
     {
         try {
             if (auth('admin')->check()) {
+                if (auth('admin')->user()->account_category === 'lender') {
+                    return redirect()->route('lender.dashboard.index');
+                }
                 return redirect()->route('admin.dashboard.index');
             } else {
                 return $next($request);

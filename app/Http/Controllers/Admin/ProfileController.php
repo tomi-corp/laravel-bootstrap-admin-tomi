@@ -73,6 +73,9 @@ class ProfileController extends Controller
         $valid = $google2fa->verifyKey($user->google2fa_secret, $req->code);
         if ($valid) {
             session(['2fa_passed' => true]);
+            if ($user->account_category === 'lender') {
+                return redirect()->route('lender.dashboard.index');
+            }
             return redirect()->intended(route('admin.dashboard.index'));
         } else {
             return back()->withErrors([
