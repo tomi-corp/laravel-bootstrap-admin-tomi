@@ -3,9 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\Ksp\AddKonfigurasiRequest;
+use App\Http\Requests\Admin\Ksp\AmountPinjamanRequest;
 use App\Http\Requests\Admin\Ksp\AddPerusahaanRequest;
 use App\Http\Requests\Admin\Ksp\EditPerusahaanRequest;
 use App\Http\Resources\Admin\Ksp\DetailPerusahaanResource;
+use App\Http\Resources\Admin\Ksp\TenorPinjamanResource;
+use App\Models\amount_pinjaman;
 use App\Models\kecamatan;
 use App\Models\kelurahan;
 use App\Models\kota;
@@ -15,6 +19,7 @@ use App\Models\lender;
 use App\Models\bank;
 use App\Models\pinjaman;
 use App\Models\provinsi;
+use App\Models\tenor_pinjaman;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -38,6 +43,94 @@ class TomiDanaController extends Controller
         $max_plafon = list_karyawan::where('id_list_perusahaan', $list_perusahaan->id)->max('max_plafon') ?? 0;
 
         return view('admin.tomi-dana.configurations.index', compact('list_perusahaan', 'max_plafon'));
+    }
+
+    public function configurationTable(Request $request)
+    {
+        $tenor = tenor_pinjaman::where('id_perusahaan', $request->id)->orderBy('tenor')->get();
+        $amount = amount_pinjaman::where('id_perusahaan', $request->id)->first();
+
+        return DataTables::of($tenor)
+            ->addIndexColumn()
+            ->addColumn('tenor_label', fn ($row) => $row->tenor . ' bulan')
+            ->addColumn('rate_label', fn ($row) => $row->rate . ' %')
+            ->addColumn('asuransi_label', fn ($row) => $row->asuransi . ' %')
+            ->addColumn('provisi_label', fn ($row) => $row->provisi . ' %')
+            ->addColumn('biaya_admin_label', fn ($row) => $row->biaya_admin . ' %')
+            ->addColumn('fee_tomi_label', fn ($row) => $row->fee_tomi . ' %')
+            ->addColumn('profesional_fee_1_label', fn ($row) => $row->profesional_fee_1 . ' %')
+            ->addColumn('profesional_fee_2_label', fn ($row) => $row->profesional_fee_2 . ' %')
+            ->addColumn('ksp_label', fn ($row) => $row->ksp . ' %')
+            ->addColumn('iuran_anggota_label', fn ($row) => 'Rp. ' . number_format($row->tenor * ($amount?->iuran_anggota ?? 0), 0, ',', '.'))
+            ->addColumn('biaya_layanan_label', fn ($row) => 'Rp. ' . number_format($row->biaya_layanan, 0, ',', '.'))
+            ->addColumn('minimal_nominal_label', fn ($row) => 'Rp. ' . number_format($row->minimal_nominal, 0, ',', '.'))
+            ->addColumn('maximal_nominal_label', fn ($row) => 'Rp. ' . number_format($row->maximal_nominal, 0, ',', '.'))
+            ->addColumn('action', fn ($row) => '<button class="btn btn-sm btn-primary mr-2" onclick="edit(' . $row->id . ')"><i class="mdi mdi-pencil"></i></button><button class="btn btn-sm btn-danger" onclick="deleteKonfigurasi(' . $row->id . ')"><i class="mdi mdi-trash-can"></i></button>')
+            ->rawColumns(['action'])
+            ->toJson();
+    }
+
+    public function addConfiguration(AddKonfigurasiRequest $request)
+    {
+        $tenor = new tenor_pinjaman();
+        $this->fillConfiguration($tenor, $request);
+        $tenor->id_perusahaan = $request->id;
+        $tenor->save();
+
+        return response()->json(['status' => 200, 'message' => 'Konfigurasi tenor berhasil ditambahkan.']);
+    }
+
+    public function detailConfiguration(Request $request)
+    {
+        return response()->json([
+            'status' => 200,
+            'data' => new TenorPinjamanResource(tenor_pinjaman::findOrFail($request->id)),
+        ]);
+    }
+
+    public function updateConfiguration(AddKonfigurasiRequest $request)
+    {
+        $tenor = tenor_pinjaman::findOrFail($request->id);
+        $this->fillConfiguration($tenor, $request);
+        $tenor->save();
+
+        return response()->json(['status' => 200, 'message' => 'Konfigurasi tenor berhasil diubah.']);
+    }
+
+    public function deleteConfiguration(Request $request)
+    {
+        $request->validate(['id' => 'required|exists:tenor_pinjaman,id']);
+        tenor_pinjaman::findOrFail($request->id)->delete();
+
+        return response()->json(['status' => 200, 'message' => 'Konfigurasi tenor berhasil dihapus.']);
+    }
+
+    public function updateAmount(AmountPinjamanRequest $request)
+    {
+        $amount = amount_pinjaman::firstOrNew(['id_perusahaan' => $request->id]);
+        $amount->iuran_anggota = $request->iuran_anggota;
+        $amount->minimal = $request->minimal;
+        $amount->maximal = $request->maximal;
+        $amount->maximal_persentase = $request->maximal_persentase;
+        $amount->save();
+
+        return response()->json(['status' => 200, 'message' => 'Amount pinjaman berhasil diperbarui.']);
+    }
+
+    private function fillConfiguration(tenor_pinjaman $tenor, AddKonfigurasiRequest $request): void
+    {
+        $tenor->tenor = $request->tenor;
+        $tenor->rate = $request->rate;
+        $tenor->asuransi = $request->asuransi;
+        $tenor->provisi = $request->provisi;
+        $tenor->biaya_admin = $request->biaya_admin;
+        $tenor->fee_tomi = $request->fee_tomi;
+        $tenor->biaya_layanan = $request->biaya_layanan;
+        $tenor->minimal_nominal = $request->minimal_nominal;
+        $tenor->maximal_nominal = $request->maximal_nominal;
+        $tenor->profesional_fee_1 = $request->profesional_fee_1;
+        $tenor->profesional_fee_2 = $request->profesional_fee_2;
+        $tenor->ksp = $request->ksp;
     }
 
     public function lenders()
@@ -245,7 +338,7 @@ class TomiDanaController extends Controller
                 ->addColumn('kecamatan', fn ($row) => optional($row->kecamatan)->kecamatan ?? '-')
                 ->addColumn('desa', fn ($row) => $row->desa ? ($row->desa->desa ?? '-') . ' - ' . ($row->desa->kodepos ?? '-') : '-')
                 ->addColumn('alamat_lengkap', fn ($row) => $row->alamat_lengkap ?? '-')
-                ->addColumn('konfigurasi_pinjaman', fn ($row) => '<a href="' . route('admin.ksp.konfigurasi', encryptSecure($row->id)) . '" target="_blank"><i class="mdi mdi-settings"></i></a>')
+                ->addColumn('konfigurasi_pinjaman', fn ($row) => '<a href="' . route('admin.tomi-dana.configurations.index', encryptSecure($row->id)) . '" target="_blank"><i class="mdi mdi-settings"></i></a>')
                 ->addColumn('status', function ($row) {
                     return match ($row->status) {
                         'active' => '<span class="badge badge-success">ACTIVE</span>',
