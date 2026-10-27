@@ -98,15 +98,15 @@ Route::middleware(['AdminMiddleware'])->group(
                     'tomi-invoice' => 'TomiInvoice',
                 ] as $product => $productLabel) {
                     foreach ([
-                        'perusahaan' => 'Perusahaan',
-                        'lender' => 'Lender',
-                        'konfigurasi' => 'Konfigurasi',
-                        'repayment' => 'Repayment',
-                        'disbursment' => 'Disbursment',
+                        'companies' => 'Companies',
+                        'lenders' => 'Lenders',
+                        'configurations' => 'Configurations',
+                        'repayments' => 'Repayments',
+                        'disbursements' => 'Disbursements',
                     ] as $submenu => $sectionLabel) {
                         Route::view(
                             "/{$product}/{$submenu}",
-                            "admin.{$product}.{$submenu}",
+                            "admin.{$product}.{$submenu}.index",
                             compact('productLabel', 'sectionLabel')
                         )->name("admin.{$product}.{$submenu}");
                     }
