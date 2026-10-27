@@ -21,7 +21,7 @@ class FinanceRequestController extends Controller
             ->get();
 
         return view(
-            'admin.finance-request.index',
+            'admin.finance-requests.index',
             compact('financeRequests')
         );
     }
@@ -36,7 +36,7 @@ class FinanceRequestController extends Controller
             ->get();
 
         return view(
-            'admin.finance-request.create',
+            'admin.finance-requests.create',
             compact('companies')
         );
     }
@@ -86,7 +86,7 @@ class FinanceRequestController extends Controller
             DB::commit();
 
             return redirect()
-                ->route('admin.finance-request.index')
+                ->route('admin.finance-requests.index')
                 ->with(
                     'success',
                     'Finance Request berhasil dibuat.'
@@ -115,7 +115,7 @@ class FinanceRequestController extends Controller
             ->findOrFail($id);
 
         return view(
-            'admin.finance-request.show',
+            'admin.finance-requests.show',
             compact('financeRequest')
         );
     }
@@ -133,7 +133,7 @@ class FinanceRequestController extends Controller
             ->get();
 
         return view(
-            'admin.finance-request.edit',
+            'admin.finance-requests.edit',
             compact(
                 'financeRequest',
                 'companies'
@@ -191,7 +191,7 @@ class FinanceRequestController extends Controller
 
             return redirect()
                 ->route(
-                    'admin.finance-request.show',
+                    'admin.finance-requests.show',
                     $financeRequest->id
                 )
                 ->with(
@@ -226,7 +226,7 @@ class FinanceRequestController extends Controller
             $financeRequest->delete();
 
             return redirect()
-                ->route('admin.finance-request.index')
+                ->route('admin.finance-requests.index')
                 ->with(
                     'success',
                     'Finance Request berhasil dihapus.'
@@ -326,7 +326,7 @@ class FinanceRequestController extends Controller
                 ->findOrFail($id);
 
         $pdf = Pdf::loadView(
-            'admin.finance-request.invoice-pdf',
+            'admin.finance-requests.invoice-pdf',
             compact('financeRequest')
         );
 
@@ -352,7 +352,7 @@ class FinanceRequestController extends Controller
                 ->findOrFail($id);
 
         $pdf = Pdf::loadView(
-            'admin.finance-request.invoice-pdf',
+            'admin.finance-requests.invoice-pdf',
             compact('financeRequest')
         );
 

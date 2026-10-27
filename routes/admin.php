@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\DailyCheckinController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\GadgetInstallmentController;
 use App\Http\Controllers\Admin\GenerateInvoiceController;
+use App\Http\Controllers\Admin\FinanceRequestController;
 use App\Http\Controllers\Admin\InvoiceFeePageController;
 use App\Http\Controllers\Admin\InvoiceFeePdfController;
 use App\Http\Controllers\Admin\KspController;
@@ -114,6 +115,32 @@ Route::middleware(['AdminMiddleware'])->group(
 
                 Route::view('/lender/settings', 'lender.settings.index')->name('lender.settings.index');
                 Route::view('/lender/accounts', 'lender.accounts.index')->name('lender.accounts.index');
+
+                // Finance Request berdiri sendiri, tidak digabung dengan TomiInvoice.
+                Route::get('/finance-request', [FinanceRequestController::class, 'index'])
+                    ->name('admin.finance-requests.index');
+                Route::get('/finance-request/create', [FinanceRequestController::class, 'create'])
+                    ->name('admin.finance-requests.create');
+                Route::post('/finance-request', [FinanceRequestController::class, 'store'])
+                    ->name('admin.finance-requests.store');
+                Route::get('/finance-request/{id}', [FinanceRequestController::class, 'show'])
+                    ->name('admin.finance-requests.show');
+                Route::get('/finance-request/{id}/edit', [FinanceRequestController::class, 'edit'])
+                    ->name('admin.finance-requests.edit');
+                Route::put('/finance-request/{id}', [FinanceRequestController::class, 'update'])
+                    ->name('admin.finance-requests.update');
+                Route::delete('/finance-request/{id}', [FinanceRequestController::class, 'destroy'])
+                    ->name('admin.finance-requests.destroy');
+                Route::post('/finance-request/{id}/approve', [FinanceRequestController::class, 'approve'])
+                    ->name('admin.finance-requests.approve');
+                Route::post('/finance-request/{id}/reject', [FinanceRequestController::class, 'reject'])
+                    ->name('admin.finance-requests.reject');
+                Route::post('/finance-request/{id}/revision', [FinanceRequestController::class, 'revision'])
+                    ->name('admin.finance-requests.revision');
+                Route::get('/finance-request/{id}/invoice', [FinanceRequestController::class, 'invoicePdf'])
+                    ->name('admin.finance-requests.invoice');
+                Route::get('/finance-request/{id}/invoice/download', [FinanceRequestController::class, 'downloadInvoicePdf'])
+                    ->name('admin.finance-requests.invoice.download');
                 // ppob
                 Route::get('/ppob', [PpobController::class, 'index'])->name('admin.ppob.index');
                 Route::get('/ppob/transaction/komisi', [PpobController::class, 'komisiIndex'])->name('admin.ppob.komisi');

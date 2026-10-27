@@ -136,7 +136,7 @@ FINANCE REQUEST TABLE
                             <td class="text-center">
 
                                 <a href="{{ route(
-                                            'admin.finance-request.show',
+                                            'admin.finance-requests.show',
                                             $perusahaan['id']
                                         ) }}" class="btn btn-sm btn-outline-info" title="Lihat Finance Request">
 
