@@ -89,6 +89,29 @@ Route::middleware(['AdminMiddleware'])->group(
                     }
                 }
 
+                // Struktur view admin per produk.
+                foreach ([
+                    'tomi-dana' => 'TomiDana',
+                    'tomi-dana-plus' => 'TomiDana Plus',
+                    'tomi-gawai' => 'TomiGawai',
+                    'tomi-gaji' => 'TomiGaji',
+                    'tomi-invoice' => 'TomiInvoice',
+                ] as $product => $productLabel) {
+                    foreach ([
+                        'perusahaan' => 'Perusahaan',
+                        'lender' => 'Lender',
+                        'konfigurasi' => 'Konfigurasi',
+                        'repayment' => 'Repayment',
+                        'disbursment' => 'Disbursment',
+                    ] as $submenu => $sectionLabel) {
+                        Route::view(
+                            "/{$product}/{$submenu}",
+                            "admin.{$product}.{$submenu}",
+                            compact('productLabel', 'sectionLabel')
+                        )->name("admin.{$product}.{$submenu}");
+                    }
+                }
+
                 Route::view('/lender/settings', 'lender.settings.index')->name('lender.settings.index');
                 Route::view('/lender/accounts', 'lender.accounts.index')->name('lender.accounts.index');
                 // ppob
