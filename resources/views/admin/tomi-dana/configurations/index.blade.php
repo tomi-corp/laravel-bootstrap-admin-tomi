@@ -16,7 +16,7 @@
 </div>
 
 <div class="row">
-    <div class="col-md-4">
+    <div class="col-md-4" id="dsr">
         <div class="card">
             <div class="card-body">
 
@@ -84,7 +84,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md-8">
+    <div class="col-md-8" id="tenor">
         <div class="card">
             <div class="card-body">
                 <button type="button" class="btn btn-sm btn-primary float-right waves-effect waves-light"

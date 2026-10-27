@@ -49,8 +49,11 @@
                                     @endif
                                 </td>
                                 <td class="text-center">
-                                    <a href="{{ route('admin.tomi-dana.configurations.index', encryptSecure($perusahaan->id)) }}" class="btn btn-sm btn-primary">
-                                        <i class="mdi mdi-cog-outline"></i> Konfigurasi
+                                    <a href="{{ route('admin.tomi-dana.configurations.index', encryptSecure($perusahaan->id)) }}#tenor" class="btn btn-sm btn-primary mb-1">
+                                        <i class="mdi mdi-calendar-clock"></i> Konfigurasi Tenor
+                                    </a>
+                                    <a href="{{ route('admin.tomi-dana.configurations.index', encryptSecure($perusahaan->id)) }}#dsr" class="btn btn-sm btn-info mb-1">
+                                        <i class="mdi mdi-percent"></i> Konfigurasi DSR
                                     </a>
                                 </td>
                             </tr>
