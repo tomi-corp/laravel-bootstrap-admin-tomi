@@ -62,6 +62,13 @@ Route::middleware(['AdminMiddleware'])->group(
                 Route::get('/lender/dashboard', function () {
                     return view('lender.dashboard.index');
                 })->name('lender.dashboard.index');
+                Route::view('/lender/tomi-dana', 'lender.tomi-dana.index')->name('lender.tomi-dana.index');
+                Route::view('/lender/tomi-dana-plus', 'lender.tomi-dana-plus.index')->name('lender.tomi-dana-plus.index');
+                Route::view('/lender/tomi-gawai', 'lender.tomi-gawai.index')->name('lender.tomi-gawai.index');
+                Route::view('/lender/tomi-gaji', 'lender.tomi-gaji.index')->name('lender.tomi-gaji.index');
+                Route::view('/lender/tomi-invoice', 'lender.tomi-invoice.index')->name('lender.tomi-invoice.index');
+                Route::view('/lender/settings', 'lender.settings.index')->name('lender.settings.index');
+                Route::view('/lender/accounts', 'lender.accounts.index')->name('lender.accounts.index');
                 // ppob
                 Route::get('/ppob', [PpobController::class, 'index'])->name('admin.ppob.index');
                 Route::get('/ppob/transaction/komisi', [PpobController::class, 'komisiIndex'])->name('admin.ppob.komisi');
