@@ -560,7 +560,7 @@
 
     $('#provinsiSelect').on('change', function () {
         $.ajax({
-            url: '{!! route('admin.ksp.kabupaten') !!}',
+            url: '{!! route('admin.tomi-dana.kabupaten') !!}',
             data: {
                 '_token': "{{ csrf_token() }}",
                 'provinsi': this.value,
@@ -579,7 +579,7 @@
 
     $('#kabupatenSelect').on('change', function () {
         $.ajax({
-            url: '{!! route('admin.ksp.kecamatan') !!}',
+            url: '{!! route('admin.tomi-dana.kecamatan') !!}',
             data: {
                 '_token': "{{ csrf_token() }}",
                 'kabupaten': this.value,
@@ -598,7 +598,7 @@
 
     $('#kecamatanSelect').on('change', function () {
         $.ajax({
-            url: '{!! route('admin.ksp.desa') !!}',
+            url: '{!! route('admin.tomi-dana.desa') !!}',
             data: {
                 '_token': "{{ csrf_token() }}",
                 'kecamatan': this.value,
@@ -663,7 +663,7 @@
 
         ajax: {
             type: "POST",
-            url: '{!! route('admin.ksp.perusahaan.table') !!}',
+            url: '{!! route('admin.tomi-dana.companies.table') !!}',
             data: function (d) {
                 d._token = "{{ csrf_token() }}";
                 return d;
@@ -864,7 +864,7 @@
 
     $('#buttonSubmit').on('click', function () {
         $.ajax({
-            url: '{!! route('admin.ksp.add.perusahaan') !!}',
+            url: '{!! route('admin.tomi-dana.companies.store') !!}',
             data: {
                 '_token': "{{ csrf_token() }}",
 
@@ -917,7 +917,7 @@
     edit = (id) => {
         editID = id;
         $.ajax({
-            url: '{!! route('admin.ksp.detail.perusahaan') !!}',
+            url: '{!! route('admin.tomi-dana.companies.detail') !!}',
             data: {
                 '_token': "{{ csrf_token() }}",
                 'id': editID,
@@ -970,7 +970,7 @@
 
     $('#buttonSubmitEdit').on('click', function () {
         $.ajax({
-            url: '{!! route('admin.ksp.edit.perusahaan') !!}',
+            url: '{!! route('admin.tomi-dana.companies.update') !!}',
             data: {
                 '_token': "{{ csrf_token() }}",
                 'id': editID,
@@ -1020,7 +1020,7 @@
 
     buttonDelete = () => {
         $.ajax({
-            url: '{!! route('admin.ksp.delete.perusahaan') !!}',
+            url: '{!! route('admin.tomi-dana.companies.delete') !!}',
             data: {
                 '_token': "{{ csrf_token() }}",
                 'id': deleteID,
