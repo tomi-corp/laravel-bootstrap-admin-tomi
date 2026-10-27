@@ -63,6 +63,17 @@ class KspController extends Controller
         return view('admin.ksp.perusahaan.index', compact('provinsis', 'perusahaanTidakAktif', 'perusahaanAktif'));
     }
 
+    public function tomiDanaCompanies()
+    {
+        $provinsis = provinsi::get();
+        $perusahaan = ListPerusahaan::select('id', 'status')->get();
+
+        $perusahaanTidakAktif = $perusahaan->where('status', 'nonactive')->count();
+        $perusahaanAktif = $perusahaan->where('status', 'active')->count();
+
+        return view('admin.tomi-dana.companies.index', compact('provinsis', 'perusahaanTidakAktif', 'perusahaanAktif'));
+    }
+
     public function kabupaten(Request $req)
     {
         $kabupaten = kota::where('provinsi', $req->provinsi)->get();
