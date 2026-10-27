@@ -66,7 +66,29 @@ Route::middleware(['AdminMiddleware'])->group(
                 Route::view('/lender/tomi-dana-plus', 'lender.tomi-dana-plus.index')->name('lender.tomi-dana-plus.index');
                 Route::view('/lender/tomi-gawai', 'lender.tomi-gawai.index')->name('lender.tomi-gawai.index');
                 Route::view('/lender/tomi-gaji', 'lender.tomi-gaji.index')->name('lender.tomi-gaji.index');
-                Route::view('/lender/tomi-invoice', 'lender.tomi-invoice.index')->name('lender.tomi-invoice.index');
+                Route::view('/lender/tomi-invoices', 'lender.tomi-invoices.index')->name('lender.tomi-invoices.index');
+
+                foreach ([
+                    'tomi-dana',
+                    'tomi-dana-plus',
+                    'tomi-gawai',
+                    'tomi-gaji',
+                    'tomi-invoices',
+                ] as $product) {
+                    foreach ([
+                        'companies',
+                        'lenders',
+                        'repayments',
+                        'disbursements',
+                        'configurations',
+                    ] as $submenu) {
+                        Route::view(
+                            "/lender/{$product}/{$submenu}",
+                            "lender.{$product}.{$submenu}.index"
+                        )->name("lender.{$product}.{$submenu}.index");
+                    }
+                }
+
                 Route::view('/lender/settings', 'lender.settings.index')->name('lender.settings.index');
                 Route::view('/lender/accounts', 'lender.accounts.index')->name('lender.accounts.index');
                 // ppob

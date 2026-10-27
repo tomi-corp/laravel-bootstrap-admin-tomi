@@ -11,12 +11,29 @@
                     ['slug' => 'tomi-dana-plus', 'label' => 'TomiDana Plus', 'icon' => 'dripicons-network-3'],
                     ['slug' => 'tomi-gawai', 'label' => 'TomiGawai', 'icon' => 'dripicons-device-mobile'],
                     ['slug' => 'tomi-gaji', 'label' => 'TomiGaji', 'icon' => 'dripicons-wallet'],
-                    ['slug' => 'tomi-invoice', 'label' => 'TomiInvoice', 'icon' => 'dripicons-document'],
+                    ['slug' => 'tomi-invoices', 'label' => 'TomiInvoices', 'icon' => 'dripicons-document'],
                 ] as $product)
                     <li>
-                        <a href="{{ route('lender.' . $product['slug'] . '.index') }}">
-                            <i class="{{ $product['icon'] }}"></i><span>{{ $product['label'] }}</span>
+                        <a href="javascript: void(0);">
+                            <i class="{{ $product['icon'] }}"></i>
+                            <span>{{ $product['label'] }}</span>
+                            <span class="menu-arrow"></span>
                         </a>
+                        <ul class="nav-second-level nav" aria-expanded="false">
+                            @foreach ([
+                                ['slug' => 'companies', 'label' => 'Perusahaan'],
+                                ['slug' => 'lenders', 'label' => 'Pemberi Pinjaman'],
+                                ['slug' => 'repayments', 'label' => 'Pembayaran'],
+                                ['slug' => 'disbursements', 'label' => 'Pencairan'],
+                                ['slug' => 'configurations', 'label' => 'Konfigurasi'],
+                            ] as $submenu)
+                                <li>
+                                    <a href="{{ route('lender.' . $product['slug'] . '.' . $submenu['slug'] . '.index') }}">
+                                        {{ $submenu['label'] }}
+                                    </a>
+                                </li>
+                            @endforeach
+                        </ul>
                     </li>
                 @endforeach
 
