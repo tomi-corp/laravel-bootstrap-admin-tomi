@@ -11,6 +11,8 @@ use App\Models\kelurahan;
 use App\Models\kota;
 use App\Models\ListPerusahaan;
 use App\Models\list_karyawan;
+use App\Models\lender;
+use App\Models\bank;
 use App\Models\pinjaman;
 use App\Models\provinsi;
 use Carbon\Carbon;
@@ -20,6 +22,102 @@ use Yajra\DataTables\Facades\DataTables;
 
 class TomiDanaController extends Controller
 {
+    public function lenders()
+    {
+        return view('admin.tomi-dana.lender.index', [
+            'banks' => bank::orderBy('code_bank')->get(),
+        ]);
+    }
+
+    public function lendersTable()
+    {
+        return DataTables::eloquent(lender::with('bank')->latest())
+            ->addIndexColumn()
+            ->addColumn('bank', fn ($row) => $row->bank?->code_bank ?? '-')
+            ->addColumn('status_label', function ($row) {
+                return $row->status === 'active'
+                    ? '<span class="badge badge-success">ACTIVE</span>'
+                    : '<span class="badge badge-warning">INACTIVE</span>';
+            })
+            ->addColumn('action', fn ($row) => '<button type="button" class="btn btn-sm btn-primary mr-1" onclick="editLender(' . $row->id . ')"><i class="mdi mdi-pencil"></i></button><button type="button" class="btn btn-sm btn-danger" onclick="deleteLender(' . $row->id . ')"><i class="mdi mdi-trash-can"></i></button>')
+            ->rawColumns(['status_label', 'action'])
+            ->toJson();
+    }
+
+    public function storeLender(Request $request)
+    {
+        $data = $request->validate([
+            'pic_lender' => 'required|string|max:255',
+            'pic_internal' => 'required|string|max:255',
+            'nama' => 'required|string|max:255',
+            'email_lender' => 'required|email|max:255',
+            'telp' => 'required|numeric',
+            'alamat_lengkap' => 'required|string',
+            'id_bank' => 'nullable|exists:banks,id',
+            'nama_rekening' => 'nullable|string|max:255',
+            'no_rekening' => 'nullable|string|max:100',
+            'nomor_pks' => 'nullable|string|max:255',
+            'status' => 'required|in:active,nonactive',
+        ]);
+
+        $lender = new lender($data);
+        $lender->id_code_lender = $this->generateLenderCode();
+        $lender->created_by = auth('admin')->id();
+        $lender->save();
+
+        return response()->json(['status' => 200, 'message' => 'Lender berhasil ditambahkan.']);
+    }
+
+    public function detailLender(Request $request)
+    {
+        $lender = lender::with('bank')->findOrFail($request->id);
+
+        return response()->json(['status' => 200, 'data' => $lender]);
+    }
+
+    public function updateLender(Request $request)
+    {
+        $data = $request->validate([
+            'id' => 'required|exists:lenders,id',
+            'pic_lender' => 'required|string|max:255',
+            'pic_internal' => 'required|string|max:255',
+            'nama' => 'required|string|max:255',
+            'email_lender' => 'required|email|max:255',
+            'telp' => 'required|numeric',
+            'alamat_lengkap' => 'required|string',
+            'id_bank' => 'nullable|exists:banks,id',
+            'nama_rekening' => 'nullable|string|max:255',
+            'no_rekening' => 'nullable|string|max:100',
+            'nomor_pks' => 'nullable|string|max:255',
+            'status' => 'required|in:active,nonactive',
+        ]);
+
+        $lender = lender::findOrFail($data['id']);
+        unset($data['id']);
+        $lender->fill($data);
+        $lender->updated_by = auth('admin')->id();
+        $lender->save();
+
+        return response()->json(['status' => 200, 'message' => 'Lender berhasil diubah.']);
+    }
+
+    public function deleteLender(Request $request)
+    {
+        $request->validate(['id' => 'required|exists:lenders,id']);
+        lender::findOrFail($request->id)->delete();
+
+        return response()->json(['status' => 200, 'message' => 'Lender berhasil dihapus.']);
+    }
+
+    private function generateLenderCode(): string
+    {
+        do {
+            $code = '#TomiDanaLender-' . Carbon::now()->format('dmY') . '-' . random_int(1000, 9999);
+        } while (lender::where('id_code_lender', $code)->exists());
+
+        return $code;
+    }
+
     public function companies()
     {
         $provinsis = provinsi::get();
