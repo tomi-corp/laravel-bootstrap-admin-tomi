@@ -10,13 +10,16 @@
     <link href="{{ asset('assets/css/icons.min.css') }}" rel="stylesheet" type="text/css">
     <link href="{{ asset('assets/css/app.min.css') }}" rel="stylesheet" type="text/css">
     <link href="{{ asset('assets/css/custom.css') }}" rel="stylesheet" type="text/css">
+    <link href="{{ asset('assets/libs/datatables/dataTables.bootstrap4.min.css') }}" rel="stylesheet" type="text/css">
+    <link href="{{ asset('assets/libs/datatables/responsive.bootstrap4.min.css') }}" rel="stylesheet" type="text/css">
     @stack('css')
 </head>
 
 <body>
     <div id="wrapper">
-        @include('lender.layouts.partials.topbar')
-        @include('lender.layouts.partials.sidebar')
+        {{-- Lender menggunakan chrome admin agar navigasi dan akun konsisten. --}}
+        @include('layout.partials.admin.topbar')
+        @include('layout.partials.admin.sidebar')
 
         <div class="content-page">
             <div class="content">
@@ -30,6 +33,10 @@
 
     <script src="{{ asset('assets/js/jquery.js') }}"></script>
     <script src="{{ asset('assets/js/vendor.min.js') }}"></script>
+    <script src="{{ asset('assets/libs/datatables/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ asset('assets/libs/datatables/dataTables.bootstrap4.min.js') }}"></script>
+    <script src="{{ asset('assets/libs/datatables/dataTables.responsive.min.js') }}"></script>
+    <script src="{{ asset('assets/libs/datatables/responsive.bootstrap4.min.js') }}"></script>
     <script src="{{ asset('assets/js/app.min.js') }}"></script>
     @stack('js')
 </body>
