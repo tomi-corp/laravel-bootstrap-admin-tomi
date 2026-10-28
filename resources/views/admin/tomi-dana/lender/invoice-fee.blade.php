@@ -18,8 +18,7 @@
         th, td { border: 1px solid #cfd4da; padding: 7px; }
         .number { text-align: right; }
         .summary { margin-top: 18px; margin-left: auto; width: 320px; }
-        .summary td { border: 0; padding: 5px; }
-        .total { font-size: 14px; font-weight: bold; color: #198754; }
+        .total { font-weight: bold; }
         .note { margin-top: 22px; color: #666; font-size: 10px; }
         .toolbar { margin: 0 auto 18px; max-width: 1120px; text-align: right; }
         .toolbar a { display: inline-block; padding: 9px 14px; color: #fff; text-decoration: none; border-radius: 4px; margin-left: 6px; }
@@ -97,7 +96,7 @@
         @endif
     </table>
 
-    <table class="summary">
+    <table class="main-table summary">
         <tr class="total">
             <td>Total Pinjaman</td>
             <td class="number">Rp. {{ number_format($summary['total_pinjaman'], 0, ',', '.') }}</td>
