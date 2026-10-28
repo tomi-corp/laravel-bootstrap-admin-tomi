@@ -187,15 +187,59 @@ class TomiDanaController extends Controller
             ->addColumn('total_nominal', fn ($row) => 'Rp. ' . number_format((float) $row->total_nominal, 0, ',', '.'))
             ->addColumn('action', function ($row) use ($request) {
                 $detailButton = '<button type="button" class="btn btn-sm btn-info mr-1" onclick="showBorrowers(\'' . e($row->bulan) . '\')"><i class="mdi mdi-account-details"></i> Detail Peminjam</button>';
-                $invoiceUrl = route('admin.tomi-dana.lender.pinjaman.invoice-fee', array_filter([
-                    'month' => $row->bulan,
-                    'lender_id' => $request->input('lender_id'),
-                ], fn ($value) => filled($value)));
+                $invoiceButton = '<button type="button" class="btn btn-sm btn-danger" onclick="showInvoiceFee(\'' . e($row->bulan) . '\')" title="Lihat invoice fee PDF"><i class="mdi mdi-file-pdf-box"></i> Invoice Fee</button>';
 
-                return $detailButton . '<a href="' . e($invoiceUrl) . '" target="_blank" class="btn btn-sm btn-danger" title="Lihat invoice fee PDF"><i class="mdi mdi-file-pdf-box"></i> Invoice Fee</a>';
+                return $detailButton . $invoiceButton;
             })
             ->rawColumns(['action'])
             ->toJson();
+    }
+
+    public function lenderLoanInvoiceFeeBreakdown(Request $request)
+    {
+        $request->validate([
+            'month' => 'required|date_format:Y-m',
+            'lender_id' => 'nullable|integer|exists:lenders,id',
+        ]);
+
+        $month = Carbon::createFromFormat('Y-m', $request->input('month'));
+        $loans = pinjaman::query()
+            ->where('status_otp', 'success')
+            ->whereBetween('created_at', [$month->copy()->startOfMonth(), $month->copy()->endOfMonth()])
+            ->when($request->filled('lender_id'), fn ($query) => $query->where('id_lender', $request->integer('lender_id')))
+            ->get();
+
+        $totalNominal = (float) $loans->sum('nominal');
+        $weightedPercent = function (string $field) use ($loans, $totalNominal): float {
+            if ($totalNominal <= 0) {
+                return 0;
+            }
+
+            return round($loans->sum(fn ($loan) => (float) $loan->nominal * (float) ($loan->{$field} ?? 0)) / $totalNominal, 2);
+        };
+        $derivedPercent = function (float $amount) use ($totalNominal): float {
+            return $totalNominal > 0 ? round($amount / $totalNominal * 100, 2) : 0;
+        };
+
+        $biayaAdmin = (float) $loans->sum('total_biaya_admin');
+        $feeTomi = (float) $loans->sum('biaya_admin_pandu');
+        $biayaLayanan = (float) $loans->sum('biaya_layanan');
+        $ksp = (float) $loans->sum('ksp_fee');
+
+        return response()->json([
+            'data' => [
+                'rate' => ['percent' => $weightedPercent('rate'), 'amount' => (float) $loans->sum('pendapatan_bunga')],
+                'asuransi' => ['percent' => $weightedPercent('asuransi'), 'amount' => (float) $loans->sum('jumlah_asuransi')],
+                'provisi' => ['percent' => $weightedPercent('provisi'), 'amount' => (float) $loans->sum('jumlah_provisi')],
+                'biaya_admin' => ['percent' => $weightedPercent('biaya_admin'), 'amount' => $biayaAdmin],
+                'fee_tomi' => ['percent' => $derivedPercent($feeTomi), 'amount' => $feeTomi],
+                'biaya_layanan' => ['percent' => $derivedPercent($biayaLayanan), 'amount' => $biayaLayanan],
+                'referral_1' => ['percent' => $weightedPercent('profesional_fee_1'), 'amount' => (float) $loans->sum('jumlah_profesional_1')],
+                'referral_2' => ['percent' => $weightedPercent('profesional_fee_2'), 'amount' => (float) $loans->sum('jumlah_profesional_2')],
+                'ksp' => ['percent' => $derivedPercent($ksp), 'amount' => $ksp],
+                'total_nominal' => $totalNominal,
+            ],
+        ]);
     }
 
     public function downloadLenderLoanInvoiceFee(Request $request)

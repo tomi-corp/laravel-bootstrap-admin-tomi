@@ -56,6 +56,56 @@
     </div>
 </div>
 
+<div class="modal fade" id="modalInvoiceFee" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Rincian Invoice Fee <span id="invoiceFeePeriod"></span></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <div id="invoiceFeeLoading" class="text-center py-3">
+                    <span class="spinner-border spinner-border-sm"></span> Menghitung rincian fee...
+                </div>
+                <div id="invoiceFeeContent" class="d-none">
+                    <div class="alert alert-light border">
+                        Total Nominal Pinjaman: <strong id="invoiceFeeTotalNominal">Rp. 0</strong>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Komponen</th>
+                                    <th class="text-right">Persentase</th>
+                                    <th class="text-right">Jumlah</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Rate</td><td id="fee-rate-percent" class="text-right"></td><td id="fee-rate-amount" class="text-right"></td></tr>
+                                <tr><td>Asuransi</td><td id="fee-asuransi-percent" class="text-right"></td><td id="fee-asuransi-amount" class="text-right"></td></tr>
+                                <tr><td>Provisi</td><td id="fee-provisi-percent" class="text-right"></td><td id="fee-provisi-amount" class="text-right"></td></tr>
+                                <tr><td>Biaya Admin</td><td id="fee-biaya_admin-percent" class="text-right"></td><td id="fee-biaya_admin-amount" class="text-right"></td></tr>
+                                <tr><td>Fee TOMI</td><td id="fee-fee_tomi-percent" class="text-right"></td><td id="fee-fee_tomi-amount" class="text-right"></td></tr>
+                                <tr><td>Biaya Layanan</td><td id="fee-biaya_layanan-percent" class="text-right"></td><td id="fee-biaya_layanan-amount" class="text-right"></td></tr>
+                                <tr><td>Referral 1</td><td id="fee-referral_1-percent" class="text-right"></td><td id="fee-referral_1-amount" class="text-right"></td></tr>
+                                <tr><td>Referral 2</td><td id="fee-referral_2-percent" class="text-right"></td><td id="fee-referral_2-amount" class="text-right"></td></tr>
+                                <tr><td>KSP</td><td id="fee-ksp-percent" class="text-right"></td><td id="fee-ksp-amount" class="text-right"></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div id="invoiceFeeError" class="alert alert-danger d-none mb-0"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                <a href="#" id="downloadInvoiceFee" target="_blank" class="btn btn-danger disabled">
+                    <i class="mdi mdi-file-pdf-box"></i> Lihat Invoice PDF
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="modal fade" id="modalBorrowers" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document">
         <div class="modal-content">
@@ -123,6 +173,42 @@
 
         let borrowerTable;
         let borrowerMonth;
+
+        const invoiceFeeLenderId = @json(request('lender_id'));
+        const formatNumber = value => new Intl.NumberFormat('id-ID').format(Math.round(Number(value || 0)));
+        const formatRupiah = value => 'Rp. ' + formatNumber(value);
+
+        window.showInvoiceFee = function (month) {
+            $('#invoiceFeePeriod').text(month);
+            $('#invoiceFeeLoading').removeClass('d-none');
+            $('#invoiceFeeContent, #invoiceFeeError').addClass('d-none');
+            $('#downloadInvoiceFee').addClass('disabled').attr('href', '#');
+            $('#modalInvoiceFee').modal('show');
+
+            const invoiceUrl = new URL('{{ route('admin.tomi-dana.lender.pinjaman.invoice-fee') }}', window.location.origin);
+            invoiceUrl.searchParams.set('month', month);
+            if (invoiceFeeLenderId) invoiceUrl.searchParams.set('lender_id', invoiceFeeLenderId);
+
+            $.post('{{ route('admin.tomi-dana.lender.pinjaman.invoice-fee.breakdown') }}', {
+                _token: '{{ csrf_token() }}',
+                month: month,
+                lender_id: invoiceFeeLenderId
+            }).done(function (response) {
+                const data = response.data;
+                $('#invoiceFeeTotalNominal').text(formatRupiah(data.total_nominal));
+                Object.keys(data).forEach(function (key) {
+                    if (!data[key] || typeof data[key] !== 'object') return;
+                    $('#fee-' + key + '-percent').text(formatNumber(data[key].percent) + ' %');
+                    $('#fee-' + key + '-amount').text(formatRupiah(data[key].amount));
+                });
+                $('#downloadInvoiceFee').removeClass('disabled').attr('href', invoiceUrl.toString());
+                $('#invoiceFeeLoading').addClass('d-none');
+                $('#invoiceFeeContent').removeClass('d-none');
+            }).fail(function (error) {
+                $('#invoiceFeeLoading').addClass('d-none');
+                $('#invoiceFeeError').text(error.responseJSON?.message || 'Rincian invoice fee tidak dapat dihitung.').removeClass('d-none');
+            });
+        };
 
         window.showBorrowers = function (month) {
             borrowerMonth = month;
