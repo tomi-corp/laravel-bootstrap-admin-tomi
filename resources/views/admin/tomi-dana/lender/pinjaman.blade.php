@@ -71,27 +71,26 @@
                     <div class="alert alert-light border">
                         Total Nominal Pinjaman: <strong id="invoiceFeeTotalNominal">Rp. 0</strong>
                     </div>
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-striped mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Komponen</th>
-                                    <th class="text-right">Persentase</th>
-                                    <th class="text-right">Jumlah</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr><td>Rate</td><td id="fee-rate-percent" class="text-right"></td><td id="fee-rate-amount" class="text-right"></td></tr>
-                                <tr><td>Asuransi</td><td id="fee-asuransi-percent" class="text-right"></td><td id="fee-asuransi-amount" class="text-right"></td></tr>
-                                <tr><td>Provisi</td><td id="fee-provisi-percent" class="text-right"></td><td id="fee-provisi-amount" class="text-right"></td></tr>
-                                <tr><td>Biaya Admin</td><td id="fee-biaya_admin-percent" class="text-right"></td><td id="fee-biaya_admin-amount" class="text-right"></td></tr>
-                                <tr><td>Fee TOMI</td><td id="fee-fee_tomi-percent" class="text-right"></td><td id="fee-fee_tomi-amount" class="text-right"></td></tr>
-                                <tr><td>Biaya Layanan</td><td id="fee-biaya_layanan-percent" class="text-right"></td><td id="fee-biaya_layanan-amount" class="text-right"></td></tr>
-                                <tr><td>Referral 1</td><td id="fee-referral_1-percent" class="text-right"></td><td id="fee-referral_1-amount" class="text-right"></td></tr>
-                                <tr><td>Referral 2</td><td id="fee-referral_2-percent" class="text-right"></td><td id="fee-referral_2-amount" class="text-right"></td></tr>
-                                <tr><td>KSP</td><td id="fee-ksp-percent" class="text-right"></td><td id="fee-ksp-amount" class="text-right"></td></tr>
-                            </tbody>
-                        </table>
+                    <div class="row" id="invoiceFeeFields">
+                        @foreach ([
+                            'rate' => 'Rate',
+                            'asuransi' => 'Asuransi',
+                            'provisi' => 'Provisi',
+                            'biaya_admin' => 'Biaya Admin',
+                            'fee_tomi' => 'Fee TOMI',
+                            'biaya_layanan' => 'Biaya Layanan',
+                            'referral_1' => 'Referral 1',
+                            'referral_2' => 'Referral 2',
+                            'ksp' => 'KSP',
+                        ] as $field => $label)
+                            <div class="col-md-6 mb-2">
+                                <label class="d-flex align-items-center border rounded p-2 mb-0">
+                                    <input type="checkbox" class="invoice-fee-field mr-2" value="{{ $field }}" checked>
+                                    <span class="flex-grow-1">{{ $label }}</span>
+                                    <small class="text-muted"><span id="fee-{{ $field }}-percent">0 %</span> · <span id="fee-{{ $field }}-amount">Rp. 0</span></small>
+                                </label>
+                            </div>
+                        @endforeach
                     </div>
                 </div>
                 <div id="invoiceFeeError" class="alert alert-danger d-none mb-0"></div>
@@ -209,6 +208,19 @@
                 $('#invoiceFeeError').text(error.responseJSON?.message || 'Rincian invoice fee tidak dapat dihitung.').removeClass('d-none');
             });
         };
+
+        $('#downloadInvoiceFee').on('click', function (event) {
+            if ($(this).hasClass('disabled')) {
+                event.preventDefault();
+                return;
+            }
+
+            const invoiceUrl = new URL($(this).attr('href'), window.location.origin);
+            $('.invoice-fee-field:checked').each(function () {
+                invoiceUrl.searchParams.append('fields[]', $(this).val());
+            });
+            $(this).attr('href', invoiceUrl.toString());
+        });
 
         window.showBorrowers = function (month) {
             borrowerMonth = month;

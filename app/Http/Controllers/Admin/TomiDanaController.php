@@ -200,7 +200,24 @@ class TomiDanaController extends Controller
         $request->validate([
             'month' => 'required|date_format:Y-m',
             'lender_id' => 'nullable|integer|exists:lenders,id',
+            'fields' => 'sometimes|array',
+            'fields.*' => 'string',
         ]);
+
+        $fieldLabels = [
+            'rate' => 'Rate',
+            'asuransi' => 'Asuransi',
+            'provisi' => 'Provisi',
+            'biaya_admin' => 'Biaya Admin',
+            'fee_tomi' => 'Fee TOMI',
+            'biaya_layanan' => 'Biaya Layanan',
+            'referral_1' => 'Referral 1',
+            'referral_2' => 'Referral 2',
+            'ksp' => 'KSP',
+        ];
+        $selectedFields = $request->has('fields')
+            ? array_values(array_intersect($request->input('fields', []), array_keys($fieldLabels)))
+            : array_keys($fieldLabels);
 
         $month = Carbon::createFromFormat('Y-m', $request->input('month'));
         $loans = pinjaman::query()
@@ -265,6 +282,17 @@ class TomiDanaController extends Controller
                 'perusahaan' => $loan->perusahaan?->nama ?? '-',
                 'jumlah_pinjaman' => (float) ($loan->nominal ?? 0),
                 'biaya_layanan' => (float) ($loan->biaya_layanan ?? 0),
+                'fee_components' => [
+                    'rate' => (float) ($loan->pendapatan_bunga ?? 0),
+                    'asuransi' => (float) ($loan->jumlah_asuransi ?? 0),
+                    'provisi' => (float) ($loan->jumlah_provisi ?? 0),
+                    'biaya_admin' => (float) ($loan->total_biaya_admin ?? 0),
+                    'fee_tomi' => (float) ($loan->biaya_admin_pandu ?? 0),
+                    'biaya_layanan' => (float) ($loan->biaya_layanan ?? 0),
+                    'referral_1' => (float) ($loan->jumlah_profesional_1 ?? 0),
+                    'referral_2' => (float) ($loan->jumlah_profesional_2 ?? 0),
+                    'ksp' => (float) ($loan->ksp_fee ?? 0),
+                ],
             ];
         });
 
@@ -278,8 +306,11 @@ class TomiDanaController extends Controller
             'total_pinjaman' => $items->sum('jumlah_pinjaman'),
             'total_biaya_layanan' => $items->sum('biaya_layanan'),
         ];
+        $fieldTotals = collect($selectedFields)->mapWithKeys(fn ($field) => [
+            $field => $items->sum(fn ($item) => $item['fee_components'][$field] ?? 0),
+        ])->all();
 
-        $viewData = compact('invoice', 'items', 'summary') + ['isPdf' => true];
+        $viewData = compact('invoice', 'items', 'summary', 'fieldLabels', 'selectedFields', 'fieldTotals') + ['isPdf' => true];
         $pdf = Pdf::loadView('admin.tomi-dana.lender.invoice-fee', $viewData)
             ->setPaper('a4', 'landscape');
 
