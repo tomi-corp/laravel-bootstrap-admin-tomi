@@ -170,43 +170,63 @@ class TomiDanaController extends Controller
 
     public function lenderLoansTable(Request $request)
     {
-        return DataTables::eloquent(
-            pinjaman::with(['data_karyawan', 'perusahaan', 'lender'])
-                ->when($request->filled('lender_id'), fn ($query) => $query->where('id_lender', $request->integer('lender_id')))
-                ->when($request->filled('company_id'), fn ($query) => $query->where('id_perusahaan', $request->integer('company_id')))
-                ->when($request->filled('start_month') || $request->filled('end_month'), function ($query) use ($request) {
-                    $startDate = $request->filled('start_month')
-                        ? Carbon::createFromFormat('Y-m', $request->input('start_month'))->startOfMonth()
-                        : null;
-                    $endDate = $request->filled('end_month')
-                        ? Carbon::createFromFormat('Y-m', $request->input('end_month'))->endOfMonth()
-                        : null;
+        $query = ListPerusahaan::query()
+            ->when($request->filled('company_id'), fn ($query) => $query->whereKey($request->integer('company_id')))
+            ->whereHas('pinjaman', fn ($query) => $this->filterLenderLoans($query, $request))
+            ->withCount(['pinjaman as total_pinjaman' => fn ($query) => $this->filterLenderLoans($query, $request)])
+            ->withSum(['pinjaman as total_nominal' => fn ($query) => $this->filterLenderLoans($query, $request)], 'nominal')
+            ->orderBy('nama');
 
-                    if ($startDate && $endDate) {
-                        $query->whereBetween('created_at', [$startDate, $endDate]);
-                    } elseif ($startDate) {
-                        $query->where('created_at', '>=', $startDate);
-                    } elseif ($endDate) {
-                        $query->where('created_at', '<=', $endDate);
-                    }
-                })
-                ->latest()
-        )
+        return DataTables::eloquent($query)
             ->addIndexColumn()
-            ->addColumn('id_pinjaman', fn ($row) => $row->id)
+            ->addColumn('perusahaan', fn ($row) => strtoupper($row->nama ?? '-'))
+            ->addColumn('total_pinjaman', fn ($row) => number_format((int) $row->total_pinjaman, 0, ',', '.'))
+            ->addColumn('total_nominal', fn ($row) => 'Rp. ' . number_format((float) $row->total_nominal, 0, ',', '.'))
+            ->addColumn('action', fn ($row) => '<button type="button" class="btn btn-sm btn-info" onclick="showBorrowers(' . $row->id . ', \'' . e(addslashes(strtoupper($row->nama))) . '\')"><i class="mdi mdi-account-details"></i> Detail Peminjam</button>')
+            ->rawColumns(['action'])
+            ->toJson();
+    }
+
+    public function lenderLoansDetailTable(Request $request)
+    {
+        $query = pinjaman::with(['data_karyawan', 'perusahaan', 'lender'])
+            ->where('id_perusahaan', $request->integer('company_id'));
+
+        $this->filterLenderLoans($query, $request);
+
+        return DataTables::eloquent($query->latest())
+            ->addIndexColumn()
             ->addColumn('nama_karyawan', fn ($row) => strtoupper($row->data_karyawan?->nama_karyawan ?? '-'))
-            ->addColumn('perusahaan', fn ($row) => strtoupper($row->perusahaan?->nama ?? '-'))
-            ->addColumn('lender', fn ($row) => strtoupper($row->lender?->nama ?? '-'))
             ->addColumn('nominal', fn ($row) => 'Rp. ' . number_format((float) $row->nominal, 0, ',', '.'))
             ->addColumn('tenor_label', fn ($row) => ($row->tenor ?? 0) . ' bulan')
-            ->addColumn('status_label', function ($row) {
-                $status = strtoupper((string) ($row->status ?? '-'));
-
-                return '<span class="badge badge-secondary">' . e($status) . '</span>';
-            })
+            ->addColumn('status_label', fn ($row) => '<span class="badge badge-secondary">' . e(strtoupper((string) ($row->status ?? '-'))) . '</span>')
             ->addColumn('tanggal_pengajuan', fn ($row) => optional($row->created_at)->format('d/m/Y H:i') ?? '-')
             ->rawColumns(['status_label'])
             ->toJson();
+    }
+
+    private function filterLenderLoans($query, Request $request)
+    {
+        $query->where('status_otp', 'success')
+            ->when($request->filled('lender_id'), fn ($query) => $query->where('id_lender', $request->integer('lender_id')))
+            ->when($request->filled('start_month') || $request->filled('end_month'), function ($query) use ($request) {
+                $startDate = $request->filled('start_month')
+                    ? Carbon::createFromFormat('Y-m', $request->input('start_month'))->startOfMonth()
+                    : null;
+                $endDate = $request->filled('end_month')
+                    ? Carbon::createFromFormat('Y-m', $request->input('end_month'))->endOfMonth()
+                    : null;
+
+                if ($startDate && $endDate) {
+                    $query->whereBetween('created_at', [$startDate, $endDate]);
+                } elseif ($startDate) {
+                    $query->where('created_at', '>=', $startDate);
+                } elseif ($endDate) {
+                    $query->where('created_at', '<=', $endDate);
+                }
+            });
+
+        return $query;
     }
 
     public function storeLender(Request $request)

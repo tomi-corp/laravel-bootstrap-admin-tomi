@@ -23,7 +23,7 @@
         <a href="{{ route('admin.tomi-dana.lender') }}" class="btn btn-sm btn-secondary float-right mb-3">
             <i class="mdi mdi-arrow-left"></i> Kembali ke Lender
         </a>
-        <h4 class="header-title">Daftar Seluruh Pinjaman</h4>
+        <h4 class="header-title">Daftar Perusahaan</h4>
         <p class="text-muted">Tampilkan pinjaman berdasarkan perusahaan dan bulan pengajuan.</p>
         <div class="row mb-3">
             <div class="col-md-5">
@@ -54,17 +54,40 @@
                 <thead>
                     <tr>
                         <th>No</th>
-                        <th>ID Pinjaman</th>
-                        <th>Nama Karyawan</th>
                         <th>Perusahaan</th>
-                        <th>Lender</th>
-                        <th>Nominal</th>
-                        <th>Tenor</th>
-                        <th>Status</th>
-                        <th>Tanggal Pengajuan</th>
+                        <th>Jumlah Pinjaman</th>
+                        <th>Total Nominal</th>
+                        <th>Aksi</th>
                     </tr>
                 </thead>
             </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalBorrowers" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Detail Peminjam <span id="borrowerCompanyName"></span></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table id="tableBorrowers" class="table table-hover table-striped text-center" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Nama Peminjam</th>
+                                <th>Nominal</th>
+                                <th>Tenor</th>
+                                <th>Status</th>
+                                <th>Tanggal Pengajuan</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -73,7 +96,7 @@
 @push('js')
 <script>
     $(function () {
-        $('#tableLenderLoans').DataTable({
+        const loanTable = $('#tableLenderLoans').DataTable({
             processing: true,
             serverSide: true,
             responsive: true,
@@ -90,27 +113,63 @@
             },
             columns: [
                 { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
-                { data: 'id_pinjaman', name: 'id' },
-                { data: 'nama_karyawan', name: 'data_karyawan.nama_karyawan' },
-                { data: 'perusahaan', name: 'perusahaan.nama' },
-                { data: 'lender', name: 'lender.nama' },
-                { data: 'nominal', name: 'nominal' },
-                { data: 'tenor_label', name: 'tenor' },
-                { data: 'status_label', name: 'status' },
-                { data: 'tanggal_pengajuan', name: 'created_at' }
+                { data: 'perusahaan', name: 'nama' },
+                { data: 'total_pinjaman', name: 'total_pinjaman', searchable: false },
+                { data: 'total_nominal', name: 'total_nominal', searchable: false },
+                { data: 'action', name: 'action', orderable: false, searchable: false }
             ],
-            order: [[8, 'desc']]
+            order: [[1, 'asc']]
         });
 
         $('#filterCompany, #filterStartMonth, #filterEndMonth').on('change', function () {
-            $('#tableLenderLoans').DataTable().ajax.reload();
+            loanTable.ajax.reload();
         });
 
         $('#resetLoanFilter').on('click', function () {
             $('#filterCompany').val('');
             $('#filterStartMonth, #filterEndMonth').val('');
-            $('#tableLenderLoans').DataTable().ajax.reload();
+            loanTable.ajax.reload();
         });
+
+        let borrowerTable;
+        let borrowerCompanyId;
+
+        window.showBorrowers = function (companyId, companyName) {
+            borrowerCompanyId = companyId;
+            $('#borrowerCompanyName').text(companyName);
+            $('#modalBorrowers').modal('show');
+
+            if ($.fn.DataTable.isDataTable('#tableBorrowers')) {
+                borrowerTable.ajax.reload();
+                return;
+            }
+
+            borrowerTable = $('#tableBorrowers').DataTable({
+                processing: true,
+                serverSide: true,
+                responsive: true,
+                ajax: {
+                    url: '{{ route('admin.tomi-dana.lender.pinjaman.detail.table') }}',
+                    type: 'POST',
+                    data: function (data) {
+                        data._token = '{{ csrf_token() }}';
+                        data.company_id = borrowerCompanyId;
+                        data.lender_id = @json(request('lender_id'));
+                        data.start_month = $('#filterStartMonth').val();
+                        data.end_month = $('#filterEndMonth').val();
+                    }
+                },
+                columns: [
+                    { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
+                    { data: 'nama_karyawan', name: 'data_karyawan.nama_karyawan' },
+                    { data: 'nominal', name: 'nominal' },
+                    { data: 'tenor_label', name: 'tenor' },
+                    { data: 'status_label', name: 'status' },
+                    { data: 'tanggal_pengajuan', name: 'created_at' }
+                ],
+                order: [[5, 'desc']]
+            });
+        };
     });
 </script>
 @endpush
