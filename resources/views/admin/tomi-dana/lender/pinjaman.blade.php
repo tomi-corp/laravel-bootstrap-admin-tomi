@@ -55,7 +55,11 @@
             responsive: true,
             ajax: {
                 url: '{{ route('admin.tomi-dana.lender.pinjaman.table') }}',
-                data: { lender_id: @json(request('lender_id')) }
+                type: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    lender_id: @json(request('lender_id'))
+                }
             },
             columns: [
                 { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
