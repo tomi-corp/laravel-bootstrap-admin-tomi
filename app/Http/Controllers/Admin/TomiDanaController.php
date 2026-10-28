@@ -235,7 +235,21 @@ class TomiDanaController extends Controller
             'total_biaya_layanan' => $items->sum('biaya_layanan'),
         ];
 
-        $pdf = Pdf::loadView('admin.tomi-dana.lender.invoice-fee', compact('invoice', 'items', 'summary'))
+        $viewData = compact('invoice', 'items', 'summary');
+
+        if (! $request->boolean('download')) {
+            $viewData['downloadUrl'] = route('admin.tomi-dana.lender.pinjaman.invoice-fee', [
+                'month' => $request->input('month'),
+                'lender_id' => $request->input('lender_id'),
+                'download' => 1,
+            ]);
+            $viewData['isPdf'] = false;
+
+            return view('admin.tomi-dana.lender.invoice-fee', $viewData);
+        }
+
+        $viewData['isPdf'] = true;
+        $pdf = Pdf::loadView('admin.tomi-dana.lender.invoice-fee', $viewData)
             ->setPaper('a4', 'landscape');
 
         return $pdf->download('invoice-fee-tomidana-' . $month->format('Ym') . '.pdf');

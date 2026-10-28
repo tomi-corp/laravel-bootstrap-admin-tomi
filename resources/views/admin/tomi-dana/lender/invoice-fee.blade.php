@@ -21,12 +21,26 @@
         .summary td { border: 0; padding: 5px; }
         .total { font-size: 14px; font-weight: bold; color: #198754; }
         .note { margin-top: 22px; color: #666; font-size: 10px; }
+        .toolbar { margin: 0 auto 18px; max-width: 1120px; text-align: right; }
+        .toolbar a { display: inline-block; padding: 9px 14px; color: #fff; text-decoration: none; border-radius: 4px; margin-left: 6px; }
+        .download { background: #dc3545; }
+        .back { background: #6c757d; }
+        .invoice { max-width: 1120px; margin: 0 auto; }
+        @media print { .toolbar { display: none; } .invoice { max-width: none; } }
     </style>
 </head>
 <body>
+    @if (! $isPdf)
+        <div class="toolbar">
+            <a href="{{ route('admin.tomi-dana.lender.pinjaman', ['lender_id' => request('lender_id')]) }}" class="back">Kembali</a>
+            <a href="{{ $downloadUrl }}" class="download">Download PDF</a>
+        </div>
+    @endif
+
+    <div class="invoice">
     <div class="header clearfix">
         <div class="left">
-            <img src="{{ public_path('assets/images/logo.jpg') }}" class="logo" alt="Logo TOMI">
+            <img src="{{ $isPdf ? public_path('assets/images/logo.jpg') : asset('assets/images/logo.jpg') }}" class="logo" alt="Logo TOMI">
         </div>
         <div class="right">
             <h1>INVOICE FEE TOMIDANA</h1>
@@ -79,5 +93,6 @@
     </table>
 
     <div class="note">Dokumen ini dibuat secara otomatis oleh sistem TomiDana.</div>
+    </div>
 </body>
 </html>
