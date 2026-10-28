@@ -264,7 +264,24 @@ class TomiDanaController extends Controller
         $request->validate([
             'month' => 'required|date_format:Y-m',
             'lender_id' => 'nullable|integer|exists:lenders,id',
+            'fields' => 'sometimes|array',
+            'fields.*' => 'string',
         ]);
+
+        $fieldLabels = [
+            'rate' => 'Rate',
+            'asuransi' => 'Asuransi',
+            'provisi' => 'Provisi',
+            'biaya_admin' => 'Biaya Admin',
+            'fee_tomi' => 'Fee TOMI',
+            'biaya_layanan' => 'Biaya Layanan',
+            'referral_1' => 'Referral 1',
+            'referral_2' => 'Referral 2',
+            'ksp' => 'KSP',
+        ];
+        $selectedFields = $request->has('fields')
+            ? array_values(array_intersect($request->input('fields', []), array_keys($fieldLabels)))
+            : array_keys($fieldLabels);
 
         $month = Carbon::createFromFormat('Y-m', $request->input('month'));
         $loans = pinjaman::with(['data_karyawan', 'perusahaan', 'lender'])
