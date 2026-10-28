@@ -114,7 +114,7 @@
             },
             columns: [
                 { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
-                { data: 'perusahaan', name: 'nama' },
+                { data: 'perusahaan', name: 'perusahaan', orderable: false },
                 { data: 'bulan_label', name: 'bulan', searchable: false },
                 { data: 'total_pinjaman', name: 'total_pinjaman', searchable: false },
                 { data: 'total_nominal', name: 'total_nominal', searchable: false },
