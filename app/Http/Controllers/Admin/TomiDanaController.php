@@ -20,6 +20,7 @@ use App\Models\bank;
 use App\Models\pinjaman;
 use App\Models\provinsi;
 use App\Models\tenor_pinjaman;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -184,9 +185,60 @@ class TomiDanaController extends Controller
             ->addColumn('bulan_label', fn ($row) => Carbon::createFromFormat('Y-m', $row->bulan)->locale('id')->translatedFormat('F Y'))
             ->editColumn('total_pinjaman', fn ($row) => number_format((int) $row->total_pinjaman, 0, ',', '.'))
             ->addColumn('total_nominal', fn ($row) => 'Rp. ' . number_format((float) $row->total_nominal, 0, ',', '.'))
-            ->addColumn('action', fn ($row) => '<button type="button" class="btn btn-sm btn-info" onclick="showBorrowers(\'' . e($row->bulan) . '\')"><i class="mdi mdi-account-details"></i> Detail Peminjam</button>')
+            ->addColumn('action', function ($row) use ($request) {
+                $detailButton = '<button type="button" class="btn btn-sm btn-info mr-1" onclick="showBorrowers(\'' . e($row->bulan) . '\')"><i class="mdi mdi-account-details"></i> Detail Peminjam</button>';
+                $invoiceUrl = route('admin.tomi-dana.lender.pinjaman.invoice-fee', array_filter([
+                    'month' => $row->bulan,
+                    'lender_id' => $request->input('lender_id'),
+                ], fn ($value) => filled($value)));
+
+                return $detailButton . '<a href="' . e($invoiceUrl) . '" class="btn btn-sm btn-danger" title="Download invoice fee"><i class="mdi mdi-file-pdf-box"></i> Invoice Fee</a>';
+            })
             ->rawColumns(['action'])
             ->toJson();
+    }
+
+    public function downloadLenderLoanInvoiceFee(Request $request)
+    {
+        $request->validate([
+            'month' => 'required|date_format:Y-m',
+            'lender_id' => 'nullable|integer|exists:lenders,id',
+        ]);
+
+        $month = Carbon::createFromFormat('Y-m', $request->input('month'));
+        $loans = pinjaman::with(['data_karyawan', 'perusahaan', 'lender'])
+            ->where('status_otp', 'success')
+            ->whereBetween('created_at', [$month->copy()->startOfMonth(), $month->copy()->endOfMonth()])
+            ->when($request->filled('lender_id'), fn ($query) => $query->where('id_lender', $request->integer('lender_id')))
+            ->orderBy('created_at')
+            ->get();
+
+        $items = $loans->values()->map(function ($loan, $index) {
+            return [
+                'no' => $index + 1,
+                'tanggal_pengajuan' => optional($loan->created_at)->format('d/m/Y'),
+                'nama' => $loan->data_karyawan?->nama_karyawan ?? '-',
+                'perusahaan' => $loan->perusahaan?->nama ?? '-',
+                'jumlah_pinjaman' => (float) ($loan->nominal ?? 0),
+                'biaya_layanan' => (float) ($loan->biaya_layanan ?? 0),
+            ];
+        });
+
+        $invoice = (object) [
+            'nomor' => 'TD/' . $month->format('Ym') . '/' . ($request->input('lender_id') ?: 'ALL'),
+            'periode' => $month->locale('id')->translatedFormat('F Y'),
+            'lender' => $loans->first()?->lender?->nama ?? 'Seluruh Lender',
+        ];
+
+        $summary = [
+            'total_pinjaman' => $items->sum('jumlah_pinjaman'),
+            'total_biaya_layanan' => $items->sum('biaya_layanan'),
+        ];
+
+        $pdf = Pdf::loadView('admin.tomi-dana.lender.invoice-fee', compact('invoice', 'items', 'summary'))
+            ->setPaper('a4', 'landscape');
+
+        return $pdf->download('invoice-fee-tomidana-' . $month->format('Ym') . '.pdf');
     }
 
     public function lenderLoansDetailTable(Request $request)

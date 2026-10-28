@@ -143,6 +143,8 @@ Route::middleware(['AdminMiddleware'])->group(
                     ->name('admin.tomi-dana.lender');
                 Route::get('/tomi-dana/lender/pinjaman', [TomiDanaController::class, 'lenderLoans'])
                     ->name('admin.tomi-dana.lender.pinjaman');
+                Route::get('/tomi-dana/lender/pinjaman/invoice-fee', [TomiDanaController::class, 'downloadLenderLoanInvoiceFee'])
+                    ->name('admin.tomi-dana.lender.pinjaman.invoice-fee');
                 Route::post('/tomi-dana/lender/pinjaman/table', [TomiDanaController::class, 'lenderLoansTable'])
                     ->name('admin.tomi-dana.lender.pinjaman.table');
                 Route::post('/tomi-dana/lender/pinjaman/detail/table', [TomiDanaController::class, 'lenderLoansDetailTable'])
