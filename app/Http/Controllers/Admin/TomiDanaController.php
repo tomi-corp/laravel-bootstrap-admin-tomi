@@ -192,7 +192,7 @@ class TomiDanaController extends Controller
                     'lender_id' => $request->input('lender_id'),
                 ], fn ($value) => filled($value)));
 
-                return $detailButton . '<a href="' . e($invoiceUrl) . '" class="btn btn-sm btn-danger" title="Download invoice fee"><i class="mdi mdi-file-pdf-box"></i> Invoice Fee</a>';
+                return $detailButton . '<a href="' . e($invoiceUrl) . '" target="_blank" class="btn btn-sm btn-danger" title="Lihat invoice fee PDF"><i class="mdi mdi-file-pdf-box"></i> Invoice Fee</a>';
             })
             ->rawColumns(['action'])
             ->toJson();
@@ -235,22 +235,13 @@ class TomiDanaController extends Controller
             'total_biaya_layanan' => $items->sum('biaya_layanan'),
         ];
 
-        $viewData = compact('invoice', 'items', 'summary');
-
-        if (! $request->boolean('download')) {
-            $viewData['downloadUrl'] = route('admin.tomi-dana.lender.pinjaman.invoice-fee', [
-                'month' => $request->input('month'),
-                'lender_id' => $request->input('lender_id'),
-                'download' => 1,
-            ]);
-            $viewData['isPdf'] = false;
-
-            return view('admin.tomi-dana.lender.invoice-fee', $viewData);
-        }
-
-        $viewData['isPdf'] = true;
+        $viewData = compact('invoice', 'items', 'summary') + ['isPdf' => true];
         $pdf = Pdf::loadView('admin.tomi-dana.lender.invoice-fee', $viewData)
             ->setPaper('a4', 'landscape');
+
+        if (! $request->boolean('download')) {
+            return $pdf->stream('invoice-fee-tomidana-' . $month->format('Ym') . '.pdf');
+        }
 
         return $pdf->download('invoice-fee-tomidana-' . $month->format('Ym') . '.pdf');
     }
