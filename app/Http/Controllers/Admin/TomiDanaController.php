@@ -161,12 +161,7 @@ class TomiDanaController extends Controller
         $lender = $request->filled('lender_id')
             ? lender::find($request->integer('lender_id'))
             : null;
-        $perusahaans = ListPerusahaan::query()
-            ->select('id', 'nama')
-            ->orderBy('nama')
-            ->get();
-
-        return view('admin.tomi-dana.lender.pinjaman', compact('lender', 'perusahaans'));
+        return view('admin.tomi-dana.lender.pinjaman', compact('lender'));
     }
 
     public function lenderLoansTable(Request $request)
@@ -174,41 +169,36 @@ class TomiDanaController extends Controller
         $monthExpression = "DATE_FORMAT(created_at, '%Y-%m')";
         $query = pinjaman::query()
             ->select([
-                'id_perusahaan',
                 DB::raw("{$monthExpression} as bulan"),
                 DB::raw('COUNT(*) as total_pinjaman'),
                 DB::raw('SUM(nominal) as total_nominal'),
-            ])
-            ->with('perusahaan')
-            ->when($request->filled('company_id'), fn ($query) => $query->where('id_perusahaan', $request->integer('company_id')));
+            ]);
 
         $this->filterLenderLoans($query, $request);
 
-        $query->groupBy('id_perusahaan', DB::raw($monthExpression))
-            ->orderByDesc('bulan')
-            ->orderBy('id_perusahaan');
+        $query->groupBy(DB::raw($monthExpression))
+            ->orderByDesc('bulan');
 
         return DataTables::eloquent($query)
             ->addIndexColumn()
-            ->addColumn('perusahaan', fn ($row) => strtoupper($row->perusahaan?->nama ?? '-'))
             ->addColumn('bulan_label', fn ($row) => Carbon::createFromFormat('Y-m', $row->bulan)->locale('id')->translatedFormat('F Y'))
             ->editColumn('total_pinjaman', fn ($row) => number_format((int) $row->total_pinjaman, 0, ',', '.'))
             ->addColumn('total_nominal', fn ($row) => 'Rp. ' . number_format((float) $row->total_nominal, 0, ',', '.'))
-            ->addColumn('action', fn ($row) => '<button type="button" class="btn btn-sm btn-info" onclick="showBorrowers(' . $row->id_perusahaan . ', \'' . e(addslashes(strtoupper($row->perusahaan?->nama ?? '-'))) . '\', \'' . e($row->bulan) . '\')"><i class="mdi mdi-account-details"></i> Detail Peminjam</button>')
+            ->addColumn('action', fn ($row) => '<button type="button" class="btn btn-sm btn-info" onclick="showBorrowers(\'' . e($row->bulan) . '\')"><i class="mdi mdi-account-details"></i> Detail Peminjam</button>')
             ->rawColumns(['action'])
             ->toJson();
     }
 
     public function lenderLoansDetailTable(Request $request)
     {
-        $query = pinjaman::with(['data_karyawan', 'perusahaan', 'lender'])
-            ->where('id_perusahaan', $request->integer('company_id'));
+        $query = pinjaman::with(['data_karyawan', 'perusahaan', 'lender']);
 
         $this->filterLenderLoans($query, $request);
 
         return DataTables::eloquent($query->latest())
             ->addIndexColumn()
             ->addColumn('nama_karyawan', fn ($row) => strtoupper($row->data_karyawan?->nama_karyawan ?? '-'))
+            ->addColumn('perusahaan', fn ($row) => strtoupper($row->perusahaan?->nama ?? '-'))
             ->addColumn('nominal', fn ($row) => 'Rp. ' . number_format((float) $row->nominal, 0, ',', '.'))
             ->addColumn('tenor_label', fn ($row) => ($row->tenor ?? 0) . ' bulan')
             ->addColumn('status_label', fn ($row) => '<span class="badge badge-secondary">' . e(strtoupper((string) ($row->status ?? '-'))) . '</span>')

@@ -23,27 +23,18 @@
         <a href="{{ route('admin.tomi-dana.lender') }}" class="btn btn-sm btn-secondary float-right mb-3">
             <i class="mdi mdi-arrow-left"></i> Kembali ke Lender
         </a>
-        <h4 class="header-title">Daftar Perusahaan</h4>
-        <p class="text-muted">Tampilkan pinjaman berdasarkan perusahaan dan bulan pengajuan.</p>
+        <h4 class="header-title">Daftar Periode Pinjaman</h4>
+        <p class="text-muted">Tampilkan ringkasan pinjaman berdasarkan periode pengajuan.</p>
         <div class="row mb-3">
-            <div class="col-md-5">
-                <label for="filterCompany">Perusahaan</label>
-                <select id="filterCompany" class="form-control">
-                    <option value="">Semua Perusahaan</option>
-                    @foreach ($perusahaans as $perusahaan)
-                        <option value="{{ $perusahaan->id }}">{{ strtoupper($perusahaan->nama) }}</option>
-                    @endforeach
-                </select>
-            </div>
-            <div class="col-md-3">
+            <div class="col-md-4">
                 <label for="filterStartMonth">Bulan Awal</label>
                 <input type="month" id="filterStartMonth" class="form-control">
             </div>
-            <div class="col-md-3">
+            <div class="col-md-4">
                 <label for="filterEndMonth">Bulan Akhir</label>
                 <input type="month" id="filterEndMonth" class="form-control">
             </div>
-            <div class="col-md-3 d-flex align-items-end">
+            <div class="col-md-4 d-flex align-items-end">
                 <button type="button" id="resetLoanFilter" class="btn btn-secondary">
                     <i class="mdi mdi-refresh"></i> Reset Filter
                 </button>
@@ -54,8 +45,7 @@
                 <thead>
                     <tr>
                         <th>No</th>
-                        <th>Perusahaan</th>
-                        <th>Bulan</th>
+                        <th>Periode</th>
                         <th>Jumlah Pinjaman</th>
                         <th>Total Nominal</th>
                         <th>Aksi</th>
@@ -80,6 +70,7 @@
                             <tr>
                                 <th>No</th>
                                 <th>Nama Peminjam</th>
+                                <th>Perusahaan</th>
                                 <th>Nominal</th>
                                 <th>Tenor</th>
                                 <th>Status</th>
@@ -105,7 +96,6 @@
                 url: '{{ route('admin.tomi-dana.lender.pinjaman.table') }}',
                 type: 'POST',
                 data: function (data) {
-                    data.company_id = $('#filterCompany').val();
                     data.start_month = $('#filterStartMonth').val();
                     data.end_month = $('#filterEndMonth').val();
                     data._token = '{{ csrf_token() }}';
@@ -114,7 +104,6 @@
             },
             columns: [
                 { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
-                { data: 'perusahaan', name: 'perusahaan', orderable: false },
                 { data: 'bulan_label', name: 'bulan', searchable: false },
                 { data: 'total_pinjaman', name: 'total_pinjaman', searchable: false },
                 { data: 'total_nominal', name: 'total_nominal', searchable: false },
@@ -123,24 +112,21 @@
             order: [[1, 'asc']]
         });
 
-        $('#filterCompany, #filterStartMonth, #filterEndMonth').on('change', function () {
+        $('#filterStartMonth, #filterEndMonth').on('change', function () {
             loanTable.ajax.reload();
         });
 
         $('#resetLoanFilter').on('click', function () {
-            $('#filterCompany').val('');
             $('#filterStartMonth, #filterEndMonth').val('');
             loanTable.ajax.reload();
         });
 
         let borrowerTable;
-        let borrowerCompanyId;
         let borrowerMonth;
 
-        window.showBorrowers = function (companyId, companyName, month) {
-            borrowerCompanyId = companyId;
+        window.showBorrowers = function (month) {
             borrowerMonth = month;
-            $('#borrowerCompanyName').text(companyName + ' - ' + month);
+            $('#borrowerCompanyName').text(month);
             $('#modalBorrowers').modal('show');
 
             if ($.fn.DataTable.isDataTable('#tableBorrowers')) {
@@ -157,7 +143,6 @@
                     type: 'POST',
                     data: function (data) {
                         data._token = '{{ csrf_token() }}';
-                        data.company_id = borrowerCompanyId;
                         data.lender_id = @json(request('lender_id'));
                         data.start_month = borrowerMonth;
                         data.end_month = borrowerMonth;
@@ -166,12 +151,13 @@
                 columns: [
                     { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
                     { data: 'nama_karyawan', name: 'data_karyawan.nama_karyawan' },
+                    { data: 'perusahaan', name: 'perusahaan.nama' },
                     { data: 'nominal', name: 'nominal' },
                     { data: 'tenor_label', name: 'tenor' },
                     { data: 'status_label', name: 'status' },
                     { data: 'tanggal_pengajuan', name: 'created_at' }
                 ],
-                order: [[5, 'desc']]
+                order: [[6, 'desc']]
             });
         };
     });
