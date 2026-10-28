@@ -174,10 +174,21 @@ class TomiDanaController extends Controller
             pinjaman::with(['data_karyawan', 'perusahaan', 'lender'])
                 ->when($request->filled('lender_id'), fn ($query) => $query->where('id_lender', $request->integer('lender_id')))
                 ->when($request->filled('company_id'), fn ($query) => $query->where('id_perusahaan', $request->integer('company_id')))
-                ->when($request->filled('month'), function ($query) use ($request) {
-                    $month = Carbon::createFromFormat('Y-m', $request->input('month'));
+                ->when($request->filled('start_month') || $request->filled('end_month'), function ($query) use ($request) {
+                    $startDate = $request->filled('start_month')
+                        ? Carbon::createFromFormat('Y-m', $request->input('start_month'))->startOfMonth()
+                        : null;
+                    $endDate = $request->filled('end_month')
+                        ? Carbon::createFromFormat('Y-m', $request->input('end_month'))->endOfMonth()
+                        : null;
 
-                    $query->whereBetween('created_at', [$month->copy()->startOfMonth(), $month->copy()->endOfMonth()]);
+                    if ($startDate && $endDate) {
+                        $query->whereBetween('created_at', [$startDate, $endDate]);
+                    } elseif ($startDate) {
+                        $query->where('created_at', '>=', $startDate);
+                    } elseif ($endDate) {
+                        $query->where('created_at', '<=', $endDate);
+                    }
                 })
                 ->latest()
         )

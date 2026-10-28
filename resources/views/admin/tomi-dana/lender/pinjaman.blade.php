@@ -35,9 +35,13 @@
                     @endforeach
                 </select>
             </div>
-            <div class="col-md-4">
-                <label for="filterMonth">Bulan Pengajuan</label>
-                <input type="month" id="filterMonth" class="form-control">
+            <div class="col-md-3">
+                <label for="filterStartMonth">Bulan Awal</label>
+                <input type="month" id="filterStartMonth" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label for="filterEndMonth">Bulan Akhir</label>
+                <input type="month" id="filterEndMonth" class="form-control">
             </div>
             <div class="col-md-3 d-flex align-items-end">
                 <button type="button" id="resetLoanFilter" class="btn btn-secondary">
@@ -78,7 +82,8 @@
                 type: 'POST',
                 data: function (data) {
                     data.company_id = $('#filterCompany').val();
-                    data.month = $('#filterMonth').val();
+                    data.start_month = $('#filterStartMonth').val();
+                    data.end_month = $('#filterEndMonth').val();
                     data._token = '{{ csrf_token() }}';
                     data.lender_id = @json(request('lender_id'));
                 }
@@ -97,13 +102,13 @@
             order: [[8, 'desc']]
         });
 
-        $('#filterCompany, #filterMonth').on('change', function () {
+        $('#filterCompany, #filterStartMonth, #filterEndMonth').on('change', function () {
             $('#tableLenderLoans').DataTable().ajax.reload();
         });
 
         $('#resetLoanFilter').on('click', function () {
             $('#filterCompany').val('');
-            $('#filterMonth').val('');
+            $('#filterStartMonth, #filterEndMonth').val('');
             $('#tableLenderLoans').DataTable().ajax.reload();
         });
     });
