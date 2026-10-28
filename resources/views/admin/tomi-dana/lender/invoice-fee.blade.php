@@ -83,19 +83,23 @@
                 <tr><td colspan="{{ 5 + count($selectedFields) }}" style="text-align:center;">Tidak ada data pinjaman pada periode ini.</td></tr>
             @endforelse
         </tbody>
+        @if (count($selectedFields) > 0)
+            <tfoot>
+                <tr class="total">
+                    <td colspan="5">Total Komponen Fee</td>
+                    @foreach ($selectedFields as $field)
+                        <td class="number">Rp. {{ number_format($fieldTotals[$field] ?? 0, 0, ',', '.') }}</td>
+                    @endforeach
+                </tr>
+            </tfoot>
+        @endif
     </table>
 
     <table class="summary">
-        <tr>
+        <tr class="total">
             <td>Total Pinjaman</td>
             <td class="number">Rp. {{ number_format($summary['total_pinjaman'], 0, ',', '.') }}</td>
         </tr>
-        @foreach ($selectedFields as $field)
-            <tr class="total">
-                <td>Total {{ $fieldLabels[$field] }}</td>
-                <td class="number">Rp. {{ number_format($fieldTotals[$field] ?? 0, 0, ',', '.') }}</td>
-            </tr>
-        @endforeach
     </table>
 
     <div class="note">Dokumen ini dibuat secara otomatis oleh sistem TomiDana.</div>
