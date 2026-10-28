@@ -73,8 +73,8 @@
                     <td>{{ $item['tanggal_pengajuan'] }}</td>
                     <td>
                         <strong>{{ strtoupper($item['nama']) }}</strong><br>
-                        <small>Perusahaan: {{ strtoupper($item['perusahaan']) }}</small><br>
-                        <small>NIP: {{ $item['nip'] }}</small>
+                        <small>{{ strtoupper($item['perusahaan']) }}</small><br>
+                        <small>{{ $item['nip'] }}</small>
                     </td>
                     <td class="number">Rp. {{ number_format($item['jumlah_pinjaman'], 0, ',', '.') }}</td>
                     @foreach ($selectedFields as $field)
