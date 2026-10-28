@@ -22,6 +22,7 @@ use App\Models\provinsi;
 use App\Models\tenor_pinjaman;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -170,19 +171,30 @@ class TomiDanaController extends Controller
 
     public function lenderLoansTable(Request $request)
     {
-        $query = ListPerusahaan::query()
-            ->when($request->filled('company_id'), fn ($query) => $query->whereKey($request->integer('company_id')))
-            ->whereHas('pinjaman', fn ($query) => $this->filterLenderLoans($query, $request))
-            ->withCount(['pinjaman as total_pinjaman' => fn ($query) => $this->filterLenderLoans($query, $request)])
-            ->withSum(['pinjaman as total_nominal' => fn ($query) => $this->filterLenderLoans($query, $request)], 'nominal')
-            ->orderBy('nama');
+        $monthExpression = "DATE_FORMAT(created_at, '%Y-%m')";
+        $query = pinjaman::query()
+            ->select([
+                'id_perusahaan',
+                DB::raw("{$monthExpression} as bulan"),
+                DB::raw('COUNT(*) as total_pinjaman'),
+                DB::raw('SUM(nominal) as total_nominal'),
+            ])
+            ->with('perusahaan')
+            ->when($request->filled('company_id'), fn ($query) => $query->where('id_perusahaan', $request->integer('company_id')));
+
+        $this->filterLenderLoans($query, $request);
+
+        $query->groupBy('id_perusahaan', DB::raw($monthExpression))
+            ->orderByDesc('bulan')
+            ->orderBy('id_perusahaan');
 
         return DataTables::eloquent($query)
             ->addIndexColumn()
-            ->addColumn('perusahaan', fn ($row) => strtoupper($row->nama ?? '-'))
-            ->addColumn('total_pinjaman', fn ($row) => number_format((int) $row->total_pinjaman, 0, ',', '.'))
+            ->addColumn('perusahaan', fn ($row) => strtoupper($row->perusahaan?->nama ?? '-'))
+            ->addColumn('bulan_label', fn ($row) => Carbon::createFromFormat('Y-m', $row->bulan)->locale('id')->translatedFormat('F Y'))
+            ->editColumn('total_pinjaman', fn ($row) => number_format((int) $row->total_pinjaman, 0, ',', '.'))
             ->addColumn('total_nominal', fn ($row) => 'Rp. ' . number_format((float) $row->total_nominal, 0, ',', '.'))
-            ->addColumn('action', fn ($row) => '<button type="button" class="btn btn-sm btn-info" onclick="showBorrowers(' . $row->id . ', \'' . e(addslashes(strtoupper($row->nama))) . '\')"><i class="mdi mdi-account-details"></i> Detail Peminjam</button>')
+            ->addColumn('action', fn ($row) => '<button type="button" class="btn btn-sm btn-info" onclick="showBorrowers(' . $row->id_perusahaan . ', \'' . e(addslashes(strtoupper($row->perusahaan?->nama ?? '-'))) . '\', \'' . e($row->bulan) . '\')"><i class="mdi mdi-account-details"></i> Detail Peminjam</button>')
             ->rawColumns(['action'])
             ->toJson();
     }

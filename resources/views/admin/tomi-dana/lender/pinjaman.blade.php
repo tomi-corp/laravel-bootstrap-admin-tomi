@@ -55,6 +55,7 @@
                     <tr>
                         <th>No</th>
                         <th>Perusahaan</th>
+                        <th>Bulan</th>
                         <th>Jumlah Pinjaman</th>
                         <th>Total Nominal</th>
                         <th>Aksi</th>
@@ -114,6 +115,7 @@
             columns: [
                 { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
                 { data: 'perusahaan', name: 'nama' },
+                { data: 'bulan_label', name: 'bulan', searchable: false },
                 { data: 'total_pinjaman', name: 'total_pinjaman', searchable: false },
                 { data: 'total_nominal', name: 'total_nominal', searchable: false },
                 { data: 'action', name: 'action', orderable: false, searchable: false }
@@ -133,10 +135,12 @@
 
         let borrowerTable;
         let borrowerCompanyId;
+        let borrowerMonth;
 
-        window.showBorrowers = function (companyId, companyName) {
+        window.showBorrowers = function (companyId, companyName, month) {
             borrowerCompanyId = companyId;
-            $('#borrowerCompanyName').text(companyName);
+            borrowerMonth = month;
+            $('#borrowerCompanyName').text(companyName + ' - ' + month);
             $('#modalBorrowers').modal('show');
 
             if ($.fn.DataTable.isDataTable('#tableBorrowers')) {
@@ -155,8 +159,8 @@
                         data._token = '{{ csrf_token() }}';
                         data.company_id = borrowerCompanyId;
                         data.lender_id = @json(request('lender_id'));
-                        data.start_month = $('#filterStartMonth').val();
-                        data.end_month = $('#filterEndMonth').val();
+                        data.start_month = borrowerMonth;
+                        data.end_month = borrowerMonth;
                     }
                 },
                 columns: [
