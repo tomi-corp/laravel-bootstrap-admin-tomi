@@ -155,6 +155,33 @@ class TomiDanaController extends Controller
             ->toJson();
     }
 
+    public function lenderLoans()
+    {
+        return view('admin.tomi-dana.lender.pinjaman');
+    }
+
+    public function lenderLoansTable()
+    {
+        return DataTables::eloquent(
+            pinjaman::with(['data_karyawan', 'perusahaan', 'lender'])->latest()
+        )
+            ->addIndexColumn()
+            ->addColumn('id_pinjaman', fn ($row) => $row->id)
+            ->addColumn('nama_karyawan', fn ($row) => strtoupper($row->data_karyawan?->nama_karyawan ?? '-'))
+            ->addColumn('perusahaan', fn ($row) => strtoupper($row->perusahaan?->nama ?? '-'))
+            ->addColumn('lender', fn ($row) => strtoupper($row->lender?->nama ?? '-'))
+            ->addColumn('nominal', fn ($row) => 'Rp. ' . number_format((float) $row->nominal, 0, ',', '.'))
+            ->addColumn('tenor_label', fn ($row) => ($row->tenor ?? 0) . ' bulan')
+            ->addColumn('status_label', function ($row) {
+                $status = strtoupper((string) ($row->status ?? '-'));
+
+                return '<span class="badge badge-secondary">' . e($status) . '</span>';
+            })
+            ->addColumn('tanggal_pengajuan', fn ($row) => optional($row->created_at)->format('d/m/Y H:i') ?? '-')
+            ->rawColumns(['status_label'])
+            ->toJson();
+    }
+
     public function storeLender(Request $request)
     {
         $data = $request->validate([
