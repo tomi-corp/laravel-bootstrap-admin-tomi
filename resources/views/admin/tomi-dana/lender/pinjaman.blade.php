@@ -13,7 +13,7 @@
                     <li class="breadcrumb-item active">Seluruh Pinjaman</li>
                 </ol>
             </div>
-            <h4 class="page-title">Seluruh Pinjaman TomiDana</h4>
+            <h4 class="page-title">{{ $lender ? 'Pinjaman Lender ' . strtoupper($lender->nama) : 'Seluruh Pinjaman TomiDana' }}</h4>
         </div>
     </div>
 </div>
@@ -24,7 +24,7 @@
             <i class="mdi mdi-arrow-left"></i> Kembali ke Lender
         </a>
         <h4 class="header-title">Daftar Seluruh Pinjaman</h4>
-        <p class="text-muted">Menampilkan seluruh pinjaman yang tercatat pada TomiDana.</p>
+        <p class="text-muted">{{ $lender ? 'Menampilkan seluruh pinjaman lender yang dipilih.' : 'Menampilkan seluruh pinjaman yang tercatat pada TomiDana.' }}</p>
         <div class="table-responsive">
             <table id="tableLenderLoans" class="table table-hover table-striped text-center" style="width:100%">
                 <thead>
@@ -53,7 +53,10 @@
             processing: true,
             serverSide: true,
             responsive: true,
-            ajax: '{{ route('admin.tomi-dana.lender.pinjaman.table') }}',
+            ajax: {
+                url: '{{ route('admin.tomi-dana.lender.pinjaman.table') }}',
+                data: { lender_id: @json(request('lender_id')) }
+            },
             columns: [
                 { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
                 { data: 'id_pinjaman', name: 'id' },

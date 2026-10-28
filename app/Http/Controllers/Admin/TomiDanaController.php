@@ -150,20 +150,26 @@ class TomiDanaController extends Controller
                     ? '<span class="badge badge-success">ACTIVE</span>'
                     : '<span class="badge badge-warning">INACTIVE</span>';
             })
-            ->addColumn('action', fn ($row) => '<button type="button" class="btn btn-sm btn-primary mr-1" onclick="editLender(' . $row->id . ')"><i class="mdi mdi-pencil"></i></button><button type="button" class="btn btn-sm btn-danger" onclick="deleteLender(' . $row->id . ')"><i class="mdi mdi-trash-can"></i></button>')
+            ->addColumn('action', fn ($row) => '<a href="' . route('admin.tomi-dana.lender.pinjaman', ['lender_id' => $row->id]) . '" class="btn btn-sm btn-info mr-1" title="Lihat pinjaman"><i class="mdi mdi-format-list-bulleted"></i></a><button type="button" class="btn btn-sm btn-primary mr-1" onclick="editLender(' . $row->id . ')"><i class="mdi mdi-pencil"></i></button><button type="button" class="btn btn-sm btn-danger" onclick="deleteLender(' . $row->id . ')"><i class="mdi mdi-trash-can"></i></button>')
             ->rawColumns(['status_label', 'action'])
             ->toJson();
     }
 
-    public function lenderLoans()
+    public function lenderLoans(Request $request)
     {
-        return view('admin.tomi-dana.lender.pinjaman');
+        $lender = $request->filled('lender_id')
+            ? lender::find($request->integer('lender_id'))
+            : null;
+
+        return view('admin.tomi-dana.lender.pinjaman', compact('lender'));
     }
 
-    public function lenderLoansTable()
+    public function lenderLoansTable(Request $request)
     {
         return DataTables::eloquent(
-            pinjaman::with(['data_karyawan', 'perusahaan', 'lender'])->latest()
+            pinjaman::with(['data_karyawan', 'perusahaan', 'lender'])
+                ->when($request->filled('lender_id'), fn ($query) => $query->where('id_lender', $request->integer('lender_id')))
+                ->latest()
         )
             ->addIndexColumn()
             ->addColumn('id_pinjaman', fn ($row) => $row->id)

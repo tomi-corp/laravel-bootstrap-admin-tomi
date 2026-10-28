@@ -19,9 +19,6 @@
 
 <div class="card">
     <div class="card-body">
-        <a href="{{ route('admin.tomi-dana.lender.pinjaman') }}" class="btn btn-sm btn-info float-right mb-3 ml-2">
-            <i class="mdi mdi-format-list-bulleted"></i> Seluruh Pinjaman
-        </a>
         <button type="button" class="btn btn-sm btn-primary float-right mb-3" data-toggle="modal" data-target="#modalLender">
             <i class="mdi mdi-plus-circle"></i> Tambah Lender
         </button>
