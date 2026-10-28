@@ -297,6 +297,7 @@ class TomiDanaController extends Controller
                 'tanggal_pengajuan' => optional($loan->created_at)->format('d/m/Y'),
                 'nama' => $loan->data_karyawan?->nama_karyawan ?? '-',
                 'perusahaan' => $loan->perusahaan?->nama ?? '-',
+                'nip' => $loan->data_karyawan?->nip ?? '-',
                 'jumlah_pinjaman' => (float) ($loan->nominal ?? 0),
                 'biaya_layanan' => (float) ($loan->biaya_layanan ?? 0),
                 'fee_components' => [

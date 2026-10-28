@@ -60,7 +60,6 @@
                 <th width="35">No.</th>
                 <th>Tanggal Pengajuan</th>
                 <th>Nama Peminjam</th>
-                <th>Perusahaan</th>
                 <th class="number">Jumlah Pinjaman</th>
                 @foreach ($selectedFields as $field)
                     <th class="number">{{ $fieldLabels[$field] }}</th>
@@ -72,21 +71,24 @@
                 <tr>
                     <td>{{ $item['no'] }}</td>
                     <td>{{ $item['tanggal_pengajuan'] }}</td>
-                    <td>{{ strtoupper($item['nama']) }}</td>
-                    <td>{{ strtoupper($item['perusahaan']) }}</td>
+                    <td>
+                        <strong>{{ strtoupper($item['nama']) }}</strong><br>
+                        <small>Perusahaan: {{ strtoupper($item['perusahaan']) }}</small><br>
+                        <small>NIP: {{ $item['nip'] }}</small>
+                    </td>
                     <td class="number">Rp. {{ number_format($item['jumlah_pinjaman'], 0, ',', '.') }}</td>
                     @foreach ($selectedFields as $field)
                         <td class="number">Rp. {{ number_format($item['fee_components'][$field] ?? 0, 0, ',', '.') }}</td>
                     @endforeach
                 </tr>
             @empty
-                <tr><td colspan="{{ 5 + count($selectedFields) }}" style="text-align:center;">Tidak ada data pinjaman pada periode ini.</td></tr>
+                <tr><td colspan="{{ 4 + count($selectedFields) }}" style="text-align:center;">Tidak ada data pinjaman pada periode ini.</td></tr>
             @endforelse
         </tbody>
         @if (count($selectedFields) > 0)
             <tfoot>
                 <tr class="total">
-                    <td colspan="5">Total Komponen Fee</td>
+                    <td colspan="4">Total Komponen Fee</td>
                     @foreach ($selectedFields as $field)
                         <td class="number">Rp. {{ number_format($fieldTotals[$field] ?? 0, 0, ',', '.') }}</td>
                     @endforeach
