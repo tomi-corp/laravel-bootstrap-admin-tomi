@@ -160,8 +160,12 @@ class TomiDanaController extends Controller
         $lender = $request->filled('lender_id')
             ? lender::find($request->integer('lender_id'))
             : null;
+        $perusahaans = ListPerusahaan::query()
+            ->select('id', 'nama')
+            ->orderBy('nama')
+            ->get();
 
-        return view('admin.tomi-dana.lender.pinjaman', compact('lender'));
+        return view('admin.tomi-dana.lender.pinjaman', compact('lender', 'perusahaans'));
     }
 
     public function lenderLoansTable(Request $request)
@@ -169,6 +173,12 @@ class TomiDanaController extends Controller
         return DataTables::eloquent(
             pinjaman::with(['data_karyawan', 'perusahaan', 'lender'])
                 ->when($request->filled('lender_id'), fn ($query) => $query->where('id_lender', $request->integer('lender_id')))
+                ->when($request->filled('company_id'), fn ($query) => $query->where('id_perusahaan', $request->integer('company_id')))
+                ->when($request->filled('month'), function ($query) use ($request) {
+                    $month = Carbon::createFromFormat('Y-m', $request->input('month'));
+
+                    $query->whereBetween('created_at', [$month->copy()->startOfMonth(), $month->copy()->endOfMonth()]);
+                })
                 ->latest()
         )
             ->addIndexColumn()

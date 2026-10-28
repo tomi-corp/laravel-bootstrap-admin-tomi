@@ -13,7 +13,7 @@
                     <li class="breadcrumb-item active">Seluruh Pinjaman</li>
                 </ol>
             </div>
-            <h4 class="page-title">{{ $lender ? 'Pinjaman Lender ' . strtoupper($lender->nama) : 'Seluruh Pinjaman TomiDana' }}</h4>
+            <h4 class="page-title">{{ $lender ? 'Pinjaman Lender ' . strtoupper($lender->nama) : 'Pinjaman TomiDana' }}</h4>
         </div>
     </div>
 </div>
@@ -24,7 +24,27 @@
             <i class="mdi mdi-arrow-left"></i> Kembali ke Lender
         </a>
         <h4 class="header-title">Daftar Seluruh Pinjaman</h4>
-        <p class="text-muted">{{ $lender ? 'Menampilkan seluruh pinjaman lender yang dipilih.' : 'Menampilkan seluruh pinjaman yang tercatat pada TomiDana.' }}</p>
+        <p class="text-muted">Tampilkan pinjaman berdasarkan perusahaan dan bulan pengajuan.</p>
+        <div class="row mb-3">
+            <div class="col-md-5">
+                <label for="filterCompany">Perusahaan</label>
+                <select id="filterCompany" class="form-control">
+                    <option value="">Semua Perusahaan</option>
+                    @foreach ($perusahaans as $perusahaan)
+                        <option value="{{ $perusahaan->id }}">{{ strtoupper($perusahaan->nama) }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="filterMonth">Bulan Pengajuan</label>
+                <input type="month" id="filterMonth" class="form-control">
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+                <button type="button" id="resetLoanFilter" class="btn btn-secondary">
+                    <i class="mdi mdi-refresh"></i> Reset Filter
+                </button>
+            </div>
+        </div>
         <div class="table-responsive">
             <table id="tableLenderLoans" class="table table-hover table-striped text-center" style="width:100%">
                 <thead>
@@ -56,9 +76,11 @@
             ajax: {
                 url: '{{ route('admin.tomi-dana.lender.pinjaman.table') }}',
                 type: 'POST',
-                data: {
-                    _token: '{{ csrf_token() }}',
-                    lender_id: @json(request('lender_id'))
+                data: function (data) {
+                    data.company_id = $('#filterCompany').val();
+                    data.month = $('#filterMonth').val();
+                    data._token = '{{ csrf_token() }}';
+                    data.lender_id = @json(request('lender_id'));
                 }
             },
             columns: [
@@ -73,6 +95,16 @@
                 { data: 'tanggal_pengajuan', name: 'created_at' }
             ],
             order: [[8, 'desc']]
+        });
+
+        $('#filterCompany, #filterMonth').on('change', function () {
+            $('#tableLenderLoans').DataTable().ajax.reload();
+        });
+
+        $('#resetLoanFilter').on('click', function () {
+            $('#filterCompany').val('');
+            $('#filterMonth').val('');
+            $('#tableLenderLoans').DataTable().ajax.reload();
         });
     });
 </script>
