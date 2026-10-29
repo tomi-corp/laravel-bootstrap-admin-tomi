@@ -17,9 +17,11 @@
         th { background: #f1f3f5; text-transform: uppercase; }
         th, td { border: 1px solid #cfd4da; padding: 7px; }
         .number { text-align: right; }
-        .summary { display: none; }
+        .summary { margin-top: 18px; margin-left: auto; width: 320px; }
+        .summary tr, .summary td { border: 0; }
+        .summary td { padding: 2px 7px 2px 0; }
         .payment-summary { margin-top: 18px; }
-        .payment-info { float: left; width: 100%; line-height: 1.6; }
+        .payment-info { float: left; width: calc(100% - 340px); line-height: 1.6; }
         .payment-info .payment-title { margin-bottom: 4px; font-weight: bold; }
         .bank-details { display: table; margin-top: 6px; }
         .bank-details tr, .bank-details td { border: 0; }
