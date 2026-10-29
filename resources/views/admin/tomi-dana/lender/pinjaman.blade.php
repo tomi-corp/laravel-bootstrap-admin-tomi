@@ -216,6 +216,7 @@
             }
 
             const invoiceUrl = new URL($(this).attr('href'), window.location.origin);
+            invoiceUrl.searchParams.delete('fields[]');
             $('.invoice-fee-field:checked').each(function () {
                 invoiceUrl.searchParams.append('fields[]', $(this).val());
             });
