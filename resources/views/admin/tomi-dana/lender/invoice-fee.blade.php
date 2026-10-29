@@ -17,6 +17,7 @@
         th { background: #f1f3f5; text-transform: uppercase; text-align: center; }
         th, td { border: 1px solid #cfd4da; padding: 7px; }
         .number { text-align: right; }
+        th.number { text-align: center; }
         .summary { margin-top: 18px; margin-left: auto; width: 320px; }
         .summary tr, .summary td { border: 0; }
         .summary td { padding: 2px 7px 2px 0; }
