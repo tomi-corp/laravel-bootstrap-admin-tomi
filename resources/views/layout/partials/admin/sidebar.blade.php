@@ -70,8 +70,84 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                 </li>
                 @endif
 
+                @if ($isLenderAccount)
+                <li>
+                    <a href="javascript: void(0);">
+                        <i class="dripicons-network-3"></i>
+                        <span>TomiDana</span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <ul class="nav-second-level nav" aria-expanded="false">
+                        <li><a href="{{ route('admin.tomi-dana.companies') }}">Perusahaan</a></li>
+                        <li><a href="{{ route('admin.tomi-dana.lender') }}">Pemberi Pinjaman</a></li>
+                        <li><a href="{{ route('admin.tomi-dana.disbursements') }}">Pencairan</a></li>
+                        <li><a href="{{ route('admin.tomi-dana.repayments') }}">Pembayaran Angsuran</a></li>
+                        <li><a href="{{ route('admin.tomi-dana.configurations') }}">Konfigurasi</a></li>
+                    </ul>
+                </li>
+
+                <li>
+                    <a href="javascript: void(0);">
+                        <i class="dripicons-network-3"></i>
+                        <span>TomiDana Plus</span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <ul class="nav-second-level nav" aria-expanded="false">
+                        <li><a href="javascript: void(0);" onclick="alert('Menu Perusahaan TomiDana Plus sedang dalam pengembangan.')">Perusahaan</a></li>
+                        <li><a href="javascript: void(0);" onclick="alert('Menu Pemberi Pinjaman TomiDana Plus sedang dalam pengembangan.')">Pemberi Pinjaman</a></li>
+                        <li><a href="javascript: void(0);" onclick="alert('Menu Pencairan TomiDana Plus sedang dalam pengembangan.')">Pencairan</a></li>
+                        <li><a href="javascript: void(0);" onclick="alert('Menu Pembayaran Angsuran TomiDana Plus sedang dalam pengembangan.')">Pembayaran Angsuran</a></li>
+                        <li><a href="javascript: void(0);" onclick="alert('Menu Konfigurasi TomiDana Plus sedang dalam pengembangan.')">Konfigurasi</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="javascript: void(0);">
+                        <i class="dripicons-device-mobile"></i>
+                        <span>TomiGawai</span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <ul class="nav-second-level nav" aria-expanded="false">
+                        <li><a href="javascript: void(0);" onclick="alert('Menu Perusahaan TomiGawai sedang dalam pengembangan.')">Perusahaan</a></li>
+                        <li><a href="javascript: void(0);" onclick="alert('Menu Pemberi Pinjaman TomiGawai sedang dalam pengembangan.')">Pemberi Pinjaman</a></li>
+                        <li><a href="javascript: void(0);" onclick="alert('Menu Pencairan TomiGawai sedang dalam pengembangan.')">Pencairan</a></li>
+                        <li><a href="javascript: void(0);" onclick="alert('Menu Pembayaran Angsuran TomiGawai sedang dalam pengembangan.')">Pembayaran Angsuran</a></li>
+                        <li><a href="javascript: void(0);" onclick="alert('Menu Konfigurasi TomiGawai sedang dalam pengembangan.')">Konfigurasi</a></li>
+                    </ul>
+                </li>
+
+                <li>
+                    <a href="javascript: void(0);">
+                        <i class="dripicons-wallet"></i>
+                        <span>TomiGaji</span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <ul class="nav-second-level nav" aria-expanded="false">
+                        <li><a href="javascript: void(0);" onclick="alert('Menu Perusahaan TomiGaji sedang dalam pengembangan.')">Perusahaan</a></li>
+                        <li><a href="javascript: void(0);" onclick="alert('Menu Pemberi Pinjaman TomiGaji sedang dalam pengembangan.')">Pemberi Pinjaman</a></li>
+                        <li><a href="javascript: void(0);" onclick="alert('Menu Pencairan TomiGaji sedang dalam pengembangan.')">Pencairan</a></li>
+                        <li><a href="javascript: void(0);" onclick="alert('Menu Pembayaran Angsuran TomiGaji sedang dalam pengembangan.')">Pembayaran Angsuran</a></li>
+                        <li><a href="javascript: void(0);" onclick="alert('Menu Konfigurasi TomiGaji sedang dalam pengembangan.')">Konfigurasi</a></li>
+                    </ul>
+                </li>
+
+                <li>
+                    <a href="javascript: void(0);">
+                        <i class="dripicons-document"></i>
+                        <span>TomiInvoice</span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <ul class="nav-second-level nav" aria-expanded="false">
+                        <li><a href="javascript: void(0);" onclick="alert('Menu Perusahaan TomiInvoice sedang dalam pengembangan.')">Perusahaan</a></li>
+                        <li><a href="javascript: void(0);" onclick="alert('Menu Pemberi Pinjaman TomiInvoice sedang dalam pengembangan.')">Pemberi Pinjaman</a></li>
+                        <li><a href="javascript: void(0);" onclick="alert('Menu Pencairan TomiInvoice sedang dalam pengembangan.')">Pencairan</a></li>
+                        <li><a href="javascript: void(0);" onclick="alert('Menu Pembayaran Angsuran TomiInvoice sedang dalam pengembangan.')">Pembayaran Angsuran</a></li>
+                        <li><a href="javascript: void(0);" onclick="alert('Menu Konfigurasi TomiInvoice sedang dalam pengembangan.')">Konfigurasi</a></li>
+                    </ul>
+                </li>
+                @endif
+
                 {{-- Tomi Dana tampil sesuai kategori organisasi akun --}}
-                @if ($isInternalAccount || $isCompanyAccount || $isLenderAccount)
+                @if ($isInternalAccount || $isCompanyAccount)
                 <li>
                     <a href="javascript: void(0);">
                         <i class="dripicons-network-3"></i>
@@ -88,10 +164,10 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                         </li>
                         --}}
                         <li>
-                            <a href="{{ route('admin.ksp.index') }}">Perusahaan</a>
+                            <a href="{{ route('admin.tomi-dana.companies') }}">Perusahaan</a>
                         </li>
                         <li>
-                            <a href="{{ route('admin.lender.index') }}">Pemberi Pinjaman</a>
+                            <a href="{{ route('admin.tomi-dana.lender') }}">Pemberi Pinjaman</a>
                         </li>
                         @endif
 
@@ -120,7 +196,7 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                         </li>
                         --}}
                         <li>
-                            <a href="{{ route('admin.ksp.konfigurasi.index') }}">
+                            <a href="{{ route('admin.tomi-dana.configurations') }}">
                                 Konfigurasi
                             </a>
                         </li>
@@ -140,7 +216,7 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                 @endif
 
                 {{-- TomiDana Plus tampil sesuai kategori organisasi akun --}}
-                @if ($isInternalAccount || $isCompanyAccount || $isLenderAccount)
+                @if ($isInternalAccount || $isCompanyAccount)
                 <li>
                     <a href="javascript: void(0);">
                         <i class="dripicons-network-3"></i>
@@ -179,7 +255,7 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                 @endif
 
                 {{-- TomiGaji --}}
-                @if ($isInternalAccount || $isCompanyAccount || $isLenderAccount)
+                @if ($isInternalAccount || $isCompanyAccount)
                 <li>
                     <a href="javascript: void(0);">
                         <i class="dripicons-wallet"></i>
@@ -216,7 +292,7 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                 @endif
 
                 {{-- TomiGawai --}}
-                @if ($isInternalAccount || $isCompanyAccount || $isLenderAccount)
+                @if ($isInternalAccount || $isCompanyAccount)
                 @if ($isInternalAccount)
                 <li>
                     <a href="javascript: void(0);">
@@ -260,7 +336,7 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                 @endif
 
                 {{-- TomiInvoice --}}
-                @if ($isInternalAccount || $isCompanyAccount || $isLenderAccount)
+                @if ($isInternalAccount || $isCompanyAccount)
                 <li>
                     <a href="javascript: void(0);">
                         <i class="dripicons-document"></i>
