@@ -205,15 +205,15 @@ class TomiDanaController extends Controller
         ]);
 
         $fieldLabels = [
-            'rate' => 'Rate',
-            'asuransi' => 'Asuransi',
-            'provisi' => 'Provisi',
+            'rate' => 'Biaya Bunga',
+            'asuransi' => 'Biaya Asuransi',
+            'provisi' => 'Biaya Provisi',
             'biaya_admin' => 'Biaya Admin',
-            'fee_tomi' => 'Fee TOMI',
+            'fee_tomi' => 'Biaya TOMI',
             'biaya_layanan' => 'Biaya Layanan',
-            'referral_1' => 'Referral 1',
-            'referral_2' => 'Referral 2',
-            'ksp' => 'KSP',
+            'referral_1' => 'Biaya Referal 1',
+            'referral_2' => 'Biaya Referal 2',
+            'ksp' => 'Biaya Lender',
         ];
         $selectedFields = $request->has('fields')
             ? array_values(array_intersect($request->input('fields', []), array_keys($fieldLabels)))
@@ -269,15 +269,15 @@ class TomiDanaController extends Controller
         ]);
 
         $fieldLabels = [
-            'rate' => 'Rate',
-            'asuransi' => 'Asuransi',
-            'provisi' => 'Provisi',
+            'rate' => 'Biaya Bunga',
+            'asuransi' => 'Biaya Asuransi',
+            'provisi' => 'Biaya Provisi',
             'biaya_admin' => 'Biaya Admin',
-            'fee_tomi' => 'Fee TOMI',
+            'fee_tomi' => 'Biaya TOMI',
             'biaya_layanan' => 'Biaya Layanan',
-            'referral_1' => 'Referral 1',
-            'referral_2' => 'Referral 2',
-            'ksp' => 'KSP',
+            'referral_1' => 'Biaya Referal 1',
+            'referral_2' => 'Biaya Referal 2',
+            'ksp' => 'Biaya Lender',
         ];
         $selectedFields = $request->has('fields')
             ? array_values(array_intersect($request->input('fields', []), array_keys($fieldLabels)))
