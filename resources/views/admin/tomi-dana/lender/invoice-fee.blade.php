@@ -109,15 +109,15 @@
             <div>Harap segera dibayarkan tagihan sesuai invoice terlampir maksimum tanggal 5 ke rekening bank berikut:</div>
             <table class="bank-details">
                 <tr>
-                    <td>BANK</td>
+                    <td>BANK :</td>
                     <td>BRI</td>
                 </tr>
                 <tr>
-                    <td>Atas Nama</td>
+                    <td>Atas Nama :</td>
                     <td>TOKO MIKRO INDONESIA</td>
                 </tr>
                 <tr>
-                    <td>No Rekening</td>
+                    <td>No Rekening :</td>
                     <td>042501000000305</td>
                 </tr>
             </table>
