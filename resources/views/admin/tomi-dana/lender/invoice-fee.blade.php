@@ -14,7 +14,7 @@
         .header { border-bottom: 2px solid #444; margin-bottom: 18px; padding-bottom: 10px; }
         .info { margin-bottom: 18px; line-height: 1.6; }
         table { border-collapse: collapse; width: 100%; }
-        th { background: #f1f3f5; text-transform: uppercase; }
+        th { background: #f1f3f5; text-transform: uppercase; text-align: center; }
         th, td { border: 1px solid #cfd4da; padding: 7px; }
         .number { text-align: right; }
         .summary { margin-top: 18px; margin-left: auto; width: 320px; }
