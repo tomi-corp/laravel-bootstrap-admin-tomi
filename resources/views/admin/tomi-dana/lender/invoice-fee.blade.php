@@ -21,8 +21,10 @@
         .payment-summary { margin-top: 18px; }
         .payment-info { float: left; width: calc(100% - 340px); line-height: 1.6; }
         .payment-info .payment-title { margin-bottom: 4px; font-weight: bold; }
-        .bank-details { display: table; visibility: visible; margin-top: 6px; border: 1px solid #cfd4da; background: #fff; }
-        .bank-details td:first-child { width: 100px; font-weight: bold; background: #f1f3f5; }
+        .bank-details { display: table; margin-top: 6px; }
+        .bank-details tr, .bank-details td { border: 0; }
+        .bank-details td { padding: 2px 7px 2px 0; }
+        .bank-details td:first-child { width: 100px; font-weight: bold; background: transparent; }
         .total { font-weight: bold; }
         .note { margin-top: 22px; color: #666; font-size: 10px; }
         .toolbar { margin: 0 auto 18px; max-width: 1120px; text-align: right; }
