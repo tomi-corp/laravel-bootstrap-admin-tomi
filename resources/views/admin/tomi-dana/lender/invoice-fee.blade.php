@@ -18,6 +18,9 @@
         th, td { border: 1px solid #cfd4da; padding: 7px; }
         .number { text-align: right; }
         .summary { margin-top: 18px; margin-left: auto; width: 320px; }
+        .payment-summary { margin-top: 18px; }
+        .payment-info { float: left; width: calc(100% - 340px); line-height: 1.6; }
+        .payment-info .payment-title { margin-bottom: 4px; font-weight: bold; }
         .total { font-weight: bold; }
         .note { margin-top: 22px; color: #666; font-size: 10px; }
         .toolbar { margin: 0 auto 18px; max-width: 1120px; text-align: right; }
@@ -96,12 +99,22 @@
         @endif
     </table>
 
-    <table class="main-table summary">
-        <tr class="total">
-            <td>Total Pinjaman</td>
-            <td class="number">Rp. {{ number_format($summary['total_pinjaman'], 0, ',', '.') }}</td>
-        </tr>
-    </table>
+    <div class="payment-summary clearfix">
+        <div class="payment-info">
+            <div class="payment-title">Noted:</div>
+            <div>Harap segera dibayarkan tagihan sesuai invoice terlampir maksimum tanggal 5 ke rekening bank berikut:</div>
+            <div><strong>BANK:</strong> BRI</div>
+            <div><strong>Atas Nama:</strong> TOKO MIKRO INDONESIA</div>
+            <div><strong>No Rekening:</strong> 042501000000305</div>
+        </div>
+
+        <table class="main-table summary">
+            <tr class="total">
+                <td>Total Pinjaman</td>
+                <td class="number">Rp. {{ number_format($summary['total_pinjaman'], 0, ',', '.') }}</td>
+            </tr>
+        </table>
+    </div>
 
     <div class="note">Dokumen ini dibuat secara otomatis oleh sistem TomiDana.</div>
     </div>
