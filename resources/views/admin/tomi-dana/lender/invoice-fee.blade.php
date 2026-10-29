@@ -25,6 +25,7 @@
         .bank-details tr, .bank-details td { border: 0; }
         .bank-details td { padding: 2px 7px 2px 0; }
         .bank-details td:first-child { width: 100px; font-weight: bold; background: transparent; }
+        .bank-details td.separator { width: 12px; padding-right: 7px; font-weight: bold; }
         .total { font-weight: bold; }
         .note { margin-top: 22px; color: #666; font-size: 10px; }
         .toolbar { margin: 0 auto 18px; max-width: 1120px; text-align: right; }
@@ -109,15 +110,18 @@
             <div>Harap segera dibayarkan tagihan sesuai invoice terlampir maksimum tanggal 5 ke rekening bank berikut:</div>
             <table class="bank-details">
                 <tr>
-                    <td>BANK :</td>
+                    <td>BANK</td>
+                    <td class="separator">:</td>
                     <td>BRI</td>
                 </tr>
                 <tr>
-                    <td>Atas Nama :</td>
+                    <td>Atas Nama</td>
+                    <td class="separator">:</td>
                     <td>TOKO MIKRO INDONESIA</td>
                 </tr>
                 <tr>
-                    <td>No Rekening :</td>
+                    <td>No Rekening</td>
+                    <td class="separator">:</td>
                     <td>042501000000305</td>
                 </tr>
             </table>
