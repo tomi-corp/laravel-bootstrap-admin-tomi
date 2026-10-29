@@ -314,10 +314,17 @@ class TomiDanaController extends Controller
             ];
         });
 
+        $selectedLender = $request->filled('lender_id')
+            ? lender::find($request->integer('lender_id'))
+            : $loans->first()?->lender;
+
         $invoice = (object) [
             'nomor' => 'TD/' . $month->format('Ym') . '/' . ($request->input('lender_id') ?: 'ALL'),
             'periode' => $month->locale('id')->translatedFormat('F Y'),
-            'lender' => $loans->first()?->lender?->nama ?? 'Seluruh Lender',
+            'periode_mulai' => $month->copy()->startOfMonth()->format('Y-m-d'),
+            'periode_selesai' => $month->copy()->endOfMonth()->format('Y-m-d'),
+            'lender' => $selectedLender?->nama ?? 'Seluruh Lender',
+            'lender_code' => $selectedLender?->id_code_lender ?? '-',
         ];
 
         $summary = [

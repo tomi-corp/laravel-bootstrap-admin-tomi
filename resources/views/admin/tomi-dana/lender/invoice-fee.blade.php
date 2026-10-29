@@ -57,8 +57,15 @@
     </div>
 
     <div class="info">
-        <div><strong>Lender:</strong> {{ strtoupper($invoice->lender) }}</div>
-        <div>Rincian biaya layanan pinjaman TomiDana pada periode {{ $invoice->periode }}.</div>
+        <div><strong>Hallo, {{ strtoupper($invoice->lender) }}</strong></div>
+        <div>
+            Berikut adalah rincian tagihan biaya atas penggunaan fasilitas TomiDana pada aplikasi platform digital
+            Tomi yang diberikan kepada <strong>{{ strtoupper($invoice->lender) }}</strong>, periode
+            <strong>{{ $invoice->periode_mulai }} - {{ $invoice->periode_selesai }}</strong>;
+        </div>
+        <div><strong>No. Invoice : {{ $invoice->nomor }}</strong></div>
+        <div><strong>Lampiran Pinjaman</strong></div>
+        <div><strong>ID Lender : {{ $invoice->lender_code }}</strong></div>
     </div>
 
     <table>
