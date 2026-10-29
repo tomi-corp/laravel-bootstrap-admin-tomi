@@ -145,7 +145,6 @@
         </table>
     </div>
 
-    <div class="note">Dokumen ini dibuat secara otomatis oleh sistem TomiDana.</div>
     </div>
 </body>
 </html>
