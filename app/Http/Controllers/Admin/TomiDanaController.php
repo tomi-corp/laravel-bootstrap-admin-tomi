@@ -319,6 +319,7 @@ class TomiDanaController extends Controller
                         'total_tagihan' => 0,
                         'invoice' => '-',
                         'invoice_id' => null,
+                        'status_label' => '<span class="badge badge-secondary">-</span>',
                         'status_invoice' => '-',
                     ]];
                 }
@@ -345,6 +346,10 @@ class TomiDanaController extends Controller
                         'total_tagihan' => $loans->sum('total_angsuran_perbulan'),
                         'invoice' => 'INV-' . strtoupper($invoicePeriod->format('M')) . '-' . $company->id_code_perusahaan . '-' . $invoice->id,
                         'invoice_id' => $invoice->id,
+                        'status_label' => $this->repaymentTimelineStatus(
+                            $invoicePeriod,
+                            strtolower((string) $invoice->status) === 'lunas'
+                        ),
                         'status_invoice' => strtolower((string) $invoice->status) === 'lunas' ? 'LUNAS' : 'BELUM LUNAS',
                     ];
                 });
@@ -467,6 +472,36 @@ class TomiDanaController extends Controller
         ];
     }
 
+    private function repaymentTimelineStatus(?Carbon $dueDate, bool $isPaid): string
+    {
+        if ($isPaid) {
+            return '<span class="badge badge-success">&#9989; LUNAS</span>';
+        }
+
+        if (! $dueDate) {
+            return '<span class="badge badge-secondary">-</span>';
+        }
+
+        $daysUntilDue = Carbon::today()->diffInDays($dueDate, false);
+        $timeline = match (true) {
+            $daysUntilDue >= 5 => ['H-5', '&#9898;', 'Belum Jatuh Tempo', 'Tagihan akan jatuh tempo 5 hari lagi', 'secondary'],
+            $daysUntilDue === 4 => ['H-4', '&#9898;', 'Belum Jatuh Tempo', 'Tagihan akan jatuh tempo 4 hari lagi', 'secondary'],
+            $daysUntilDue === 3 => ['H-3', '&#9898;', 'Belum Jatuh Tempo', 'Tagihan akan jatuh tempo 3 hari lagi', 'secondary'],
+            $daysUntilDue === 2 => ['H-2', '&#9898;', 'Belum Jatuh Tempo', 'Tagihan akan jatuh tempo 2 hari lagi', 'secondary'],
+            $daysUntilDue === 1 => ['H-1', '&#9898;', 'Belum Jatuh Tempo', 'Tagihan akan jatuh tempo besok', 'secondary'],
+            $daysUntilDue === 0 => ['H0', '&#128309;', 'Baru Masuk Tagihan', 'Jatuh tempo hari ini', 'primary'],
+            $daysUntilDue === -1 => ['H+1', '&#128993;', 'Normal', 'Tagihan jatuh tempo 1 hari yang lalu', 'success'],
+            $daysUntilDue === -2 => ['H+2', '&#128992;', 'Mendesak', 'Tagihan jatuh tempo 2 hari yang lalu', 'warning'],
+            default => ['H+3', '&#128308;', 'Sangat Mendesak', 'Tagihan jatuh tempo ≥ 3 hari yang lalu', 'danger'],
+        };
+
+        [$dayLabel, $symbol, $status, $description, $badge] = $timeline;
+
+        return '<span class="badge badge-' . $badge . ' d-inline-flex align-items-center" title="' . e($description) . '">'
+            . $symbol . ' ' . $dayLabel . ' - ' . e($status)
+            . '</span><small class="d-block text-muted mt-1">' . e($description) . '</small>';
+    }
+
     public function repaymentsTable(Request $request)
     {
         $today = Carbon::today();
@@ -512,34 +547,11 @@ class TomiDanaController extends Controller
             ->addColumn('periode', fn ($row) => $row->jatuh_tempo ? Carbon::parse($row->jatuh_tempo)->format('m/Y') : '-')
             ->addColumn('tanggal_jatuh_tempo', fn ($row) => $row->jatuh_tempo ? Carbon::parse($row->jatuh_tempo)->format('d/m/Y') : '-')
             ->addColumn('nominal', fn ($row) => 'Rp. ' . number_format((float) ($row->pinjaman?->total_angsuran_perbulan ?? 0), 0, ',', '.'))
-            ->addColumn('status_label', function ($row) use ($today) {
-                $isPaid = strtolower((string) $row->status) === 'lunas';
-                if ($isPaid) {
-                    return '<span class="badge badge-success">✅ LUNAS</span>';
-                }
-
-                if (! $row->jatuh_tempo) {
-                    return '<span class="badge badge-secondary">-</span>';
-                }
-
-                $daysUntilDue = $today->diffInDays(Carbon::parse($row->jatuh_tempo), false);
-                $timeline = match (true) {
-                    $daysUntilDue >= 5 => ['H-5', '⚪️', 'Belum Jatuh Tempo', 'Tagihan akan jatuh tempo 5 hari lagi', 'secondary'],
-                    $daysUntilDue === 4 => ['H-4', '⚪️', 'Belum Jatuh Tempo', 'Tagihan akan jatuh tempo 4 hari lagi', 'secondary'],
-                    $daysUntilDue === 3 => ['H-3', '⚪️', 'Belum Jatuh Tempo', 'Tagihan akan jatuh tempo 3 hari lagi', 'secondary'],
-                    $daysUntilDue === 2 => ['H-2', '⚪️', 'Belum Jatuh Tempo', 'Tagihan akan jatuh tempo 2 hari lagi', 'secondary'],
-                    $daysUntilDue === 1 => ['H-1', '⚪️', 'Belum Jatuh Tempo', 'Tagihan akan jatuh tempo besok', 'secondary'],
-                    $daysUntilDue === 0 => ['H0', '🔵', 'Baru Masuk Tagihan', 'Jatuh tempo hari ini', 'primary'],
-                    $daysUntilDue === -1 => ['H+1', '🟡', 'Normal', 'Tagihan jatuh tempo 1 hari yang lalu', 'success'],
-                    $daysUntilDue === -2 => ['H+2', '🟠', 'Mendesak', 'Tagihan jatuh tempo 2 hari yang lalu', 'warning'],
-                    default => ['H+3', '🔴', 'Sangat Mendesak', 'Tagihan jatuh tempo ≥ 3 hari yang lalu', 'danger'],
-                };
-
-                [$dayLabel, $symbol, $status, $description, $badge] = $timeline;
-
-                return '<span class="badge badge-' . $badge . ' d-inline-flex align-items-center" title="' . e($description) . '">'
-                    . $symbol . ' ' . $dayLabel . ' - ' . e($status)
-                    . '</span><small class="d-block text-muted mt-1">' . e($description) . '</small>';
+            ->addColumn('status_label', function ($row) {
+                return $this->repaymentTimelineStatus(
+                    $row->jatuh_tempo ? Carbon::parse($row->jatuh_tempo) : null,
+                    strtolower((string) $row->status) === 'lunas'
+                );
             })
             ->addColumn('action', fn () => '<button type="button" class="btn btn-sm btn-light" title="Detail" disabled><i class="mdi mdi-eye-outline"></i></button>')
             ->filterColumn('nama_peminjam', function ($query, $keyword) {

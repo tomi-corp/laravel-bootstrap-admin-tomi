@@ -116,9 +116,7 @@
                             <td>{{ strtoupper($companyItem->id_code_perusahaan ?? '-') }}</td>
                             <td>{{ strtoupper($companyItem->nama ?? '-') }}</td>
                             <td>
-                                <span class="badge badge-{{ $companyItem->status === 'active' ? 'success' : 'secondary' }}">
-                                    {{ strtoupper($companyItem->status ?? '-') }}
-                                </span>
+                                {!! $companyItem->status_label ?? '<span class="badge badge-secondary">-</span>' !!}
                             </td>
                             <td>
                                 {{ $companyItem->jatuh_tempo ?? '-' }}
