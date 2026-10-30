@@ -133,7 +133,15 @@
                                 </button>
                             </td>
                             <td>Rp. {{ number_format((float) ($companyItem->total_tagihan ?? 0), 0, ',', '.') }}</td>
-                            <td>{{ $companyItem->invoice ?? '-' }}</td>
+                            <td>
+                                @if ($companyItem->invoice_id)
+                                    <a href="{{ route('admin.tomi-dana.repayments.invoice', $companyItem->invoice_id) }}" class="btn btn-sm btn-info" title="Lihat invoice">
+                                        <i class="mdi mdi-file-document-outline mr-1"></i>Invoice
+                                    </a>
+                                @else
+                                    -
+                                @endif
+                            </td>
                             <td>
                                 @if ($companyItem->status_invoice === 'LUNAS')
                                     <span class="badge badge-success">LUNAS</span>
