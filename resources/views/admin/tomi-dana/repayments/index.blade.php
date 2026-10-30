@@ -94,7 +94,7 @@
     <div class="card-body">
         <h4 class="header-title mb-3">Daftar Perusahaan</h4>
         <div class="table-responsive">
-            <table class="table table-hover mb-0">
+            <table id="tableCompanies" class="table table-hover mb-0" style="width: 100%;">
                 <thead>
                     <tr>
                         <th>No.</th>
@@ -311,6 +311,26 @@
 @if (! $company)
 <script>
     $(function () {
+        $('#tableCompanies').DataTable({
+            processing: true,
+            responsive: true,
+            pageLength: 10,
+            order: [[2, 'asc']],
+            language: {
+                search: 'Cari:',
+                emptyTable: 'Belum ada data perusahaan',
+                zeroRecords: 'Perusahaan tidak ditemukan',
+                processing: 'Memuat data...',
+                lengthMenu: 'Tampilkan _MENU_ data',
+                info: 'Menampilkan _START_ sampai _END_ dari _TOTAL_ perusahaan',
+                infoEmpty: 'Belum ada data perusahaan',
+                paginate: { previous: 'Sebelumnya', next: 'Berikutnya' }
+            },
+            columnDefs: [
+                { targets: [0, 9], orderable: false, searchable: false }
+            ]
+        });
+
         let companyRepaymentTable;
         let selectedCompanyId;
 
