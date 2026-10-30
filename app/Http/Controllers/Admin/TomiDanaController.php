@@ -514,11 +514,32 @@ class TomiDanaController extends Controller
             ->addColumn('nominal', fn ($row) => 'Rp. ' . number_format((float) ($row->pinjaman?->total_angsuran_perbulan ?? 0), 0, ',', '.'))
             ->addColumn('status_label', function ($row) use ($today) {
                 $isPaid = strtolower((string) $row->status) === 'lunas';
-                $isOverdue = ! $isPaid && $row->jatuh_tempo && Carbon::parse($row->jatuh_tempo)->isBefore($today);
-                $status = $isPaid ? 'LUNAS' : ($isOverdue ? 'TERLAMBAT' : 'PENDING');
-                $badge = $isPaid ? 'success' : ($isOverdue ? 'danger' : 'warning');
+                if ($isPaid) {
+                    return '<span class="badge badge-success">✅ LUNAS</span>';
+                }
 
-                return '<span class="badge badge-' . $badge . '">' . $status . '</span>';
+                if (! $row->jatuh_tempo) {
+                    return '<span class="badge badge-secondary">-</span>';
+                }
+
+                $daysUntilDue = $today->diffInDays(Carbon::parse($row->jatuh_tempo), false);
+                $timeline = match (true) {
+                    $daysUntilDue >= 5 => ['H-5', '⚪️', 'Belum Jatuh Tempo', 'Tagihan akan jatuh tempo 5 hari lagi', 'secondary'],
+                    $daysUntilDue === 4 => ['H-4', '⚪️', 'Belum Jatuh Tempo', 'Tagihan akan jatuh tempo 4 hari lagi', 'secondary'],
+                    $daysUntilDue === 3 => ['H-3', '⚪️', 'Belum Jatuh Tempo', 'Tagihan akan jatuh tempo 3 hari lagi', 'secondary'],
+                    $daysUntilDue === 2 => ['H-2', '⚪️', 'Belum Jatuh Tempo', 'Tagihan akan jatuh tempo 2 hari lagi', 'secondary'],
+                    $daysUntilDue === 1 => ['H-1', '⚪️', 'Belum Jatuh Tempo', 'Tagihan akan jatuh tempo besok', 'secondary'],
+                    $daysUntilDue === 0 => ['H0', '🔵', 'Baru Masuk Tagihan', 'Jatuh tempo hari ini', 'primary'],
+                    $daysUntilDue === -1 => ['H+1', '🟡', 'Normal', 'Tagihan jatuh tempo 1 hari yang lalu', 'success'],
+                    $daysUntilDue === -2 => ['H+2', '🟠', 'Mendesak', 'Tagihan jatuh tempo 2 hari yang lalu', 'warning'],
+                    default => ['H+3', '🔴', 'Sangat Mendesak', 'Tagihan jatuh tempo ≥ 3 hari yang lalu', 'danger'],
+                };
+
+                [$dayLabel, $symbol, $status, $description, $badge] = $timeline;
+
+                return '<span class="badge badge-' . $badge . ' d-inline-flex align-items-center" title="' . e($description) . '">'
+                    . $symbol . ' ' . $dayLabel . ' - ' . e($status)
+                    . '</span><small class="d-block text-muted mt-1">' . e($description) . '</small>';
             })
             ->addColumn('action', fn () => '<button type="button" class="btn btn-sm btn-light" title="Detail" disabled><i class="mdi mdi-eye-outline"></i></button>')
             ->filterColumn('nama_peminjam', function ($query, $keyword) {
