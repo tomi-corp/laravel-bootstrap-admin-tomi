@@ -64,6 +64,13 @@
         color: #c8d0d8;
         font-size: 40px;
     }
+
+    .repayment-period-group td {
+        background: #eef4fb;
+        color: #3b6ea8;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
 </style>
 @endpush
 
@@ -287,6 +294,22 @@
                     serverSide: true,
                     responsive: true,
                     pageLength: 10,
+                    order: [[6, 'asc'], [7, 'asc']],
+                    drawCallback: function () {
+                        const api = this.api();
+                        let lastPeriod = null;
+
+                        api.rows({ page: 'current' }).every(function () {
+                            const row = this.data();
+                            const period = row.periode || '-';
+
+                            if (period !== lastPeriod) {
+                                const safePeriod = $('<div>').text(period).html();
+                                $(this.node()).before('<tr class="repayment-period-group"><td colspan="11">Periode: ' + safePeriod + '</td></tr>');
+                                lastPeriod = period;
+                            }
+                        });
+                    },
                     language: {
                         search: 'Cari:',
                         emptyTable: 'Belum ada data angsuran',
@@ -337,6 +360,22 @@
             serverSide: true,
             responsive: true,
             pageLength: 10,
+            order: [[6, 'asc'], [7, 'asc']],
+            drawCallback: function () {
+                const api = this.api();
+                let lastPeriod = null;
+
+                api.rows({ page: 'current' }).every(function () {
+                    const row = this.data();
+                    const period = row.periode || '-';
+
+                    if (period !== lastPeriod) {
+                        const safePeriod = $('<div>').text(period).html();
+                        $(this.node()).before('<tr class="repayment-period-group"><td colspan="11">Periode: ' + safePeriod + '</td></tr>');
+                        lastPeriod = period;
+                    }
+                });
+            },
             dom: '<"row"<"col-md-6"l><"col-md-6 text-right"f>>rt<"row"<"col-md-6"i><"col-md-6"p>>',
             language: {
                 search: 'Cari:',
