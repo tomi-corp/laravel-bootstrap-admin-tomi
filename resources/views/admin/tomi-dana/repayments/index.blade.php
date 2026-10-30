@@ -380,7 +380,7 @@
             $('#submitRepaymentInvoice').prop('disabled', !this.checked);
         });
 
-        $('.btn-edit-repayment').on('click', function () {
+        $(document).on('click', '#tableCompanies .btn-edit-repayment', function () {
             $('#editRepaymentInvoiceForm')[0].reset();
             $('#editInvoiceId').val($(this).data('invoice-id'));
             $('#submitRepaymentInvoice').prop('disabled', true);
