@@ -287,8 +287,18 @@ class TomiDanaController extends Controller
         ]);
     }
 
-    public function repayments(Request $request)
+    public function repayments(Request $request, ?int $companyId = null)
     {
+        if ($companyId === null) {
+            return view('admin.tomi-dana.repayments.index', [
+                'companies' => ListPerusahaan::query()->orderBy('nama')->get(['id', 'nama', 'status']),
+                'company' => null,
+                'companyId' => null,
+            ]);
+        }
+
+        $company = ListPerusahaan::findOrFail($companyId);
+
         $request->validate([
             'search' => 'nullable|string|max:100',
             'status' => 'nullable|in:lunas,pending,terlambat',
@@ -298,6 +308,9 @@ class TomiDanaController extends Controller
         $query = jatuh_tempo::with(['pinjaman.data_karyawan', 'pinjaman.perusahaan', 'pinjaman.user'])
             ->whereHas('pinjaman', function ($loanQuery) {
                 $loanQuery->where('status_otp', 'success');
+            })
+            ->whereHas('pinjaman', function ($loanQuery) use ($companyId) {
+                $loanQuery->where('id_perusahaan', $companyId);
             })
             ->when($request->filled('search'), function ($query) use ($request) {
                 $search = trim($request->input('search'));
@@ -334,6 +347,9 @@ class TomiDanaController extends Controller
         })->values();
 
         return view('admin.tomi-dana.repayments.index', [
+            'companies' => collect(),
+            'company' => $company,
+            'companyId' => $companyId,
             'repayments' => $repayments,
             'totalRepayments' => $repayments->count(),
             'paidRepayments' => $repayments->where('status', 'lunas')->count(),
@@ -366,6 +382,11 @@ class TomiDanaController extends Controller
             ->when($request->filled('period'), function ($query) use ($request) {
                 $query->whereYear('jatuh_tempo', substr($request->input('period'), 0, 4))
                     ->whereMonth('jatuh_tempo', substr($request->input('period'), 5, 2));
+            })
+            ->when($request->filled('company_id'), function ($query) use ($request) {
+                $query->whereHas('pinjaman', function ($loanQuery) use ($request) {
+                    $loanQuery->where('id_perusahaan', $request->integer('company_id'));
+                });
             });
 
         return DataTables::eloquent($query)

@@ -1,6 +1,6 @@
 @extends('layout.app')
 
-@section('title', 'Pembayaran Angsuran TomiDana')
+@section('title', $company ? 'Pembayaran Angsuran - ' . strtoupper($company->nama) : 'Pembayaran Angsuran TomiDana')
 
 @push('css')
 <style>
@@ -77,11 +77,52 @@
                     <li class="breadcrumb-item active">Pembayaran Angsuran</li>
                 </ol>
             </div>
-            <h4 class="page-title">Pembayaran Angsuran TomiDana</h4>
+            <h4 class="page-title">{{ $company ? 'Pembayaran Angsuran - ' . strtoupper($company->nama) : 'Pembayaran Angsuran TomiDana' }}</h4>
         </div>
     </div>
 </div>
 
+@if (! $company)
+<div class="card">
+    <div class="card-body">
+        <h4 class="header-title mb-3">Daftar Perusahaan</h4>
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>No.</th>
+                        <th>Perusahaan</th>
+                        <th>Status</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($companies as $companyItem)
+                        <tr>
+                            <td>{{ $loop->iteration }}</td>
+                            <td>{{ strtoupper($companyItem->nama ?? '-') }}</td>
+                            <td>
+                                <span class="badge badge-{{ $companyItem->status === 'active' ? 'success' : 'secondary' }}">
+                                    {{ strtoupper($companyItem->status ?? '-') }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{{ route('admin.tomi-dana.repayments.company', $companyItem->id) }}" class="btn btn-sm btn-info">
+                                    <i class="mdi mdi-receipt-text-outline mr-1"></i>Lihat Angsuran
+                                </a>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="4" class="text-center text-muted">Belum ada data perusahaan.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+@else
 @php
     $repayments = collect($repayments ?? []);
     $totalRepayments = $totalRepayments ?? $repayments->count();
@@ -194,9 +235,11 @@
         </div>
     </div>
 </div>
+@endif
 @endsection
 
 @push('js')
+@if ($company)
 <script>
     $(function () {
         const repaymentTable = $('#tableRepayments').DataTable({
@@ -222,6 +265,7 @@
                     data._token = '{{ csrf_token() }}';
                     data.status = $('#status').val();
                     data.period = $('#period').val();
+                    data.company_id = @json($companyId);
                 }
             },
             columns: [
@@ -249,4 +293,5 @@
 
     });
 </script>
+@endif
 @endpush

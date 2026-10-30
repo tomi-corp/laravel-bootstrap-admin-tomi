@@ -139,6 +139,9 @@ Route::middleware(['AdminMiddleware'])->group(
                     ->name('admin.tomi-dana.configurations.index');
                 Route::post('/tomi-dana/repayments/table', [TomiDanaController::class, 'repaymentsTable'])
                     ->name('admin.tomi-dana.repayments.table');
+                Route::get('/tomi-dana/repayments/{companyId}', [TomiDanaController::class, 'repayments'])
+                    ->whereNumber('companyId')
+                    ->name('admin.tomi-dana.repayments.company');
                 Route::get('/tomi-dana/disbursements/table', [TomiDanaController::class, 'disbursementsTable'])
                     ->name('admin.tomi-dana.disbursements.table');
                 Route::get('/tomi-dana/employees/table', [TomiDanaController::class, 'employeesTable'])
