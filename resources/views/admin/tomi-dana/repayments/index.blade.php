@@ -135,7 +135,7 @@
                             <td>Rp. {{ number_format((float) ($companyItem->total_tagihan ?? 0), 0, ',', '.') }}</td>
                             <td>
                                 @if ($companyItem->invoice_id)
-                                    <a href="{{ route('admin.tomi-dana.repayments.invoice', $companyItem->invoice_id) }}" class="btn btn-sm btn-info" title="Lihat invoice">
+                                    <a href="{{ route('admin.tomi-dana.repayments.invoice.pdf', $companyItem->invoice_id) }}" class="btn btn-sm btn-info" title="Lihat invoice PDF">
                                         <i class="mdi mdi-file-document-outline"></i>
                                     </a>
                                 @else
