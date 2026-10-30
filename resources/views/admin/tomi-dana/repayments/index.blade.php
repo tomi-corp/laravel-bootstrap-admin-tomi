@@ -85,7 +85,16 @@
 @if (! $company)
 <div class="card">
     <div class="card-body">
-        <h4 class="header-title mb-3">Daftar Perusahaan</h4>
+        <div class="d-flex flex-wrap align-items-end justify-content-between mb-3">
+            <h4 class="header-title mb-2">Daftar Perusahaan</h4>
+            <form method="GET" class="form-inline">
+                <label for="companyPeriod" class="mr-2 mb-2">Periode</label>
+                <input type="month" class="form-control mr-2 mb-2" id="companyPeriod" name="period" value="{{ request('period') }}">
+                <button type="submit" class="btn btn-primary mb-2">
+                    <i class="mdi mdi-filter-variant mr-1"></i>Tampilkan
+                </button>
+            </form>
+        </div>
         <div class="table-responsive">
             <table class="table table-hover mb-0">
                 <thead>
@@ -107,7 +116,7 @@
                                 </span>
                             </td>
                             <td>
-                                <a href="{{ route('admin.tomi-dana.repayments.company', $companyItem->id) }}" class="btn btn-sm btn-info">
+                                <a href="{{ route('admin.tomi-dana.repayments.company', ['companyId' => $companyItem->id, 'period' => request('period')]) }}" class="btn btn-sm btn-info">
                                     <i class="mdi mdi-receipt-text-outline mr-1"></i>Lihat Angsuran
                                 </a>
                             </td>
