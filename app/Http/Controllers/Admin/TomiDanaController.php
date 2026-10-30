@@ -421,7 +421,7 @@ class TomiDanaController extends Controller
     public function invoiceLender(int $invoiceId)
     {
         $invoice = invoicing_pinjaman::with([
-            'perusahaan',
+            'perusahaan.lender',
             'pinjaman' => function ($query) {
                 $query->whereIn('status', ['approve', 'done'])->with(['angsuran', 'data_karyawan', 'user']);
             },
@@ -439,7 +439,7 @@ class TomiDanaController extends Controller
             );
         })->values();
 
-        return view('admin.tomi-dana.lender.invoice-lender', [
+        return view('admin.tomi-dana.repayments.invoice-lender', [
             'invoice' => $invoice,
             'company' => $company,
             'invoicePeriod' => $invoicePeriod,

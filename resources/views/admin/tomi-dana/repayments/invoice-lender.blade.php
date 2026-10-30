@@ -63,15 +63,19 @@
         </div>
 
         <div class="row mb-4">
-            <div class="col-md-4 mb-3 mb-md-0">
+            <div class="col-md-3 mb-3 mb-md-0">
                 <div class="invoice-meta-label">Kode Perusahaan</div>
                 <div class="invoice-meta-value">{{ strtoupper($company->id_code_perusahaan ?? '-') }}</div>
             </div>
-            <div class="col-md-4 mb-3 mb-md-0">
+            <div class="col-md-3 mb-3 mb-md-0">
                 <div class="invoice-meta-label">Nama Perusahaan</div>
                 <div class="invoice-meta-value">{{ strtoupper($company->nama ?? '-') }}</div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3 mb-3 mb-md-0">
+                <div class="invoice-meta-label">Lender</div>
+                <div class="invoice-meta-value">{{ strtoupper($company->lender?->nama ?? '-') }}</div>
+            </div>
+            <div class="col-md-3">
                 <div class="invoice-meta-label">Periode / Jatuh Tempo</div>
                 <div class="invoice-meta-value">{{ $invoicePeriod->format('d/m/Y') }}</div>
             </div>
