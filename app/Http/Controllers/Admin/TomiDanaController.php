@@ -420,12 +420,15 @@ class TomiDanaController extends Controller
 
     public function invoiceLender(int $invoiceId)
     {
-        return view('admin.tomi-dana.repayments.invoice-lender', $this->invoiceLenderData($invoiceId));
+        return view('admin.tomi-dana.repayments.invoice-lender', array_merge(
+            $this->invoiceLenderData($invoiceId),
+            ['isPdf' => false]
+        ));
     }
 
     public function invoiceLenderPdf(int $invoiceId)
     {
-        $data = $this->invoiceLenderData($invoiceId);
+        $data = array_merge($this->invoiceLenderData($invoiceId), ['isPdf' => true]);
         $pdf = Pdf::loadView('admin.tomi-dana.repayments.invoice-lender', $data)
             ->setPaper('a4', 'portrait');
 
