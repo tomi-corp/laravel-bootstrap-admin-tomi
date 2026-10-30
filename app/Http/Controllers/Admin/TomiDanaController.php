@@ -420,6 +420,20 @@ class TomiDanaController extends Controller
 
     public function invoiceLender(int $invoiceId)
     {
+        return view('admin.tomi-dana.repayments.invoice-lender', $this->invoiceLenderData($invoiceId));
+    }
+
+    public function invoiceLenderPdf(int $invoiceId)
+    {
+        $data = $this->invoiceLenderData($invoiceId);
+        $pdf = Pdf::loadView('admin.tomi-dana.repayments.invoice-lender', $data)
+            ->setPaper('a4', 'portrait');
+
+        return $pdf->download($data['invoiceNumber'] . '.pdf');
+    }
+
+    private function invoiceLenderData(int $invoiceId): array
+    {
         $invoice = invoicing_pinjaman::with([
             'perusahaan.lender',
             'pinjaman' => function ($query) {
@@ -439,7 +453,7 @@ class TomiDanaController extends Controller
             );
         })->values();
 
-        return view('admin.tomi-dana.repayments.invoice-lender', [
+        return [
             'invoice' => $invoice,
             'company' => $company,
             'invoicePeriod' => $invoicePeriod,
@@ -447,7 +461,7 @@ class TomiDanaController extends Controller
             'pinjaman' => $pinjaman,
             'jumlahPinjaman' => $pinjaman->count(),
             'totalTagihan' => $pinjaman->sum('total_angsuran_perbulan'),
-        ]);
+        ];
     }
 
     public function repaymentsTable(Request $request)

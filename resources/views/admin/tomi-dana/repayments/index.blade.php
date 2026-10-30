@@ -136,7 +136,7 @@
                             <td>
                                 @if ($companyItem->invoice_id)
                                     <a href="{{ route('admin.tomi-dana.repayments.invoice', $companyItem->invoice_id) }}" class="btn btn-sm btn-info" title="Lihat invoice">
-                                        <i class="mdi mdi-file-document-outline mr-1"></i>Invoice
+                                        <i class="mdi mdi-file-document-outline"></i>
                                     </a>
                                 @else
                                     -

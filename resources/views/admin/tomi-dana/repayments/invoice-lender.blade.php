@@ -40,6 +40,9 @@
     <div class="col-12">
         <div class="page-title-box">
             <div class="page-title-right">
+                <a href="{{ route('admin.tomi-dana.repayments.invoice.pdf', $invoice->id) }}" class="btn btn-danger mr-1">
+                    <i class="mdi mdi-file-pdf-box mr-1"></i>Download PDF
+                </a>
                 <a href="{{ route('admin.tomi-dana.repayments') }}" class="btn btn-light">
                     <i class="mdi mdi-arrow-left mr-1"></i>Kembali
                 </a>
