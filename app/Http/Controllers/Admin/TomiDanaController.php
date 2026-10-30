@@ -319,7 +319,7 @@ class TomiDanaController extends Controller
                         'total_tagihan' => 0,
                         'invoice' => '-',
                         'invoice_id' => null,
-                        'status_label' => '<span class="badge badge-secondary">-</span>',
+                        'status_label' => '-',
                         'status_invoice' => '-',
                     ]];
                 }
@@ -475,31 +475,29 @@ class TomiDanaController extends Controller
     private function repaymentTimelineStatus(?Carbon $dueDate, bool $isPaid): string
     {
         if ($isPaid) {
-            return '<span class="badge badge-success">&#9989; LUNAS</span>';
+            return '&#9989; LUNAS';
         }
 
         if (! $dueDate) {
-            return '<span class="badge badge-secondary">-</span>';
+            return '-';
         }
 
         $daysUntilDue = Carbon::today()->diffInDays($dueDate, false);
         $timeline = match (true) {
-            $daysUntilDue >= 5 => ['H-5', '&#9898;', 'Belum Jatuh Tempo', 'Tagihan akan jatuh tempo 5 hari lagi', 'secondary'],
-            $daysUntilDue === 4 => ['H-4', '&#9898;', 'Belum Jatuh Tempo', 'Tagihan akan jatuh tempo 4 hari lagi', 'secondary'],
-            $daysUntilDue === 3 => ['H-3', '&#9898;', 'Belum Jatuh Tempo', 'Tagihan akan jatuh tempo 3 hari lagi', 'secondary'],
-            $daysUntilDue === 2 => ['H-2', '&#9898;', 'Belum Jatuh Tempo', 'Tagihan akan jatuh tempo 2 hari lagi', 'secondary'],
-            $daysUntilDue === 1 => ['H-1', '&#9898;', 'Belum Jatuh Tempo', 'Tagihan akan jatuh tempo besok', 'secondary'],
-            $daysUntilDue === 0 => ['H0', '&#128309;', 'Baru Masuk Tagihan', 'Jatuh tempo hari ini', 'primary'],
-            $daysUntilDue === -1 => ['H+1', '&#128993;', 'Normal', 'Tagihan jatuh tempo 1 hari yang lalu', 'success'],
-            $daysUntilDue === -2 => ['H+2', '&#128992;', 'Mendesak', 'Tagihan jatuh tempo 2 hari yang lalu', 'warning'],
-            default => ['H+3', '&#128308;', 'Sangat Mendesak', 'Tagihan jatuh tempo ≥ 3 hari yang lalu', 'danger'],
+            $daysUntilDue >= 5 => ['H-5', '&#9898;', 'Belum Jatuh Tempo'],
+            $daysUntilDue === 4 => ['H-4', '&#9898;', 'Belum Jatuh Tempo'],
+            $daysUntilDue === 3 => ['H-3', '&#9898;', 'Belum Jatuh Tempo'],
+            $daysUntilDue === 2 => ['H-2', '&#9898;', 'Belum Jatuh Tempo'],
+            $daysUntilDue === 1 => ['H-1', '&#9898;', 'Belum Jatuh Tempo'],
+            $daysUntilDue === 0 => ['H0', '&#128309;', 'Baru Masuk Tagihan'],
+            $daysUntilDue === -1 => ['H+1', '&#128993;', 'Normal'],
+            $daysUntilDue === -2 => ['H+2', '&#128992;', 'Mendesak'],
+            default => ['H+3', '&#128308;', 'Sangat Mendesak'],
         };
 
-        [$dayLabel, $symbol, $status, $description, $badge] = $timeline;
+        [$dayLabel, $symbol, $status] = $timeline;
 
-        return '<span class="badge badge-' . $badge . ' d-inline-flex align-items-center" title="' . e($description) . '">'
-            . $symbol . ' ' . $dayLabel . ' - ' . e($status)
-            . '</span><small class="d-block text-muted mt-1">' . e($description) . '</small>';
+        return $symbol . ' ' . $dayLabel . ' - ' . $status;
     }
 
     public function repaymentsTable(Request $request)
