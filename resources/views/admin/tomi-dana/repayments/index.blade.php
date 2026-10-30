@@ -155,7 +155,11 @@
         </div>
 
         <form id="repaymentFilter" class="repayment-filter row align-items-end mb-3" method="GET">
-            <div class="col-lg-4 col-md-6 mb-2">
+            <div class="col-lg-3 col-md-6 mb-2">
+                <label for="company" class="mb-1">Perusahaan</label>
+                <input type="search" class="form-control" id="company" name="company" value="{{ request('company') }}" placeholder="Cari perusahaan">
+            </div>
+            <div class="col-lg-3 col-md-6 mb-2">
                 <label for="status" class="mb-1">Status</label>
                 <select class="custom-select" id="status" name="status">
                     <option value="">Semua status</option>
@@ -164,11 +168,11 @@
                     @endforeach
                 </select>
             </div>
-            <div class="col-lg-4 col-md-6 mb-2">
+            <div class="col-lg-3 col-md-6 mb-2">
                 <label for="period" class="mb-1">Periode</label>
                 <input type="month" class="form-control" id="period" name="period" value="{{ request('period') }}">
             </div>
-            <div class="col-lg-4 col-md-6 mb-2">
+            <div class="col-lg-3 col-md-6 mb-2">
                 <button type="submit" class="btn btn-primary btn-block"><i class="mdi mdi-filter-variant mr-1"></i>Filter</button>
             </div>
         </form>
@@ -222,6 +226,7 @@
                     data._token = '{{ csrf_token() }}';
                     data.status = $('#status').val();
                     data.period = $('#period').val();
+                    data.columns[4].search.value = $('#company').val();
                 }
             },
             columns: [
@@ -244,6 +249,10 @@
         });
 
         $('#status, #period').on('change', function () {
+            repaymentTable.ajax.reload();
+        });
+
+        $('#company').on('input', function () {
             repaymentTable.ajax.reload();
         });
     });
