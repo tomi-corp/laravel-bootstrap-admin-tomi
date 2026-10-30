@@ -13,6 +13,7 @@ use App\Exports\TomiDanaEmployeeTemplateExport;
 use App\Imports\TomiDanaEmployeeImport;
 use App\Models\amount_pinjaman;
 use App\Models\disbursement;
+use App\Models\invoicing_pinjaman;
 use App\Models\kecamatan;
 use App\Models\kelurahan;
 use App\Models\kota;
@@ -290,8 +291,65 @@ class TomiDanaController extends Controller
     public function repayments(Request $request, ?int $companyId = null)
     {
         if ($companyId === null) {
+            $companies = ListPerusahaan::query()
+                ->orderBy('nama')
+                ->get(['id', 'id_code_perusahaan', 'nama', 'status']);
+
+            $invoices = invoicing_pinjaman::with([
+                'pinjaman' => function ($query) {
+                    $query->whereIn('status', ['approve', 'done'])->with('angsuran');
+                },
+            ])
+                ->whereIn('id_list_perusahaan', $companies->pluck('id'))
+                ->orderByDesc('period')
+                ->get()
+                ->groupBy('id_list_perusahaan');
+
+            $companyRows = $companies->flatMap(function ($company) use ($invoices) {
+                $companyInvoices = $invoices->get($company->id, collect());
+
+                if ($companyInvoices->isEmpty()) {
+                    return [(object) [
+                        'id' => $company->id,
+                        'id_code_perusahaan' => $company->id_code_perusahaan,
+                        'nama' => $company->nama,
+                        'status' => $company->status,
+                        'jatuh_tempo' => '-',
+                        'jumlah_pinjaman' => 0,
+                        'total_tagihan' => 0,
+                        'invoice' => '-',
+                        'status_invoice' => '-',
+                    ]];
+                }
+
+                return $companyInvoices->map(function ($invoice) use ($company) {
+                    $invoicePeriod = $invoice->period
+                        ? Carbon::parse($invoice->period)
+                        : Carbon::createFromDate($invoice->tahun, $invoice->bulan, 1);
+                    $targetPeriod = $invoicePeriod->format('m-Y');
+                    $loans = $invoice->pinjaman->filter(function ($loan) use ($targetPeriod) {
+                        return $loan->angsuran->contains(fn ($installment) =>
+                            $installment->jatuh_tempo
+                            && Carbon::parse($installment->jatuh_tempo)->format('m-Y') === $targetPeriod
+                        );
+                    });
+
+                    return (object) [
+                        'id' => $company->id,
+                        'id_code_perusahaan' => $company->id_code_perusahaan,
+                        'nama' => $company->nama,
+                        'status' => $company->status,
+                        'jatuh_tempo' => $invoicePeriod->format('d/m/Y'),
+                        'jumlah_pinjaman' => $loans->count(),
+                        'total_tagihan' => $loans->sum('total_angsuran_perbulan'),
+                        'invoice' => 'INV-' . strtoupper($invoicePeriod->format('M')) . '-' . $company->id_code_perusahaan . '-' . $invoice->id,
+                        'status_invoice' => strtolower((string) $invoice->status) === 'lunas' ? 'LUNAS' : 'BELUM LUNAS',
+                    ];
+                });
+            })->values();
+
             return view('admin.tomi-dana.repayments.index', [
-                'companies' => ListPerusahaan::query()->orderBy('nama')->get(['id', 'nama', 'status']),
+                'companies' => $companyRows,
                 'company' => null,
                 'companyId' => null,
             ]);

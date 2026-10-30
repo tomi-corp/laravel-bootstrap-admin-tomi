@@ -98,8 +98,14 @@
                 <thead>
                     <tr>
                         <th>No.</th>
-                        <th>Perusahaan</th>
+                        <th>Kode Perusahaan</th>
+                        <th>Nama Perusahaan</th>
                         <th>Status</th>
+                        <th>Jatuh Tempo</th>
+                        <th>Jumlah Pinjaman</th>
+                        <th>Total Tagihan</th>
+                        <th>Invoice</th>
+                        <th>Status Invoice</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
@@ -107,11 +113,27 @@
                     @forelse ($companies as $companyItem)
                         <tr>
                             <td>{{ $loop->iteration }}</td>
+                            <td>{{ strtoupper($companyItem->id_code_perusahaan ?? '-') }}</td>
                             <td>{{ strtoupper($companyItem->nama ?? '-') }}</td>
                             <td>
                                 <span class="badge badge-{{ $companyItem->status === 'active' ? 'success' : 'secondary' }}">
                                     {{ strtoupper($companyItem->status ?? '-') }}
                                 </span>
+                            </td>
+                            <td>
+                                {{ $companyItem->jatuh_tempo ?? '-' }}
+                            </td>
+                            <td>{{ number_format((int) ($companyItem->jumlah_pinjaman ?? 0), 0, ',', '.') }}</td>
+                            <td>Rp. {{ number_format((float) ($companyItem->total_tagihan ?? 0), 0, ',', '.') }}</td>
+                            <td>{{ $companyItem->invoice ?? '-' }}</td>
+                            <td>
+                                @if ($companyItem->status_invoice === 'LUNAS')
+                                    <span class="badge badge-success">LUNAS</span>
+                                @elseif ($companyItem->status_invoice === 'BELUM LUNAS')
+                                    <span class="badge badge-warning">BELUM LUNAS</span>
+                                @else
+                                    -
+                                @endif
                             </td>
                             <td>
                                 <button type="button" class="btn btn-sm btn-info btn-view-repayments" data-company-id="{{ $companyItem->id }}" data-company-name="{{ $companyItem->nama }}">
@@ -121,7 +143,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="text-center text-muted">Belum ada data perusahaan.</td>
+                            <td colspan="10" class="text-center text-muted">Belum ada data perusahaan.</td>
                         </tr>
                     @endforelse
                 </tbody>
