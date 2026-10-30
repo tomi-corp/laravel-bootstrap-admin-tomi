@@ -30,6 +30,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
@@ -470,6 +471,38 @@ class TomiDanaController extends Controller
             'jumlahPinjaman' => $pinjaman->count(),
             'totalTagihan' => $pinjaman->sum('total_angsuran_perbulan'),
         ];
+    }
+
+    public function updateRepaymentInvoice(Request $request)
+    {
+        $data = $request->validate([
+            'invoice_id' => 'required|integer|exists:invoicing_pinjaman,id',
+            'payment_time' => 'required|date',
+            'payment_proof' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'declaration' => 'accepted',
+        ]);
+
+        $invoice = invoicing_pinjaman::findOrFail($data['invoice_id']);
+        $proofPath = $request->file('payment_proof')->store('assets/invoices/proof');
+        $invoice->status = 'lunas';
+
+        if (Schema::hasColumn($invoice->getTable(), 'tanggal_pembayaran')) {
+            $invoice->tanggal_pembayaran = $data['payment_time'];
+        }
+
+        foreach (['bukti_bayar', 'bukti_pembayaran', 'payment_proof'] as $proofColumn) {
+            if (Schema::hasColumn($invoice->getTable(), $proofColumn)) {
+                $invoice->{$proofColumn} = $proofPath;
+                break;
+            }
+        }
+
+        $invoice->save();
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Pembayaran invoice berhasil disimpan.',
+        ]);
     }
 
     private function repaymentTimelineStatus(?Carbon $dueDate, bool $isPaid): string

@@ -150,13 +150,18 @@
                                 @endif
                             </td>
                             <td>
-                                <button type="button"
-                                    class="btn btn-sm btn-primary btn-edit-repayment"
-                                    data-company-id="{{ $companyItem->id }}"
-                                    data-invoice="{{ $companyItem->invoice }}"
-                                    title="Edit">
-                                    <i class="mdi mdi-pencil-outline"></i>
-                                </button>
+                                @if ($companyItem->invoice_id)
+                                    <button type="button"
+                                        class="btn btn-sm btn-primary btn-edit-repayment"
+                                        data-company-id="{{ $companyItem->id }}"
+                                        data-invoice-id="{{ $companyItem->invoice_id }}"
+                                        data-invoice="{{ $companyItem->invoice }}"
+                                        title="Edit">
+                                        <i class="mdi mdi-pencil-outline"></i>
+                                    </button>
+                                @else
+                                    -
+                                @endif
                             </td>
                         </tr>
                     @empty
@@ -197,6 +202,40 @@
                     </table>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="editRepaymentInvoiceModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <form id="editRepaymentInvoiceForm" enctype="multipart/form-data">
+                <div class="modal-header">
+                    <h5 class="modal-title">Pembayaran Invoice</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Tutup"><span>&times;</span></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="invoice_id" id="editInvoiceId">
+                    <div class="form-group">
+                        <label for="paymentTime">Waktu Pembayaran</label>
+                        <input type="datetime-local" class="form-control" name="payment_time" id="paymentTime" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="paymentProof">Upload Bukti Bayar</label>
+                        <input type="file" class="form-control" name="payment_proof" id="paymentProof" accept=".jpg,.jpeg,.png,.pdf" required>
+                        <small class="form-text text-muted">Format JPG, PNG, atau PDF. Maksimal 5 MB.</small>
+                    </div>
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" name="declaration" value="1" id="paymentDeclaration">
+                        <label class="custom-control-label" for="paymentDeclaration">
+                            Saya menyatakan bahwa invoicing terhadap perusahaan ini telah terbayarkan
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary" id="submitRepaymentInvoice" disabled>Simpan Pembayaran</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -335,6 +374,47 @@
             columnDefs: [
                 { targets: [0, 9], orderable: false, searchable: false }
             ]
+        });
+
+        $('#paymentDeclaration').on('change', function () {
+            $('#submitRepaymentInvoice').prop('disabled', !this.checked);
+        });
+
+        $('.btn-edit-repayment').on('click', function () {
+            $('#editRepaymentInvoiceForm')[0].reset();
+            $('#editInvoiceId').val($(this).data('invoice-id'));
+            $('#submitRepaymentInvoice').prop('disabled', true);
+            $('#editRepaymentInvoiceModal').modal('show');
+        });
+
+        $('#editRepaymentInvoiceForm').on('submit', function (event) {
+            event.preventDefault();
+
+            const formData = new FormData(this);
+            formData.append('_token', '{{ csrf_token() }}');
+            const submitButton = $('#submitRepaymentInvoice');
+            submitButton.prop('disabled', true).text('Menyimpan...');
+
+            $.ajax({
+                url: '{{ route('admin.tomi-dana.repayments.invoice.update') }}',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    toastr.success(response.message);
+                    $('#editRepaymentInvoiceModal').modal('hide');
+                    window.location.reload();
+                },
+                error: function (xhr) {
+                    const response = xhr.responseJSON || {};
+                    const firstError = response.errors ? Object.values(response.errors)[0][0] : response.message;
+                    toastr.error(firstError || 'Pembayaran invoice gagal disimpan.');
+                },
+                complete: function () {
+                    submitButton.prop('disabled', false).text('Simpan Pembayaran');
+                }
+            });
         });
 
         let companyRepaymentTable;
