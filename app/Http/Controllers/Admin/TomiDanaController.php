@@ -400,6 +400,7 @@ class TomiDanaController extends Controller
             ->addColumn('lender', fn ($row) => strtoupper($row->pinjaman?->lender?->nama ?? '-'))
             ->addColumn('perusahaan', fn ($row) => strtoupper($row->pinjaman?->perusahaan?->nama ?? '-'))
             ->addColumn('angsuran_ke', fn ($row) => $row->pembayaran ?? '-')
+            ->addColumn('periode', fn ($row) => $row->jatuh_tempo ? Carbon::parse($row->jatuh_tempo)->format('m/Y') : '-')
             ->addColumn('tanggal_jatuh_tempo', fn ($row) => $row->jatuh_tempo ? Carbon::parse($row->jatuh_tempo)->format('d/m/Y') : '-')
             ->addColumn('nominal', fn ($row) => 'Rp. ' . number_format((float) ($row->pinjaman?->total_angsuran_perbulan ?? 0), 0, ',', '.'))
             ->addColumn('status_label', function ($row) use ($today) {

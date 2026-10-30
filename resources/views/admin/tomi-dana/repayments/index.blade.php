@@ -85,16 +85,7 @@
 @if (! $company)
 <div class="card">
     <div class="card-body">
-        <div class="d-flex flex-wrap align-items-end justify-content-between mb-3">
-            <h4 class="header-title mb-2">Daftar Perusahaan</h4>
-            <form method="GET" class="form-inline">
-                <label for="companyPeriod" class="mr-2 mb-2">Periode</label>
-                <input type="month" class="form-control mr-2 mb-2" id="companyPeriod" name="period" value="{{ request('period') }}">
-                <button type="submit" class="btn btn-primary mb-2">
-                    <i class="mdi mdi-filter-variant mr-1"></i>Tampilkan
-                </button>
-            </form>
-        </div>
+        <h4 class="header-title mb-3">Daftar Perusahaan</h4>
         <div class="table-responsive">
             <table class="table table-hover mb-0">
                 <thead>
@@ -116,7 +107,7 @@
                                 </span>
                             </td>
                             <td>
-                                <a href="{{ route('admin.tomi-dana.repayments.company', ['companyId' => $companyItem->id, 'period' => request('period')]) }}" class="btn btn-sm btn-info">
+                                <a href="{{ route('admin.tomi-dana.repayments.company', $companyItem->id) }}" class="btn btn-sm btn-info">
                                     <i class="mdi mdi-receipt-text-outline mr-1"></i>Lihat Angsuran
                                 </a>
                             </td>
@@ -205,7 +196,7 @@
         </div>
 
         <form id="repaymentFilter" class="repayment-filter row align-items-end mb-3" method="GET">
-            <div class="col-lg-4 col-md-6 mb-2">
+            <div class="col-lg-6 col-md-6 mb-2">
                 <label for="status" class="mb-1">Status</label>
                 <select class="custom-select" id="status" name="status">
                     <option value="">Semua status</option>
@@ -214,11 +205,7 @@
                     @endforeach
                 </select>
             </div>
-            <div class="col-lg-4 col-md-6 mb-2">
-                <label for="period" class="mb-1">Periode</label>
-                <input type="month" class="form-control" id="period" name="period" value="{{ request('period') }}">
-            </div>
-            <div class="col-lg-4 col-md-6 mb-2">
+            <div class="col-lg-6 col-md-6 mb-2">
                 <button type="submit" class="btn btn-primary btn-block"><i class="mdi mdi-filter-variant mr-1"></i>Filter</button>
             </div>
         </form>
@@ -233,6 +220,7 @@
                         <th>Lender</th>
                         <th>Perusahaan</th>
                         <th>Angsuran Ke-</th>
+                        <th>Periode</th>
                         <th>Jatuh Tempo</th>
                         <th>Nominal</th>
                         <th>Status</th>
@@ -273,7 +261,6 @@
                 data: function (data) {
                     data._token = '{{ csrf_token() }}';
                     data.status = $('#status').val();
-                    data.period = $('#period').val();
                     data.company_id = @json($companyId);
                 }
             },
@@ -284,6 +271,7 @@
                 { data: 'lender', name: 'lender', defaultContent: '-' },
                 { data: 'perusahaan', name: 'perusahaan', defaultContent: '-' },
                 { data: 'angsuran_ke', name: 'pembayaran', defaultContent: '-' },
+                { data: 'periode', name: 'jatuh_tempo', orderable: false, searchable: false, defaultContent: '-' },
                 { data: 'tanggal_jatuh_tempo', name: 'jatuh_tempo', defaultContent: '-' },
                 { data: 'nominal', name: 'nominal', orderable: false, searchable: false, defaultContent: '-' },
                 { data: 'status_label', name: 'status', orderable: false, searchable: false, defaultContent: '-' },
@@ -296,7 +284,7 @@
             repaymentTable.ajax.reload();
         });
 
-        $('#status, #period').on('change', function () {
+        $('#status').on('change', function () {
             repaymentTable.ajax.reload();
         });
 
