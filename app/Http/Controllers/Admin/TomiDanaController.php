@@ -475,7 +475,7 @@ class TomiDanaController extends Controller
     private function repaymentTimelineStatus(?Carbon $dueDate, bool $isPaid): string
     {
         if ($isPaid) {
-            return '&#9989; LUNAS';
+            return '<span class="badge badge-success">LUNAS</span>';
         }
 
         if (! $dueDate) {
