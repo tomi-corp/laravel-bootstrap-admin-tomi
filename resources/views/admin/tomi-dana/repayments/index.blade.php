@@ -123,7 +123,15 @@
                             <td>
                                 {{ $companyItem->jatuh_tempo ?? '-' }}
                             </td>
-                            <td>{{ number_format((int) ($companyItem->jumlah_pinjaman ?? 0), 0, ',', '.') }}</td>
+                            <td>
+                                <button type="button"
+                                    class="btn btn-sm btn-info btn-view-repayments"
+                                    data-company-id="{{ $companyItem->id }}"
+                                    data-company-name="{{ $companyItem->nama }}"
+                                    title="Lihat angsuran ({{ number_format((int) ($companyItem->jumlah_pinjaman ?? 0), 0, ',', '.') }} pinjaman)">
+                                    <i class="mdi mdi-eye-outline"></i>
+                                </button>
+                            </td>
                             <td>Rp. {{ number_format((float) ($companyItem->total_tagihan ?? 0), 0, ',', '.') }}</td>
                             <td>{{ $companyItem->invoice ?? '-' }}</td>
                             <td>
@@ -136,8 +144,12 @@
                                 @endif
                             </td>
                             <td>
-                                <button type="button" class="btn btn-sm btn-info btn-view-repayments" data-company-id="{{ $companyItem->id }}" data-company-name="{{ $companyItem->nama }}">
-                                    <i class="mdi mdi-receipt-text-outline mr-1"></i>Lihat Angsuran
+                                <button type="button"
+                                    class="btn btn-sm btn-warning btn-edit-repayment"
+                                    data-company-id="{{ $companyItem->id }}"
+                                    data-invoice="{{ $companyItem->invoice }}"
+                                    title="Edit">
+                                    <i class="mdi mdi-pencil-outline"></i>
                                 </button>
                             </td>
                         </tr>
