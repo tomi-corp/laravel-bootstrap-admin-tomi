@@ -145,7 +145,7 @@
                             </td>
                             <td>
                                 <button type="button"
-                                    class="btn btn-sm btn-warning btn-edit-repayment"
+                                    class="btn btn-sm btn-primary btn-edit-repayment"
                                     data-company-id="{{ $companyItem->id }}"
                                     data-invoice="{{ $companyItem->invoice }}"
                                     title="Edit">
@@ -181,7 +181,6 @@
                                 <th>Lender</th>
                                 <th>Perusahaan</th>
                                 <th>Angsuran Ke-</th>
-                                <th>Periode</th>
                                 <th>Jatuh Tempo</th>
                                 <th>Nominal</th>
                                 <th>Status</th>
@@ -328,22 +327,6 @@
                     serverSide: true,
                     responsive: true,
                     pageLength: 10,
-                    order: [[6, 'asc'], [7, 'asc']],
-                    drawCallback: function () {
-                        const api = this.api();
-                        let lastPeriod = null;
-
-                        api.rows({ page: 'current' }).every(function () {
-                            const row = this.data();
-                            const period = row.periode || '-';
-
-                            if (period !== lastPeriod) {
-                                const safePeriod = $('<div>').text(period).html();
-                                $(this.node()).before('<tr class="repayment-period-group"><td colspan="11">Periode: ' + safePeriod + '</td></tr>');
-                                lastPeriod = period;
-                            }
-                        });
-                    },
                     language: {
                         search: 'Cari:',
                         emptyTable: 'Belum ada data angsuran',
@@ -369,7 +352,6 @@
                         { data: 'lender', name: 'lender', defaultContent: '-' },
                         { data: 'perusahaan', name: 'perusahaan', defaultContent: '-' },
                         { data: 'angsuran_ke', name: 'pembayaran', defaultContent: '-' },
-                        { data: 'periode', name: 'jatuh_tempo', orderable: false, searchable: false, defaultContent: '-' },
                         { data: 'tanggal_jatuh_tempo', name: 'jatuh_tempo', defaultContent: '-' },
                         { data: 'nominal', name: 'nominal', orderable: false, searchable: false, defaultContent: '-' },
                         { data: 'status_label', name: 'status', orderable: false, searchable: false, defaultContent: '-' },
