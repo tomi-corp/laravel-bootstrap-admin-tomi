@@ -1,6 +1,71 @@
 @extends('layout.app')
 
-@section('title', 'Repayments TomiDana')
+@section('title', 'Pembayaran Angsuran TomiDana')
+
+@push('css')
+<style>
+    .repayment-summary-card {
+        border: 1px solid #edf0f5;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(31, 45, 61, .04);
+    }
+
+    .repayment-summary-card .icon-box {
+        width: 42px;
+        height: 42px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        font-size: 21px;
+    }
+
+    .repayment-summary-card .summary-label {
+        color: #98a6ad;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: .02em;
+        text-transform: uppercase;
+    }
+
+    .repayment-summary-card .summary-value {
+        color: #323a46;
+        font-size: 21px;
+        font-weight: 700;
+    }
+
+    .repayment-filter .form-control,
+    .repayment-filter .custom-select {
+        min-height: 38px;
+    }
+
+    .repayment-table th {
+        background: #f8f9fb;
+        border-top: 0;
+        color: #6c757d;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .04em;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+
+    .repayment-table td {
+        color: #495057;
+        vertical-align: middle;
+    }
+
+    .repayment-table .empty-state {
+        color: #98a6ad;
+        padding: 56px 20px;
+    }
+
+    .repayment-table .empty-state i {
+        color: #c8d0d8;
+        font-size: 40px;
+    }
+</style>
+@endpush
 
 @section('content')
 <div class="row">
@@ -8,19 +73,179 @@
         <div class="page-title-box">
             <div class="page-title-right">
                 <ol class="breadcrumb m-0">
-                    <li class="breadcrumb-item">TomiDana</li>
-                    <li class="breadcrumb-item active">Repayments</li>
+                    <li class="breadcrumb-item"><a href="{{ route('admin.tomi-dana.companies') }}">TomiDana</a></li>
+                    <li class="breadcrumb-item active">Pembayaran Angsuran</li>
                 </ol>
             </div>
-            <h4 class="page-title">Repayments TomiDana</h4>
+            <h4 class="page-title">Pembayaran Angsuran TomiDana</h4>
+        </div>
+    </div>
+</div>
+
+@php
+    $repayments = collect($repayments ?? []);
+    $totalRepayments = $totalRepayments ?? $repayments->count();
+    $paidRepayments = $paidRepayments ?? $repayments->filter(fn ($item) => strtolower((string) data_get($item, 'status')) === 'lunas')->count();
+    $pendingRepayments = $pendingRepayments ?? $repayments->filter(fn ($item) => in_array(strtolower((string) data_get($item, 'status')), ['menunggu', 'pending', 'belum lunas']))->count();
+    $overdueRepayments = $overdueRepayments ?? $repayments->filter(fn ($item) => strtolower((string) data_get($item, 'status')) === 'terlambat')->count();
+@endphp
+
+<div class="row">
+    <div class="col-xl-3 col-md-6">
+        <div class="card repayment-summary-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="icon-box bg-soft-primary text-primary mr-3"><i class="mdi mdi-calendar-check"></i></div>
+                    <div>
+                        <div class="summary-label">Total Angsuran</div>
+                        <div class="summary-value">{{ number_format($totalRepayments, 0, ',', '.') }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card repayment-summary-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="icon-box bg-soft-success text-success mr-3"><i class="mdi mdi-check-circle-outline"></i></div>
+                    <div>
+                        <div class="summary-label">Sudah Lunas</div>
+                        <div class="summary-value">{{ number_format($paidRepayments, 0, ',', '.') }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card repayment-summary-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="icon-box bg-soft-warning text-warning mr-3"><i class="mdi mdi-clock-outline"></i></div>
+                    <div>
+                        <div class="summary-label">Menunggu Pembayaran</div>
+                        <div class="summary-value">{{ number_format($pendingRepayments, 0, ',', '.') }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card repayment-summary-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="icon-box bg-soft-danger text-danger mr-3"><i class="mdi mdi-alert-circle-outline"></i></div>
+                    <div>
+                        <div class="summary-label">Terlambat</div>
+                        <div class="summary-value">{{ number_format($overdueRepayments, 0, ',', '.') }}</div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 <div class="card">
     <div class="card-body">
-        <h4 class="header-title mb-2">Repayments TomiDana</h4>
-        <p class="text-muted mb-0">Kelola repayments untuk TomiDana.</p>
+        <div class="d-flex flex-wrap align-items-center justify-content-between mb-3">
+            <div>
+                <h4 class="header-title mb-1">Daftar Pembayaran Angsuran</h4>
+                <p class="text-muted mb-0">Pantau status pembayaran angsuran pinjaman TomiDana.</p>
+            </div>
+        </div>
+
+        <form id="repaymentFilter" class="repayment-filter row align-items-end mb-3" method="GET">
+            <div class="col-lg-4 col-md-6 mb-2">
+                <label for="status" class="mb-1">Status</label>
+                <select class="custom-select" id="status" name="status">
+                    <option value="">Semua status</option>
+                    @foreach (['lunas' => 'Lunas', 'pending' => 'Menunggu Pembayaran', 'terlambat' => 'Terlambat'] as $value => $label)
+                        <option value="{{ $value }}" @selected(request('status') === $value)>{{ $label }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="col-lg-4 col-md-6 mb-2">
+                <label for="period" class="mb-1">Periode</label>
+                <input type="month" class="form-control" id="period" name="period" value="{{ request('period') }}">
+            </div>
+            <div class="col-lg-4 col-md-6 mb-2">
+                <button type="submit" class="btn btn-primary btn-block"><i class="mdi mdi-filter-variant mr-1"></i>Filter</button>
+            </div>
+        </form>
+
+        <div class="table-responsive">
+            <table id="tableRepayments" class="table table-hover repayment-table mb-0">
+                <thead>
+                    <tr>
+                        <th>No.</th>
+                        <th>Peminjam</th>
+                        <th>Nomor Pinjaman</th>
+                        <th>Lender</th>
+                        <th>Perusahaan</th>
+                        <th>Angsuran Ke-</th>
+                        <th>Jatuh Tempo</th>
+                        <th>Nominal</th>
+                        <th>Status</th>
+                        <th class="text-center">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
     </div>
 </div>
 @endsection
+
+@push('js')
+<script>
+    $(function () {
+        const repaymentTable = $('#tableRepayments').DataTable({
+            processing: true,
+            serverSide: true,
+            responsive: true,
+            pageLength: 10,
+            dom: '<"row"<"col-md-6"l><"col-md-6 text-right"f>>rt<"row"<"col-md-6"i><"col-md-6"p>>',
+            language: {
+                search: 'Cari:',
+                emptyTable: '<div class="empty-state text-center"><i class="mdi mdi-receipt-text-outline d-block mb-2"></i><div class="font-weight-bold text-dark">Belum ada data pembayaran</div><div class="small">Data pembayaran angsuran TomiDana akan tampil di sini.</div></div>',
+                processing: '<i class="dripicons-loading"></i> Memuat data...',
+                lengthMenu: 'Tampilkan _MENU_ data',
+                info: 'Menampilkan _START_ sampai _END_ dari _TOTAL_ data',
+                infoEmpty: 'Belum ada data pembayaran',
+                zeroRecords: 'Data pembayaran tidak ditemukan',
+                paginate: { previous: 'Sebelumnya', next: 'Berikutnya' }
+            },
+            ajax: {
+                url: '{{ route('admin.tomi-dana.repayments.table') }}',
+                type: 'POST',
+                data: function (data) {
+                    data._token = '{{ csrf_token() }}';
+                    data.status = $('#status').val();
+                    data.period = $('#period').val();
+                }
+            },
+            columns: [
+                { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
+                { data: 'nama_peminjam', name: 'nama_peminjam', defaultContent: '-' },
+                { data: 'nomor_pinjaman', name: 'nomor_pinjaman', defaultContent: '-' },
+                { data: 'lender', name: 'lender', defaultContent: '-' },
+                { data: 'perusahaan', name: 'perusahaan', defaultContent: '-' },
+                { data: 'angsuran_ke', name: 'pembayaran', defaultContent: '-' },
+                { data: 'tanggal_jatuh_tempo', name: 'jatuh_tempo', defaultContent: '-' },
+                { data: 'nominal', name: 'nominal', orderable: false, searchable: false, defaultContent: '-' },
+                { data: 'status_label', name: 'status', orderable: false, searchable: false, defaultContent: '-' },
+                { data: 'action', name: 'action', orderable: false, searchable: false, className: 'text-center' }
+            ]
+        });
+
+        $('#repaymentFilter').on('submit', function (event) {
+            event.preventDefault();
+            repaymentTable.ajax.reload();
+        });
+
+        $('#status, #period').on('change', function () {
+            repaymentTable.ajax.reload();
+        });
+    });
+</script>
+@endpush

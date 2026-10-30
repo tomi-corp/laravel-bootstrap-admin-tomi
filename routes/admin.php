@@ -105,8 +105,12 @@ Route::middleware(['AdminMiddleware'])->group(
                         'configurations' => 'Configurations',
                         'repayments' => 'Repayments',
                         'disbursements' => 'Disbursements',
+                        'employees' => 'Employees',
                     ] as $submenu => $sectionLabel) {
-                        $action = fn () => view("admin.{$product}.{$submenu}.index", compact('productLabel', 'sectionLabel'));
+                        $action = fn () => view("admin.{$product}.{$submenu}.index", [
+                            'productLabel' => $productLabel,
+                            'sectionLabel' => $sectionLabel,
+                        ]);
 
                         if ($product === 'tomi-dana' && $submenu === 'companies') {
                             $action = [TomiDanaController::class, 'companies'];
@@ -114,6 +118,12 @@ Route::middleware(['AdminMiddleware'])->group(
                             $action = fn () => redirect()->route('admin.tomi-dana.lender');
                         } elseif ($product === 'tomi-dana' && $submenu === 'configurations') {
                             $action = [TomiDanaController::class, 'configurations'];
+                        } elseif ($product === 'tomi-dana' && $submenu === 'repayments') {
+                            $action = [TomiDanaController::class, 'repayments'];
+                        } elseif ($product === 'tomi-dana' && $submenu === 'disbursements') {
+                            $action = [TomiDanaController::class, 'disbursements'];
+                        } elseif ($product === 'tomi-dana' && $submenu === 'employees') {
+                            $action = [TomiDanaController::class, 'employees'];
                         }
 
                         $route = Route::get("/{$product}/{$submenu}", $action);
@@ -127,6 +137,35 @@ Route::middleware(['AdminMiddleware'])->group(
                     ->name('admin.tomi-dana.perusahaan');
                 Route::get('/tomi-dana/configurations/{id}', [TomiDanaController::class, 'configuration'])
                     ->name('admin.tomi-dana.configurations.index');
+                Route::post('/tomi-dana/repayments/table', [TomiDanaController::class, 'repaymentsTable'])
+                    ->name('admin.tomi-dana.repayments.table');
+                Route::get('/tomi-dana/disbursements/table', [TomiDanaController::class, 'disbursementsTable'])
+                    ->name('admin.tomi-dana.disbursements.table');
+                Route::get('/tomi-dana/employees/table', [TomiDanaController::class, 'employeesTable'])
+                    ->name('admin.tomi-dana.employees.table');
+                Route::get('/tomi-dana/employees/companies/table', [TomiDanaController::class, 'employeeCompaniesTable'])
+                    ->name('admin.tomi-dana.employees.companies.table');
+                Route::post('/tomi-dana/employees/store', [TomiDanaController::class, 'storeEmployee'])
+                    ->name('admin.tomi-dana.employees.store');
+                Route::post('/tomi-dana/employees/import', [TomiDanaController::class, 'importEmployees'])
+                    ->name('admin.tomi-dana.employees.import');
+                Route::get('/tomi-dana/employees/template', [TomiDanaController::class, 'employeeTemplate'])
+                    ->name('admin.tomi-dana.employees.template');
+                Route::get('/tomi-dana/employees/detail/{id}', [TomiDanaController::class, 'employeeDetail'])
+                    ->whereNumber('id')
+                    ->name('admin.tomi-dana.employees.detail');
+                Route::post('/tomi-dana/employees/update', [TomiDanaController::class, 'updateEmployee'])
+                    ->name('admin.tomi-dana.employees.update');
+                Route::post('/tomi-dana/employees/delete', [TomiDanaController::class, 'deleteEmployee'])
+                    ->name('admin.tomi-dana.employees.delete');
+                Route::get('/tomi-dana/employees/{companyId}', [TomiDanaController::class, 'employees'])
+                    ->whereNumber('companyId')
+                    ->name('admin.tomi-dana.employees.company');
+                Route::post('/tomi-dana/disbursements/approve', [TomiDanaController::class, 'approveDisbursement'])
+                    ->name('admin.tomi-dana.disbursements.approve');
+                Route::get('/tomi-dana/disbursements/{id}/evidence/{type}', [TomiDanaController::class, 'disbursementEvidence'])
+                    ->whereIn('type', ['tte', 'selfie', 'ktp'])
+                    ->name('admin.tomi-dana.disbursements.evidence');
                 Route::post('/tomi-dana/configurations/table', [TomiDanaController::class, 'configurationTable'])
                     ->name('admin.tomi-dana.configuration.table');
                 Route::post('/tomi-dana/configurations/store', [TomiDanaController::class, 'addConfiguration'])

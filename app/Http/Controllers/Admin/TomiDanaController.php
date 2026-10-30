@@ -9,11 +9,15 @@ use App\Http\Requests\Admin\Ksp\AddPerusahaanRequest;
 use App\Http\Requests\Admin\Ksp\EditPerusahaanRequest;
 use App\Http\Resources\Admin\Ksp\DetailPerusahaanResource;
 use App\Http\Resources\Admin\Ksp\TenorPinjamanResource;
+use App\Exports\TomiDanaEmployeeTemplateExport;
+use App\Imports\TomiDanaEmployeeImport;
 use App\Models\amount_pinjaman;
+use App\Models\disbursement;
 use App\Models\kecamatan;
 use App\Models\kelurahan;
 use App\Models\kota;
 use App\Models\ListPerusahaan;
+use App\Models\jatuh_tempo;
 use App\Models\list_karyawan;
 use App\Models\lender;
 use App\Models\bank;
@@ -25,10 +29,391 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\Facades\DataTables;
 
 class TomiDanaController extends Controller
 {
+    public function employees(?int $companyId = null)
+    {
+        if ($companyId === null) {
+            return view('admin.tomi-dana.employees.companies');
+        }
+
+        return view('admin.tomi-dana.employees.index', [
+            'companyId' => $companyId,
+            'company' => $companyId ? ListPerusahaan::find($companyId) : null,
+        ]);
+    }
+
+    public function employeesTable()
+    {
+        $query = list_karyawan::with('perusahaan')->latest('id');
+
+        if (request()->filled('company_id')) {
+            $query->where('id_list_perusahaan', request()->integer('company_id'));
+        }
+
+        $keyword = trim((string) request()->input('search.value', ''));
+        if ($keyword !== '') {
+            $query->where(function ($searchQuery) use ($keyword) {
+                $searchQuery->where('nama_karyawan', 'like', "%{$keyword}%")
+                    ->orWhere('nik', 'like', "%{$keyword}%")
+                    ->orWhere('nip', 'like', "%{$keyword}%")
+                    ->orWhere('whatsapp', 'like', "%{$keyword}%")
+                    ->orWhereHas('perusahaan', fn ($q) => $q->where('nama', 'like', "%{$keyword}%"));
+            });
+        }
+
+        return DataTables::of($query->get())
+            ->addIndexColumn()
+            ->addColumn('nama_karyawan', fn ($row) => strtoupper($row->nama_karyawan ?? '-'))
+            ->addColumn('perusahaan', fn ($row) => strtoupper($row->perusahaan?->nama ?? '-'))
+            ->addColumn('status_label', fn ($row) => '<span class="badge badge-secondary">' . e(strtoupper((string) ($row->status ?? '-'))) . '</span>')
+            ->addColumn('action', fn ($row) => '<button type="button" class="btn btn-sm btn-warning mr-1" onclick="editEmployee(' . $row->id . ')"><i class="mdi mdi-pencil"></i></button><button type="button" class="btn btn-sm btn-danger" onclick="deleteEmployee(' . $row->id . ')"><i class="mdi mdi-trash-can"></i></button>')
+            ->rawColumns(['status_label', 'action'])
+            ->toJson();
+    }
+
+    public function employeeCompaniesTable()
+    {
+        return DataTables::eloquent(ListPerusahaan::query()->select(['id', 'nama', 'status'])->latest('id'))
+            ->addIndexColumn()
+            ->addColumn('status_label', fn ($row) => '<span class="badge badge-' . ($row->status === 'active' ? 'success' : 'secondary') . '">' . e(strtoupper((string) ($row->status ?? '-'))) . '</span>')
+            ->addColumn('action', fn ($row) => '<a href="' . route('admin.tomi-dana.employees.company', $row->id) . '" class="btn btn-sm btn-info"><i class="mdi mdi-account-group-outline mr-1"></i> Lihat Karyawan</a>')
+            ->rawColumns(['status_label', 'action'])
+            ->toJson();
+    }
+
+    public function storeEmployee(Request $request)
+    {
+        $data = $this->validateEmployee($request, true);
+        $employee = new list_karyawan();
+        $employee->fill($data);
+        $employee->save();
+
+        return response()->json(['status' => 200, 'message' => 'Data karyawan berhasil ditambahkan.']);
+    }
+
+    public function employeeDetail(int $id)
+    {
+        return response()->json(['status' => 200, 'data' => list_karyawan::findOrFail($id)]);
+    }
+
+    public function updateEmployee(Request $request)
+    {
+        $employee = list_karyawan::findOrFail($request->integer('id'));
+        $data = $this->validateEmployee($request, false);
+        $employee->fill($data);
+        $employee->save();
+
+        return response()->json(['status' => 200, 'message' => 'Data karyawan berhasil diubah.']);
+    }
+
+    public function deleteEmployee(Request $request)
+    {
+        $request->validate(['id' => 'required|integer|exists:list_karyawans,id']);
+        list_karyawan::findOrFail($request->integer('id'))->delete();
+
+        return response()->json(['status' => 200, 'message' => 'Data karyawan berhasil dihapus.']);
+    }
+
+    public function importEmployees(Request $request)
+    {
+        $data = $request->validate([
+            'id_list_perusahaan' => 'required|integer|exists:list_perusahaans,id',
+            'file' => 'required|file|mimes:xlsx,xls,csv|max:10240',
+        ]);
+
+        Excel::import(new TomiDanaEmployeeImport((int) $data['id_list_perusahaan']), $request->file('file'));
+
+        return response()->json(['status' => 200, 'message' => 'Data karyawan berhasil diimpor.']);
+    }
+
+    public function employeeTemplate()
+    {
+        return Excel::download(new TomiDanaEmployeeTemplateExport(), 'template-import-karyawan-tomidana.xlsx');
+    }
+
+    private function validateEmployee(Request $request, bool $includeCompany = true): array
+    {
+        $rules = [
+            'nama_karyawan' => 'required|string|max:255',
+            'tanggal_bergabung' => 'nullable|date',
+            'nik' => 'nullable|string|max:100',
+            'nip' => 'nullable|string|max:100',
+            'whatsapp' => 'nullable|string|max:50',
+            'alamat' => 'nullable|string',
+            'divisi' => 'nullable|string|max:255',
+            'departement' => 'nullable|string|max:255',
+            'jabatan' => 'nullable|string|max:255',
+            'status' => 'nullable|string|max:50',
+            'status_sp' => 'nullable|string|max:50',
+            'nomor_bank' => 'nullable|string|max:100',
+            'max_plafon' => 'nullable|numeric',
+        ];
+
+        if ($includeCompany) {
+            $rules['id_list_perusahaan'] = 'required|integer|exists:list_perusahaans,id';
+        }
+
+        return $request->validate($rules);
+    }
+
+    public function disbursements()
+    {
+        return view('admin.tomi-dana.disbursements.index');
+    }
+
+    public function disbursementsTable()
+    {
+        $query = pinjaman::with(['user', 'data_karyawan', 'lender', 'perusahaan'])
+            ->whereRaw('LOWER(TRIM(status_otp)) = ?', ['success'])
+            ->whereRaw('LOWER(TRIM(ttd)) = ?', ['y'])
+            ->whereRaw('LOWER(TRIM(status)) = ?', ['pending'])
+            ->latest('id');
+
+        $keyword = trim((string) request()->input('search.value', ''));
+        if ($keyword !== '') {
+            $query->where(function ($searchQuery) use ($keyword) {
+                $searchQuery->where('id_pinjaman', 'like', "%{$keyword}%")
+                    ->orWhereHas('data_karyawan', fn ($q) => $q->where('nama_karyawan', 'like', "%{$keyword}%"))
+                    ->orWhereHas('user', fn ($q) => $q->where('name', 'like', "%{$keyword}%"))
+                    ->orWhereHas('lender', fn ($q) => $q->where('nama', 'like', "%{$keyword}%"))
+                    ->orWhereHas('perusahaan', fn ($q) => $q->where('nama', 'like', "%{$keyword}%"));
+            });
+        }
+
+        return DataTables::of($query->get())
+            ->addIndexColumn()
+            ->addColumn('nama_peminjam', fn ($row) => strtoupper($row->data_karyawan?->nama_karyawan ?? $row->user?->name ?? '-'))
+            ->addColumn('nomor_pinjaman', fn ($row) => strtolower(ltrim((string) ($row->id_pinjaman ?? '-'), '#')))
+            ->addColumn('lender', fn ($row) => strtoupper($row->lender?->nama ?? '-'))
+            ->addColumn('perusahaan', fn ($row) => strtoupper($row->perusahaan?->nama ?? '-'))
+            ->addColumn('nominal', fn ($row) => 'Rp. ' . number_format((float) ($row->nominal ?? 0), 0, ',', '.'))
+            ->addColumn('tenor_label', fn ($row) => ($row->tenor ?? 0) . ' bulan')
+            ->addColumn('tanggal_pengajuan', fn ($row) => $row->created_at ? Carbon::parse($row->created_at)->format('d/m/Y H:i') : '-')
+            ->addColumn('evidence', function ($row) {
+                $buttons = [];
+                foreach (['tte' => ['TTE', 'file-pdf-box'], 'selfie' => ['Selfie', 'camera-outline'], 'ktp' => ['KTP', 'card-account-details-outline']] as $type => [$label, $icon]) {
+                    $buttons[] = '<a href="' . route('admin.tomi-dana.disbursements.evidence', [$row->id, $type]) . '" target="_blank" class="btn btn-sm btn-outline-info mr-1 mb-1" title="Lihat ' . $label . '"><i class="mdi mdi-' . $icon . ' mr-1"></i>' . $label . '</a>';
+                }
+
+                return implode('', $buttons);
+            })
+            ->addColumn('action', function ($row) {
+                $eligible = strtolower((string) $row->status_otp) === 'success'
+                    && strtolower((string) $row->ttd) === 'y'
+                    && strtolower((string) $row->status) === 'pending';
+
+                return $eligible
+                    ? '<button type="button" class="btn btn-sm btn-success" onclick="approveDisbursement(' . $row->id . ')"><i class="mdi mdi-check-circle-outline mr-1"></i>Approve</button>'
+                    : '<button type="button" class="btn btn-sm btn-secondary" disabled title="Belum memenuhi syarat">Tidak tersedia</button>';
+            })
+            ->rawColumns(['evidence', 'action'])
+            ->toJson();
+    }
+
+    public function disbursementEvidence(int $id, string $type)
+    {
+        abort_unless(in_array($type, ['tte', 'selfie', 'ktp'], true), 404);
+
+        $loan = pinjaman::with(['user.kyc', 'user.privy'])->findOrFail($id);
+
+        $path = match ($type) {
+            'tte' => $this->evidencePath('assets/pk', $loan->document_name),
+            'ktp' => $this->evidencePath('assets/users', $loan->user?->privy?->local_ktp_path)
+                ?? $this->evidencePath('assets/users', $loan->user?->kyc?->ktp),
+            'selfie' => $this->evidencePath('assets/users', $loan->user?->privy?->local_selfie_path)
+                ?? $this->evidencePath('assets/users', $loan->user?->kyc?->selfie),
+        };
+
+        abort_if(blank($path), 404, 'Bukti dokumen tidak tersedia.');
+
+        $disk = Storage::disk('local');
+        abort_unless($disk->exists($path), 404, 'Bukti dokumen tidak ditemukan.');
+
+        return response()->file($disk->path($path), [
+            'Content-Disposition' => 'inline; filename="' . basename($path) . '"',
+        ]);
+    }
+
+    private function evidencePath(string $directory, ?string $fileName): ?string
+    {
+        return filled($fileName) ? $directory . '/' . basename($fileName) : null;
+    }
+
+    public function approveDisbursement(Request $request)
+    {
+        $request->validate([
+            'id' => 'required|integer',
+            'transfer_date' => 'required|date',
+            'transfer_proof' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+        ]);
+
+        $loan = pinjaman::where('id', $request->integer('id'))
+            ->whereRaw('LOWER(TRIM(status_otp)) = ?', ['success'])
+            ->whereRaw('LOWER(TRIM(ttd)) = ?', ['y'])
+            ->whereRaw('LOWER(TRIM(status)) = ?', ['pending'])
+            ->first();
+
+        if (! $loan) {
+            return response()->json([
+                'status' => 422,
+                'message' => 'Pinjaman tidak memenuhi syarat untuk di-approve.',
+            ], 422);
+        }
+
+        $proof = $request->file('transfer_proof');
+        $proofName = 'transfer-proof-' . $loan->id . '-' . time() . '-' . Str::random(8) . '.' . $proof->getClientOriginalExtension();
+        $proofPath = $proof->storeAs('assets/disbursements', $proofName);
+
+        DB::transaction(function () use ($loan, $request, $proofPath) {
+            $disbursement = disbursement::where('pinjaman_id', $loan->id)->first() ?? new disbursement();
+            $disbursement->pinjaman_id = $loan->id;
+            $disbursement->transfer_date = $request->input('transfer_date');
+            $disbursement->transfer_proof = $proofPath;
+            $disbursement->save();
+
+            $loan->status = 'approve';
+            $loan->save();
+        });
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Pinjaman berhasil di-approve.',
+        ]);
+    }
+
+    public function repayments(Request $request)
+    {
+        $request->validate([
+            'search' => 'nullable|string|max:100',
+            'status' => 'nullable|in:lunas,pending,terlambat',
+            'period' => 'nullable|date_format:Y-m',
+        ]);
+
+        $query = jatuh_tempo::with(['pinjaman.data_karyawan', 'pinjaman.perusahaan', 'pinjaman.user'])
+            ->whereHas('pinjaman', function ($loanQuery) {
+                $loanQuery->where('status_otp', 'success');
+            })
+            ->when($request->filled('search'), function ($query) use ($request) {
+                $search = trim($request->input('search'));
+
+                $query->whereHas('pinjaman', function ($loanQuery) use ($search) {
+                    $loanQuery->where('id', 'like', "%{$search}%")
+                        ->orWhereHas('data_karyawan', function ($borrowerQuery) use ($search) {
+                            $borrowerQuery->where('nama_karyawan', 'like', "%{$search}%");
+                        });
+                });
+            })
+            ->when($request->filled('period'), function ($query) use ($request) {
+                $query->whereYear('jatuh_tempo', substr($request->input('period'), 0, 4))
+                    ->whereMonth('jatuh_tempo', substr($request->input('period'), 5, 2));
+            })
+            ->orderBy('jatuh_tempo')
+            ->orderBy('id_pinjaman');
+
+        $repayments = $query->get()->map(function ($installment) {
+            $dueDate = $installment->jatuh_tempo ? Carbon::parse($installment->jatuh_tempo) : null;
+            $isPaid = strtolower((string) $installment->status) === 'lunas';
+            $status = $isPaid ? 'lunas' : ($dueDate?->isBefore(Carbon::today()) ? 'terlambat' : 'pending');
+
+            return [
+                'borrower_name' => $installment->pinjaman?->data_karyawan?->nama_karyawan ?? $installment->pinjaman?->user?->name ?? '-',
+                'loan_number' => 'TD-' . str_pad((string) ($installment->id_pinjaman ?? '-'), 6, '0', STR_PAD_LEFT),
+                'installment_number' => $installment->pembayaran ?? '-',
+                'due_date' => $dueDate?->format('d/m/Y') ?? '-',
+                'amount' => (float) ($installment->pinjaman?->total_angsuran_perbulan ?? 0),
+                'status' => $status,
+            ];
+        })->filter(function ($repayment) use ($request) {
+            return ! $request->filled('status') || $repayment['status'] === $request->input('status');
+        })->values();
+
+        return view('admin.tomi-dana.repayments.index', [
+            'repayments' => $repayments,
+            'totalRepayments' => $repayments->count(),
+            'paidRepayments' => $repayments->where('status', 'lunas')->count(),
+            'pendingRepayments' => $repayments->where('status', 'pending')->count(),
+            'overdueRepayments' => $repayments->where('status', 'terlambat')->count(),
+        ]);
+    }
+
+    public function repaymentsTable(Request $request)
+    {
+        $today = Carbon::today();
+        $query = jatuh_tempo::with(['pinjaman.data_karyawan', 'pinjaman.user', 'pinjaman.lender', 'pinjaman.perusahaan'])
+            ->whereHas('pinjaman', function ($loanQuery) {
+                $loanQuery->where('status_otp', 'success');
+            })
+            ->when($request->filled('status'), function ($query) use ($request, $today) {
+                $status = $request->input('status');
+
+                if ($status === 'lunas') {
+                    $query->where('status', 'lunas');
+                } elseif ($status === 'terlambat') {
+                    $query->where('status', '!=', 'lunas')->whereDate('jatuh_tempo', '<', $today);
+                } elseif ($status === 'pending') {
+                    $query->where('status', '!=', 'lunas')->where(function ($pendingQuery) use ($today) {
+                        $pendingQuery->whereDate('jatuh_tempo', '>=', $today)
+                            ->orWhereNull('jatuh_tempo');
+                    });
+                }
+            })
+            ->when($request->filled('period'), function ($query) use ($request) {
+                $query->whereYear('jatuh_tempo', substr($request->input('period'), 0, 4))
+                    ->whereMonth('jatuh_tempo', substr($request->input('period'), 5, 2));
+            });
+
+        return DataTables::eloquent($query)
+            ->addIndexColumn()
+            ->addColumn('nama_peminjam', function ($row) {
+                return strtoupper($row->pinjaman?->data_karyawan?->nama_karyawan ?? $row->pinjaman?->user?->name ?? '-');
+            })
+            ->addColumn('nomor_pinjaman', function ($row) {
+                return strtolower(ltrim((string) ($row->pinjaman?->id_pinjaman ?? '-'), '#'));
+            })
+            ->addColumn('lender', fn ($row) => strtoupper($row->pinjaman?->lender?->nama ?? '-'))
+            ->addColumn('perusahaan', fn ($row) => strtoupper($row->pinjaman?->perusahaan?->nama ?? '-'))
+            ->addColumn('angsuran_ke', fn ($row) => $row->pembayaran ?? '-')
+            ->addColumn('tanggal_jatuh_tempo', fn ($row) => $row->jatuh_tempo ? Carbon::parse($row->jatuh_tempo)->format('d/m/Y') : '-')
+            ->addColumn('nominal', fn ($row) => 'Rp. ' . number_format((float) ($row->pinjaman?->total_angsuran_perbulan ?? 0), 0, ',', '.'))
+            ->addColumn('status_label', function ($row) use ($today) {
+                $isPaid = strtolower((string) $row->status) === 'lunas';
+                $isOverdue = ! $isPaid && $row->jatuh_tempo && Carbon::parse($row->jatuh_tempo)->isBefore($today);
+                $status = $isPaid ? 'LUNAS' : ($isOverdue ? 'TERLAMBAT' : 'PENDING');
+                $badge = $isPaid ? 'success' : ($isOverdue ? 'danger' : 'warning');
+
+                return '<span class="badge badge-' . $badge . '">' . $status . '</span>';
+            })
+            ->addColumn('action', fn () => '<button type="button" class="btn btn-sm btn-light" title="Detail" disabled><i class="mdi mdi-eye-outline"></i></button>')
+            ->filterColumn('nama_peminjam', function ($query, $keyword) {
+                $query->whereHas('pinjaman.data_karyawan', function ($borrowerQuery) use ($keyword) {
+                    $borrowerQuery->where('nama_karyawan', 'like', "%{$keyword}%");
+                });
+            })
+            ->filterColumn('nomor_pinjaman', function ($query, $keyword) {
+                $query->whereHas('pinjaman', function ($loanQuery) use ($keyword) {
+                    $loanQuery->where('id_pinjaman', 'like', '%' . ltrim($keyword, '#') . '%');
+                });
+            })
+            ->filterColumn('lender', function ($query, $keyword) {
+                $query->whereHas('pinjaman.lender', function ($lenderQuery) use ($keyword) {
+                    $lenderQuery->where('nama', 'like', "%{$keyword}%");
+                });
+            })
+            ->filterColumn('perusahaan', function ($query, $keyword) {
+                $query->whereHas('pinjaman.perusahaan', function ($companyQuery) use ($keyword) {
+                    $companyQuery->where('nama', 'like', "%{$keyword}%");
+                });
+            })
+            ->rawColumns(['status_label', 'action'])
+            ->toJson();
+    }
+
     public function configurations()
     {
         $perusahaans = ListPerusahaan::with('lender')

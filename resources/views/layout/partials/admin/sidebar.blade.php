@@ -81,6 +81,7 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                         <li><a href="{{ route('admin.tomi-dana.companies') }}">Perusahaan</a></li>
                         <li><a href="{{ route('admin.tomi-dana.lender') }}">Pemberi Pinjaman</a></li>
                         <li><a href="{{ route('admin.tomi-dana.disbursements') }}">Pencairan</a></li>
+                        <li><a href="{{ route('admin.tomi-dana.employees') }}">Karyawan</a></li>
                         <li><a href="{{ route('admin.tomi-dana.repayments') }}">Pembayaran Angsuran</a></li>
                         <li><a href="{{ route('admin.tomi-dana.configurations') }}">Konfigurasi</a></li>
                     </ul>
@@ -202,13 +203,18 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                         </li>
                         @endif
                         <li>
-                            <a href="javascript: void(0);" onclick="alert('Menu Pembayaran Angsuran sedang dalam pengembangan.')">
+                            <a href="{{ route('admin.tomi-dana.repayments') }}">
                                 Pembayaran Angsuran
                             </a>
                         </li>
                         <li>
-                            <a href="javascript: void(0);" onclick="alert('Menu Pencairan sedang dalam pengembangan.')">
+                            <a href="{{ route('admin.tomi-dana.disbursements') }}">
                                 Pencairan
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('admin.tomi-dana.employees') }}">
+                                Karyawan
                             </a>
                         </li>
                     </ul>
