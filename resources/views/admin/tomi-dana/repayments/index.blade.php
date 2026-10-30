@@ -107,9 +107,9 @@
                                 </span>
                             </td>
                             <td>
-                                <a href="{{ route('admin.tomi-dana.repayments.company', $companyItem->id) }}" class="btn btn-sm btn-info">
+                                <button type="button" class="btn btn-sm btn-info btn-view-repayments" data-company-id="{{ $companyItem->id }}" data-company-name="{{ $companyItem->nama }}">
                                     <i class="mdi mdi-receipt-text-outline mr-1"></i>Lihat Angsuran
-                                </a>
+                                </button>
                             </td>
                         </tr>
                     @empty
@@ -119,6 +119,38 @@
                     @endforelse
                 </tbody>
             </table>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="repaymentModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="repaymentModalTitle">Daftar Angsuran</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Tutup"><span>&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table id="tableCompanyRepayments" class="table table-hover repayment-table mb-0" style="width: 100%;">
+                        <thead>
+                            <tr>
+                                <th>No.</th>
+                                <th>Peminjam</th>
+                                <th>Nomor Pinjaman</th>
+                                <th>Lender</th>
+                                <th>Perusahaan</th>
+                                <th>Angsuran Ke-</th>
+                                <th>Periode</th>
+                                <th>Jatuh Tempo</th>
+                                <th>Nominal</th>
+                                <th>Status</th>
+                                <th class="text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -236,7 +268,68 @@
 @endsection
 
 @push('js')
-@if ($company)
+@if (! $company)
+<script>
+    $(function () {
+        let companyRepaymentTable;
+        let selectedCompanyId;
+
+        $('.btn-view-repayments').on('click', function () {
+            selectedCompanyId = $(this).data('company-id');
+            const companyName = String($(this).data('company-name') || '-').toUpperCase();
+
+            $('#repaymentModalTitle').text('Daftar Angsuran - ' + companyName);
+            $('#repaymentModal').modal('show');
+
+            if (!companyRepaymentTable) {
+                companyRepaymentTable = $('#tableCompanyRepayments').DataTable({
+                    processing: true,
+                    serverSide: true,
+                    responsive: true,
+                    pageLength: 10,
+                    language: {
+                        search: 'Cari:',
+                        emptyTable: 'Belum ada data angsuran',
+                        zeroRecords: 'Data angsuran tidak ditemukan',
+                        processing: 'Memuat data...',
+                        lengthMenu: 'Tampilkan _MENU_ data',
+                        info: 'Menampilkan _START_ sampai _END_ dari _TOTAL_ data',
+                        infoEmpty: 'Belum ada data angsuran',
+                        paginate: { previous: 'Sebelumnya', next: 'Berikutnya' }
+                    },
+                    ajax: {
+                        url: '{{ route('admin.tomi-dana.repayments.table') }}',
+                        type: 'POST',
+                        data: function (data) {
+                            data._token = '{{ csrf_token() }}';
+                            data.company_id = selectedCompanyId;
+                        }
+                    },
+                    columns: [
+                        { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
+                        { data: 'nama_peminjam', name: 'nama_peminjam', defaultContent: '-' },
+                        { data: 'nomor_pinjaman', name: 'nomor_pinjaman', defaultContent: '-' },
+                        { data: 'lender', name: 'lender', defaultContent: '-' },
+                        { data: 'perusahaan', name: 'perusahaan', defaultContent: '-' },
+                        { data: 'angsuran_ke', name: 'pembayaran', defaultContent: '-' },
+                        { data: 'periode', name: 'jatuh_tempo', orderable: false, searchable: false, defaultContent: '-' },
+                        { data: 'tanggal_jatuh_tempo', name: 'jatuh_tempo', defaultContent: '-' },
+                        { data: 'nominal', name: 'nominal', orderable: false, searchable: false, defaultContent: '-' },
+                        { data: 'status_label', name: 'status', orderable: false, searchable: false, defaultContent: '-' },
+                        { data: 'action', name: 'action', orderable: false, searchable: false, className: 'text-center' }
+                    ]
+                });
+            } else {
+                companyRepaymentTable.ajax.reload();
+            }
+
+            $('#repaymentModal').one('shown.bs.modal', function () {
+                companyRepaymentTable.columns.adjust().responsive.recalc();
+            });
+        });
+    });
+</script>
+@else
 <script>
     $(function () {
         const repaymentTable = $('#tableRepayments').DataTable({
