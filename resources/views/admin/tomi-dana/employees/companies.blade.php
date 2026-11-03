@@ -43,7 +43,7 @@
         $('#tableEmployeeCompanies').DataTable({
             processing: true,
             serverSide: true,
-            responsive: true,
+            scrollX: true,
             pageLength: 10,
             ajax: {
                 url: '{{ route('admin.tomi-dana.employees.companies.table') }}',
