@@ -520,6 +520,8 @@ class LenderController extends Controller
         $pinjamanTable = (new pinjaman)->getTable();
         $disbursementTable = (new disbursement)->getTable();
 
+        $cutoffDate = Carbon::create(Carbon::now()->year, 4, 17)->toDateString();
+
         $lender = lender::query()
             ->join($pinjamanTable, "{$pinjamanTable}.id_lender", '=', "{$lenderTable}.id")
             ->join($disbursementTable, function ($join) use ($pinjamanTable, $disbursementTable) {
@@ -527,13 +529,18 @@ class LenderController extends Controller
                     ->whereYear("{$disbursementTable}.created_at", Carbon::now()->year)
                     ->whereMonth("{$disbursementTable}.created_at", Carbon::now()->month);
             })
+            ->whereIn("{$pinjamanTable}.status", ['approve', 'done'])
+            ->whereNull("{$pinjamanTable}.deleted_at")
             ->select([
                 "{$lenderTable}.id",
                 "{$lenderTable}.id_code_lender",
                 "{$lenderTable}.nama",
             ])
             ->selectRaw("COUNT(DISTINCT {$pinjamanTable}.id) as total_pinjaman")
-            ->selectRaw("COALESCE(SUM({$pinjamanTable}.biaya_admin_pandu), 0) + COALESCE(SUM({$pinjamanTable}.biaya_layanan), 0) as revenue")
+            ->selectRaw(
+                "COALESCE(SUM(CASE WHEN DATE({$pinjamanTable}.created_at) < ? THEN (COALESCE({$pinjamanTable}.nominal, 0) * 0.03) + 20000 ELSE 10000 + (COALESCE({$pinjamanTable}.nominal, 0) * 0.01) END), 0) as revenue",
+                [$cutoffDate]
+            )
             ->groupBy("{$lenderTable}.id", "{$lenderTable}.id_code_lender", "{$lenderTable}.nama");
 
         return DataTables::of($lender)
@@ -719,7 +726,9 @@ class LenderController extends Controller
                     ->whereIn("{$pinjamanTable}.status", ['approve', 'done'])
                     ->whereNull("{$pinjamanTable}.deleted_at")
                     ->whereRaw($matchingPeriodSql)
-                    ->selectRaw("COALESCE(SUM({$pinjamanTable}.biaya_admin_pandu), 0) + COALESCE(SUM({$pinjamanTable}.biaya_layanan), 0)");
+                    ->selectRaw(
+                        "COALESCE(SUM(CASE WHEN DATE({$pinjamanTable}.created_at) < STR_TO_DATE(CONCAT(YEAR({$invoiceTable}.period), '-04-17'), '%Y-%m-%d') THEN (COALESCE({$pinjamanTable}.nominal, 0) * 0.03) + 20000 ELSE 10000 + (COALESCE({$pinjamanTable}.nominal, 0) * 0.01) END), 0)"
+                    );
             }, 'revenue');
     }
 
@@ -792,7 +801,8 @@ class LenderController extends Controller
         if ($historyInvoicingLenderPending->lender) {
             $filteredPinjaman = $historyInvoicingLenderPending->lender->pinjaman
                 ->filter(function ($pinjaman) use ($historyInvoicingLenderPending) {
-                    return $pinjaman->disbursement &&
+                    return in_array(strtolower((string) $pinjaman->status), ['approve', 'done'], true)
+                        && $pinjaman->disbursement &&
                         Carbon::parse($pinjaman->disbursement->created_at)->format('Y-m') ===
                         Carbon::parse($historyInvoicingLenderPending->period)->format('Y-m');
                 })
