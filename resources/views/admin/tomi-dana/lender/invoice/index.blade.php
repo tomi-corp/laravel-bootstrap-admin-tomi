@@ -14,8 +14,6 @@
     $selectedInvoice = $selectedInvoice ?? null;
 
     $summaryCards = [
-        ['label' => 'Total Pemberi Pinjaman', 'value' => $summary['total_lenders'] ?? 0, 'icon' => 'account-group-outline', 'tone' => 'blue'],
-        ['label' => 'Total Invoice Bulan Ini', 'value' => $summary['total_invoices'] ?? 0, 'icon' => 'file-document-outline', 'tone' => 'blue'],
         ['label' => 'Total Biaya Layanan', 'value' => $formatRupiah($summary['service_fee'] ?? 0), 'icon' => 'layers-outline', 'tone' => 'blue'],
         ['label' => 'Total Biaya Admin', 'value' => $formatRupiah($summary['admin_fee'] ?? 0), 'icon' => 'cash-multiple', 'tone' => 'blue'],
         ['label' => 'Total Tagihan', 'value' => $formatRupiah($summary['total_billing'] ?? 0), 'icon' => 'calculator-variant-outline', 'tone' => 'blue'],
