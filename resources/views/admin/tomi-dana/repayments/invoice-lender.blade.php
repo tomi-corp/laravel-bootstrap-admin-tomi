@@ -32,8 +32,11 @@
         .number { text-align: right; }
         .payment-summary { margin-top: 18px; }
         .payment-info { float: left; line-height: 1.6; width: calc(100% - 320px); }
-        .payment-info strong { display: inline-block; min-width: 105px; }
-        .summary { margin-left: auto; margin-top: 18px; width: 300px; }
+        .bank-details { border-collapse: collapse; margin-top: 4px; width: auto; }
+        .bank-details th, .bank-details td { background: transparent; border: 0; font-size: 11px; padding: 0 6px 0 0; text-transform: none; vertical-align: top; }
+        .bank-details th { min-width: 105px; text-align: right; }
+        .bank-details .separator { padding-right: 8px; text-align: center; width: 18px; }
+        .summary { margin-left: auto; margin-top: 0; width: 300px; }
         .summary th, .summary td { border: 0; padding: 4px 0; }
         .summary th { background: transparent; font-size: 11px; text-transform: none; }
         .status { border-radius: 3px; color: #fff; display: inline-block; font-size: 9px; padding: 4px 7px; }
@@ -114,9 +117,23 @@
         <div class="payment-summary clearfix">
             <div class="payment-info">
                 <div><strong>Noted:</strong> Harap segera dibayarkan tagihan sesuai invoice terlampir maksimum tanggal 28 {{ $invoicePeriod->format('M-Y') }} ke rekening berikut:</div>
-                <div><strong>BANK:</strong> BNI</div>
-                <div><strong>Atas Nama:</strong> KOPERASI SIMPAN PINJAM DUMI DIGITAL TEKNOLOGI</div>
-                <div><strong>No Rekening:</strong> 2011113338</div>
+                <table class="bank-details">
+                    <tr>
+                        <th>BANK</th>
+                        <td class="separator">:</td>
+                        <td>BNI</td>
+                    </tr>
+                    <tr>
+                        <th>Atas Nama</th>
+                        <td class="separator">:</td>
+                        <td>KOPERASI SIMPAN PINJAM DUMI DIGITAL TEKNOLOGI</td>
+                    </tr>
+                    <tr>
+                        <th>No Rekening</th>
+                        <td class="separator">:</td>
+                        <td>2011113338</td>
+                    </tr>
+                </table>
             </div>
 
             <table class="summary">
