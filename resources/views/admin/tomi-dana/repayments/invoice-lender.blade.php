@@ -92,24 +92,35 @@
             <thead>
                 <tr>
                     <th>No.</th>
-                    <th>Nomor Pinjaman</th>
-                    <th>Nama Peminjam</th>
-                    <th class="number">Nominal Pinjaman</th>
-                    <th class="number">Total Tagihan</th>
+                    <th>Tanggal Pinjaman</th>
+                    <th>Nama</th>
+                    <th class="number">Jumlah Pinjaman</th>
+                    <th class="number">Jumlah Angsuran</th>
+                    <th class="number">Jumlah yang Diterima</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse ($pinjaman as $loan)
+                    @php
+                        $tanggalPinjaman = $loan->tanggal_pinjaman ?: $loan->created_at;
+                    @endphp
                     <tr>
                         <td>{{ $loop->iteration }}</td>
-                        <td>{{ $loan->id_pinjaman ?? ('TD-' . $loan->id) }}</td>
-                        <td>{{ strtoupper($loan->data_karyawan?->nama_karyawan ?? $loan->user?->name ?? '-') }}</td>
+                        <td>
+                            {{ $tanggalPinjaman ? \Carbon\Carbon::parse($tanggalPinjaman)->format('d/m/Y') : '-' }}<br>
+                            <small>{{ $loan->id_pinjaman ?? ('TD-' . $loan->id) }}</small>
+                        </td>
+                        <td>
+                            {{ strtoupper($loan->data_karyawan?->nama_karyawan ?? $loan->user?->name ?? '-') }}<br>
+                            <small>NIP: {{ $loan->data_karyawan?->nip ?? '-' }}</small>
+                        </td>
                         <td class="number">Rp. {{ number_format((float) ($loan->nominal ?? 0), 0, ',', '.') }}</td>
                         <td class="number">Rp. {{ number_format((float) ($loan->total_angsuran_perbulan ?? 0), 0, ',', '.') }}</td>
+                        <td class="number">Rp. {{ number_format((float) ($loan->jumlah_yang_diterima ?? 0), 0, ',', '.') }}</td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" style="text-align: center;">Belum ada pinjaman pada periode ini.</td>
+                        <td colspan="6" style="text-align: center;">Belum ada pinjaman pada periode ini.</td>
                     </tr>
                 @endforelse
             </tbody>
