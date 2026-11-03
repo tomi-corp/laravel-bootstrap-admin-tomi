@@ -16,6 +16,7 @@
         .clearfix::after { clear: both; content: ''; display: table; }
         .left { float: left; }
         .right { float: right; text-align: right; }
+        .logo { height: 45px; }
         h1 { color: #007bff; font-size: 22px; margin: 0 0 5px; }
         .muted { color: #6c757d; }
         .meta { margin-bottom: 20px; }
@@ -53,10 +54,10 @@
     <div class="invoice">
         <div class="header clearfix">
             <div class="left">
-                <h1>INVOICE TOMIDANA</h1>
-                <div class="muted">Rincian tagihan pembayaran angsuran</div>
+                <img src="{{ $isPdf ? public_path('assets/images/logo.jpg') : asset('assets/images/logo.jpg') }}" class="logo" alt="Logo TOMI">
             </div>
             <div class="right">
+                <h1>INVOICE TOMIDANA</h1>
                 <div><strong>Nomor Invoice:</strong> {{ $invoiceNumber }}</div>
                 <div><strong>Tanggal:</strong> {{ now()->format('d/m/Y') }}</div>
             </div>
