@@ -176,7 +176,7 @@
                 <div class="panel-header"><i class="mdi mdi-file-table-outline"></i><h3>Daftar Invoice Tagihan Lender</h3></div>
                 <div class="panel-body p-0">
                     <div class="table-scroll">
-                        <table class="table invoice-table">
+                        <table id="tableLenderInvoices" class="table invoice-table" style="width:100%">
                             <thead><tr><th>No. Invoice</th><th>Pemberi Pinjaman</th><th>Periode</th><th>Jumlah Transaksi</th><th>Biaya Layanan</th><th>Biaya Admin</th><th>Total Tagihan</th><th>Jatuh Tempo</th><th>Status</th><th>Aksi</th></tr></thead>
                             <tbody>
                                 @forelse ($invoices as $invoice)
@@ -200,14 +200,9 @@
                                         </td>
                                     </tr>
                                 @empty
-                                    <tr><td colspan="10" class="empty-state">Belum ada invoice tagihan lender.</td></tr>
                                 @endforelse
                             </tbody>
                         </table>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center px-3 py-2 border-top text-muted small">
-                        <span>Menampilkan {{ $formatNumber(count($invoices)) }} invoice</span>
-                        <div><button type="button" class="btn btn-sm btn-light mr-1" disabled><i class="mdi mdi-chevron-left"></i></button><button type="button" class="btn btn-sm btn-primary">1</button><button type="button" class="btn btn-sm btn-light ml-1" disabled><i class="mdi mdi-chevron-right"></i></button></div>
                     </div>
                 </div>
             </div>
@@ -219,6 +214,25 @@
 @push('js')
 <script>
     $(function () {
+        $('#tableLenderInvoices').DataTable({
+            processing: true,
+            responsive: false,
+            scrollX: true,
+            pageLength: 8,
+            lengthMenu: [[8, 15, 25, 50], [8, 15, 25, 50]],
+            order: [[2, 'desc']],
+            dom: '<"row align-items-center mb-2"<"col-md-6"l><"col-md-6"f>>rt<"row align-items-center mt-2"<"col-md-6"i><"col-md-6"p>>',
+            language: {
+                search: 'Cari:',
+                lengthMenu: 'Tampilkan _MENU_ data',
+                info: 'Menampilkan _START_ sampai _END_ dari _TOTAL_ invoice',
+                infoEmpty: 'Belum ada invoice tagihan lender',
+                emptyTable: 'Belum ada invoice tagihan lender',
+                zeroRecords: 'Invoice tidak ditemukan',
+                paginate: { previous: 'Sebelumnya', next: 'Berikutnya' }
+            }
+        });
+
         $('#exportInvoice').on('click', function () {
             window.print();
         });
