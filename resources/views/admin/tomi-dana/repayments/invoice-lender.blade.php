@@ -69,25 +69,6 @@
             <p class="invoice-detail"><strong>Lampiran Pinjaman ID Perusahaan:</strong> {{ $company->id_code_perusahaan ?? '-' }}</p>
         </div>
 
-        <div class="meta">
-            <div class="meta-item">
-                <div class="meta-label">Kode Perusahaan</div>
-                <div class="meta-value">{{ strtoupper($company->id_code_perusahaan ?? '-') }}</div>
-            </div>
-            <div class="meta-item">
-                <div class="meta-label">Nama Perusahaan</div>
-                <div class="meta-value">{{ strtoupper($company->nama ?? '-') }}</div>
-            </div>
-            <div class="meta-item">
-                <div class="meta-label">Lender</div>
-                <div class="meta-value">{{ strtoupper($company->lender?->nama ?? '-') }}</div>
-            </div>
-            <div class="meta-item">
-                <div class="meta-label">Periode / Jatuh Tempo</div>
-                <div class="meta-value">{{ $invoicePeriod->format('d/m/Y') }}</div>
-            </div>
-        </div>
-
         <table>
             <thead>
                 <tr>
