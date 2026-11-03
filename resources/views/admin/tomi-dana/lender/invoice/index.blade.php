@@ -73,7 +73,7 @@
     .invoice-dashboard .status-name { flex: 1; font-size: 12px; font-weight: 600; }
     .invoice-dashboard .status-count, .invoice-dashboard .status-total { font-size: 11px; text-align: right; }
     .invoice-dashboard .status-total { font-weight: 700; min-width: 115px; }
-    .invoice-dashboard .invoice-table { margin-bottom: 0; }
+    .invoice-dashboard .invoice-table { margin-bottom: 0; min-width: 1180px; }
     .invoice-dashboard .invoice-table th { background: #f2f4f8; border: 0; color: #42506a; font-size: 10px; font-weight: 700; white-space: nowrap; }
     .invoice-dashboard .invoice-table td { border-color: #edf0f5; color: #27324a; font-size: 11px; vertical-align: middle; }
     .invoice-dashboard .invoice-table tr.is-selected { background: #f1f6ff; box-shadow: inset 3px 0 #1264e8; }
@@ -217,7 +217,7 @@
         $('#tableLenderInvoices').DataTable({
             processing: true,
             responsive: false,
-            scrollX: true,
+            scrollX: false,
             pageLength: 8,
             lengthMenu: [[8, 15, 25, 50], [8, 15, 25, 50]],
             order: [[2, 'desc']],
