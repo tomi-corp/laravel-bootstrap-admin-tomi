@@ -61,6 +61,8 @@ Route::middleware(['AdminMiddleware'])->group(
                 Route::post('/profile/enableTwoFactor', [ProfileController::class, 'enableTwoFactor'])->name('admin.profile.enableTwoFactor');
 
                 Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('admin.dashboard.index');
+                Route::view('/tomi-dana/lender/invoice', 'admin.tomi-dana.lender.invoice.index')
+                    ->name('admin.tomi-dana.lender.invoice');
                 Route::get('/lender/dashboard', function () {
                     return view('lender.dashboard.index');
                 })->name('lender.dashboard.index');
