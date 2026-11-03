@@ -17,11 +17,11 @@
     </div>
 </div>
 
-<div class="card">
+<div class="card w-100">
     <div class="card-body">
         <h4 class="header-title mb-3">Pilih Perusahaan</h4>
-        <div class="table-responsive">
-            <table id="tableEmployeeCompanies" class="table table-hover mb-0">
+        <div class="table-responsive w-100">
+            <table id="tableEmployeeCompanies" class="table table-hover w-100 mb-0">
                 <thead>
                     <tr>
                         <th>No.</th>
