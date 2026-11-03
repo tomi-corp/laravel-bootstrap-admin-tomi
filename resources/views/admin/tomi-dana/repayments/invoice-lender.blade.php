@@ -138,20 +138,8 @@
 
             <table class="summary">
                 <tr>
-                    <th>Jumlah Pinjaman</th>
-                    <td class="number">{{ number_format($jumlahPinjaman, 0, ',', '.') }}</td>
-                </tr>
-                <tr>
                     <th>Total Tagihan</th>
                     <td class="number"><strong>Rp. {{ number_format($totalTagihan, 0, ',', '.') }}</strong></td>
-                </tr>
-                <tr>
-                    <th>Status Invoice</th>
-                    <td class="number">
-                        <span class="status {{ strtolower((string) $invoice->status) === 'lunas' ? 'status-paid' : 'status-pending' }}">
-                            {{ strtolower((string) $invoice->status) === 'lunas' ? 'LUNAS' : 'BELUM LUNAS' }}
-                        </span>
-                    </td>
                 </tr>
             </table>
         </div>
