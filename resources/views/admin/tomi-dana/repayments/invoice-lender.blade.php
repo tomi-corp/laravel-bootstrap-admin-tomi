@@ -7,11 +7,11 @@
         @page { size: A4 landscape; margin: 28px; }
         * { box-sizing: border-box; }
         body { margin: 0; color: #343a40; font-family: Arial, sans-serif; font-size: 11px; }
-        .toolbar { margin: 0 auto 18px; max-width: 760px; text-align: right; }
+        .toolbar { margin: 0 0 18px; width: 100%; text-align: right; }
         .toolbar a { display: inline-block; border-radius: 4px; color: #fff; margin-left: 6px; padding: 9px 14px; text-decoration: none; }
         .toolbar .download { background: #dc3545; }
         .toolbar .back { background: #6c757d; }
-        .invoice { max-width: 760px; margin: 0 auto; }
+        .invoice { width: 100%; margin: 0; }
         .header { border-bottom: 2px solid #343a40; margin-bottom: 20px; padding-bottom: 12px; }
         .clearfix::after { clear: both; content: ''; display: table; }
         .left { float: left; }
