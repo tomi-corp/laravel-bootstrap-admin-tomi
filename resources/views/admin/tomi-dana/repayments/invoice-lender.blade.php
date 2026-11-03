@@ -22,6 +22,9 @@
         .meta-item { display: inline-block; vertical-align: top; width: 24%; }
         .meta-label { color: #6c757d; font-size: 9px; font-weight: bold; text-transform: uppercase; }
         .meta-value { font-weight: bold; margin-top: 4px; }
+        .introduction { line-height: 1.6; margin-bottom: 20px; }
+        .introduction p { margin: 0 0 8px; }
+        .introduction .invoice-detail { margin: 3px 0; }
         table { border-collapse: collapse; width: 100%; }
         th { background: #f1f3f5; color: #495057; font-size: 9px; text-align: left; text-transform: uppercase; }
         th, td { border: 1px solid #cfd4da; padding: 7px; }
@@ -57,6 +60,13 @@
                 <div><strong>Nomor Invoice:</strong> {{ $invoiceNumber }}</div>
                 <div><strong>Tanggal:</strong> {{ now()->format('d/m/Y') }}</div>
             </div>
+        </div>
+
+        <div class="introduction">
+            <p>Hallo, {{ strtoupper($company->nama ?? '-') }}</p>
+            <p>Berikut rincian tagihan angsuran atas pinjaman payroll karyawan {{ strtoupper($company->nama ?? '-') }} untuk periode {{ $invoicePeriod->format('M-Y') }}</p>
+            <p class="invoice-detail"><strong>No. Invoice:</strong> {{ $invoiceNumber }}</p>
+            <p class="invoice-detail"><strong>Lampiran Pinjaman ID Perusahaan:</strong> {{ $company->id_code_perusahaan ?? '-' }}</p>
         </div>
 
         <div class="meta">
