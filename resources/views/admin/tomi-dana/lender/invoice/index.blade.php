@@ -44,8 +44,6 @@
     .invoice-dashboard .filter-panel label { color: #202a44; font-size: 11px; font-weight: 700; margin-bottom: 5px; }
     .invoice-dashboard .filter-panel .form-control { border-color: #dce3ee; border-radius: 8px; color: #27324a; font-size: 12px; height: 38px; }
     .invoice-dashboard .btn-dashboard { border-radius: 8px; font-size: 12px; font-weight: 600; height: 38px; padding: 0 14px; }
-    .invoice-dashboard .invoice-download-btn { align-items: center; display: inline-flex; height: 32px; justify-content: center; min-width: 34px; padding: 0; width: 34px; }
-    .invoice-dashboard .invoice-download-btn.btn-block { display: flex; width: 100%; }
     .invoice-dashboard .btn-primary { background: #1264e8; border-color: #1264e8; }
     .invoice-dashboard .metric-card { min-height: 102px; padding: 15px; }
     .invoice-dashboard .metric-card .metric-icon { align-items: center; background: #edf4ff; border-radius: 10px; color: #1264e8; display: flex; float: left; font-size: 21px; height: 36px; justify-content: center; margin-right: 10px; width: 36px; }
@@ -193,7 +191,7 @@
                                         <td><span class="status-pill {{ $style['class'] }}">{{ $style['label'] }}</span></td>
                                         <td>
                                             @if (data_get($invoice, 'download_url'))
-                                                <a class="btn btn-primary btn-sm btn-dashboard invoice-download-btn" href="{{ data_get($invoice, 'download_url') }}" title="Download Invoice" aria-label="Download Invoice"><i class="mdi mdi-download-outline"></i></a>
+                                                <a class="btn btn-outline-primary btn-sm" href="{{ data_get($invoice, 'download_url') }}" title="Download Invoice" aria-label="Download Invoice"><i class="mdi mdi-download-outline"></i></a>
                                             @else
                                                 <span class="text-muted">-</span>
                                             @endif
