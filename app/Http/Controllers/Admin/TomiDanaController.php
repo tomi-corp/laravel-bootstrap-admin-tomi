@@ -198,10 +198,10 @@ class TomiDanaController extends Controller
                     : 0;
 
                 return match (true) {
-                    $ageHours >= 24 => '<span class="badge badge-danger">🔴 Sangat Mendesak</span>',
-                    $ageHours >= 4 => '<span class="badge badge-orange" style="background-color: #fd7e14; color: #fff;">🟠 Mendesak</span>',
-                    $ageHours >= 1 => '<span class="badge badge-warning">🟡 Normal</span>',
-                    default => '<span class="badge badge-info">🔵 Baru Masuk</span>',
+                    $ageHours >= 24 => '🔴 Sangat Mendesak',
+                    $ageHours >= 4 => '🟠 Mendesak',
+                    $ageHours >= 1 => '🟡 Normal',
+                    default => '🔵 Baru Masuk',
                 };
             })
             ->addColumn('doc_pk', function ($row) {
@@ -210,12 +210,7 @@ class TomiDanaController extends Controller
                     : '<span class="text-muted">-</span>';
             })
             ->addColumn('ktp', function ($row) {
-                $path = $this->evidencePath('assets/users', $row->user?->privy?->local_ktp_path)
-                    ?? $this->evidencePath('assets/users', $row->user?->kyc?->ktp);
-
-                return $path
-                    ? '<a href="' . route('admin.tomi-dana.disbursements.evidence', [$row->id, 'ktp']) . '" target="_blank" class="btn btn-sm btn-outline-info" title="Lihat KTP"><i class="mdi mdi-card-account-details-outline"></i></a>'
-                    : '<button type="button" class="btn btn-sm btn-outline-secondary" disabled title="KTP belum tersedia"><i class="mdi mdi-card-account-details-outline"></i></button>';
+                return '<a href="' . route('admin.tomi-dana.disbursements.evidence', [$row->id, 'ktp']) . '" target="_blank" class="btn btn-sm btn-outline-info" title="Lihat KTP"><i class="mdi mdi-card-account-details-outline"></i></a>';
             })
             ->addColumn('selfie', function ($row) {
                 $path = $this->evidencePath('assets/users', $row->user?->privy?->local_selfie_path)
