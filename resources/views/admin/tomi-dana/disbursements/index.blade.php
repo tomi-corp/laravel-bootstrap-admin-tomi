@@ -87,27 +87,25 @@
                 </div>
                 <div class="modal-body">
                     <input type="hidden" id="disbursementLoanId" name="id">
-                    <div class="form-row">
-                        <div class="form-group col-md-6">
+                    <div class="form-group">
                             <label for="disbursementLoan">Pinjaman</label>
                             <input type="text" class="form-control" id="disbursementLoan" readonly>
-                        </div>
-                        <div class="form-group col-md-6">
+                    </div>
+                    <div class="form-group">
                             <label for="disbursementBank">Bank</label>
                             <input type="text" class="form-control" id="disbursementBank" readonly>
-                        </div>
-                        <div class="form-group col-md-6">
+                    </div>
+                    <div class="form-group">
                             <label for="disbursementAccountName">Atas Nama</label>
                             <input type="text" class="form-control" id="disbursementAccountName" readonly>
-                        </div>
-                        <div class="form-group col-md-6">
+                    </div>
+                    <div class="form-group">
                             <label for="disbursementAccountNumber">No Rekening</label>
                             <input type="text" class="form-control" id="disbursementAccountNumber" readonly>
-                        </div>
-                        <div class="form-group col-md-6">
+                    </div>
+                    <div class="form-group">
                             <label for="disbursementAmount">Jumlah Disbursement</label>
                             <input type="text" class="form-control" id="disbursementAmount" readonly>
-                        </div>
                     </div>
                     <div class="form-group">
                         <label for="transferDate">Tanggal Transfer <span class="text-danger">*</span></label>
@@ -127,7 +125,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary" id="submitDisbursementStatus">
+                    <button type="submit" class="btn btn-primary" id="submitDisbursementStatus" disabled>
                         <i class="mdi mdi-content-save-outline mr-1"></i>Simpan
                     </button>
                 </div>
@@ -144,6 +142,12 @@
         var tableUrl = disbursementTable.data('table-url');
         var approveUrl = disbursementTable.data('approve-url');
         var csrfToken = disbursementTable.data('csrf-token');
+        var declaration = $('#disbursementDeclaration');
+        var submitDisbursementStatus = $('#submitDisbursementStatus');
+
+        function toggleDisbursementSubmit() {
+            submitDisbursementStatus.prop('disabled', !declaration.is(':checked'));
+        }
 
         var table = disbursementTable.DataTable({
             processing: true,
@@ -201,8 +205,11 @@
             $('#disbursementAccountName').val(row.atas_nama);
             $('#disbursementAccountNumber').val(row.no_rekening);
             $('#disbursementAmount').val(row.jumlah_disbursement);
+            toggleDisbursementSubmit();
             $('#disbursementStatusModal').modal('show');
         };
+
+        declaration.on('change', toggleDisbursementSubmit);
 
         $('#disbursementStatusForm').on('submit', function (event) {
             event.preventDefault();
