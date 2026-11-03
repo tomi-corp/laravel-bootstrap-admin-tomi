@@ -192,7 +192,18 @@ class TomiDanaController extends Controller
             ->addIndexColumn()
             ->addColumn('loan_id', fn ($row) => $row->id)
             ->addColumn('tanggal', fn ($row) => $row->created_at ? Carbon::parse($row->created_at)->format('d/m/Y') : '-')
-            ->addColumn('prioritas', fn () => '<span class="badge badge-warning">Prioritas</span>')
+            ->addColumn('prioritas', function ($row) {
+                $ageHours = $row->created_at
+                    ? max(0, Carbon::parse($row->created_at)->diffInHours(now(), false))
+                    : 0;
+
+                return match (true) {
+                    $ageHours >= 24 => '<span class="badge badge-danger">🔴 Sangat Mendesak</span>',
+                    $ageHours >= 4 => '<span class="badge badge-orange" style="background-color: #fd7e14; color: #fff;">🟠 Mendesak</span>',
+                    $ageHours >= 1 => '<span class="badge badge-warning">🟡 Normal</span>',
+                    default => '<span class="badge badge-info">🔵 Baru Masuk</span>',
+                };
+            })
             ->addColumn('doc_pk', function ($row) {
                 return $row->document_name
                     ? '<a href="' . route('admin.tomi-dana.disbursements.evidence', [$row->id, 'tte']) . '" target="_blank" class="btn btn-sm btn-outline-info" title="Lihat dokumen PK"><i class="mdi mdi-file-document-outline"></i></a>'
@@ -204,7 +215,7 @@ class TomiDanaController extends Controller
 
                 return $path
                     ? '<a href="' . route('admin.tomi-dana.disbursements.evidence', [$row->id, 'ktp']) . '" target="_blank" class="btn btn-sm btn-outline-info" title="Lihat KTP"><i class="mdi mdi-card-account-details-outline"></i></a>'
-                    : '<span class="text-muted">-</span>';
+                    : '<button type="button" class="btn btn-sm btn-outline-secondary" disabled title="KTP belum tersedia"><i class="mdi mdi-card-account-details-outline"></i></button>';
             })
             ->addColumn('selfie', function ($row) {
                 $path = $this->evidencePath('assets/users', $row->user?->privy?->local_selfie_path)
