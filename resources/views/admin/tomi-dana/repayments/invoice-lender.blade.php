@@ -91,6 +91,11 @@
                 @forelse ($pinjaman as $loan)
                     @php
                         $tanggalPinjaman = $loan->tanggal_pinjaman ?: $loan->created_at;
+                        $angsuranInvoice = $loan->angsuran->first(function ($installment) use ($invoicePeriod) {
+                            return $installment->jatuh_tempo
+                                && \Carbon\Carbon::parse($installment->jatuh_tempo)->format('m-Y') === $invoicePeriod->format('m-Y');
+                        });
+                        $totalAngsuran = $loan->tenor ?: $loan->angsuran->count();
                     @endphp
                     <tr>
                         <td>{{ $loop->iteration }}</td>
@@ -103,7 +108,10 @@
                             <small>NIP: {{ $loan->data_karyawan?->nip ?? '-' }}</small>
                         </td>
                         <td class="number">Rp. {{ number_format((float) ($loan->nominal ?? 0), 0, ',', '.') }}</td>
-                        <td class="number">Rp. {{ number_format((float) ($loan->total_angsuran_perbulan ?? 0), 0, ',', '.') }}</td>
+                        <td class="number">
+                            Rp. {{ number_format((float) ($loan->total_angsuran_perbulan ?? 0), 0, ',', '.') }}<br>
+                            <small>Angs. ke {{ $angsuranInvoice?->pembayaran ?? '-' }}/{{ $totalAngsuran }}</small>
+                        </td>
                         <td class="number">Rp. {{ number_format((float) ($loan->jumlah_yang_diterima ?? 0), 0, ',', '.') }}</td>
                     </tr>
                 @empty
