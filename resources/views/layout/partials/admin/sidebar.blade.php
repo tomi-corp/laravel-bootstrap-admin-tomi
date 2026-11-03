@@ -183,7 +183,7 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
 
                         @if ($isInternalAccount)
                         <li>
-                            <a href="{{ route('admin.lender.invoicing.index') }}">Tagihan Pemberi Pinjaman</a>
+                            <a href="{{ route('admin.tomi-dana.lender.invoice') }}">Tagihan Pemberi Pinjaman</a>
                         </li>
                         @endif
 
