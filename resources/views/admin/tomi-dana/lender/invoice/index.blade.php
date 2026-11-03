@@ -112,16 +112,18 @@
                 <div class="form-group col-lg-2 col-md-6 mb-lg-0">
                     <label for="invoiceMonth">Periode Bulan</label>
                     <select class="form-control" id="invoiceMonth" name="month">
+                        <option value="" @selected(!request()->filled('month'))>Semua Bulan</option>
                         @foreach (range(1, 12) as $month)
-                            <option value="{{ $month }}" @selected((int) request('month', now()->month) === $month)>{{ \Carbon\Carbon::create()->month($month)->translatedFormat('F') }}</option>
+                            <option value="{{ $month }}" @selected((int) request('month') === $month)>{{ \Carbon\Carbon::create()->month($month)->translatedFormat('F') }}</option>
                         @endforeach
                     </select>
                 </div>
                 <div class="form-group col-lg-2 col-md-6 mb-lg-0">
                     <label for="invoiceYear">Tahun</label>
                     <select class="form-control" id="invoiceYear" name="year">
+                        <option value="" @selected(!request()->filled('year'))>Semua Tahun</option>
                         @foreach (range(now()->year - 2, now()->year + 1) as $year)
-                            <option value="{{ $year }}" @selected((int) request('year', now()->year) === $year)>{{ $year }}</option>
+                            <option value="{{ $year }}" @selected((int) request('year') === $year)>{{ $year }}</option>
                         @endforeach
                     </select>
                 </div>

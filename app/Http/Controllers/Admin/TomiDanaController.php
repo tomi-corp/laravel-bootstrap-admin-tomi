@@ -41,15 +41,15 @@ class TomiDanaController extends Controller
 {
     public function lenderInvoiceDashboard(Request $request)
     {
-        $month = $request->integer('month', now()->month);
-        $year = $request->integer('year', now()->year);
+        $month = $request->filled('month') ? $request->integer('month') : null;
+        $year = $request->filled('year') ? $request->integer('year') : null;
 
-        abort_unless($month >= 1 && $month <= 12, 404);
+        abort_if($month !== null && ($month < 1 || $month > 12), 404);
 
         $historyInvoices = history_invoicing_lender::query()
             ->with(['lender.pinjaman.disbursement'])
-            ->whereYear('period', $year)
-            ->whereMonth('period', $month)
+            ->when($year !== null, fn ($query) => $query->whereYear('period', $year))
+            ->when($month !== null, fn ($query) => $query->whereMonth('period', $month))
             ->when($request->filled('lender_id'), fn ($query) => $query->where('id_lender', $request->integer('lender_id')))
             ->orderByDesc('period')
             ->orderByDesc('id')
