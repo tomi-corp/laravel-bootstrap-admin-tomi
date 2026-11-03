@@ -436,7 +436,7 @@ class TomiDanaController extends Controller
     {
         $data = array_merge($this->invoiceLenderData($invoiceId), ['isPdf' => true]);
         $pdf = Pdf::loadView('admin.tomi-dana.repayments.invoice-lender', $data)
-            ->setPaper('a4', 'portrait');
+            ->setPaper('a4', 'landscape');
 
         return $pdf->stream($data['invoiceNumber'] . '.pdf');
     }

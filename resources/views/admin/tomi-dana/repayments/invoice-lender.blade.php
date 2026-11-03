@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>{{ $invoiceNumber }}</title>
     <style>
-        @page { size: A4 portrait; margin: 28px; }
+        @page { size: A4 landscape; margin: 28px; }
         * { box-sizing: border-box; }
         body { margin: 0; color: #343a40; font-family: Arial, sans-serif; font-size: 11px; }
         .toolbar { margin: 0 auto 18px; max-width: 760px; text-align: right; }
