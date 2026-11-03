@@ -210,7 +210,7 @@ class TomiDanaController extends Controller
                     : '<span class="text-muted">-</span>';
             })
             ->addColumn('ktp', function ($row) {
-                return '<a href="' . route('admin.tomi-dana.disbursements.evidence', [$row->id, 'ktp']) . '" target="_blank" class="btn btn-sm btn-outline-info" title="Lihat KTP"><i class="mdi mdi-card-account-details-outline"></i></a>';
+                return '<a href="' . route('admin.tomi-dana.disbursements.evidence', [$row->id, 'ktp']) . '" target="_blank" class="btn btn-sm btn-outline-info" title="Lihat KTP"><i class="mdi mdi-account-box-outline"></i></a>';
             })
             ->addColumn('selfie', function ($row) {
                 $path = $this->evidencePath('assets/users', $row->user?->privy?->local_selfie_path)
