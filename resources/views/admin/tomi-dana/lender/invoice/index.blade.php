@@ -90,7 +90,7 @@
     .invoice-dashboard .detail-total { background: #eaf2ff; border-radius: 8px; color: #1264e8; font-size: 14px; font-weight: 700; margin-top: 10px; padding: 11px; }
     .invoice-dashboard .detail-status { margin-top: 14px; }
     .invoice-dashboard .empty-state { color: #8a93a5; font-size: 12px; padding: 25px 10px; text-align: center; }
-    .invoice-dashboard .table-scroll { max-width: 100%; overflow-x: auto; overflow-y: hidden; }
+    .invoice-dashboard .table-scroll { margin: 16px; max-width: calc(100% - 32px); overflow-x: auto; overflow-y: hidden; }
     @media (max-width: 991.98px) {
         .invoice-dashboard .filter-actions { margin-top: 12px; }
         .invoice-dashboard .page-heading h1 { font-size: 21px; }
