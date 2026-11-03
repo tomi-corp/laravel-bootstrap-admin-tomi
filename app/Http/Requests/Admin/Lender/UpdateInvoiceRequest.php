@@ -23,7 +23,9 @@ class UpdateInvoiceRequest extends FormRequest
     {
         return [
             'id' => 'required',
-            'tanggal' => 'required|date|date_format:Y-m-d\TH:i'
+            'tanggal' => 'required|date|date_format:Y-m-d\TH:i',
+            'bukti_transfer' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'pernyataan' => 'accepted',
         ];
     }
 }

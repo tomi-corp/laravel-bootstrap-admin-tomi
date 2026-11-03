@@ -1024,7 +1024,8 @@ class LenderController extends Controller
 
     public function invoicingLenderPendingUpdate(UpdateInvoiceRequest $req)
     {
-        $invocingLender = history_invoicing_lender::where('id', $req->id)->first();
+        $invocingLender = history_invoicing_lender::where('id', $req->id)->firstOrFail();
+        $proofPath = $req->file('bukti_transfer')->store('assets/invoice-lender');
         $oldData = $invocingLender->getOriginal();
 
         $invocingLender->status = 'lunas';
@@ -1038,6 +1039,8 @@ class LenderController extends Controller
         $logData = [
             'old_data' => array_intersect_key($oldData, $changedData), // Ambil data lama hanya untuk kolom yang berubah
             'new_data' => $changedData,
+            'bukti_transfer' => $proofPath,
+            'pernyataan' => true,
         ];
 
         $lender_updates = new history_invoicing_lender_update;

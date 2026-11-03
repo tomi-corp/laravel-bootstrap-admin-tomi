@@ -110,6 +110,9 @@ class TomiDanaController extends Controller
                 'due_date' => $dueDate->format('d M Y'),
                 'status' => $status,
                 'status_label' => $statusStyles[$status]['label'],
+                'payment_date' => $invoice->tanggal_pembayaran
+                    ? Carbon::parse($invoice->tanggal_pembayaran)->format('Y-m-d\\TH:i')
+                    : null,
                 'download_url' => route('admin.lender.invoicing.download', encryptSecure($invoice->id)),
             ];
         })->filter(function ($invoice) use ($request) {

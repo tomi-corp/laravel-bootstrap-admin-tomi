@@ -177,7 +177,7 @@
                 <div class="panel-body p-0">
                     <div class="table-scroll">
                         <table id="tableLenderInvoices" class="table invoice-table" style="width:100%">
-                            <thead><tr><th>No. Invoice</th><th>Pemberi Pinjaman</th><th>Periode</th><th>Jumlah Transaksi</th><th>Biaya Layanan</th><th>Biaya Admin</th><th>Total Tagihan</th><th>Jatuh Tempo</th><th>Status</th><th>Aksi</th></tr></thead>
+                            <thead><tr><th>No. Invoice</th><th>Pemberi Pinjaman</th><th>Periode</th><th>Jumlah Transaksi</th><th>Biaya Layanan</th><th>Biaya Admin</th><th>Total Tagihan</th><th>Jatuh Tempo</th><th>Status</th><th>Download</th><th>Aksi</th></tr></thead>
                             <tbody>
                                 @forelse ($invoices as $invoice)
                                     @php $style = $statusStyles[data_get($invoice, 'status', 'draft')] ?? $statusStyles['draft']; @endphp
@@ -198,6 +198,14 @@
                                                 <span class="text-muted">-</span>
                                             @endif
                                         </td>
+                                        <td>
+                                            <button type="button" class="btn btn-outline-primary btn-sm edit-invoice-payment" title="Catat pembayaran invoice"
+                                                data-invoice-id="{{ data_get($invoice, 'id') }}"
+                                                data-invoice-number="{{ data_get($invoice, 'invoice_number') }}"
+                                                data-payment-date="{{ data_get($invoice, 'payment_date') }}">
+                                                <i class="mdi mdi-pencil-outline"></i>
+                                            </button>
+                                        </td>
                                     </tr>
                                 @empty
                                 @endforelse
@@ -206,6 +214,42 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="invoicePaymentModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <form id="invoicePaymentForm" enctype="multipart/form-data">
+                <div class="modal-header">
+                    <h5 class="modal-title">Pembayaran Invoice Lender</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Tutup"><span aria-hidden="true">&times;</span></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="id" id="paymentInvoiceId">
+                    <div class="form-group">
+                        <label>No. Invoice</label>
+                        <input type="text" class="form-control" id="paymentInvoiceNumber" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="paymentDate">Waktu Pembayaran <span class="text-danger">*</span></label>
+                        <input type="datetime-local" class="form-control" name="tanggal" id="paymentDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="paymentProof">Bukti Transfer <span class="text-danger">*</span></label>
+                        <input type="file" class="form-control" name="bukti_transfer" id="paymentProof" accept=".jpg,.jpeg,.png,.pdf" required>
+                        <small class="form-text text-muted">Format JPG, PNG, atau PDF. Maksimal 5 MB.</small>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" name="pernyataan" value="1" id="paymentDeclaration" required>
+                        <label class="form-check-label" for="paymentDeclaration">Saya menyatakan bahwa invoicing terhadap lender ini telah terbayarkan</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary" id="submitInvoicePayment"><i class="mdi mdi-content-save-outline mr-1"></i>Simpan Pembayaran</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -235,6 +279,46 @@
 
         $('#exportInvoice').on('click', function () {
             window.print();
+        });
+
+        $('.edit-invoice-payment').on('click', function () {
+            const button = $(this);
+            $('#invoicePaymentForm')[0].reset();
+            $('#paymentInvoiceId').val(button.data('invoice-id'));
+            $('#paymentInvoiceNumber').val(button.data('invoice-number'));
+            $('#paymentDate').val(button.data('payment-date') || '');
+            $('#invoicePaymentModal').modal('show');
+        });
+
+        $('#invoicePaymentForm').on('submit', function (event) {
+            event.preventDefault();
+
+            const submitButton = $('#submitInvoicePayment');
+            const formData = new FormData(this);
+            formData.append('_token', '{{ csrf_token() }}');
+            submitButton.prop('disabled', true);
+
+            $.ajax({
+                url: '{{ route('admin.lender.invoicing.pending.update') }}',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    if (window.toastr) toastr.success(response.message);
+                    $('#invoicePaymentModal').modal('hide');
+                    window.location.reload();
+                },
+                error: function (xhr) {
+                    const response = xhr.responseJSON || {};
+                    const errors = response.errors || {};
+                    const message = errors.tanggal?.[0] || errors.bukti_transfer?.[0] || errors.pernyataan?.[0] || response.message || 'Pembayaran invoice gagal disimpan.';
+                    if (window.toastr) toastr.error(message);
+                },
+                complete: function () {
+                    submitButton.prop('disabled', false);
+                }
+            });
         });
 
     });
