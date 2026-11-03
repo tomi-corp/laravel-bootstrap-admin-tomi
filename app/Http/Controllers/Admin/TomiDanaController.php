@@ -171,7 +171,7 @@ class TomiDanaController extends Controller
 
     public function disbursementsTable()
     {
-        $query = pinjaman::with(['user', 'data_karyawan', 'lender', 'perusahaan'])
+        $query = pinjaman::with(['user.kyc', 'user.privy', 'data_karyawan.bank', 'lender', 'perusahaan', 'disbursement'])
             ->whereRaw('LOWER(TRIM(status_otp)) = ?', ['success'])
             ->whereRaw('LOWER(TRIM(ttd)) = ?', ['y'])
             ->whereRaw('LOWER(TRIM(status)) = ?', ['pending'])
@@ -190,31 +190,42 @@ class TomiDanaController extends Controller
 
         return DataTables::of($query->get())
             ->addIndexColumn()
-            ->addColumn('nama_peminjam', fn ($row) => strtoupper($row->data_karyawan?->nama_karyawan ?? $row->user?->name ?? '-'))
-            ->addColumn('nomor_pinjaman', fn ($row) => strtolower(ltrim((string) ($row->id_pinjaman ?? '-'), '#')))
-            ->addColumn('lender', fn ($row) => strtoupper($row->lender?->nama ?? '-'))
-            ->addColumn('perusahaan', fn ($row) => strtoupper($row->perusahaan?->nama ?? '-'))
-            ->addColumn('nominal', fn ($row) => 'Rp. ' . number_format((float) ($row->nominal ?? 0), 0, ',', '.'))
-            ->addColumn('tenor_label', fn ($row) => ($row->tenor ?? 0) . ' bulan')
-            ->addColumn('tanggal_pengajuan', fn ($row) => $row->created_at ? Carbon::parse($row->created_at)->format('d/m/Y H:i') : '-')
-            ->addColumn('evidence', function ($row) {
-                $buttons = [];
-                foreach (['tte' => ['TTE', 'file-pdf-box'], 'selfie' => ['Selfie', 'camera-outline'], 'ktp' => ['KTP', 'card-account-details-outline']] as $type => [$label, $icon]) {
-                    $buttons[] = '<a href="' . route('admin.tomi-dana.disbursements.evidence', [$row->id, $type]) . '" target="_blank" class="btn btn-sm btn-outline-info mr-1 mb-1" title="Lihat ' . $label . '"><i class="mdi mdi-' . $icon . ' mr-1"></i>' . $label . '</a>';
-                }
-
-                return implode('', $buttons);
+            ->addColumn('loan_id', fn ($row) => $row->id)
+            ->addColumn('tanggal', fn ($row) => $row->created_at ? Carbon::parse($row->created_at)->format('d/m/Y') : '-')
+            ->addColumn('prioritas', fn () => '<span class="badge badge-warning">Prioritas</span>')
+            ->addColumn('doc_pk', function ($row) {
+                return $row->document_name
+                    ? '<a href="' . route('admin.tomi-dana.disbursements.evidence', [$row->id, 'tte']) . '" target="_blank" class="btn btn-sm btn-outline-info" title="Lihat dokumen PK"><i class="mdi mdi-file-document-outline"></i></a>'
+                    : '<span class="text-muted">-</span>';
             })
+            ->addColumn('ktp', function ($row) {
+                $path = $this->evidencePath('assets/users', $row->user?->privy?->local_ktp_path)
+                    ?? $this->evidencePath('assets/users', $row->user?->kyc?->ktp);
+
+                return $path
+                    ? '<a href="' . route('admin.tomi-dana.disbursements.evidence', [$row->id, 'ktp']) . '" target="_blank" class="btn btn-sm btn-outline-info" title="Lihat KTP"><i class="mdi mdi-card-account-details-outline"></i></a>'
+                    : '<span class="text-muted">-</span>';
+            })
+            ->addColumn('selfie', function ($row) {
+                $path = $this->evidencePath('assets/users', $row->user?->privy?->local_selfie_path)
+                    ?? $this->evidencePath('assets/users', $row->user?->kyc?->selfie);
+
+                return $path
+                    ? '<a href="' . route('admin.tomi-dana.disbursements.evidence', [$row->id, 'selfie']) . '" target="_blank" class="btn btn-sm btn-outline-info" title="Lihat selfie"><i class="mdi mdi-camera-outline"></i></a>'
+                    : '<span class="text-muted">-</span>';
+            })
+            ->addColumn('id_pinjaman', fn ($row) => $row->id_pinjaman ?? ('TD-' . $row->id))
+            ->addColumn('nama_perusahaan', fn ($row) => strtoupper($row->perusahaan?->nama ?? '-'))
+            ->addColumn('nama_karyawan', fn ($row) => strtoupper($row->data_karyawan?->nama_karyawan ?? $row->user?->name ?? '-'))
+            ->addColumn('total_pinjaman', fn ($row) => 'Rp. ' . number_format((float) ($row->nominal ?? 0), 0, ',', '.'))
+            ->addColumn('jumlah_disbursement', fn ($row) => 'Rp. ' . number_format((float) ($row->jumlah_yang_diterima ?? 0), 0, ',', '.'))
+            ->addColumn('bank', fn ($row) => strtoupper($row->data_karyawan?->bank?->code_bank ?? $row->data_karyawan?->bank?->nama_bank ?? $row->data_karyawan?->bank?->name ?? '-'))
+            ->addColumn('no_rekening', fn ($row) => $row->data_karyawan?->nomor_bank ?? '-')
+            ->addColumn('atas_nama', fn ($row) => strtoupper($row->data_karyawan?->nama_rekening ?? '-'))
             ->addColumn('action', function ($row) {
-                $eligible = strtolower((string) $row->status_otp) === 'success'
-                    && strtolower((string) $row->ttd) === 'y'
-                    && strtolower((string) $row->status) === 'pending';
-
-                return $eligible
-                    ? '<button type="button" class="btn btn-sm btn-success" onclick="approveDisbursement(' . $row->id . ')"><i class="mdi mdi-check-circle-outline mr-1"></i>Approve</button>'
-                    : '<button type="button" class="btn btn-sm btn-secondary" disabled title="Belum memenuhi syarat">Tidak tersedia</button>';
+                return '<button type="button" class="btn btn-sm btn-outline-primary" onclick="editDisbursement(' . $row->id . ')" title="Edit status disbursement"><i class="mdi mdi-pencil-outline"></i></button>';
             })
-            ->rawColumns(['evidence', 'action'])
+            ->rawColumns(['prioritas', 'doc_pk', 'ktp', 'selfie', 'action'])
             ->toJson();
     }
 
@@ -253,6 +264,7 @@ class TomiDanaController extends Controller
             'id' => 'required|integer',
             'transfer_date' => 'required|date',
             'transfer_proof' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'declaration' => 'accepted',
         ]);
 
         $loan = pinjaman::where('id', $request->integer('id'))

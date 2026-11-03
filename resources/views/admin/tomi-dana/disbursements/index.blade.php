@@ -17,6 +17,7 @@
 
     .disbursement-table td {
         vertical-align: middle;
+        white-space: nowrap;
     }
 </style>
 @endpush
@@ -52,15 +53,19 @@
                 data-csrf-token="{{ csrf_token() }}">
                 <thead>
                     <tr>
-                        <th>No.</th>
-                        <th>Peminjam</th>
-                        <th>Nomor Pinjaman</th>
-                        <th>Lender</th>
-                        <th>Perusahaan</th>
-                        <th>Nominal</th>
-                        <th>Tenor</th>
-                        <th>Tanggal Pengajuan</th>
-                        <th>Bukti Dokumen</th>
+                        <th>Tanggal</th>
+                        <th>Prioritas</th>
+                        <th>Doc PK</th>
+                        <th>KTP</th>
+                        <th>Selfie</th>
+                        <th>ID Pinjaman</th>
+                        <th>Nama Perusahaan</th>
+                        <th>Nama Karyawan</th>
+                        <th>Total Pinjaman</th>
+                        <th>Jumlah Disbursement</th>
+                        <th>Bank</th>
+                        <th>No Rek</th>
+                        <th>Atas Nama</th>
                         <th class="text-center">Aksi</th>
                     </tr>
                 </thead>
@@ -70,34 +75,60 @@
     </div>
 </div>
 
-<div class="modal fade" id="approveDisbursementModal" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal fade" id="disbursementStatusModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
-            <form id="approveDisbursementForm" enctype="multipart/form-data">
+            <form id="disbursementStatusForm" enctype="multipart/form-data">
                 <div class="modal-header">
-                    <h5 class="modal-title">Approve Pencairan</h5>
+                    <h5 class="modal-title">Status Disbursement</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Tutup">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    <input type="hidden" id="approveDisbursementId" name="id">
+                    <input type="hidden" id="disbursementLoanId" name="id">
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="disbursementLoan">Pinjaman</label>
+                            <input type="text" class="form-control" id="disbursementLoan" readonly>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="disbursementBank">Bank</label>
+                            <input type="text" class="form-control" id="disbursementBank" readonly>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="disbursementAccountName">Atas Nama</label>
+                            <input type="text" class="form-control" id="disbursementAccountName" readonly>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="disbursementAccountNumber">No Rekening</label>
+                            <input type="text" class="form-control" id="disbursementAccountNumber" readonly>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="disbursementAmount">Jumlah Disbursement</label>
+                            <input type="text" class="form-control" id="disbursementAmount" readonly>
+                        </div>
+                    </div>
                     <div class="form-group">
                         <label for="transferDate">Tanggal Transfer <span class="text-danger">*</span></label>
                         <input type="date" class="form-control" id="transferDate" name="transfer_date" required>
                         <small class="form-text text-muted">Tanggal dana ditransfer kepada peminjam.</small>
                     </div>
-                    <div class="form-group mb-0">
+                    <div class="form-group">
                         <label for="transferProof">Bukti Transfer <span class="text-danger">*</span></label>
                         <input type="file" class="form-control" id="transferProof" name="transfer_proof"
                             accept=".jpg,.jpeg,.png,.pdf" required>
                         <small class="form-text text-muted">Format JPG, PNG, atau PDF. Maksimal 5 MB.</small>
                     </div>
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="disbursementDeclaration" name="declaration" value="1" required>
+                        <label class="form-check-label" for="disbursementDeclaration">Saya menyatakan bahwa dana pinjaman telah berhasil dicairkan kepada peminjam</label>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-success" id="submitApproveDisbursement">
-                        <i class="mdi mdi-check-circle-outline mr-1"></i>Approve & Simpan
+                    <button type="submit" class="btn btn-primary" id="submitDisbursementStatus">
+                        <i class="mdi mdi-content-save-outline mr-1"></i>Simpan
                     </button>
                 </div>
             </form>
@@ -114,10 +145,11 @@
         var approveUrl = disbursementTable.data('approve-url');
         var csrfToken = disbursementTable.data('csrf-token');
 
-        disbursementTable.DataTable({
+        var table = disbursementTable.DataTable({
             processing: true,
             serverSide: true,
-            responsive: true,
+            responsive: false,
+            scrollX: true,
             pageLength: 10,
             dom: '<"row"<"col-md-6"l><"col-md-6 text-right"f>>rt<"row"<"col-md-6"i><"col-md-6"p>>',
             language: {
@@ -135,29 +167,47 @@
                 type: 'GET'
             },
             columns: [
-                { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
-                { data: 'nama_peminjam', name: 'nama_peminjam', orderable: false, defaultContent: '-' },
-                { data: 'nomor_pinjaman', name: 'id_pinjaman', defaultContent: '-' },
-                { data: 'lender', name: 'lender', orderable: false, defaultContent: '-' },
-                { data: 'perusahaan', name: 'perusahaan', orderable: false, defaultContent: '-' },
-                { data: 'nominal', name: 'nominal', orderable: false, searchable: false, defaultContent: '-' },
-                { data: 'tenor_label', name: 'tenor', defaultContent: '-' },
-                { data: 'tanggal_pengajuan', name: 'created_at', defaultContent: '-' },
-                { data: 'evidence', name: 'evidence', orderable: false, searchable: false, defaultContent: '-' },
+                { data: 'tanggal', name: 'created_at', defaultContent: '-' },
+                { data: 'prioritas', name: 'prioritas', orderable: false, searchable: false, defaultContent: '-' },
+                { data: 'doc_pk', name: 'doc_pk', orderable: false, searchable: false, defaultContent: '-' },
+                { data: 'ktp', name: 'ktp', orderable: false, searchable: false, defaultContent: '-' },
+                { data: 'selfie', name: 'selfie', orderable: false, searchable: false, defaultContent: '-' },
+                { data: 'id_pinjaman', name: 'id_pinjaman', defaultContent: '-' },
+                { data: 'nama_perusahaan', name: 'nama_perusahaan', orderable: false, defaultContent: '-' },
+                { data: 'nama_karyawan', name: 'nama_karyawan', orderable: false, defaultContent: '-' },
+                { data: 'total_pinjaman', name: 'total_pinjaman', orderable: false, searchable: false, defaultContent: '-' },
+                { data: 'jumlah_disbursement', name: 'jumlah_disbursement', orderable: false, searchable: false, defaultContent: '-' },
+                { data: 'bank', name: 'bank', orderable: false, defaultContent: '-' },
+                { data: 'no_rekening', name: 'no_rekening', orderable: false, defaultContent: '-' },
+                { data: 'atas_nama', name: 'atas_nama', orderable: false, defaultContent: '-' },
                 { data: 'action', name: 'action', orderable: false, searchable: false, className: 'text-center' }
             ]
         });
 
-        window.approveDisbursement = function (id) {
-            $('#approveDisbursementForm')[0].reset();
-            $('#approveDisbursementId').val(id);
-            $('#approveDisbursementModal').modal('show');
+        window.editDisbursement = function (id) {
+            var row = table.rows().data().toArray().find(function (item) {
+                return String(item.loan_id) === String(id);
+            });
+
+            if (!row) {
+                toastr.error('Data pinjaman tidak ditemukan.');
+                return;
+            }
+
+            $('#disbursementStatusForm')[0].reset();
+            $('#disbursementLoanId').val(row.loan_id);
+            $('#disbursementLoan').val(row.id_pinjaman);
+            $('#disbursementBank').val(row.bank);
+            $('#disbursementAccountName').val(row.atas_nama);
+            $('#disbursementAccountNumber').val(row.no_rekening);
+            $('#disbursementAmount').val(row.jumlah_disbursement);
+            $('#disbursementStatusModal').modal('show');
         };
 
-        $('#approveDisbursementForm').on('submit', function (event) {
+        $('#disbursementStatusForm').on('submit', function (event) {
             event.preventDefault();
 
-            const button = $('#submitApproveDisbursement');
+            const button = $('#submitDisbursementStatus');
             const formData = new FormData(this);
             formData.append('_token', csrfToken);
             button.prop('disabled', true).addClass('disabled');
@@ -170,13 +220,13 @@
                 contentType: false,
                 success: function (response) {
                     toastr.success(response.message);
-                    $('#approveDisbursementModal').modal('hide');
+                    $('#disbursementStatusModal').modal('hide');
                     $('#tableDisbursements').DataTable().ajax.reload(null, false);
                 },
                 error: function (xhr) {
                     const response = xhr.responseJSON || {};
                     const errors = response.errors || {};
-                    const message = (errors.transfer_date && errors.transfer_date[0]) || (errors.transfer_proof && errors.transfer_proof[0]) || response.message || 'Pinjaman gagal di-approve.';
+                    const message = (errors.transfer_date && errors.transfer_date[0]) || (errors.transfer_proof && errors.transfer_proof[0]) || (errors.declaration && errors.declaration[0]) || response.message || 'Status disbursement gagal disimpan.';
                     toastr.error(message);
                 },
                 complete: function () {
