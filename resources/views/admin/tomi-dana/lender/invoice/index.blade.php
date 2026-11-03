@@ -73,7 +73,7 @@
     .invoice-dashboard .status-name { flex: 1; font-size: 12px; font-weight: 600; }
     .invoice-dashboard .status-count, .invoice-dashboard .status-total { font-size: 11px; text-align: right; }
     .invoice-dashboard .status-total { font-weight: 700; min-width: 115px; }
-    .invoice-dashboard .invoice-table { margin-bottom: 0; min-width: 1180px; width: max-content !important; }
+    .invoice-dashboard .invoice-table { margin-bottom: 0; min-width: 1180px; width: 100% !important; }
     .invoice-dashboard .invoice-table th { background: #f2f4f8; border: 0; color: #42506a; font-size: 10px; font-weight: 700; white-space: nowrap; }
     .invoice-dashboard .invoice-table td { border-color: #edf0f5; color: #27324a; font-size: 11px; vertical-align: middle; }
     .invoice-dashboard .invoice-table tr.is-selected { background: #f1f6ff; box-shadow: inset 3px 0 #1264e8; }
@@ -90,7 +90,7 @@
     .invoice-dashboard .detail-total { background: #eaf2ff; border-radius: 8px; color: #1264e8; font-size: 14px; font-weight: 700; margin-top: 10px; padding: 11px; }
     .invoice-dashboard .detail-status { margin-top: 14px; }
     .invoice-dashboard .empty-state { color: #8a93a5; font-size: 12px; padding: 25px 10px; text-align: center; }
-    .invoice-dashboard .table-scroll { margin: 16px; max-width: calc(100% - 32px); overflow-x: auto; overflow-y: hidden; }
+    .invoice-dashboard .table-scroll { margin: 16px; max-width: calc(100% - 32px); overflow: visible; }
     @media (max-width: 991.98px) {
         .invoice-dashboard .filter-actions { margin-top: 12px; }
         .invoice-dashboard .page-heading h1 { font-size: 21px; }
@@ -217,7 +217,7 @@
         $('#tableLenderInvoices').DataTable({
             processing: true,
             responsive: false,
-            scrollX: false,
+            scrollX: true,
             pageLength: 8,
             lengthMenu: [[8, 15, 25, 50], [8, 15, 25, 50]],
             order: [[2, 'desc']],
