@@ -44,6 +44,8 @@
     .invoice-dashboard .filter-panel label { color: #202a44; font-size: 11px; font-weight: 700; margin-bottom: 5px; }
     .invoice-dashboard .filter-panel .form-control { border-color: #dce3ee; border-radius: 8px; color: #27324a; font-size: 12px; height: 38px; }
     .invoice-dashboard .btn-dashboard { border-radius: 8px; font-size: 12px; font-weight: 600; height: 38px; padding: 0 14px; }
+    .invoice-dashboard .invoice-download-btn { align-items: center; display: inline-flex; gap: 5px; justify-content: center; min-width: 132px; white-space: nowrap; }
+    .invoice-dashboard .invoice-download-btn.btn-block { display: flex; width: 100%; }
     .invoice-dashboard .btn-primary { background: #1264e8; border-color: #1264e8; }
     .invoice-dashboard .metric-card { min-height: 102px; padding: 15px; }
     .invoice-dashboard .metric-card .metric-icon { align-items: center; background: #edf4ff; border-radius: 10px; color: #1264e8; display: flex; float: left; font-size: 21px; height: 36px; justify-content: center; margin-right: 10px; width: 36px; }
@@ -148,7 +150,6 @@
                 <div class="col-lg-3 col-md-12 filter-actions d-flex flex-wrap">
                     <button class="btn btn-primary btn-dashboard mr-2 mb-2 mb-lg-0" type="submit"><i class="mdi mdi-filter-variant mr-1"></i>Terapkan Filter</button>
                     <button class="btn btn-outline-primary btn-dashboard mr-2 mb-2 mb-lg-0" type="button" id="exportInvoice"><i class="mdi mdi-download-outline mr-1"></i>Ekspor</button>
-                    <button class="btn btn-primary btn-dashboard mb-2 mb-lg-0" type="button" id="createInvoice"><i class="mdi mdi-plus mr-1"></i>Buat Invoice</button>
                 </div>
             </div>
         </form>
@@ -204,7 +205,7 @@
                                         <td>{{ data_get($invoice, 'due_date', '-') }}</td>
                                         <td>{{ $formatRupiah(data_get($invoice, 'amount', 0)) }}</td>
                                         <td><span class="status-pill {{ $style['class'] }}">{{ $style['label'] }}</span></td>
-                                        <td><a class="btn btn-primary btn-sm btn-dashboard" href="{{ data_get($invoice, 'download_url', '#') }}"><i class="mdi mdi-download-outline"></i> Download Invoice</a></td>
+                                        <td><a class="btn btn-primary btn-sm btn-dashboard invoice-download-btn" href="{{ data_get($invoice, 'download_url', '#') }}"><i class="mdi mdi-download-outline"></i><span>Download Invoice</span></a></td>
                                     </tr>
                                 @empty
                                     <tr><td colspan="6" class="empty-state">Belum ada tagihan yang perlu tindakan.</td></tr>
@@ -240,7 +241,7 @@
                                         <td><span class="status-pill {{ $style['class'] }}">{{ $style['label'] }}</span></td>
                                         <td>
                                             @if (data_get($invoice, 'download_url'))
-                                                <a class="btn btn-primary btn-sm btn-dashboard" href="{{ data_get($invoice, 'download_url') }}"><i class="mdi mdi-download-outline"></i> Download</a>
+                                                <a class="btn btn-primary btn-sm btn-dashboard invoice-download-btn" href="{{ data_get($invoice, 'download_url') }}"><i class="mdi mdi-download-outline"></i><span>Download Invoice</span></a>
                                             @else
                                                 <span class="text-muted">-</span>
                                             @endif
@@ -277,7 +278,7 @@
                         @php $selectedStyle = $statusStyles[data_get($selectedInvoice, 'status', 'draft')] ?? $statusStyles['draft']; @endphp
                         <div class="detail-status d-flex justify-content-between align-items-center"><span>Status Pembayaran</span><span class="status-pill {{ $selectedStyle['class'] }}">{{ $selectedStyle['label'] }}</span></div>
                         @if (data_get($selectedInvoice, 'download_url'))
-                            <a href="{{ data_get($selectedInvoice, 'download_url') }}" class="btn btn-primary btn-dashboard btn-block mt-3"><i class="mdi mdi-download-outline mr-1"></i>Download Invoice</a>
+                            <a href="{{ data_get($selectedInvoice, 'download_url') }}" class="btn btn-primary btn-dashboard invoice-download-btn btn-block mt-3"><i class="mdi mdi-download-outline"></i><span>Download Invoice</span></a>
                         @endif
                     @else
                         <div class="empty-state">Pilih invoice untuk melihat rincian tagihan.</div>
@@ -296,11 +297,6 @@
             window.print();
         });
 
-        $('#createInvoice').on('click', function () {
-            if (window.toastr) {
-                toastr.info('Form pembuatan invoice belum dikonfigurasi.');
-            }
-        });
     });
 </script>
 @endpush
