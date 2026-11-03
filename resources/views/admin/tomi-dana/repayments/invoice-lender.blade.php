@@ -34,7 +34,7 @@
         .payment-info { float: left; line-height: 1.6; width: calc(100% - 320px); }
         .bank-details { border-collapse: collapse; margin-top: 4px; width: auto; }
         .bank-details th, .bank-details td { background: transparent; border: 0; font-size: 11px; padding: 0 6px 0 0; text-transform: none; vertical-align: top; }
-        .bank-details th { min-width: 105px; text-align: right; }
+        .bank-details th { min-width: 105px; text-align: left; }
         .bank-details .separator { padding-right: 8px; text-align: center; width: 18px; }
         .summary { margin-left: auto; margin-top: 0; width: 300px; }
         .summary th, .summary td { border: 0; padding: 4px 0; }
