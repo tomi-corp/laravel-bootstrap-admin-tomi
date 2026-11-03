@@ -41,9 +41,12 @@
     .invoice-dashboard .page-heading p { color: #697386; font-size: 13px; margin: 3px 0 0; }
     .invoice-dashboard .dashboard-panel { background: #fff; border: 1px solid #e6ebf3; border-radius: 12px; box-shadow: 0 4px 16px rgba(39, 61, 95, .05); }
     .invoice-dashboard .filter-panel { padding: 16px; }
+    .invoice-dashboard .filter-panel .form-group { min-width: 0; }
     .invoice-dashboard .filter-panel label { color: #202a44; font-size: 11px; font-weight: 700; margin-bottom: 5px; }
     .invoice-dashboard .filter-panel .form-control { border-color: #dce3ee; border-radius: 8px; color: #27324a; font-size: 12px; height: 38px; }
     .invoice-dashboard .btn-dashboard { border-radius: 8px; font-size: 12px; font-weight: 600; height: 38px; padding: 0 14px; }
+    .invoice-dashboard .filter-actions { align-items: flex-end; gap: 8px; min-width: 0; }
+    .invoice-dashboard .filter-actions .btn { flex: 1 1 0; margin-right: 0 !important; min-width: 0; white-space: nowrap; }
     .invoice-dashboard .btn-primary { background: #1264e8; border-color: #1264e8; }
     .invoice-dashboard .metric-card { min-height: 102px; padding: 15px; }
     .invoice-dashboard .metric-card .metric-icon { align-items: center; background: #edf4ff; border-radius: 10px; color: #1264e8; display: flex; float: left; font-size: 21px; height: 36px; justify-content: center; margin-right: 10px; width: 36px; }
