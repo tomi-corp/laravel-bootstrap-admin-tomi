@@ -30,6 +30,9 @@
         th { background: #f1f3f5; color: #495057; font-size: 9px; text-align: left; text-transform: uppercase; }
         th, td { border: 1px solid #cfd4da; padding: 7px; }
         .number { text-align: right; }
+        .payment-summary { margin-top: 18px; }
+        .payment-info { float: left; line-height: 1.6; width: calc(100% - 320px); }
+        .payment-info strong { display: inline-block; min-width: 105px; }
         .summary { margin-left: auto; margin-top: 18px; width: 300px; }
         .summary th, .summary td { border: 0; padding: 4px 0; }
         .summary th { background: transparent; font-size: 11px; text-transform: none; }
@@ -108,24 +111,33 @@
             </tbody>
         </table>
 
-        <table class="summary">
-            <tr>
-                <th>Jumlah Pinjaman</th>
-                <td class="number">{{ number_format($jumlahPinjaman, 0, ',', '.') }}</td>
-            </tr>
-            <tr>
-                <th>Total Tagihan</th>
-                <td class="number"><strong>Rp. {{ number_format($totalTagihan, 0, ',', '.') }}</strong></td>
-            </tr>
-            <tr>
-                <th>Status Invoice</th>
-                <td class="number">
-                    <span class="status {{ strtolower((string) $invoice->status) === 'lunas' ? 'status-paid' : 'status-pending' }}">
-                        {{ strtolower((string) $invoice->status) === 'lunas' ? 'LUNAS' : 'BELUM LUNAS' }}
-                    </span>
-                </td>
-            </tr>
-        </table>
+        <div class="payment-summary clearfix">
+            <div class="payment-info">
+                <div><strong>Noted:</strong> Harap segera dibayarkan tagihan sesuai invoice terlampir maksimum tanggal 28 {{ $invoicePeriod->format('M-Y') }} ke rekening berikut:</div>
+                <div><strong>BANK:</strong> BNI</div>
+                <div><strong>Atas Nama:</strong> KOPERASI SIMPAN PINJAM DUMI DIGITAL TEKNOLOGI</div>
+                <div><strong>No Rekening:</strong> 2011113338</div>
+            </div>
+
+            <table class="summary">
+                <tr>
+                    <th>Jumlah Pinjaman</th>
+                    <td class="number">{{ number_format($jumlahPinjaman, 0, ',', '.') }}</td>
+                </tr>
+                <tr>
+                    <th>Total Tagihan</th>
+                    <td class="number"><strong>Rp. {{ number_format($totalTagihan, 0, ',', '.') }}</strong></td>
+                </tr>
+                <tr>
+                    <th>Status Invoice</th>
+                    <td class="number">
+                        <span class="status {{ strtolower((string) $invoice->status) === 'lunas' ? 'status-paid' : 'status-pending' }}">
+                            {{ strtolower((string) $invoice->status) === 'lunas' ? 'LUNAS' : 'BELUM LUNAS' }}
+                        </span>
+                    </td>
+                </tr>
+            </table>
+        </div>
 
         <div class="note">Dokumen ini dibuat secara otomatis oleh sistem TomiDana.</div>
     </div>
