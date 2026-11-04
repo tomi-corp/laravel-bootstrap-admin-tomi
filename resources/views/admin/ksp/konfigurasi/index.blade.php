@@ -201,8 +201,7 @@
                 <div class="form-group">
                     <label>Biaya Admin</label>
                     <div class="input-group">
-                        <input class="form-control" id="biayaadmin" placeholder="Biaya Admin" type="number" step="0.01"
-                            {{ $list_perusahaan->active_profesional_fee == 'active' ? 'readonly' : '' }}>
+                        <input class="form-control" id="biayaadmin" placeholder="Biaya Admin" type="number" step="0.01">
                         <span class="input-group-text">%</span>
                     </div>
                     <small class="text-danger" id="errBiayaAdmin"></small>
@@ -324,8 +323,7 @@
                 <div class="form-group">
                     <label>Biaya Admin</label>
                     <div class="input-group">
-                        <input class="form-control" id="biayaadminEdit" placeholder="Biaya Admin" type="number"
-                            step="0.01" {{ $list_perusahaan->active_profesional_fee == 'active' ? 'readonly' : '' }}>
+                        <input class="form-control" id="biayaadminEdit" placeholder="Biaya Admin" type="number" step="0.01">
                         <span class="input-group-text">%</span>
                     </div>
                     <small class="text-danger" id="errBiayaAdminEdit"></small>
