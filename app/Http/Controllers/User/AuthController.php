@@ -97,6 +97,19 @@ class AuthController extends Controller
         ], 200);
     }
 
+    public function deleteAccount()
+    {
+        $user = auth('api')->user();
+
+        $user->delete();
+        auth('api')->logout();
+
+        return response()->json([
+            'code' => 200,
+            'message' => 'Account successfully deleted',
+        ], 200);
+    }
+
     public function refresh()
     {
         return $this->respondWithToken(auth('api')->refresh());

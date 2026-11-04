@@ -42,6 +42,7 @@ Route::middleware(['LanguangeMiddleware'])->group(function () {
 
         Route::post('/me', [AuthController::class, 'me']);
         Route::post('/logout', [AuthController::class, 'logout']);
+        Route::delete('/account', [AuthController::class, 'deleteAccount']);
         Route::post('/verif/otp', [AuthController::class, 'verifOtp']);
         Route::post('/verif/otp/email', [AuthController::class, 'verifOtpEmail']);
         Route::post('/revisi/email', [AuthController::class, 'revisiEmail']);
