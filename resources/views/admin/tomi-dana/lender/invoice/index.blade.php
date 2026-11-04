@@ -14,6 +14,8 @@
     $selectedInvoice = $selectedInvoice ?? null;
 
     $summaryCards = [
+        ['label' => 'Total Pemberi Pinjaman', 'value' => $formatNumber($summary['total_lenders'] ?? 0), 'icon' => 'account-group-outline', 'tone' => 'blue'],
+        ['label' => 'Total Invoice Bulan Ini', 'value' => $formatNumber($summary['total_invoices'] ?? 0), 'icon' => 'file-document-outline', 'tone' => 'blue'],
         ['label' => 'Total Biaya Layanan', 'value' => $formatRupiah($summary['service_fee'] ?? 0), 'icon' => 'layers-outline', 'tone' => 'blue'],
         ['label' => 'Total Biaya Admin', 'value' => $formatRupiah($summary['admin_fee'] ?? 0), 'icon' => 'cash-multiple', 'tone' => 'blue'],
         ['label' => 'Total Tagihan', 'value' => $formatRupiah($summary['total_billing'] ?? 0), 'icon' => 'calculator-variant-outline', 'tone' => 'blue'],
@@ -89,6 +91,14 @@
     .invoice-dashboard .detail-total { background: #eaf2ff; border-radius: 8px; color: #1264e8; font-size: 14px; font-weight: 700; margin-top: 10px; padding: 11px; }
     .invoice-dashboard .detail-status { margin-top: 14px; }
     .invoice-dashboard .empty-state { color: #8a93a5; font-size: 12px; padding: 25px 10px; text-align: center; }
+    .invoice-dashboard .action-table { margin-bottom: 0; width: 100%; }
+    .invoice-dashboard .action-table th { background: #f2f4f8; border: 0; color: #42506a; font-size: 10px; font-weight: 700; white-space: nowrap; }
+    .invoice-dashboard .action-table td { border-color: #edf0f5; color: #27324a; font-size: 11px; vertical-align: middle; }
+    .invoice-dashboard .detail-action { background: #1264e8; border-color: #1264e8; border-radius: 8px; color: #fff; font-size: 11px; font-weight: 600; padding: 7px 10px; white-space: nowrap; }
+    .invoice-dashboard .detail-action:hover { background: #0b55cb; border-color: #0b55cb; color: #fff; }
+    .invoice-dashboard .detail-download { border-radius: 8px; font-size: 12px; font-weight: 600; padding: 10px 12px; width: 100%; }
+    .invoice-dashboard .summary-grid { margin-bottom: 16px; }
+    .invoice-dashboard .summary-grid > [class*="col-"] { margin-bottom: 16px; }
     .invoice-dashboard .table-scroll { margin: 16px; max-width: calc(100% - 32px); overflow: visible; }
     @media (max-width: 991.98px) {
         .invoice-dashboard .filter-actions { margin-top: 12px; }
@@ -169,8 +179,58 @@
         @endforeach
     </div>
 
+    <div class="row summary-grid">
+        <div class="col-lg-4">
+            <div class="dashboard-panel h-100">
+                <div class="panel-header"><i class="mdi mdi-file-chart-outline"></i><h3>Ringkasan Tagihan Per Status</h3></div>
+                <div class="panel-body">
+                    @foreach ($statusStyles as $status => $style)
+                        @php $statusData = $statusSummary[$status] ?? ['count' => 0, 'amount' => 0]; @endphp
+                        <div class="status-row">
+                            <span class="status-dot {{ $style['dot'] }}"></span>
+                            <span class="status-name">{{ $style['label'] }}</span>
+                            <span class="status-count">{{ $formatNumber($statusData['count']) }} invoice</span>
+                            <span class="status-total">{{ $formatRupiah($statusData['amount']) }}</span>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-8">
+            <div class="dashboard-panel h-100">
+                <div class="panel-header"><i class="mdi mdi-bell-alert-outline"></i><h3>Tagihan yang Perlu Tindakan</h3></div>
+                <div class="panel-body p-0">
+                    <div class="table-responsive">
+                        <table class="table action-table">
+                            <thead><tr><th>Pemberi Pinjaman</th><th>No. Invoice</th><th>Jatuh Tempo</th><th>Nominal Tagihan</th><th>Status</th><th>Aksi</th></tr></thead>
+                            <tbody>
+                                @forelse ($actionInvoices as $invoice)
+                                    @php $style = $statusStyles[data_get($invoice, 'status', 'draft')] ?? $statusStyles['draft']; @endphp
+                                    <tr>
+                                        <td>{{ strtoupper(data_get($invoice, 'lender_name', '-')) }}</td>
+                                        <td>{{ data_get($invoice, 'invoice_number', '-') }}</td>
+                                        <td>{{ data_get($invoice, 'due_date', '-') }}</td>
+                                        <td>{{ $formatRupiah(data_get($invoice, 'amount', 0)) }}</td>
+                                        <td><span class="status-pill {{ $style['class'] }}"><i class="mdi mdi-clock-outline mr-1"></i>{{ $style['label'] }}</span></td>
+                                        <td>
+                                            @if (data_get($invoice, 'download_url'))
+                                                <a class="detail-action" href="{{ data_get($invoice, 'download_url') }}"><i class="mdi mdi-download-outline mr-1"></i>Download Invoice</a>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr><td class="empty-state" colspan="6">Tidak ada tagihan yang perlu ditindaklanjuti.</td></tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="row">
-        <div class="col-12">
+        <div class="col-lg-9 mb-3 mb-lg-0">
             <div class="dashboard-panel">
                 <div class="panel-header"><i class="mdi mdi-file-table-outline"></i><h3>Daftar Invoice Tagihan Lender</h3></div>
                 <div class="panel-body p-0">
@@ -211,6 +271,32 @@
                             </tbody>
                         </table>
                     </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3">
+            <div class="dashboard-panel h-100">
+                <div class="panel-header"><i class="mdi mdi-file-document-outline"></i><h3>Rincian Tagihan</h3></div>
+                <div class="panel-body">
+                    @if ($selectedInvoice)
+                        <dl class="detail-list">
+                            <div><dt>Pemberi Pinjaman</dt><dd>{{ strtoupper(data_get($selectedInvoice, 'lender_name', '-')) }}</dd></div>
+                            <div><dt>No. Invoice</dt><dd>{{ data_get($selectedInvoice, 'invoice_number', '-') }}</dd></div>
+                            <div><dt>Periode</dt><dd>{{ data_get($selectedInvoice, 'period_label', '-') }}</dd></div>
+                            <div><dt><i class="mdi mdi-counter mr-1"></i>Jumlah Transaksi</dt><dd>{{ $formatNumber(data_get($selectedInvoice, 'transaction_count', 0)) }}</dd></div>
+                            <div><dt><i class="mdi mdi-chart-bar mr-1"></i>Total Nilai Transaksi</dt><dd>{{ $formatRupiah(data_get($selectedInvoice, 'transaction_value', 0)) }}</dd></div>
+                            <div><dt><i class="mdi mdi-layers-outline mr-1"></i>Biaya Layanan</dt><dd>{{ $formatRupiah(data_get($selectedInvoice, 'service_fee', 0)) }}</dd></div>
+                            <div><dt><i class="mdi mdi-cash-multiple mr-1"></i>Biaya Admin</dt><dd>{{ $formatRupiah(data_get($selectedInvoice, 'admin_fee', 0)) }}</dd></div>
+                        </dl>
+                        <div class="detail-total d-flex justify-content-between"><span>Total Tagihan</span><span>{{ $formatRupiah(data_get($selectedInvoice, 'amount', 0)) }}</span></div>
+                        @php $selectedStyle = $statusStyles[data_get($selectedInvoice, 'status', 'draft')] ?? $statusStyles['draft']; @endphp
+                        <div class="detail-status d-flex justify-content-between align-items-center"><span>Status Pembayaran</span><span class="status-pill {{ $selectedStyle['class'] }}">{{ $selectedStyle['label'] }}</span></div>
+                        @if (data_get($selectedInvoice, 'download_url'))
+                            <a class="btn btn-primary detail-download mt-3" href="{{ data_get($selectedInvoice, 'download_url') }}"><i class="mdi mdi-download-outline mr-1"></i>Download Invoice</a>
+                        @endif
+                    @else
+                        <div class="empty-state">Pilih invoice untuk melihat rinciannya.</div>
+                    @endif
                 </div>
             </div>
         </div>
