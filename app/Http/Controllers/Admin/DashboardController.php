@@ -8,7 +8,6 @@ use App\Mail\InvoiceKeLender;
 use App\Mail\ReminderPinjamanPayroll;
 use App\Models\disbursement;
 use App\Models\download;
-use App\Models\GadgetInstallment;
 use App\Models\history_invoicing_lender;
 use App\Models\invoicing_pinjaman;
 use App\Models\lender;
@@ -96,51 +95,7 @@ class DashboardController extends Controller
             'persentaseDonwnload' => $persentaseUnduhan,
         ];
 
-        $today = Carbon::today();
-        $monthStart = Carbon::now()->startOfMonth();
-        $monthEnd = Carbon::now()->endOfMonth();
-        $activeCompanies = ListPerusahaan::where('status', 'active')->count();
-        $todayApplications = pinjaman::whereDate('created_at', $today)->count();
-        $monthlyTransactions = pinjaman::whereBetween('created_at', [$monthStart, $monthEnd])->sum('nominal');
-        $pendingApplications = pinjaman::whereIn('status', ['pending', 'on_proses'])->count();
-        $approvedApplications = pinjaman::whereIn('status', ['approve', 'done'])->count();
-        $gadgetTotal = GadgetInstallment::count();
-        $gadgetPending = GadgetInstallment::where('status', 'pending')->count();
-        $gadgetApproved = GadgetInstallment::whereIn('status', ['approved', 'approve', 'done'])->count();
-        $invoiceTotal = history_invoicing_lender::count();
-        $invoicePending = history_invoicing_lender::where(function ($query) {
-            $query->where('status_pertama', 'pending')->orWhere('status_kedua', 'pending');
-        })->count();
-        $invoiceApproved = max(0, $invoiceTotal - $invoicePending);
-
-        $productStats = [
-            ['name' => 'TomiDana', 'icon' => 'mdi-cash-fast', 'class' => 'product-blue', 'total' => $register['totalRegister'] ? $approvedApplications + $pendingApplications : 0, 'pending' => $pendingApplications, 'approved' => $approvedApplications],
-            ['name' => 'TomiGaji', 'icon' => 'mdi-account-group-outline', 'class' => 'product-purple', 'total' => 0, 'pending' => 0, 'approved' => 0],
-            ['name' => 'TomiGawai', 'icon' => 'mdi-cellphone', 'class' => 'product-green', 'total' => $gadgetTotal, 'pending' => $gadgetPending, 'approved' => $gadgetApproved],
-            ['name' => 'TomiInvoice', 'icon' => 'mdi-file-document-outline', 'class' => 'product-orange', 'total' => $invoiceTotal, 'pending' => $invoicePending, 'approved' => $invoiceApproved],
-        ];
-
-        $dashboardData = [
-            'activeCompanies' => $activeCompanies,
-            'todayApplications' => $todayApplications,
-            'monthlyTransactions' => $monthlyTransactions,
-            'attentionTotal' => User::whereNull('email_verified_at')->count() + $invoicePending + $pendingApplications,
-            'attentionItems' => [
-                ['label' => 'Menunggu Verifikasi', 'count' => User::whereNull('email_verified_at')->count(), 'icon' => 'mdi-file-alert-outline', 'class' => 'attention-red'],
-                ['label' => 'Mendekati Jatuh Tempo', 'count' => pinjaman::where('status', '!=', 'lunas')->whereHas('jatuh_tempo', fn ($query) => $query->whereDate('jatuh_tempo', '<=', $today))->count(), 'icon' => 'mdi-clock-alert-outline', 'class' => 'attention-yellow'],
-                ['label' => 'Data Perlu Revisi', 'count' => lender_update::where('status_pertama', 'pending')->orWhere('status_kedua', 'pending')->count(), 'icon' => 'mdi-file-edit-outline', 'class' => 'attention-blue'],
-            ],
-            'productStats' => $productStats,
-            'operationalItems' => [
-                ['label' => 'Pengajuan Baru', 'value' => $todayApplications, 'caption' => 'pengajuan masuk', 'icon' => 'mdi-file-document-outline', 'class' => 'op-blue'],
-                ['label' => 'Verifikasi Selesai', 'value' => User::whereNotNull('email_verified_at')->whereDate('updated_at', $today)->count(), 'caption' => 'pengajuan diverifikasi', 'icon' => 'mdi-check-bold', 'class' => 'op-green'],
-                ['label' => 'Pembayaran Berhasil', 'value' => disbursement::whereDate('created_at', $today)->count(), 'caption' => 'transaksi berhasil', 'icon' => 'mdi-credit-card-outline', 'class' => 'op-purple'],
-                ['label' => 'MoU Aktif', 'value' => $activeCompanies, 'caption' => 'perusahaan baru', 'icon' => 'mdi-account-multiple-outline', 'class' => 'op-yellow'],
-            ],
-            'distributionProducts' => $productStats,
-        ];
-
-        return view('admin.dashboard.index', compact('register', 'dashboardData'));
+        return view('admin.dashboard.index', compact('register'));
     }
 
     public function invoicee($encrypted, $unique, $idEnc, $codePerusahaanEnc)
