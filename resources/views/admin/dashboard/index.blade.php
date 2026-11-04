@@ -8,9 +8,9 @@
     .dashboard-mockup .dashboard-header { align-items: center; display: flex; justify-content: space-between; margin-bottom: 22px; }
     .dashboard-mockup h1 { color: #101a38; font-size: 28px; font-weight: 700; letter-spacing: -.7px; margin: 0; }
     .dashboard-mockup .card { background: #fff; border: 1px solid #e8edf4; border-radius: 12px; box-shadow: 0 4px 16px rgba(45, 66, 102, .05); }
-    .dashboard-mockup .metric-card { align-items: flex-start; display: flex; min-height: 106px; padding: 16px; }
-    .dashboard-mockup .metric-icon { align-items: center; background: #edf5ff; border-radius: 11px; color: #146fe8; display: flex; flex: 0 0 46px; font-size: 23px; height: 46px; justify-content: center; margin-right: 12px; width: 46px; }
-    .dashboard-mockup .metric-content { flex: 1 1 auto; min-width: 0; text-align: left; }
+    .dashboard-mockup .metric-card { align-items: start; display: grid; gap: 0 12px; grid-template-columns: 46px minmax(0, 1fr); min-height: 106px; padding: 16px; }
+    .dashboard-mockup .metric-icon { align-items: center; background: #edf5ff; border-radius: 11px; color: #146fe8; display: flex; font-size: 23px; grid-column: 1; grid-row: 1; height: 46px; justify-content: center; margin: 0; width: 46px; }
+    .dashboard-mockup .metric-content { grid-column: 2; grid-row: 1; min-width: 0; text-align: left; }
     .dashboard-mockup .metric-label { color: #4f5e77; font-size: 12px; line-height: 1.2; margin: 5px 0; }
     .dashboard-mockup .metric-value { color: #101a38; font-size: 25px; font-weight: 700; line-height: 1; }
     .dashboard-mockup .metric-change { color: #36a56d; font-size: 11px; margin-top: 8px; } .dashboard-mockup .metric-change span { background: #e4f8ee; border-radius: 5px; font-weight: 700; margin-right: 7px; padding: 3px 6px; } .dashboard-mockup .metric-change.red { color: #df4e58; } .dashboard-mockup .metric-change.red span { background: #ffebed; }
