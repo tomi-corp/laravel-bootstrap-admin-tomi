@@ -39,7 +39,12 @@ use Yajra\DataTables\Facades\DataTables;
 
 class TomiDanaController extends Controller
 {
-    public function lenderInvoiceDashboard(Request $request)
+    public function adminInvoiceDashboard(Request $request)
+    {
+        return $this->lenderInvoiceDashboard($request, 'admin.dashboard.index');
+    }
+
+    public function lenderInvoiceDashboard(Request $request, string $view = 'admin.tomi-dana.lender.invoice.index')
     {
         $month = $request->filled('month') ? $request->integer('month') : null;
         $year = $request->filled('year') ? $request->integer('year') : null;
@@ -146,7 +151,7 @@ class TomiDanaController extends Controller
             ? $invoiceRows->firstWhere('id', $request->integer('invoice_id'))
             : $invoiceRows->first();
 
-        return view('admin.tomi-dana.lender.invoice.index', [
+        return view($view, [
             'summary' => $summary,
             'statusSummary' => $statusSummary,
             'actionInvoices' => $invoiceRows->whereNotIn('status', ['lunas'])->take(5)->values(),
