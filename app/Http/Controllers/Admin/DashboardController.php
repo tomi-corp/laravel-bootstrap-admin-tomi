@@ -65,6 +65,13 @@ class DashboardController extends Controller
         $dokumenPerluDilihat = pinjaman::query()
             ->where('document_privy', 'n')
             ->count();
+        $totalPengajuanTomiDana = pinjaman::query()->count();
+        $pendingTomiDana = pinjaman::query()
+            ->whereIn('status', ['pending', 'on_proses'])
+            ->count();
+        $disetujuiTomiDana = pinjaman::query()
+            ->where('status', 'approve')
+            ->count();
 
         // register
         $register = User::select(['id', 'created_at']);
@@ -133,7 +140,10 @@ class DashboardController extends Controller
             'tugasPerluTindakan',
             'menungguVerifikasi',
             'mendekatiJatuhTempo',
-            'dokumenPerluDilihat'
+            'dokumenPerluDilihat',
+            'totalPengajuanTomiDana',
+            'pendingTomiDana',
+            'disetujuiTomiDana'
         ));
     }
 
