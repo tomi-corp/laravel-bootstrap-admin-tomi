@@ -36,6 +36,19 @@ class DashboardController extends Controller
 {
     public function dashboard()
     {
+        $now = Carbon::now();
+        $startOfMonth = $now->copy()->startOfMonth();
+        $endOfMonth = $now->copy()->endOfMonth();
+
+        $totalPerusahaan = ListPerusahaan::query()->count();
+        $totalPengajuan = pinjaman::query()->count();
+        $totalTransaksiBulanIni = pinjaman::query()
+            ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
+            ->count();
+        $tugasPerluTindakan = pinjaman::query()
+            ->whereIn('status', ['pending', 'on_proses'])
+            ->count();
+
         // register
         $register = User::select(['id', 'created_at']);
         $totalRegister = $register->count();
@@ -95,7 +108,13 @@ class DashboardController extends Controller
             'persentaseDonwnload' => $persentaseUnduhan,
         ];
 
-        return view('admin.dashboard.index', compact('register'));
+        return view('admin.dashboard.index', compact(
+            'register',
+            'totalPerusahaan',
+            'totalPengajuan',
+            'totalTransaksiBulanIni',
+            'tugasPerluTindakan'
+        ));
     }
 
     public function invoicee($encrypted, $unique, $idEnc, $codePerusahaanEnc)
