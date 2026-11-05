@@ -10,6 +10,7 @@ use App\Models\disbursement;
 use App\Models\download;
 use App\Models\history_invoicing_lender;
 use App\Models\invoicing_pinjaman;
+use App\Models\jatuh_tempo;
 use App\Models\lender;
 use App\Models\lender_update;
 use App\Models\ListPerusahaan;
@@ -47,6 +48,22 @@ class DashboardController extends Controller
             ->count();
         $tugasPerluTindakan = pinjaman::query()
             ->whereIn('status', ['pending', 'on_proses'])
+            ->count();
+        $menungguVerifikasi = pinjaman::query()
+            ->where('status_otp', 'pending')
+            ->count();
+        $mendekatiJatuhTempo = jatuh_tempo::query()
+            ->whereBetween('jatuh_tempo', [
+                $now->copy()->startOfDay(),
+                $now->copy()->addDays(3)->endOfDay(),
+            ])
+            ->where(function ($query) {
+                $query->whereNull('status')
+                    ->orWhere('status', '!=', 'lunas');
+            })
+            ->count();
+        $dokumenPerluDilihat = pinjaman::query()
+            ->where('document_privy', 'n')
             ->count();
 
         // register
@@ -113,7 +130,10 @@ class DashboardController extends Controller
             'totalPerusahaan',
             'totalPengajuan',
             'totalTransaksiBulanIni',
-            'tugasPerluTindakan'
+            'tugasPerluTindakan',
+            'menungguVerifikasi',
+            'mendekatiJatuhTempo',
+            'dokumenPerluDilihat'
         ));
     }
 
