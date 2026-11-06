@@ -926,14 +926,14 @@ class TomiDanaController extends Controller
         ]);
 
         $fieldLabels = [
-            'rate' => 'Biaya Bunga',
+            'rate' => 'Biaya Rate',
             'asuransi' => 'Biaya Asuransi',
             'provisi' => 'Biaya Provisi',
             'biaya_admin' => 'Biaya Admin',
-            'fee_tomi' => 'Biaya TOMI',
+            'fee_tomi' => 'Biaya Fee TOMI',
             'biaya_layanan' => 'Biaya Layanan',
-            'referral_1' => 'Biaya Referal 1',
-            'referral_2' => 'Biaya Referal 2',
+            'referral_1' => 'Biaya Profesional Fee 1',
+            'referral_2' => 'Biaya Profesional Fee 2',
             'ksp' => 'Biaya Lender',
         ];
         $selectedFields = $request->has('fields')
@@ -990,14 +990,14 @@ class TomiDanaController extends Controller
         ]);
 
         $fieldLabels = [
-            'rate' => 'Biaya Bunga',
+            'rate' => 'Biaya Rate',
             'asuransi' => 'Biaya Asuransi',
             'provisi' => 'Biaya Provisi',
             'biaya_admin' => 'Biaya Admin',
-            'fee_tomi' => 'Biaya TOMI',
+            'fee_tomi' => 'Biaya Fee TOMI',
             'biaya_layanan' => 'Biaya Layanan',
-            'referral_1' => 'Biaya Referal 1',
-            'referral_2' => 'Biaya Referal 2',
+            'referral_1' => 'Biaya Profesional Fee 1',
+            'referral_2' => 'Biaya Profesional Fee 2',
             'ksp' => 'Biaya Lender',
         ];
         $selectedFields = $request->has('fields')
