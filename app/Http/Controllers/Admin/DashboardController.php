@@ -121,42 +121,78 @@ class DashboardController extends Controller
             ->count();
 
 
-        $registerRiwayat = User::orderBy('created_at', 'desc')->take(5)
+        $activityRows = collect();
+
+        User::orderByDesc('created_at')
+            ->take(5)
             ->get()
-            ->map(function ($item) {
-                $item->type = 'Registrasi';
-                return $item;
+            ->each(function ($item) use ($activityRows) {
+                $activityRows->push([
+                    'created_at' => $item->created_at,
+                    'name' => $item->name,
+                    'activity' => 'User baru mendaftar',
+                    'product' => '-',
+                    'status' => 'Baru',
+                ]);
             });
 
-        $pinjaman = pinjaman::orderBy('created_at', 'desc')->take(5)->with('data_karyawan')
+        pinjaman::orderByDesc('created_at')
+            ->take(5)
+            ->with('data_karyawan')
             ->get()
-            ->map(function ($item) {
-                $item->type = 'Pinjaman Payroll';
-                return $item;
+            ->each(function ($item) use ($activityRows) {
+                $activityRows->push([
+                    'created_at' => $item->created_at,
+                    'name' => optional($item->data_karyawan)->nama_karyawan ?? '-',
+                    'activity' => 'Peminjam baru mengajukan',
+                    'product' => 'TomiDana',
+                    'status' => ucfirst(str_replace('_', ' ', (string) ($item->status ?? 'pending'))),
+                ]);
             });
 
-        $merged = $registerRiwayat->merge($pinjaman);
-        $sorted = $merged->sortByDesc('created_at')->take(5)->values();
-        $dataFinal = [];
-        foreach ($sorted as $data) {
-            if ($data->type == 'Registrasi') {
-                $name = $data->name;
-            } else {
-                $name = $data->data_karyawan->nama_karyawan ?? '-';
-            }
-            $dataFinal[] = [
-                'type' => $data->type,
-                'created_at' => $data->created_at->diffForHumans(),
-                'name' => $name,
-                'activity' => $data->type === 'Registrasi'
-                    ? 'User baru mendaftar'
-                    : 'Peminjam baru mengajukan',
-                'product' => $data->type === 'Registrasi' ? '-' : 'TomiDana',
-                'status' => $data->type === 'Registrasi'
-                    ? 'Baru'
-                    : ucfirst(str_replace('_', ' ', (string) ($data->status ?? 'pending'))),
-            ];
-        }
+        DB::table('salary_financings')
+            ->orderByDesc('created_at')
+            ->take(5)
+            ->get()
+            ->each(function ($item) use ($activityRows) {
+                $activityRows->push([
+                    'created_at' => $item->created_at,
+                    'name' => $item->nama_perusahaan ?? $item->company_name ?? $item->nama ?? '-',
+                    'activity' => 'Pengajuan baru masuk',
+                    'product' => 'TomiGaji',
+                    'status' => ucfirst(str_replace('_', ' ', (string) ($item->status ?? 'pending'))),
+                ]);
+            });
+
+        DB::table('financing_request_invoices')
+            ->leftJoin('clients', 'clients.id', '=', 'financing_request_invoices.client_id')
+            ->whereNull('financing_request_invoices.deleted_at')
+            ->orderByDesc('financing_request_invoices.created_at')
+            ->take(5)
+            ->get([
+                'financing_request_invoices.created_at',
+                'financing_request_invoices.status',
+                'clients.name as client_name',
+            ])
+            ->each(function ($item) use ($activityRows) {
+                $activityRows->push([
+                    'created_at' => $item->created_at,
+                    'name' => $item->client_name ?? '-',
+                    'activity' => 'Pengajuan baru masuk',
+                    'product' => 'TomiInvoice',
+                    'status' => ucfirst(str_replace('_', ' ', (string) ($item->status ?? 'pending'))),
+                ]);
+            });
+
+        $dataFinal = $activityRows
+            ->sortByDesc(fn ($item) => Carbon::parse($item['created_at']))
+            ->take(5)
+            ->map(function ($item) {
+                $item['created_at'] = Carbon::parse($item['created_at'])->diffForHumans();
+                return $item;
+            })
+            ->values()
+            ->all();
 
         $persentaseRegister =  ($registerBulanIni - $registerBulanKemarin) * $registerBulanKemarin * 100 / 100;
         $persentaseUnduhan =  ($downloadBulanIni - $downloadBulanKemarin) * $downloadBulanKemarin * 100 / 100;
