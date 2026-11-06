@@ -26,13 +26,6 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                     </a>
                 </li>
 
-                <li>
-                    <a href="{{ route('admin.application-history.index') }}">
-                        <i class="dripicons-document"></i>
-                        <span> Riwayat Pengajuan </span>
-                    </a>
-                </li>
-
                 <li class="menu-title">Produk</li>
 
                 {{-- PPOB hanya tampil selain pic dan staff --}}
@@ -251,6 +244,11 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                         <li>
                             <a href="{{ route('admin.tomi-dana.disbursements') }}">
                                 Pengajuan
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('admin.application-history.index') }}">
+                                Riwayat Pengajuan
                             </a>
                         </li>
                         <li>
