@@ -138,6 +138,29 @@
             processing: true,
             serverSide: true,
             responsive: true,
+            dom: 'Bfrtip',
+            buttons: [
+                {
+                    extend: 'copyHtml5',
+                    text: '<i class="mdi mdi-content-copy"></i> Copy',
+                    className: 'btn btn-sm btn-secondary mr-1',
+                    exportOptions: { columns: ':not(:last-child)' }
+                },
+                {
+                    extend: 'excelHtml5',
+                    text: '<i class="mdi mdi-file-excel"></i> Excel',
+                    className: 'btn btn-sm btn-success mr-1',
+                    title: 'Daftar Lender TomiDana',
+                    exportOptions: { columns: ':not(:last-child)' }
+                },
+                {
+                    extend: 'print',
+                    text: '<i class="mdi mdi-printer"></i> Print',
+                    className: 'btn btn-sm btn-info mr-1',
+                    title: 'Daftar Lender TomiDana',
+                    exportOptions: { columns: ':not(:last-child)' }
+                }
+            ],
             ajax: {
                 url: '{{ route('admin.tomi-dana.lender.table') }}',
                 type: 'POST',
