@@ -192,7 +192,7 @@
                                         <td><span class="status-pill {{ $style['class'] }}">{{ $style['label'] }}</span></td>
                                         <td>
                                             @if (data_get($invoice, 'download_url'))
-                                                <a class="btn btn-outline-primary btn-sm" href="{{ data_get($invoice, 'download_url') }}" title="Download Invoice" aria-label="Download Invoice"><i class="mdi mdi-download-outline"></i></a>
+                                                <a class="btn btn-outline-primary btn-sm download-invoice" href="#" data-url="{{ data_get($invoice, 'download_url') }}" title="Download Invoice" aria-label="Download Invoice"><i class="mdi mdi-download-outline"></i></a>
                                             @else
                                                 <span class="text-muted">-</span>
                                             @endif
@@ -212,6 +212,38 @@
                         </table>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="downloadInvoiceModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Pilih Kolom Invoice</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Tutup"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                @foreach ([
+                    'rate' => 'Biaya Rate',
+                    'asuransi' => 'Biaya Asuransi',
+                    'provisi' => 'Biaya Provisi',
+                    'biaya_admin' => 'Biaya Admin',
+                    'fee_tomi' => 'Biaya Fee TOMI',
+                    'biaya_layanan' => 'Biaya Layanan',
+                    'referral_1' => 'Biaya Profesional Fee 1',
+                    'referral_2' => 'Biaya Profesional Fee 2',
+                    'ksp' => 'Biaya Lender',
+                ] as $field => $label)
+                    <div class="form-check mb-2">
+                        <input class="form-check-input invoice-column" type="checkbox" value="{{ $field }}" id="invoiceColumn{{ ucfirst($field) }}" checked>
+                        <label class="form-check-label" for="invoiceColumn{{ ucfirst($field) }}">{{ $label }}</label>
+                    </div>
+                @endforeach
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                <a href="#" id="confirmDownloadInvoice" target="_blank" class="btn btn-primary">Download Invoice</a>
             </div>
         </div>
     </div>
@@ -278,6 +310,21 @@
 
         $('#exportInvoice').on('click', function () {
             window.print();
+        });
+
+        $('.download-invoice').on('click', function (event) {
+            event.preventDefault();
+            $('#confirmDownloadInvoice').attr('href', $(this).data('url'));
+            $('#downloadInvoiceModal').modal('show');
+        });
+
+        $('#confirmDownloadInvoice').on('click', function (event) {
+            const invoiceUrl = new URL($(this).attr('href'), window.location.origin);
+            invoiceUrl.searchParams.delete('fields[]');
+            $('.invoice-column:checked').each(function () {
+                invoiceUrl.searchParams.append('fields[]', $(this).val());
+            });
+            $(this).attr('href', invoiceUrl.toString());
         });
 
         $('.edit-invoice-payment').on('click', function () {
