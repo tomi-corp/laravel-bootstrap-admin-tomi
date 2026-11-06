@@ -42,8 +42,30 @@
     $('#applicationHistoryTable').DataTable({
         processing: true,
         serverSide: true,
-        responsive: true,
+        responsive: false,
+        scrollX: true,
         pageLength: 10,
+        dom: 'B<"row"<"col-md-6"l><"col-md-6 text-right"f>>rt<"row"<"col-md-6"i><"col-md-6"p>>',
+        buttons: [
+            {
+                extend: 'copy',
+                className: 'btn btn-sm btn-purple mb-2 mr-1',
+                text: '<span class="mdi mdi-content-copy mr-1"></span>Copy',
+                title: 'Riwayat Pengajuan'
+            },
+            {
+                extend: 'excel',
+                className: 'btn btn-sm btn-purple mb-2 mr-1',
+                text: '<span class="mdi mdi-file-excel mr-1"></span>Excel',
+                title: 'Riwayat Pengajuan'
+            },
+            {
+                extend: 'print',
+                className: 'btn btn-sm btn-purple mb-2 mr-1',
+                text: '<span class="mdi mdi-printer mr-1"></span>Print',
+                title: 'Riwayat Pengajuan'
+            }
+        ],
         ajax: '{{ route('admin.application-history.table') }}',
         columns: [
             { data: 'tanggal', name: 'created_at' },
