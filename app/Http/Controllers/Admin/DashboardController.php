@@ -84,6 +84,20 @@ class DashboardController extends Controller
             ->whereNull('deleted_at')
             ->where('status', 'approve')
             ->count();
+        $pengajuanBaruHariIni = pinjaman::query()
+            ->whereBetween('created_at', [$now->copy()->startOfDay(), $now->copy()->endOfDay()])
+            ->count();
+        $verifikasiSelesai = pinjaman::query()
+            ->where('status_otp', 'success')
+            ->where('ttd', 'y')
+            ->count();
+        $pembayaranBerhasilHariIni = pinjaman::query()
+            ->where('status', 'approve')
+            ->whereBetween('created_at', [$now->copy()->startOfDay(), $now->copy()->endOfDay()])
+            ->count();
+        $mouAktifBulanIni = ListPerusahaan::query()
+            ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
+            ->count();
         $pendingTomiDana = pinjaman::query()
             ->whereIn('status', ['pending', 'on_proses'])
             ->count();
@@ -166,6 +180,10 @@ class DashboardController extends Controller
             'totalPengajuanTomiInvoice',
             'pendingTomiInvoice',
             'disetujuiTomiInvoice',
+            'pengajuanBaruHariIni',
+            'verifikasiSelesai',
+            'pembayaranBerhasilHariIni',
+            'mouAktifBulanIni',
             'pendingTomiDana',
             'disetujuiTomiDana'
         ));
