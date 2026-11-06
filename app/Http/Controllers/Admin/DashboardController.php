@@ -66,7 +66,7 @@ class DashboardController extends Controller
             ->where('document_privy', 'n')
             ->count();
         $totalPengajuanTomiDana = pinjaman::query()->count();
-        $totalPengajuanTomiGaji = ListPerusahaan::query()->sum('total_pengajuan');
+        $totalPengajuanTomiGaji = DB::table('salary_financings')->count();
         $pendingTomiDana = pinjaman::query()
             ->whereIn('status', ['pending', 'on_proses'])
             ->count();
