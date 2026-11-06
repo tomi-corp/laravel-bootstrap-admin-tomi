@@ -31,18 +31,32 @@ use Illuminate\Support\Facades\Crypt;
 use App\Http\Requests\Public\Ekasbon\DaftarEkasbonRequest;
 use App\Models\daftar_e_kasbon;
 use Illuminate\Support\Facades\Http;
+use Yajra\DataTables\Facades\DataTables;
 
 
 class DashboardController extends Controller
 {
     public function applicationHistory()
     {
-        $pengajuan = pinjaman::query()
-            ->with(['data_karyawan', 'perusahaan'])
-            ->latest('created_at')
-            ->paginate(20);
+        return view('admin.tomi-dana.application-history.index');
+    }
 
-        return view('admin.tomi-dana.application-history.index', compact('pengajuan'));
+    public function applicationHistoryTable()
+    {
+        $query = pinjaman::query()
+            ->with(['data_karyawan', 'perusahaan'])
+            ->select('pinjaman.*');
+
+        return DataTables::eloquent($query)
+            ->addColumn('tanggal', fn ($row) => optional($row->created_at)->format('d/m/Y H:i') ?? '-')
+            ->addColumn('id_pengajuan', fn ($row) => $row->id_pinjaman ?? $row->id)
+            ->addColumn('peminjam', fn ($row) => strtoupper($row->data_karyawan?->nama_karyawan ?? '-'))
+            ->addColumn('perusahaan', fn ($row) => strtoupper($row->perusahaan?->nama ?? '-'))
+            ->addColumn('nominal', fn ($row) => 'Rp. ' . number_format((float) ($row->nominal ?? 0), 0, ',', '.'))
+            ->addColumn('otp', fn ($row) => strtoupper($row->status_otp ?? '-'))
+            ->addColumn('ttd', fn ($row) => strtoupper($row->ttd ?? '-'))
+            ->addColumn('status_label', fn ($row) => strtoupper(str_replace('_', ' ', $row->status ?? '-')))
+            ->toJson();
     }
 
     public function dashboard()

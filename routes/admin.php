@@ -63,6 +63,8 @@ Route::middleware(['AdminMiddleware'])->group(
                 Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('admin.dashboard.index');
                 Route::get('/pengajuan/riwayat', [DashboardController::class, 'applicationHistory'])
                     ->name('admin.application-history.index');
+                Route::get('/pengajuan/riwayat/table', [DashboardController::class, 'applicationHistoryTable'])
+                    ->name('admin.application-history.table');
                 Route::get('/tomi-dana/lender/invoice', [TomiDanaController::class, 'lenderInvoiceDashboard'])
                     ->name('admin.tomi-dana.lender.invoice');
                 Route::get('/lender/dashboard', function () {

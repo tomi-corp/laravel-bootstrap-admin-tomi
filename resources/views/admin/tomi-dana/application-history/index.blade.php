@@ -16,7 +16,7 @@
         <h4 class="header-title mb-3">Daftar Pengajuan Pinjaman</h4>
 
         <div class="table-responsive">
-            <table class="table table-hover mb-0">
+            <table id="applicationHistoryTable" class="table table-hover mb-0">
                 <thead>
                     <tr>
                         <th>Tanggal</th>
@@ -29,30 +29,42 @@
                         <th>Status</th>
                     </tr>
                 </thead>
-                <tbody>
-                    @forelse ($pengajuan as $item)
-                        <tr>
-                            <td>{{ optional($item->created_at)->format('d/m/Y H:i') ?? '-' }}</td>
-                            <td>{{ $item->id_pinjaman ?? $item->id }}</td>
-                            <td>{{ strtoupper($item->data_karyawan?->nama_karyawan ?? '-') }}</td>
-                            <td>{{ strtoupper($item->perusahaan?->nama ?? '-') }}</td>
-                            <td>Rp. {{ number_format((float) ($item->nominal ?? 0), 0, ',', '.') }}</td>
-                            <td>{{ strtoupper($item->status_otp ?? '-') }}</td>
-                            <td>{{ strtoupper($item->ttd ?? '-') }}</td>
-                            <td>{{ strtoupper(str_replace('_', ' ', $item->status ?? '-')) }}</td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="8" class="text-center">Belum ada data pengajuan.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
+                <tbody></tbody>
             </table>
         </div>
 
-        <div class="mt-3">
-            {{ $pengajuan->links() }}
-        </div>
     </div>
 </div>
 @endsection
+
+@push('js')
+<script>
+    $('#applicationHistoryTable').DataTable({
+        processing: true,
+        serverSide: true,
+        responsive: true,
+        pageLength: 10,
+        ajax: '{{ route('admin.application-history.table') }}',
+        columns: [
+            { data: 'tanggal', name: 'created_at' },
+            { data: 'id_pengajuan', name: 'id_pinjaman' },
+            { data: 'peminjam', name: 'data_karyawan.nama_karyawan', orderable: false },
+            { data: 'perusahaan', name: 'perusahaan.nama', orderable: false },
+            { data: 'nominal', name: 'nominal', orderable: false, searchable: false },
+            { data: 'otp', name: 'status_otp' },
+            { data: 'ttd', name: 'ttd' },
+            { data: 'status_label', name: 'status' }
+        ],
+        language: {
+            search: 'Cari:',
+            processing: '<i class="dripicons-loading"></i> Memuat data...',
+            lengthMenu: 'Tampilkan _MENU_ data',
+            info: 'Menampilkan _START_ sampai _END_ dari _TOTAL_ data',
+            infoEmpty: 'Belum ada data pengajuan',
+            emptyTable: 'Belum ada data pengajuan',
+            zeroRecords: 'Pengajuan tidak ditemukan',
+            paginate: { previous: 'Sebelumnya', next: 'Berikutnya' }
+        }
+    });
+</script>
+@endpush
