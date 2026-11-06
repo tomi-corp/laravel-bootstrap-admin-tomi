@@ -40,15 +40,46 @@ class DashboardController extends Controller
         $now = Carbon::now();
         $startOfMonth = $now->copy()->startOfMonth();
         $endOfMonth = $now->copy()->endOfMonth();
+        $startOfPreviousMonth = $startOfMonth->copy()->subMonth();
+        $endOfPreviousMonth = $startOfMonth->copy()->subSecond();
+
+        $percentageChange = static function (int|float $current, int|float $previous): int {
+            if ($previous == 0) {
+                return $current > 0 ? 100 : 0;
+            }
+
+            return (int) round((($current - $previous) / $previous) * 100);
+        };
 
         $totalPerusahaan = ListPerusahaan::query()->count();
+        $totalPerusahaanBulanLalu = ListPerusahaan::query()
+            ->where('created_at', '<=', $endOfPreviousMonth)
+            ->count();
         $totalPengajuan = pinjaman::query()->count();
+        $totalPengajuanBulanLalu = pinjaman::query()
+            ->where('created_at', '<=', $endOfPreviousMonth)
+            ->count();
         $totalTransaksiBulanIni = pinjaman::query()
             ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
+            ->count();
+        $totalTransaksiBulanLalu = pinjaman::query()
+            ->whereBetween('created_at', [$startOfPreviousMonth, $endOfPreviousMonth])
             ->count();
         $tugasPerluTindakan = pinjaman::query()
             ->whereIn('status', ['pending', 'on_proses'])
             ->count();
+        $tugasPerluTindakanBulanIni = pinjaman::query()
+            ->whereIn('status', ['pending', 'on_proses'])
+            ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
+            ->count();
+        $tugasPerluTindakanBulanLalu = pinjaman::query()
+            ->whereIn('status', ['pending', 'on_proses'])
+            ->whereBetween('created_at', [$startOfPreviousMonth, $endOfPreviousMonth])
+            ->count();
+        $persentaseTotalPerusahaan = $percentageChange($totalPerusahaan, $totalPerusahaanBulanLalu);
+        $persentaseTotalPengajuan = $percentageChange($totalPengajuan, $totalPengajuanBulanLalu);
+        $persentaseTransaksiBulanIni = $percentageChange($totalTransaksiBulanIni, $totalTransaksiBulanLalu);
+        $persentaseTugasPerluTindakan = $percentageChange($tugasPerluTindakanBulanIni, $tugasPerluTindakanBulanLalu);
         $menungguVerifikasi = pinjaman::query()
             ->where('status_otp', 'pending')
             ->count();
@@ -210,9 +241,13 @@ class DashboardController extends Controller
         return view('admin.dashboard.index', compact(
             'register',
             'totalPerusahaan',
+            'persentaseTotalPerusahaan',
             'totalPengajuan',
+            'persentaseTotalPengajuan',
             'totalTransaksiBulanIni',
+            'persentaseTransaksiBulanIni',
             'tugasPerluTindakan',
+            'persentaseTugasPerluTindakan',
             'menungguVerifikasi',
             'mendekatiJatuhTempo',
             'dokumenPerluDilihat',
