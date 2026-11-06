@@ -140,7 +140,7 @@
             responsive: true,
             scrollX: true,
             scrollCollapse: true,
-            dom: 'B<"mt-2"l>frtip',
+            dom: 'B<"row mt-2"<"col-md-6"l><"col-md-6"f>>rtip',
             buttons: [
                 {
                     extend: 'copyHtml5',
