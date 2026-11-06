@@ -42,7 +42,7 @@ class DashboardController extends Controller
             ->latest('created_at')
             ->paginate(20);
 
-        return view('admin.tomi-dana.pengajuan.index', compact('pengajuan'));
+        return view('admin.tomi-dana.application-history.index', compact('pengajuan'));
     }
 
     public function dashboard()
