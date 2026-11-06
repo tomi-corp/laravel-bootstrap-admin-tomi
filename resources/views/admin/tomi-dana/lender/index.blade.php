@@ -138,7 +138,9 @@
             processing: true,
             serverSide: true,
             responsive: true,
-            dom: 'Bfrtip',
+            scrollX: true,
+            scrollCollapse: true,
+            dom: 'lBfrtip',
             buttons: [
                 {
                     extend: 'copyHtml5',
