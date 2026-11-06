@@ -8,6 +8,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class pinjaman extends Model
 {
     use SoftDeletes;
+
+    protected $table = 'pinjamans';
+
     public function user()
     {
         return $this->hasOne(User::class, 'id', 'user_id');
