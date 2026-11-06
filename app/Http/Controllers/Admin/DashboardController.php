@@ -121,14 +121,14 @@ class DashboardController extends Controller
             ->count();
 
 
-        $registerRiwayat = User::orderBy('created_at', 'desc')->take(3)
+        $registerRiwayat = User::orderBy('created_at', 'desc')->take(5)
             ->get()
             ->map(function ($item) {
                 $item->type = 'Registrasi';
                 return $item;
             });
 
-        $pinjaman = pinjaman::orderBy('created_at', 'desc')->take(3)->with('data_karyawan')
+        $pinjaman = pinjaman::orderBy('created_at', 'desc')->take(5)->with('data_karyawan')
             ->get()
             ->map(function ($item) {
                 $item->type = 'Pinjaman Payroll';
@@ -136,7 +136,7 @@ class DashboardController extends Controller
             });
 
         $merged = $registerRiwayat->merge($pinjaman);
-        $sorted = $merged->sortByDesc('created_at')->values();
+        $sorted = $merged->sortByDesc('created_at')->take(5)->values();
         $dataFinal = [];
         foreach ($sorted as $data) {
             if ($data->type == 'Registrasi') {
@@ -148,6 +148,13 @@ class DashboardController extends Controller
                 'type' => $data->type,
                 'created_at' => $data->created_at->diffForHumans(),
                 'name' => $name,
+                'activity' => $data->type === 'Registrasi'
+                    ? 'User baru mendaftar'
+                    : 'Peminjam baru mengajukan',
+                'product' => $data->type === 'Registrasi' ? '-' : 'TomiDana',
+                'status' => $data->type === 'Registrasi'
+                    ? 'Baru'
+                    : ucfirst(str_replace('_', ' ', (string) ($data->status ?? 'pending'))),
             ];
         }
 
