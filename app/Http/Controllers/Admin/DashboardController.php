@@ -73,6 +73,17 @@ class DashboardController extends Controller
         $disetujuiTomiGaji = DB::table('salary_financings')
             ->where('status', 'approve')
             ->count();
+        $totalPengajuanTomiInvoice = DB::table('financing_request_invoices')
+            ->whereNull('deleted_at')
+            ->count();
+        $pendingTomiInvoice = DB::table('financing_request_invoices')
+            ->whereNull('deleted_at')
+            ->where('status', 'in_progress')
+            ->count();
+        $disetujuiTomiInvoice = DB::table('financing_request_invoices')
+            ->whereNull('deleted_at')
+            ->where('status', 'approve')
+            ->count();
         $pendingTomiDana = pinjaman::query()
             ->whereIn('status', ['pending', 'on_proses'])
             ->count();
@@ -152,6 +163,9 @@ class DashboardController extends Controller
             'totalPengajuanTomiGaji',
             'pendingTomiGaji',
             'disetujuiTomiGaji',
+            'totalPengajuanTomiInvoice',
+            'pendingTomiInvoice',
+            'disetujuiTomiInvoice',
             'pendingTomiDana',
             'disetujuiTomiDana'
         ));
