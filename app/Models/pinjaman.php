@@ -9,7 +9,7 @@ class pinjaman extends Model
 {
     use SoftDeletes;
 
-    protected $table = 'pinjamans';
+    protected $table = 'pinjamen';
 
     public function user()
     {

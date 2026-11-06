@@ -45,7 +45,7 @@ class DashboardController extends Controller
     {
         $query = pinjaman::query()
             ->with(['data_karyawan', 'perusahaan'])
-            ->select('pinjaman.*');
+            ->select('pinjamen.*');
 
         return DataTables::eloquent($query)
             ->addColumn('tanggal', fn ($row) => optional($row->created_at)->format('d/m/Y H:i') ?? '-')
