@@ -26,6 +26,13 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                     </a>
                 </li>
 
+                <li>
+                    <a href="{{ route('admin.application-history.index') }}">
+                        <i class="dripicons-document"></i>
+                        <span> Riwayat Pengajuan </span>
+                    </a>
+                </li>
+
                 <li class="menu-title">Produk</li>
 
                 {{-- PPOB hanya tampil selain pic dan staff --}}

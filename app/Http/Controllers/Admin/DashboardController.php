@@ -35,6 +35,16 @@ use Illuminate\Support\Facades\Http;
 
 class DashboardController extends Controller
 {
+    public function applicationHistory()
+    {
+        $pengajuan = pinjaman::query()
+            ->with(['data_karyawan', 'perusahaan'])
+            ->latest('created_at')
+            ->paginate(20);
+
+        return view('admin.application-history', compact('pengajuan'));
+    }
+
     public function dashboard()
     {
         $now = Carbon::now();
