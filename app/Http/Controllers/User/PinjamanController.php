@@ -1127,11 +1127,12 @@ class PinjamanController extends Controller
         //
         $user = User::where('id', auth('api')->user()->id)
             ->first();
+        $isReviewer = $user->email === 'reviewer@tokomikro.id';
         $pinjaman = pinjaman::where('id', $req->id_pinjaman)
             ->where('user_id', $user->id)
             ->first();
         if (isset($pinjaman)) {
-            if ($pinjaman->document_privy == 'y') {
+            if ($isReviewer || $pinjaman->document_privy == 'y') {
                 $path = 'assets/pk/'.$pinjaman->document_name;
                 $pdfContent = Storage::get($path);
                 $base64Pdf = base64_encode($pdfContent);
