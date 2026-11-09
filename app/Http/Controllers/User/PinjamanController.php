@@ -874,6 +874,16 @@ class PinjamanController extends Controller
 
         // Jika reviewer memasukkan OTP 1234, langsung berikan respon sukses / bypass tanpa cek database verif_otp
         if ($isReviewer && $req->otp == '1234') {
+            $pinjaman = pinjaman::where('user_id', $user->id)
+                ->where('status_otp', 'pending')
+                ->latest('id')
+                ->first();
+
+            if ($pinjaman) {
+                $pinjaman->status_otp = 'success';
+                $pinjaman->save();
+            }
+
             return response()->json([
                 'status' => 200,
                 'message' => 'OTP benar, Silahkan tanda tanganin berkas untuk melanjutkan',
