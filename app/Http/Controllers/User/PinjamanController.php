@@ -593,6 +593,7 @@ class PinjamanController extends Controller
         $user = User::where('id', auth('api')->user()->id)
             ->with('kyc')
             ->first();
+        $isReviewer = $user->email === 'reviewer@tokomikro.id';
 
         if (! $this->hasVerifiedPrivy($user)) {
             return $this->privyVerificationRequiredResponse('Silakan verifikasi identitas Privy terlebih dahulu sebelum mengajukan pinjaman.');
@@ -706,7 +707,7 @@ class PinjamanController extends Controller
                     ->first();
 
                 // pinjaman aktif
-                if (isset($cekPinjamanData) || isset($cekPinjamanUser)) {
+                if (! $isReviewer && (isset($cekPinjamanData) || isset($cekPinjamanUser))) {
                     return response()->json([
                         'status' => 400,
                         'message' => 'Mohon maaf, saat ini Anda masih memiliki pinjaman aktif. Terima kasih',
@@ -721,7 +722,7 @@ class PinjamanController extends Controller
                     ], 400);
                 }
 
-                if (isset($cekPinjamanPendingOTP)) {
+                if (! $isReviewer && isset($cekPinjamanPendingOTP)) {
                     return response()->json([
                         'status' => 200,
                         'pinjaman' => false,
@@ -798,8 +799,6 @@ class PinjamanController extends Controller
                 $totalCost = (float) ($cost['disbursement'] ?? 0) + (float) ($cost['pk_automation'] ?? 0);
                 $pinjaman->cost_ksp = $totalCost;
                 $pinjaman->description_cost_ksp = 'Biaya disbursment + PK Otomation';
-
-                $isReviewer = (auth('api')->user()->email === 'reviewer@tokomikro.id');
 
                 // --- TAMBAHAN KHUSUS REVIEWER ---
                 if ($isReviewer) {
