@@ -803,9 +803,10 @@ class PinjamanController extends Controller
                 // --- TAMBAHAN KHUSUS REVIEWER ---
                 if ($isReviewer) {
                     $pinjaman->document_name = '0000000000000000_2026-11-06_2396.pdf';
-                    $pinjaman->status_otp = 'pending';
-                    $pinjaman->status = 'approve';
-                    $pinjaman->ttd = 'y'; // Sesuaikan dengan nama kolom ttd di database Anda
+                    // Samakan kondisi pinjaman reviewer dengan showberkas().
+                    $pinjaman->status_otp = 'success';
+                    $pinjaman->status = 'on_proses';
+                    $pinjaman->ttd = 'n';
                 }
                 // ---------------------------------
 
