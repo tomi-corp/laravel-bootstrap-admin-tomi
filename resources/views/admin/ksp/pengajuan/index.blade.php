@@ -215,23 +215,18 @@
                     <ul class="nav nav-tabs">
                         <li class="nav-item">
                             <a href="#pending" data-toggle="tab" aria-expanded="false" class="nav-link active">
-                                On Proses
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="#exported" data-toggle="tab" aria-expanded="true" class="nav-link">
-                                Pending
+                                Belum Diproses
                             </a>
                         </li>
                         <li class="nav-item">
                             <a href="#approve" data-toggle="tab" aria-expanded="false" class="nav-link">
-                                Approve
+                                Aktif
                             </a>
                         </li>
 
                         <li class="nav-item">
                             <a href="#done" data-toggle="tab" aria-expanded="false" class="nav-link">
-                                Done
+                                Lunas
                             </a>
                         </li>
                     </ul>
