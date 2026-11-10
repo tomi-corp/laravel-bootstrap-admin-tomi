@@ -361,12 +361,23 @@ class TomiDanaController extends Controller
             ->addColumn('bank', fn ($row) => strtoupper($row->data_karyawan?->bank?->code_bank ?? $row->data_karyawan?->bank?->nama_bank ?? $row->data_karyawan?->bank?->name ?? '-'))
             ->addColumn('no_rekening', fn ($row) => $row->data_karyawan?->nomor_bank ?? '-')
             ->addColumn('atas_nama', fn ($row) => strtoupper($row->data_karyawan?->nama_rekening ?? '-'))
+            ->addColumn('status_label', function ($row) {
+                return match (strtolower(trim((string) $row->status))) {
+                    'pending' => '<span class="badge badge-warning">BELUM DIPROSES</span>',
+                    'approve' => '<span class="badge badge-success">AKTIF</span>',
+                    'done' => '<span class="badge badge-primary">LUNAS</span>',
+                    default => '<span class="badge badge-secondary">' . e(strtoupper((string) $row->status)) . '</span>',
+                };
+            })
+            ->addColumn('tanggal_transfer', fn ($row) => $row->disbursement?->transfer_date
+                ? Carbon::parse($row->disbursement->transfer_date)->format('d/m/Y')
+                : '-')
             ->addColumn('action', function ($row) {
                 return strtolower(trim((string) $row->status)) === 'pending'
                     ? '<button type="button" class="btn btn-sm btn-outline-primary" onclick="editDisbursement(' . $row->id . ')" title="Edit status disbursement"><i class="mdi mdi-pencil-outline"></i></button>'
                     : '<span class="text-muted">-</span>';
             })
-            ->rawColumns(['prioritas', 'doc_pk', 'ktp', 'selfie', 'action'])
+            ->rawColumns(['prioritas', 'doc_pk', 'ktp', 'selfie', 'status_label', 'action'])
             ->toJson();
     }
 

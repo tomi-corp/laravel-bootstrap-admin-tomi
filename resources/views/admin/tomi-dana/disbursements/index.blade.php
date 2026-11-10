@@ -78,6 +78,8 @@
                         <th>Bank</th>
                         <th>No Rek</th>
                         <th>Atas Nama</th>
+                        <th>Status</th>
+                        <th>Tanggal Transfer</th>
                         <th class="text-center">Aksi</th>
                     </tr>
                 </thead>
@@ -200,6 +202,8 @@
                 { data: 'bank', name: 'bank', orderable: false, defaultContent: '-' },
                 { data: 'no_rekening', name: 'no_rekening', orderable: false, defaultContent: '-' },
                 { data: 'atas_nama', name: 'atas_nama', orderable: false, defaultContent: '-' },
+                { data: 'status_label', name: 'status', orderable: false, searchable: false, defaultContent: '-' },
+                { data: 'tanggal_transfer', name: 'transfer_date', orderable: false, searchable: false, defaultContent: '-' },
                 { data: 'action', name: 'action', orderable: false, searchable: false, className: 'text-center' }
             ]
         });
