@@ -176,6 +176,18 @@
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
+                            <label>Lender</label>
+                            <select class="form-control" id="lenderSelect">
+                                <option value="">Tanpa Lender</option>
+                                @foreach ($lenders as $lender)
+                                <option value="{{ $lender->id }}">{{ $lender->nama }}</option>
+                                @endforeach
+                            </select>
+                            <small class="text-danger" id="errLender"></small>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
                             <label>Email Perusahaan</label>
                             <input class="form-control" id="emailPerusahaan" placeholder="Email Perusahaan"
                                 type="email"></input>
@@ -286,6 +298,59 @@
                         </div>
                     </div>
 
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>H-Jatuh Tempo</label>
+                            <input class="form-control" id="hMinJatuhTempo" type="number" min="0" value="0">
+                            <small class="text-danger" id="errHMinJatuhTempo"></small>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Status</label>
+                            <select class="form-control" id="status">
+                                <option value="active">ACTIVE</option>
+                                <option value="nonactive">NONACTIVE</option>
+                            </select>
+                            <small class="text-danger" id="errStatus"></small>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Profesional Fee</label>
+                            <select class="form-control" id="activeProfesionalFee">
+                                <option value="active">ACTIVE</option>
+                                <option value="nonactive">NONACTIVE</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Set Pinjaman</label>
+                            <select class="form-control" id="activeSetPinjaman">
+                                <option value="active">ACTIVE</option>
+                                <option value="nonactive">NONACTIVE</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Aktif Tanggal</label>
+                            <input class="form-control" id="activeTanggal" type="number" min="0" value="0">
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Maksimal Plafon</label>
+                            <input class="form-control" id="maxPlafon" type="number" min="0" step="0.01">
+                        </div>
+                    </div>
+
 
                     <div class="col-md-6">
                         <div class="form-group">
@@ -344,6 +409,27 @@
                             <label>Nama Perusahaan</label>
                             <input class="form-control" id="namaPerusahaanEdit" placeholder="Nama Perusahaan"></input>
                             <small class="text-danger" id="errNamaPerusahaanEdit"></small>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Email Perusahaan</label>
+                            <input class="form-control" id="emailPerusahaanEdit" type="email">
+                            <small class="text-danger" id="errEmailPerusahaanEdit"></small>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Lender</label>
+                            <select class="form-control" id="lenderSelectEdit">
+                                <option value="">Tanpa Lender</option>
+                                @foreach ($lenders as $lender)
+                                <option value="{{ $lender->id }}">{{ $lender->nama }}</option>
+                                @endforeach
+                            </select>
+                            <small class="text-danger" id="errLenderEdit"></small>
                         </div>
                     </div>
 
@@ -461,6 +547,14 @@
 
                     </div>
 
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>H-Jatuh Tempo</label>
+                            <input class="form-control" id="hMinJatuhTempoEdit" type="number" min="0">
+                            <small class="text-danger" id="errHMinJatuhTempoEdit"></small>
+                        </div>
+                    </div>
+
 
                     <div class="col-md-6">
                         <div class="form-group">
@@ -477,6 +571,40 @@
                                 <option value="active">ACTIVE</option>
                                 <option value="nonactive">NONACTIVE</option>
                             </select>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Profesional Fee</label>
+                            <select class="form-control" id="activeProfesionalFeeEdit">
+                                <option value="active">ACTIVE</option>
+                                <option value="nonactive">NONACTIVE</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Set Pinjaman</label>
+                            <select class="form-control" id="activeSetPinjamanEdit">
+                                <option value="active">ACTIVE</option>
+                                <option value="nonactive">NONACTIVE</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Aktif Tanggal</label>
+                            <input class="form-control" id="activeTanggalEdit" type="number" min="0">
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Maksimal Plafon</label>
+                            <input class="form-control" id="maxPlafonEdit" type="number" min="0" step="0.01">
                         </div>
                     </div>
 
@@ -871,6 +999,7 @@
                 'pic_perusahaan': $("#namaPicPerusahaan").val(),
                 'pic_internal': $("#namaPicInternal").val(),
                 'nama_perusahaan': $("#namaPerusahaan").val(),
+                'id_lender': $("#lenderSelect").val(),
                 'email_perusahaan': $("#emailPerusahaan").val(),
                 'telepon': $("#telepon").val(),
                 'provinsi': $("#provinsiSelect").val(),
@@ -879,6 +1008,12 @@
                 'desa': $("#desaSelect").val(),
                 'alamat_lengkap': $("#alamatLengkap").val(),
                 'payment_date': $("#paymentDate").val(),
+                'h_min_jatuh_tempo': $("#hMinJatuhTempo").val(),
+                'status': $("#status").val(),
+                'active_profesional_fee': $("#activeProfesionalFee").val(),
+                'active_set_pinjaman': $("#activeSetPinjaman").val(),
+                'active_tanggal': $("#activeTanggal").val(),
+                'max_plafon': $("#maxPlafon").val(),
                 'nomor_pks': $("#nomor_pks").val(),
             },
             type: 'POST',
@@ -909,6 +1044,8 @@
                 $('#errKecamatan').text(err.responseJSON.errors.kecamatan);
                 $('#errDesa').text(err.responseJSON.errors.desa);
                 $('#errPaymentDate').text(err.responseJSON.errors.payment_date);
+                $('#errHMinJatuhTempo').text(err.responseJSON.errors.h_min_jatuh_tempo);
+                $('#errStatus').text(err.responseJSON.errors.status);
             }
         });
     })
@@ -928,11 +1065,18 @@
                 $("#namaPicPerusahaanEdit").val(detail.data.pic_perusahaan);
                 $("#namaPicInternalEdit").val(detail.data.pic_internal);
                 $("#namaPerusahaanEdit").val(detail.data.nama);
+                $("#emailPerusahaanEdit").val(detail.data.email_perusahaan);
+                $("#lenderSelectEdit").val(detail.data.id_lender);
                 $("#teleponEdit").val(detail.data.telp);
                 $("#alamatEdit").val(detail.data.alamat_lengkap);
                 $("#nomor_pksEdit").val(detail.data.nomor_pks);
                 $("#statusEdit").val(detail.data.status);
                 $("#paymentDateEdit").val(detail.data.payment_date);
+                $("#hMinJatuhTempoEdit").val(detail.data.h_min_jatuh_tempo);
+                $("#activeProfesionalFeeEdit").val(detail.data.active_profesional_fee);
+                $("#activeSetPinjamanEdit").val(detail.data.active_set_pinjaman);
+                $("#activeTanggalEdit").val(detail.data.active_tanggal);
+                $("#maxPlafonEdit").val(detail.data.max_plafon);
                 $("#provinsiSelectEdit").val(detail.data.provinsi).trigger('change');
                 $("#kabupatenSelectEdit").empty();
 
@@ -977,6 +1121,8 @@
                 'pic_perusahaan': $("#namaPicPerusahaanEdit").val(),
                 'pic_internal': $("#namaPicInternalEdit").val(),
                 'nama_perusahaan': $("#namaPerusahaanEdit").val(),
+                'email_perusahaan': $("#emailPerusahaanEdit").val(),
+                'id_lender': $("#lenderSelectEdit").val(),
                 'telepon': $("#teleponEdit").val(),
                 'provinsi': $("#provinsiSelectEdit").val(),
                 'kabupaten': $("#kabupatenSelectEdit").val(),
@@ -984,6 +1130,11 @@
                 'desa': $("#desaSelectEdit").val(),
                 'alamat_lengkap': $("#alamatEdit").val(),
                 'payment_date': $("#paymentDateEdit").val(),
+                'h_min_jatuh_tempo': $("#hMinJatuhTempoEdit").val(),
+                'active_profesional_fee': $("#activeProfesionalFeeEdit").val(),
+                'active_set_pinjaman': $("#activeSetPinjamanEdit").val(),
+                'active_tanggal': $("#activeTanggalEdit").val(),
+                'max_plafon': $("#maxPlafonEdit").val(),
                 'nomor_pks': $("#nomor_pksEdit").val(),
                 'status': $("#statusEdit").val(),
             },
@@ -1006,6 +1157,7 @@
                 $('#errNamaPicPerusahaanEdit').text(err.responseJSON.errors.pic_perusahaan);
                 $('#errNamaPicInternalEdit').text(err.responseJSON.errors.pic_internal);
                 $('#errNamaPerusahaanEdit').text(err.responseJSON.errors.nama_perusahaan);
+                $('#errEmailPerusahaanEdit').text(err.responseJSON.errors.email_perusahaan);
                 $('#errTeleponEdit').text(err.responseJSON.errors.telepon);
                 $('#errAlamatEdit').text(err.responseJSON.errors.alamat_lengkap);
                 $('#errNomor_pksEdit').text(err.responseJSON.errors.nomor_pks);

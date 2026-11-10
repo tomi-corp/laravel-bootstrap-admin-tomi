@@ -60,7 +60,9 @@ class KspController extends Controller
         $perusahaanAktif = $perusahaan->where('status', 'active')->count();
 
 
-        return view('admin.ksp.perusahaan.index', compact('provinsis', 'perusahaanTidakAktif', 'perusahaanAktif'));
+        $lenders = lender::select('id', 'nama')->orderBy('nama')->get();
+
+        return view('admin.ksp.perusahaan.index', compact('provinsis', 'lenders', 'perusahaanTidakAktif', 'perusahaanAktif'));
     }
 
     public function kabupaten(Request $req)
@@ -107,10 +109,17 @@ class KspController extends Controller
         $perusahaan->pic_perusahaan = $req->pic_perusahaan;
         $perusahaan->pic_internal = $req->pic_internal;
         $perusahaan->nama = $req->nama_perusahaan;
+        $perusahaan->id_lender = $req->id_lender;
         $perusahaan->email_perusahaan = $req->email_perusahaan;
         $perusahaan->alamat_lengkap = $req->alamat_lengkap;
         $perusahaan->telp = $req->telepon;
         $perusahaan->payment_date = $req->payment_date;
+        $perusahaan->h_min_jatuh_tempo = $req->h_min_jatuh_tempo;
+        $perusahaan->status = $req->status;
+        $perusahaan->active_profesional_fee = $req->active_profesional_fee;
+        $perusahaan->active_set_pinjaman = $req->active_set_pinjaman;
+        $perusahaan->active_tanggal = $req->active_tanggal;
+        $perusahaan->max_plafon = $req->max_plafon;
         $perusahaan->nomor_pks = $req->nomor_pks;
 
         $provinsi = provinsi::where('provinsi', $req->provinsi)->first();
@@ -152,9 +161,16 @@ class KspController extends Controller
         $perusahaan->pic_perusahaan = $req->pic_perusahaan;
         $perusahaan->pic_internal = $req->pic_internal;
         $perusahaan->nama = $req->nama_perusahaan;
+        $perusahaan->id_lender = $req->id_lender;
+        $perusahaan->email_perusahaan = $req->email_perusahaan;
         $perusahaan->telp = $req->telepon;
         $perusahaan->alamat_lengkap = $req->alamat_lengkap;
         $perusahaan->payment_date = $req->payment_date;
+        $perusahaan->h_min_jatuh_tempo = $req->h_min_jatuh_tempo;
+        $perusahaan->active_profesional_fee = $req->active_profesional_fee;
+        $perusahaan->active_set_pinjaman = $req->active_set_pinjaman;
+        $perusahaan->active_tanggal = $req->active_tanggal;
+        $perusahaan->max_plafon = $req->max_plafon;
         $perusahaan->nomor_pks = $req->nomor_pks;
 
         $provinsi = provinsi::where('provinsi', $req->provinsi)->first();
