@@ -176,18 +176,6 @@
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label>Lender</label>
-                            <select class="form-control" id="lenderSelect">
-                                <option value="">Tanpa Lender</option>
-                                @foreach ($lenders as $lender)
-                                <option value="{{ $lender->id }}">{{ $lender->nama }}</option>
-                                @endforeach
-                            </select>
-                            <small class="text-danger" id="errLender"></small>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
                             <label>Email Perusahaan</label>
                             <input class="form-control" id="emailPerusahaan" placeholder="Email Perusahaan"
                                 type="email"></input>
@@ -351,7 +339,6 @@
                         </div>
                     </div>
 
-
                     <div class="col-md-6">
                         <div class="form-group">
                             <label>No. perjanjian kerja sama lender x perusahaan</label>
@@ -360,6 +347,20 @@
                             <small class="text-danger" id="errNomor_pks"></small>
                         </div>
                     </div>
+
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label>Lender</label>
+                            <select class="form-control" id="lenderSelect">
+                                <option value="">Tanpa Lender</option>
+                                @foreach ($lenders as $lender)
+                                <option value="{{ $lender->id }}">{{ $lender->nama }}</option>
+                                @endforeach
+                            </select>
+                            <small class="text-danger" id="errLender"></small>
+                        </div>
+                    </div>
+
 
                 </div>
 
@@ -417,19 +418,6 @@
                             <label>Email Perusahaan</label>
                             <input class="form-control" id="emailPerusahaanEdit" type="email">
                             <small class="text-danger" id="errEmailPerusahaanEdit"></small>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label>Lender</label>
-                            <select class="form-control" id="lenderSelectEdit">
-                                <option value="">Tanpa Lender</option>
-                                @foreach ($lenders as $lender)
-                                <option value="{{ $lender->id }}">{{ $lender->nama }}</option>
-                                @endforeach
-                            </select>
-                            <small class="text-danger" id="errLenderEdit"></small>
                         </div>
                     </div>
 
@@ -605,6 +593,19 @@
                         <div class="form-group">
                             <label>Maksimal Plafon</label>
                             <input class="form-control" id="maxPlafonEdit" type="number" min="0" step="0.01">
+                        </div>
+                    </div>
+
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label>Lender</label>
+                            <select class="form-control" id="lenderSelectEdit">
+                                <option value="">Tanpa Lender</option>
+                                @foreach ($lenders as $lender)
+                                <option value="{{ $lender->id }}">{{ $lender->nama }}</option>
+                                @endforeach
+                            </select>
+                            <small class="text-danger" id="errLenderEdit"></small>
                         </div>
                     </div>
 
