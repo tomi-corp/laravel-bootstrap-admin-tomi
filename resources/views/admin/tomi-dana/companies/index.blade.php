@@ -56,10 +56,12 @@
         <div class="card">
             <div class="card-body">
 
-                <button type="button" class="btn btn-sm btn-primary float-right waves-effect waves-light"
-                    data-toggle="modal" data-target="#modalAdd">
-                    <i class="mdi mdi-plus-circle"></i> Tambah Perusahaan
-                </button>
+                @unless ($isTomiDana)
+                    <button type="button" class="btn btn-sm btn-primary float-right waves-effect waves-light"
+                        data-toggle="modal" data-target="#modalAdd">
+                        <i class="mdi mdi-plus-circle"></i> Tambah Perusahaan
+                    </button>
+                @endunless
 
                 <table id="tableListPerusahaan" class="table dt-responsive table-hover mt-4 text-center justify-center"
                     style="width:100%">
