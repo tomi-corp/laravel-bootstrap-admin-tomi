@@ -1,5 +1,5 @@
 @extends('layout.app')
-@php($isTomiDana = request()->routeIs('admin.tomi-dana.perusahaan'))
+@php($isTomiDana = request()->routeIs('admin.tomi-dana.perusahaan', 'admin.tomi-dana.companies'))
 @section('title', $isTomiDana ? 'Perusahaan TomiDana' : 'Koperasi Simpan Pinjam')
 @section('content')
 <div class="row">
