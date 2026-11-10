@@ -297,10 +297,17 @@ class TomiDanaController extends Controller
 
     public function disbursementsTable()
     {
+        $statusMap = [
+            'belum_diproses' => 'pending',
+            'aktif' => 'approve',
+            'lunas' => 'done',
+        ];
+        $loanStatus = $statusMap[request()->input('status_tab', 'belum_diproses')] ?? 'pending';
+
         $query = pinjaman::with(['user.kyc', 'user.privy', 'data_karyawan.bank', 'lender', 'perusahaan', 'disbursement'])
             ->whereRaw('LOWER(TRIM(status_otp)) = ?', ['success'])
             ->whereRaw('LOWER(TRIM(ttd)) = ?', ['y'])
-            ->whereRaw('LOWER(TRIM(status)) = ?', ['pending'])
+            ->whereRaw('LOWER(TRIM(status)) = ?', [$loanStatus])
             ->latest('id');
 
         $keyword = trim((string) request()->input('search.value', ''));
@@ -355,7 +362,9 @@ class TomiDanaController extends Controller
             ->addColumn('no_rekening', fn ($row) => $row->data_karyawan?->nomor_bank ?? '-')
             ->addColumn('atas_nama', fn ($row) => strtoupper($row->data_karyawan?->nama_rekening ?? '-'))
             ->addColumn('action', function ($row) {
-                return '<button type="button" class="btn btn-sm btn-outline-primary" onclick="editDisbursement(' . $row->id . ')" title="Edit status disbursement"><i class="mdi mdi-pencil-outline"></i></button>';
+                return strtolower(trim((string) $row->status)) === 'pending'
+                    ? '<button type="button" class="btn btn-sm btn-outline-primary" onclick="editDisbursement(' . $row->id . ')" title="Edit status disbursement"><i class="mdi mdi-pencil-outline"></i></button>'
+                    : '<span class="text-muted">-</span>';
             })
             ->rawColumns(['prioritas', 'doc_pk', 'ktp', 'selfie', 'action'])
             ->toJson();

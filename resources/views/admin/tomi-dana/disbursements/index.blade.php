@@ -41,10 +41,22 @@
     <div class="card-body">
         <div class="d-flex flex-wrap align-items-center justify-content-between mb-3">
             <div>
-                <h4 class="header-title mb-1">Daftar Pinjaman Siap Dicairkan</h4>
-                <p class="text-muted mb-0">OTP berhasil, TTE selesai, dan status pinjaman masih pending.</p>
+                <h4 class="header-title mb-1">Daftar Pinjaman TomiDana</h4>
+                <p class="text-muted mb-0">Pantau pinjaman berdasarkan status proses pencairan.</p>
             </div>
         </div>
+
+        <ul class="nav nav-tabs mb-3" id="disbursementStatusTabs" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" href="#" data-status-tab="belum_diproses">Belum Diproses</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-status-tab="aktif">Aktif</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-status-tab="lunas">Lunas</a>
+            </li>
+        </ul>
 
         <div class="table-responsive">
             <table id="tableDisbursements" class="table table-hover disbursement-table mb-0"
@@ -142,6 +154,7 @@
         var tableUrl = disbursementTable.data('table-url');
         var approveUrl = disbursementTable.data('approve-url');
         var csrfToken = disbursementTable.data('csrf-token');
+        var statusTab = 'belum_diproses';
         var declaration = $('#disbursementDeclaration');
         var submitDisbursementStatus = $('#submitDisbursementStatus');
 
@@ -158,17 +171,20 @@
             dom: '<"row"<"col-md-6"l><"col-md-6 text-right"f>>rt<"row"<"col-md-6"i><"col-md-6"p>>',
             language: {
                 search: 'Cari:',
-                emptyTable: 'Belum ada pinjaman yang siap dicairkan',
+                emptyTable: 'Belum ada data pinjaman',
                 processing: '<i class="dripicons-loading"></i> Memuat data...',
                 lengthMenu: 'Tampilkan _MENU_ data',
                 info: 'Menampilkan _START_ sampai _END_ dari _TOTAL_ data',
-                infoEmpty: 'Belum ada pinjaman yang siap dicairkan',
+                infoEmpty: 'Belum ada data pinjaman',
                 zeroRecords: 'Pinjaman tidak ditemukan',
                 paginate: { previous: 'Sebelumnya', next: 'Berikutnya' }
             },
             ajax: {
                 url: tableUrl,
-                type: 'GET'
+                type: 'GET',
+                data: function (data) {
+                    data.status_tab = statusTab;
+                }
             },
             columns: [
                 { data: 'tanggal', name: 'created_at', defaultContent: '-' },
@@ -186,6 +202,14 @@
                 { data: 'atas_nama', name: 'atas_nama', orderable: false, defaultContent: '-' },
                 { data: 'action', name: 'action', orderable: false, searchable: false, className: 'text-center' }
             ]
+        });
+
+        $('#disbursementStatusTabs').on('click', '[data-status-tab]', function (event) {
+            event.preventDefault();
+            statusTab = $(this).data('status-tab');
+            $('#disbursementStatusTabs .nav-link').removeClass('active');
+            $(this).addClass('active');
+            table.ajax.reload();
         });
 
         window.editDisbursement = function (id) {
