@@ -1193,6 +1193,7 @@ class TomiDanaController extends Controller
 
         return view('admin.tomi-dana.companies.index', [
             'provinsis' => $provinsis,
+            'lenders' => lender::select('id', 'nama')->orderBy('nama')->get(),
             'perusahaanTidakAktif' => $perusahaan->where('status', 'nonactive')->count(),
             'perusahaanAktif' => $perusahaan->where('status', 'active')->count(),
         ]);
@@ -1323,10 +1324,16 @@ class TomiDanaController extends Controller
         $perusahaan->pic_perusahaan = $request->pic_perusahaan;
         $perusahaan->pic_internal = $request->pic_internal;
         $perusahaan->nama = $request->nama_perusahaan;
+        $perusahaan->id_lender = $request->id_lender;
         $perusahaan->email_perusahaan = $request->email_perusahaan ?? $perusahaan->email_perusahaan;
         $perusahaan->alamat_lengkap = $request->alamat_lengkap;
         $perusahaan->telp = $request->telepon;
         $perusahaan->payment_date = $request->payment_date;
+        $perusahaan->h_min_jatuh_tempo = $request->h_min_jatuh_tempo;
+        $perusahaan->active_profesional_fee = $request->active_profesional_fee;
+        $perusahaan->active_set_pinjaman = $request->active_set_pinjaman;
+        $perusahaan->active_tanggal = $request->active_tanggal;
+        $perusahaan->max_plafon = $request->max_plafon;
         $perusahaan->nomor_pks = $request->nomor_pks;
         $perusahaan->id_provinsi = provinsi::where('provinsi', $request->provinsi)->value('id');
         $perusahaan->id_kabupaten = kota::where('kabupaten', $request->kabupaten)->value('id');

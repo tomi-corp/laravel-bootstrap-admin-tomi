@@ -27,7 +27,8 @@ class AddPerusahaanRequest extends FormRequest
             'pic_perusahaan' => 'required',
             'pic_internal' => 'required',
             'nama_perusahaan' => 'required',
-            'email_perusahaan' => 'required|unique:list_perusahaans,email_perusahaan',
+            'id_lender' => 'nullable|exists:lenders,id',
+            'email_perusahaan' => 'required|email|unique:list_perusahaans,email_perusahaan',
             'telepon' => 'required|numeric',
             'provinsi' => 'required',
             'kabupaten' => 'required',
@@ -35,6 +36,12 @@ class AddPerusahaanRequest extends FormRequest
             'desa' => 'required',
             'alamat_lengkap' => 'required',
             'payment_date' => 'required|numeric',
+            'h_min_jatuh_tempo' => 'required|integer|min:0',
+            'status' => 'required|in:active,nonactive',
+            'active_profesional_fee' => 'required|in:active,nonactive',
+            'active_set_pinjaman' => 'required|in:active,nonactive',
+            'active_tanggal' => 'required|integer|min:0',
+            'max_plafon' => 'nullable|numeric|min:0',
             'nomor_pks' => 'required|alpha_num',
         ];
     }
