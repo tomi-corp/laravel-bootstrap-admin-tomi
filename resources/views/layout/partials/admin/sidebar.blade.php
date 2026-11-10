@@ -401,8 +401,8 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                     </a>
                 </li>
                 @endif
-                --}}
                 @endif
+                --}}
 
                 {{-- TomiInvoice --}}
                 @if ($isInternalAccount || $isCompanyAccount)
