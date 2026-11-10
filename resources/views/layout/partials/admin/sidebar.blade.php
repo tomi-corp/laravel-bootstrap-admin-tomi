@@ -87,6 +87,8 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                     </ul>
                 </li>
 
+                {{-- TomiDana Plus disembunyikan sementara. --}}
+                {{--
                 <li>
                     <a href="javascript: void(0);">
                         <i class="dripicons-network-3"></i>
@@ -111,6 +113,9 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                         </li>
                     </ul>
                 </li>
+                --}}
+                {{-- Menu TomiGawai disembunyikan sementara. --}}
+                {{--
                 <li>
                     <a href="javascript: void(0);">
                         <i class="dripicons-device-mobile"></i>
@@ -135,6 +140,7 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                         </li>
                     </ul>
                 </li>
+                --}}
 
                 <li>
                     <a href="javascript: void(0);">
@@ -265,7 +271,8 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                 </li>
                 @endif
 
-                {{-- TomiDana Plus tampil sesuai kategori organisasi akun --}}
+                {{-- TomiDana Plus disembunyikan sementara. --}}
+                {{--
                 @if ($isInternalAccount || $isCompanyAccount)
                 <li>
                     <a href="javascript: void(0);">
@@ -308,6 +315,7 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                     </ul>
                 </li>
                 @endif
+                --}}
 
                 {{-- TomiGaji --}}
                 @if ($isInternalAccount || $isCompanyAccount)
@@ -347,7 +355,8 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                 </li>
                 @endif
 
-                {{-- TomiGawai --}}
+                {{-- TomiGawai disembunyikan sementara. --}}
+                {{--
                 @if ($isInternalAccount || $isCompanyAccount)
                 @if ($isInternalAccount)
                 <li>
@@ -392,6 +401,7 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                     </a>
                 </li>
                 @endif
+                --}}
                 @endif
 
                 {{-- TomiInvoice --}}
@@ -489,12 +499,15 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                     </a>
                 </li>
 
+                {{-- PIC Pemberi Pinjaman disembunyikan sementara. --}}
+                {{--
                 <li>
                     <a href="{{ route('admin.manage.pic-lender.index') }}">
                         <i class="dripicons-user-id"></i>
                         <span> PIC Pemberi Pinjaman </span>
                     </a>
                 </li>
+                --}}
 
                 @endif
 

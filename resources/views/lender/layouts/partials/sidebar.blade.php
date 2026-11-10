@@ -8,8 +8,7 @@
                 <li class="menu-title">Produk</li>
                 @foreach ([
                     ['slug' => 'tomi-dana', 'label' => 'TomiDana', 'icon' => 'dripicons-network-3'],
-                    ['slug' => 'tomi-dana-plus', 'label' => 'TomiDana Plus', 'icon' => 'dripicons-network-3'],
-                    ['slug' => 'tomi-gawai', 'label' => 'TomiGawai', 'icon' => 'dripicons-device-mobile'],
+                    // TomiDana Plus dan TomiGawai disembunyikan sementara.
                     ['slug' => 'tomi-gaji', 'label' => 'TomiGaji', 'icon' => 'dripicons-wallet'],
                     ['slug' => 'tomi-invoices', 'label' => 'TomiInvoices', 'icon' => 'dripicons-document'],
                 ] as $product)
