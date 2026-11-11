@@ -929,11 +929,10 @@ class TomiDanaController extends Controller
             ->addColumn('bulan_label', fn ($row) => Carbon::createFromFormat('Y-m', $row->bulan)->locale('id')->translatedFormat('F Y'))
             ->editColumn('total_pinjaman', fn ($row) => number_format((int) $row->total_pinjaman, 0, ',', '.'))
             ->addColumn('total_nominal', fn ($row) => 'Rp. ' . number_format((float) $row->total_nominal, 0, ',', '.'))
-            ->addColumn('action', function ($row) use ($request) {
-                $detailButton = '<button type="button" class="btn btn-sm btn-info mr-1" onclick="showBorrowers(\'' . e($row->bulan) . '\')"><i class="mdi mdi-account-details"></i> Detail Peminjam</button>';
+            ->addColumn('action', function ($row) {
                 $invoiceButton = '<button type="button" class="btn btn-sm btn-danger" onclick="showInvoiceFee(\'' . e($row->bulan) . '\')" title="Lihat invoice fee PDF"><i class="mdi mdi-file-pdf-box"></i> Invoice Fee</button>';
 
-                return $detailButton . $invoiceButton;
+                return $invoiceButton;
             })
             ->rawColumns(['action'])
             ->toJson();

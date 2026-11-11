@@ -154,7 +154,18 @@
             columns: [
                 { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
                 { data: 'bulan_label', name: 'bulan', searchable: false },
-                { data: 'total_pinjaman', name: 'total_pinjaman', searchable: false },
+                {
+                    data: 'total_pinjaman',
+                    name: 'total_pinjaman',
+                    searchable: false,
+                    render: function (data, type, row) {
+                        if (type !== 'display') return data;
+
+                        return '<button type="button" class="btn btn-sm btn-info" onclick="showBorrowers(\'' + row.bulan + '\')">'
+                            + '<i class="mdi mdi-account-details"></i> ' + data
+                            + '</button>';
+                    }
+                },
                 { data: 'total_nominal', name: 'total_nominal', searchable: false },
                 { data: 'action', name: 'action', orderable: false, searchable: false }
             ],
