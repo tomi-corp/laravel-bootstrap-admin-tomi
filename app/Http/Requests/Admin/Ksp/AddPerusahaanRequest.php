@@ -42,7 +42,7 @@ class AddPerusahaanRequest extends FormRequest
             'active_set_pinjaman' => 'required|in:active,nonactive',
             'active_tanggal' => 'required|integer|min:0',
             'max_plafon' => 'nullable|numeric|min:0',
-            'nomor_pks' => 'required|alpha_num',
+            'nomor_pks' => 'nullable|string|max:255',
         ];
     }
 }

@@ -200,23 +200,6 @@ class KspController extends Controller
         ], 200);
     }
 
-    public function updatePerusahaanPks(Request $req)
-    {
-        $validated = $req->validate([
-            'id' => 'required|exists:list_perusahaans,id',
-            'nomor_pks' => 'required|string|max:255',
-        ]);
-
-        ListPerusahaan::whereKey($validated['id'])->update([
-            'nomor_pks' => $validated['nomor_pks'],
-        ]);
-
-        return response()->json([
-            'status' => 200,
-            'message' => 'Nomor PKS berhasil disimpan',
-        ]);
-    }
-
     // public function listPerusahaanTable()
     // {
     //     $perusahaan = ListPerusahaan::with([
@@ -418,12 +401,7 @@ class KspController extends Controller
                 })
 
                 ->addColumn('action', function ($row) {
-                    $namaPerusahaan = htmlspecialchars(json_encode($row->nama), ENT_QUOTES, 'UTF-8');
-
-                    return '<button type="button" class="btn btn-sm btn-info mr-1" onclick="tambahPks(' . $row->id . ', ' . $namaPerusahaan . ')" title="Tambah PKS">
-                        <i class="mdi mdi-file-document-edit-outline"></i>
-                    </button>
-                    <button type="button" class="btn btn-sm btn-primary mr-1" onclick="edit(' . $row->id . ')" title="Ubah perusahaan">
+                    return '<button type="button" class="btn btn-sm btn-primary mr-1" onclick="edit(' . $row->id . ')" title="Ubah perusahaan">
                         <i class="mdi mdi-pencil"></i>
                     </button>
                     <button type="button" class="btn btn-sm btn-danger" onclick="deletePerusahaan(' . $row->id . ')" title="Hapus perusahaan">
