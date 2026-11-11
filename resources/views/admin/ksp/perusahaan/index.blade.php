@@ -355,9 +355,9 @@
                         <button type="button" class="btn btn-outline-info btn-sm mb-3" id="buttonTogglePksAdd">
                             <i class="mdi mdi-plus-circle"></i> Tambah PKS
                         </button>
-                        <div class="card border-info d-none" id="cardPksAdd">
-                            <div class="card-body py-3">
-                                <h6 class="text-info">Form PKS</h6>
+                        <div class="card border-info" id="cardPksAdd">
+                            <div class="card-body py-3 text-left">
+                                <h6 class="text-info text-left">Form PKS</h6>
                                 <div class="row text-left">
                                     <div class="col-md-6">
                                         <div class="form-group mb-0">
@@ -627,9 +627,9 @@
                         <button type="button" class="btn btn-outline-info btn-sm mb-3" id="buttonTogglePksEdit">
                             <i class="mdi mdi-plus-circle"></i> Tambah PKS
                         </button>
-                        <div class="card border-info d-none" id="cardPksEdit">
-                            <div class="card-body py-3">
-                                <h6 class="text-info">Form PKS</h6>
+                        <div class="card border-info" id="cardPksEdit">
+                            <div class="card-body py-3 text-left">
+                                <h6 class="text-info text-left">Form PKS</h6>
                                 <div class="row text-left">
                                     <div class="col-md-6">
                                         <div class="form-group mb-0">
