@@ -351,29 +351,35 @@
                             <small class="text-danger" id="errLender"></small>
                         </div>
                     </div>
-                    <div class="col-md-12">
+                    <div class="col-md-12 text-right">
                         <button type="button" class="btn btn-outline-info btn-sm mb-3" id="buttonTogglePksAdd">
                             <i class="mdi mdi-plus-circle"></i> Tambah PKS
                         </button>
                         <div class="card border-info d-none" id="cardPksAdd">
                             <div class="card-body py-3">
                                 <h6 class="text-info">Form PKS</h6>
-                                <div class="form-group">
-                                    <label for="featurePksAdd">Feature</label>
-                                    <select class="form-control" id="featurePksAdd">
-                                        <option value="">Pilih Feature</option>
-                                        @forelse ($features as $feature)
-                                            <option value="{{ $feature->id }}">{{ $feature->name }}</option>
-                                        @empty
-                                            <option value="" disabled>Feature belum tersedia</option>
-                                        @endforelse
-                                    </select>
-                                </div>
-                                <div class="form-group mb-0">
-                                    <label for="nomor_pks">Nomor PKS</label>
-                                    <input class="form-control" id="nomor_pks" placeholder="012/KSPDUMI-FIT/VIII/2025"
-                                        type="text" maxlength="255">
-                                    <small class="text-danger" id="errNomor_pks"></small>
+                                <div class="row text-left">
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-0">
+                                            <label for="featurePksAdd">Feature</label>
+                                            <select class="form-control" id="featurePksAdd">
+                                                <option value="">Pilih Feature</option>
+                                                @forelse ($features as $feature)
+                                                    <option value="{{ $feature->id }}">{{ $feature->name }}</option>
+                                                @empty
+                                                    <option value="" disabled>Feature belum tersedia</option>
+                                                @endforelse
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-0">
+                                            <label for="nomor_pks">Nomor PKS</label>
+                                            <input class="form-control" id="nomor_pks" placeholder="012/KSPDUMI-FIT/VIII/2025"
+                                                type="text" maxlength="255">
+                                            <small class="text-danger" id="errNomor_pks"></small>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -617,29 +623,35 @@
                             <small class="text-danger" id="errLenderEdit"></small>
                         </div>
                     </div>
-                    <div class="col-md-12">
+                    <div class="col-md-12 text-right">
                         <button type="button" class="btn btn-outline-info btn-sm mb-3" id="buttonTogglePksEdit">
                             <i class="mdi mdi-plus-circle"></i> Tambah PKS
                         </button>
                         <div class="card border-info d-none" id="cardPksEdit">
                             <div class="card-body py-3">
                                 <h6 class="text-info">Form PKS</h6>
-                                <div class="form-group">
-                                    <label for="featurePksEdit">Feature</label>
-                                    <select class="form-control" id="featurePksEdit">
-                                        <option value="">Pilih Feature</option>
-                                        @forelse ($features as $feature)
-                                            <option value="{{ $feature->id }}">{{ $feature->name }}</option>
-                                        @empty
-                                            <option value="" disabled>Feature belum tersedia</option>
-                                        @endforelse
-                                    </select>
-                                </div>
-                                <div class="form-group mb-0">
-                                    <label for="nomor_pksEdit">Nomor PKS</label>
-                                    <input class="form-control" id="nomor_pksEdit" placeholder="012/KSPDUMI-FIT/VIII/2025"
-                                        type="text" maxlength="255">
-                                    <small class="text-danger" id="errNomor_pksEdit"></small>
+                                <div class="row text-left">
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-0">
+                                            <label for="featurePksEdit">Feature</label>
+                                            <select class="form-control" id="featurePksEdit">
+                                                <option value="">Pilih Feature</option>
+                                                @forelse ($features as $feature)
+                                                    <option value="{{ $feature->id }}">{{ $feature->name }}</option>
+                                                @empty
+                                                    <option value="" disabled>Feature belum tersedia</option>
+                                                @endforelse
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-0">
+                                            <label for="nomor_pksEdit">Nomor PKS</label>
+                                            <input class="form-control" id="nomor_pksEdit" placeholder="012/KSPDUMI-FIT/VIII/2025"
+                                                type="text" maxlength="255">
+                                            <small class="text-danger" id="errNomor_pksEdit"></small>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
