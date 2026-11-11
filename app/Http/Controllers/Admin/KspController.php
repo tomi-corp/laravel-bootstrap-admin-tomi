@@ -143,16 +143,7 @@ class KspController extends Controller
         $perusahaan->id_desa = $desa->id;
         $perusahaan->save();
 
-        if ($req->filled('feature_id')) {
-            CompanyFeature::create([
-                'company_id' => $perusahaan->id,
-                'feature_id' => $req->feature_id,
-                'pks_number' => $req->pks_number,
-                'pks_date' => $req->pks_date,
-                'pks_expired_at' => $req->pks_expired_at,
-                'is_active' => $req->boolean('is_active', true),
-            ]);
-        }
+        $this->syncCompanyFeatures($perusahaan->id, $req->input('company_features', []));
 
         return response()->json([
             'status' => 200,
@@ -208,33 +199,43 @@ class KspController extends Controller
 
         $perusahaan->save();
 
-        if ($req->filled('feature_id')) {
-            CompanyFeature::where('company_id', $perusahaan->id)
-                ->where('feature_id', '!=', $req->feature_id)
-                ->delete();
-
-            $companyFeature = CompanyFeature::withTrashed()->firstOrNew([
-                'company_id' => $perusahaan->id,
-                'feature_id' => $req->feature_id,
-            ]);
-            $companyFeature->fill([
-                'pks_number' => $req->pks_number,
-                'pks_date' => $req->pks_date,
-                'pks_expired_at' => $req->pks_expired_at,
-                'is_active' => $req->boolean('is_active', true),
-            ]);
-            if ($companyFeature->exists && $companyFeature->trashed()) {
-                $companyFeature->restore();
-            }
-            $companyFeature->save();
-        } else {
-            CompanyFeature::where('company_id', $perusahaan->id)->delete();
-        }
+        $this->syncCompanyFeatures($perusahaan->id, $req->input('company_features', []));
 
         return response()->json([
             'status' => 200,
             'message' => 'Perusahaan Berhasil Diubah',
         ], 200);
+    }
+
+    private function syncCompanyFeatures(int $companyId, array $features): void
+    {
+        $features = collect($features)->filter(fn ($feature) => !empty($feature['feature_id']));
+        $featureIds = $features->pluck('feature_id')->values()->all();
+
+        CompanyFeature::where('company_id', $companyId)
+            ->when($featureIds, fn ($query) => $query->whereNotIn('feature_id', $featureIds))
+            ->delete();
+
+        if (!$featureIds) {
+            return;
+        }
+
+        foreach ($features as $feature) {
+            $companyFeature = CompanyFeature::withTrashed()->firstOrNew([
+                'company_id' => $companyId,
+                'feature_id' => $feature['feature_id'],
+            ]);
+            $companyFeature->fill([
+                'pks_number' => $feature['pks_number'],
+                'pks_date' => $feature['pks_date'],
+                'pks_expired_at' => $feature['pks_expired_at'] ?? null,
+                'is_active' => (bool) ($feature['is_active'] ?? true),
+            ]);
+            if ($companyFeature->exists && $companyFeature->trashed()) {
+                $companyFeature->restore();
+            }
+            $companyFeature->save();
+        }
     }
 
     // public function listPerusahaanTable()

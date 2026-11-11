@@ -36,7 +36,7 @@ class DetailPerusahaanResource extends JsonResource
             'alamat_lengkap' => $this->alamat_lengkap,
             'telp' => $this->telp,
             'nomor_pks' => $this->nomor_pks,
-            'company_feature' => CompanyFeature::where('company_id', $this->id)->first([
+            'company_features' => CompanyFeature::where('company_id', $this->id)->get([
                 'feature_id',
                 'pks_number',
                 'pks_date',

@@ -48,6 +48,12 @@ class EditPerusahaanRequest extends FormRequest
             'pks_date' => 'nullable|required_with:feature_id|date',
             'pks_expired_at' => 'nullable|date|after_or_equal:pks_date',
             'is_active' => 'nullable|boolean',
+            'company_features' => 'nullable|array',
+            'company_features.*.feature_id' => 'required|exists:features,id',
+            'company_features.*.pks_number' => 'required|string|max:150',
+            'company_features.*.pks_date' => 'required|date',
+            'company_features.*.pks_expired_at' => 'nullable|date|after_or_equal:company_features.*.pks_date',
+            'company_features.*.is_active' => 'nullable|boolean',
             'status' => 'required|in:active,nonactive',
         ];
     }

@@ -355,14 +355,15 @@
                         <button type="button" class="btn btn-outline-info btn-sm mb-3" id="buttonTogglePksAdd">
                             <i class="mdi mdi-plus-circle"></i> Tambah PKS
                         </button>
-                        <div class="card border-info" id="cardPksAdd">
+                        <div id="pksCardsAdd">
+                        <div class="card border-info pks-card" id="cardPksAdd">
                             <div class="card-body py-3 text-left">
                                 <h6 class="text-info text-left">Form PKS</h6>
                                 <div class="row text-left">
                                     <div class="col-md-6">
                                         <div class="form-group mb-0">
                                             <label for="featurePksAdd">Feature</label>
-                                            <select class="form-control" id="featurePksAdd">
+                                            <select class="form-control pks-feature" id="featurePksAdd">
                                                 <option value="">Pilih Feature</option>
                                                 @forelse ($features as $feature)
                                                     <option value="{{ $feature->id }}">{{ $feature->name }}</option>
@@ -376,7 +377,7 @@
                                     <div class="col-md-6">
                                         <div class="form-group mb-0">
                                             <label for="pksNumberAdd">Nomor PKS</label>
-                                            <input class="form-control" id="pksNumberAdd" placeholder="012/KSPDUMI-FIT/VIII/2025"
+                                            <input class="form-control pks-number" id="pksNumberAdd" placeholder="012/KSPDUMI-FIT/VIII/2025"
                                                 type="text" maxlength="255">
                                             <small class="text-danger" id="errPksNumberAdd"></small>
                                         </div>
@@ -384,25 +385,26 @@
                                     <div class="col-md-6">
                                         <div class="form-group mb-0">
                                             <label for="pksDateAdd">Tanggal PKS</label>
-                                            <input class="form-control" id="pksDateAdd" type="date">
+                                            <input class="form-control pks-date" id="pksDateAdd" type="date">
                                             <small class="text-danger" id="errPksDateAdd"></small>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-0">
                                             <label for="pksExpiredAtAdd">Tanggal Berakhir PKS</label>
-                                            <input class="form-control" id="pksExpiredAtAdd" type="date">
+                                            <input class="form-control pks-expired-at" id="pksExpiredAtAdd" type="date">
                                             <small class="text-danger" id="errPksExpiredAtAdd"></small>
                                         </div>
                                     </div>
                                     <div class="col-md-6 mt-3">
                                         <div class="custom-control custom-switch">
-                                            <input class="custom-control-input" id="pksIsActiveAdd" type="checkbox" checked>
+                                            <input class="custom-control-input pks-is-active" id="pksIsActiveAdd" type="checkbox" checked>
                                             <label class="custom-control-label" for="pksIsActiveAdd">PKS Aktif</label>
                                         </div>
                                     </div>
                                 </div>
                             </div>
+                        </div>
                         </div>
                     </div>
 
@@ -648,14 +650,15 @@
                         <button type="button" class="btn btn-outline-info btn-sm mb-3" id="buttonTogglePksEdit">
                             <i class="mdi mdi-plus-circle"></i> Tambah PKS
                         </button>
-                        <div class="card border-info" id="cardPksEdit">
+                        <div id="pksCardsEdit">
+                        <div class="card border-info pks-card" id="cardPksEdit">
                             <div class="card-body py-3 text-left">
                                 <h6 class="text-info text-left">Form PKS</h6>
                                 <div class="row text-left">
                                     <div class="col-md-6">
                                         <div class="form-group mb-0">
                                             <label for="featurePksEdit">Feature</label>
-                                            <select class="form-control" id="featurePksEdit">
+                                            <select class="form-control pks-feature" id="featurePksEdit">
                                                 <option value="">Pilih Feature</option>
                                                 @forelse ($features as $feature)
                                                     <option value="{{ $feature->id }}">{{ $feature->name }}</option>
@@ -669,7 +672,7 @@
                                     <div class="col-md-6">
                                         <div class="form-group mb-0">
                                             <label for="pksNumberEdit">Nomor PKS</label>
-                                            <input class="form-control" id="pksNumberEdit" placeholder="012/KSPDUMI-FIT/VIII/2025"
+                                            <input class="form-control pks-number" id="pksNumberEdit" placeholder="012/KSPDUMI-FIT/VIII/2025"
                                                 type="text" maxlength="255">
                                             <small class="text-danger" id="errPksNumberEdit"></small>
                                         </div>
@@ -677,25 +680,26 @@
                                     <div class="col-md-6">
                                         <div class="form-group mb-0">
                                             <label for="pksDateEdit">Tanggal PKS</label>
-                                            <input class="form-control" id="pksDateEdit" type="date">
+                                            <input class="form-control pks-date" id="pksDateEdit" type="date">
                                             <small class="text-danger" id="errPksDateEdit"></small>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-0">
                                             <label for="pksExpiredAtEdit">Tanggal Berakhir PKS</label>
-                                            <input class="form-control" id="pksExpiredAtEdit" type="date">
+                                            <input class="form-control pks-expired-at" id="pksExpiredAtEdit" type="date">
                                             <small class="text-danger" id="errPksExpiredAtEdit"></small>
                                         </div>
                                     </div>
                                     <div class="col-md-6 mt-3">
                                         <div class="custom-control custom-switch">
-                                            <input class="custom-control-input" id="pksIsActiveEdit" type="checkbox">
+                                            <input class="custom-control-input pks-is-active" id="pksIsActiveEdit" type="checkbox">
                                             <label class="custom-control-label" for="pksIsActiveEdit">PKS Aktif</label>
                                         </div>
                                     </div>
                                 </div>
                             </div>
+                        </div>
                         </div>
                     </div>
 
@@ -751,15 +755,50 @@
     var editID = "";
     var deleteID = "";
 
+    function addPksCard(type) {
+        var container = $('#pksCards' + type);
+        var index = container.find('.pks-card').length;
+        var card = container.find('.pks-card').first().clone();
+
+        card.attr('id', 'cardPks' + type + index);
+        card.find('[id]').each(function () {
+            $(this).attr('id', $(this).attr('id') + index);
+        });
+        card.find('select').val('');
+        card.find('input[type="text"], input[type="date"]').val('');
+        card.find('input[type="checkbox"]').prop('checked', true);
+        card.find('.text-danger').text('');
+        card.find('h6').after('<button type="button" class="btn btn-sm btn-outline-danger float-right pks-remove mb-2">Hapus PKS</button>');
+        container.append(card);
+        card.find('.pks-number').trigger('focus');
+    }
+
     $('#buttonTogglePksAdd').on('click', function () {
-        $('#cardPksAdd').toggleClass('d-none');
-        $('#pksNumberAdd').trigger('focus');
+        addPksCard('Add');
     });
 
     $('#buttonTogglePksEdit').on('click', function () {
-        $('#cardPksEdit').toggleClass('d-none');
-        $('#pksNumberEdit').trigger('focus');
+        addPksCard('Edit');
     });
+
+    $(document).on('click', '.pks-remove', function () {
+        $(this).closest('.pks-card').remove();
+    });
+
+    function collectPksCards(containerId) {
+        return $(containerId).find('.pks-card').map(function () {
+            var card = $(this);
+            return {
+                feature_id: card.find('.pks-feature').val(),
+                pks_number: card.find('.pks-number').val(),
+                pks_date: card.find('.pks-date').val(),
+                pks_expired_at: card.find('.pks-expired-at').val(),
+                is_active: card.find('.pks-is-active').is(':checked') ? 1 : 0
+            };
+        }).get().filter(function (item) {
+            return item.feature_id || item.pks_number || item.pks_date || item.pks_expired_at;
+        });
+    }
 
     // Ubah semua data teks yang diketik/ditempel menjadi huruf kapital, kecuali email.
     $(document).on('input', '#modalAdd input:not([type="email"]):not([type="number"]), #modalAdd textarea, #modalEdit input:not([type="email"]):not([type="number"]), #modalEdit textarea', function () {
@@ -1115,11 +1154,7 @@
                 'active_tanggal': $("#activeTanggal").val(),
                 'max_plafon': $("#maxPlafon").val(),
                 'nomor_pks': $("#pksNumberAdd").val(),
-                'feature_id': $("#featurePksAdd").val(),
-                'pks_number': $("#pksNumberAdd").val(),
-                'pks_date': $("#pksDateAdd").val(),
-                'pks_expired_at': $("#pksExpiredAtAdd").val(),
-                'is_active': $("#pksIsActiveAdd").is(':checked') ? 1 : 0,
+                'company_features': collectPksCards('#pksCardsAdd'),
             },
             type: 'POST',
             dataType: 'json',
@@ -1177,12 +1212,27 @@
                 $("#lenderSelectEdit").val(detail.data.id_lender);
                 $("#teleponEdit").val(detail.data.telp);
                 $("#alamatEdit").val(detail.data.alamat_lengkap);
-                var companyFeature = detail.data.company_feature || {};
-                $("#pksNumberEdit").val(companyFeature.pks_number || detail.data.nomor_pks || '');
-                $("#featurePksEdit").val(companyFeature.feature_id || '');
-                $("#pksDateEdit").val(companyFeature.pks_date || '');
-                $("#pksExpiredAtEdit").val(companyFeature.pks_expired_at || '');
-                $("#pksIsActiveEdit").prop('checked', companyFeature.is_active === undefined ? true : Boolean(companyFeature.is_active));
+                $('#pksCardsEdit .pks-card:not(:first)').remove();
+                var companyFeatures = detail.data.company_features || [];
+                if (companyFeatures.length === 0) {
+                    $("#pksNumberEdit").val(detail.data.nomor_pks || '');
+                    $("#featurePksEdit").val('');
+                    $("#pksDateEdit").val('');
+                    $("#pksExpiredAtEdit").val('');
+                    $("#pksIsActiveEdit").prop('checked', true);
+                } else {
+                    companyFeatures.forEach(function (companyFeature, index) {
+                        if (index > 0) {
+                            addPksCard('Edit');
+                        }
+                        var card = $('#pksCardsEdit .pks-card').eq(index);
+                        card.find('.pks-number').val(companyFeature.pks_number || '');
+                        card.find('.pks-feature').val(companyFeature.feature_id || '');
+                        card.find('.pks-date').val(companyFeature.pks_date || '');
+                        card.find('.pks-expired-at').val(companyFeature.pks_expired_at || '');
+                        card.find('.pks-is-active').prop('checked', Boolean(companyFeature.is_active));
+                    });
+                }
                 $("#statusEdit").val(detail.data.status);
                 $("#paymentDateEdit").val(detail.data.payment_date);
                 $("#hMinJatuhTempoEdit").val(detail.data.h_min_jatuh_tempo);
@@ -1249,11 +1299,7 @@
                 'active_tanggal': $("#activeTanggalEdit").val(),
                 'max_plafon': $("#maxPlafonEdit").val(),
                 'nomor_pks': $("#pksNumberEdit").val(),
-                'feature_id': $("#featurePksEdit").val(),
-                'pks_number': $("#pksNumberEdit").val(),
-                'pks_date': $("#pksDateEdit").val(),
-                'pks_expired_at': $("#pksExpiredAtEdit").val(),
-                'is_active': $("#pksIsActiveEdit").is(':checked') ? 1 : 0,
+                'company_features': collectPksCards('#pksCardsEdit'),
                 'status': $("#statusEdit").val(),
             },
             type: 'POST',
