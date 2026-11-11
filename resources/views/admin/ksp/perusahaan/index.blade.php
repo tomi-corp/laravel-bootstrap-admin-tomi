@@ -340,6 +340,18 @@
                     </div>
 
                     <div class="col-md-12">
+                        <div class="form-group">
+                            <label>Lender</label>
+                            <select class="form-control" id="lenderSelect">
+                                <option value="">Tanpa Lender</option>
+                                @foreach ($lenders as $lender)
+                                <option value="{{ $lender->id }}">{{ $lender->nama }}</option>
+                                @endforeach
+                            </select>
+                            <small class="text-danger" id="errLender"></small>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
                         <button type="button" class="btn btn-outline-info btn-sm mb-3" id="buttonTogglePksAdd">
                             <i class="mdi mdi-plus-circle"></i> Tambah PKS
                         </button>
@@ -355,39 +367,6 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="col-md-12">
-                        <div class="form-group">
-                            <label>Lender</label>
-                            <select class="form-control" id="lenderSelect">
-                                <option value="">Tanpa Lender</option>
-                                @foreach ($lenders as $lender)
-                                <option value="{{ $lender->id }}">{{ $lender->nama }}</option>
-                                @endforeach
-                            </select>
-                            <small class="text-danger" id="errLender"></small>
-                        </div>
-                    </div>
-                    <div class="col-md-12">
-                        <div class="form-group mb-0">
-                            <label>Feature</label>
-                            <ul class="nav nav-tabs nav-bordered" role="tablist">
-                                @forelse ($features as $feature)
-                                    <li class="nav-item">
-                                        <a href="#feature-add-{{ $feature->id }}" data-toggle="tab" role="tab"
-                                            class="nav-link {{ $loop->first ? 'active' : '' }}">
-                                            {{ $feature->name }}
-                                        </a>
-                                    </li>
-                                @empty
-                                    <li class="nav-item">
-                                        <span class="nav-link disabled">Feature belum tersedia</span>
-                                    </li>
-                                @endforelse
-                            </ul>
-                        </div>
-                    </div>
-
 
                 </div>
 
@@ -572,23 +551,6 @@
 
 
                     <div class="col-md-12">
-                        <button type="button" class="btn btn-outline-info btn-sm mb-3" id="buttonTogglePksEdit">
-                            <i class="mdi mdi-plus-circle"></i> Tambah PKS
-                        </button>
-                        <div class="card border-info d-none" id="cardPksEdit">
-                            <div class="card-body py-3">
-                                <h6 class="text-info">Form PKS</h6>
-                                <div class="form-group mb-0">
-                                    <label for="nomor_pksEdit">Nomor PKS</label>
-                                    <input class="form-control" id="nomor_pksEdit" placeholder="012/KSPDUMI-FIT/VIII/2025"
-                                        type="text" maxlength="255">
-                                    <small class="text-danger" id="errNomor_pksEdit"></small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-12">
                         <div class="form-group">
                             <label>Status </label>
                             <select class="form-control" id="statusEdit">
@@ -645,25 +607,21 @@
                         </div>
                     </div>
                     <div class="col-md-12">
-                        <div class="form-group mb-0">
-                            <label>Feature</label>
-                            <ul class="nav nav-tabs nav-bordered" role="tablist">
-                                @forelse ($features as $feature)
-                                    <li class="nav-item">
-                                        <a href="#feature-edit-{{ $feature->id }}" data-toggle="tab" role="tab"
-                                            class="nav-link {{ $loop->first ? 'active' : '' }}">
-                                            {{ $feature->name }}
-                                        </a>
-                                    </li>
-                                @empty
-                                    <li class="nav-item">
-                                        <span class="nav-link disabled">Feature belum tersedia</span>
-                                    </li>
-                                @endforelse
-                            </ul>
+                        <button type="button" class="btn btn-outline-info btn-sm mb-3" id="buttonTogglePksEdit">
+                            <i class="mdi mdi-plus-circle"></i> Tambah PKS
+                        </button>
+                        <div class="card border-info d-none" id="cardPksEdit">
+                            <div class="card-body py-3">
+                                <h6 class="text-info">Form PKS</h6>
+                                <div class="form-group mb-0">
+                                    <label for="nomor_pksEdit">Nomor PKS</label>
+                                    <input class="form-control" id="nomor_pksEdit" placeholder="012/KSPDUMI-FIT/VIII/2025"
+                                        type="text" maxlength="255">
+                                    <small class="text-danger" id="errNomor_pksEdit"></small>
+                                </div>
+                            </div>
                         </div>
                     </div>
-
 
                 </div>
 
