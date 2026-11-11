@@ -78,7 +78,7 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                         <span class="menu-arrow"></span>
                     </a>
                     <ul class="nav-second-level nav" aria-expanded="false">
-                        <li><a href="{{ route('admin.tomi-dana.companies') }}">Perusahaan</a></li>
+                        <li><a href="{{ route('admin.tomi-dana.companies') }}">Daftar Perusahaan</a></li>
                         <li><a href="{{ route('admin.tomi-dana.lender') }}">Pemberi Pinjaman</a></li>
                         <li><a href="{{ route('admin.tomi-dana.disbursements') }}">Pencairan</a></li>
                         <li><a href="{{ route('admin.tomi-dana.employees') }}">Karyawan</a></li>
@@ -210,7 +210,7 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                         </li>
                         --}}
                         <li>
-                            <a href="{{ route('admin.tomi-dana.companies') }}">Perusahaan</a>
+                            <a href="{{ route('admin.tomi-dana.companies') }}">Daftar Perusahaan</a>
                         </li>
                         <li>
                             <a href="{{ route('admin.tomi-dana.lender') }}">Pemberi Pinjaman</a>
