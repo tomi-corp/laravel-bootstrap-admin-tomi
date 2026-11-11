@@ -36,13 +36,22 @@ class DetailPerusahaanResource extends JsonResource
             'alamat_lengkap' => $this->alamat_lengkap,
             'telp' => $this->telp,
             'nomor_pks' => $this->nomor_pks,
-            'company_features' => CompanyFeature::where('company_id', $this->id)->get([
-                'feature_id',
-                'pks_number',
-                'pks_date',
-                'pks_expired_at',
-                'is_active',
-            ]),
+            'company_features' => CompanyFeature::where('company_id', $this->id)
+                ->get([
+                    'feature_id',
+                    'pks_number',
+                    'pks_date',
+                    'pks_expired_at',
+                    'is_active',
+                ])
+                ->map(fn (CompanyFeature $companyFeature) => [
+                    'feature_id' => $companyFeature->feature_id,
+                    'pks_number' => $companyFeature->pks_number,
+                    'pks_date' => $companyFeature->pks_date?->format('Y-m-d'),
+                    'pks_expired_at' => $companyFeature->pks_expired_at?->format('Y-m-d'),
+                    'is_active' => (bool) $companyFeature->is_active,
+                ])
+                ->values(),
             'status' => $this->status,
             'provinsi' => $this->provinsi->provinsi,
             'list_kabupaten' => WilayahKabupatenResource::collection($list_kota),
