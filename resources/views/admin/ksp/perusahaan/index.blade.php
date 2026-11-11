@@ -53,6 +53,33 @@
                 </div>
             </div>
         </div>
+        <div class="card d-none" id="cardTambahPks">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="card-title mb-0">Tambah PKS Perusahaan</h5>
+                    <button type="button" class="close" id="buttonClosePks" aria-label="Tutup">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form id="formTambahPks">
+                    <input type="hidden" id="pksPerusahaanId">
+                    <div class="form-group">
+                        <label for="pksNamaPerusahaan">Perusahaan</label>
+                        <input type="text" class="form-control" id="pksNamaPerusahaan" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="pksNomor">Nomor PKS</label>
+                        <input type="text" class="form-control" id="pksNomor"
+                            placeholder="012/KSPDUMI-FIT/VIII/2025" maxlength="255">
+                        <small class="text-danger" id="errPksNomor"></small>
+                    </div>
+                    <button type="button" class="btn btn-secondary" id="buttonCancelPks">Batal</button>
+                    <button type="submit" class="btn btn-primary" id="buttonSubmitPks">
+                        Simpan <span id="loadingTextPks"></span>
+                    </button>
+                </form>
+            </div>
+        </div>
         <div class="card">
             <div class="card-body">
 
@@ -699,6 +726,57 @@
     var akhir = "";
     var editID = "";
     var deleteID = "";
+
+    tambahPks = (id, nama) => {
+        $('#pksPerusahaanId').val(id);
+        $('#pksNamaPerusahaan').val(nama || '');
+        $('#pksNomor').val('');
+        $('#errPksNomor').text('');
+        $('#cardTambahPks').removeClass('d-none');
+        $('html, body').animate({ scrollTop: $('#cardTambahPks').offset().top - 20 }, 250);
+        $('#pksNomor').trigger('focus');
+    };
+
+    tutupCardPks = () => {
+        $('#cardTambahPks').addClass('d-none');
+        $('#formTambahPks')[0].reset();
+        $('#errPksNomor').text('');
+    };
+
+    $('#buttonClosePks, #buttonCancelPks').on('click', tutupCardPks);
+
+    $('#formTambahPks').on('submit', function (event) {
+        event.preventDefault();
+        $('#errPksNomor').text('');
+
+        $.ajax({
+            url: '{!! route('admin.ksp.update.perusahaan.pks') !!}',
+            data: {
+                '_token': "{{ csrf_token() }}",
+                'id': $('#pksPerusahaanId').val(),
+                'nomor_pks': $('#pksNomor').val()
+            },
+            type: 'POST',
+            dataType: 'json',
+            beforeSend: function () {
+                $('#buttonSubmitPks').attr('disabled', true);
+                $('#loadingTextPks').addClass('spinner-border spinner-border-sm');
+            },
+            success: function (result) {
+                toastr.success(result.message);
+                table.ajax.reload(null, false);
+                tutupCardPks();
+            },
+            error: function (error) {
+                var message = error.responseJSON?.errors?.nomor_pks?.[0] || 'Nomor PKS wajib diisi';
+                $('#errPksNomor').text(message);
+            },
+            complete: function () {
+                $('#buttonSubmitPks').attr('disabled', false);
+                $('#loadingTextPks').removeClass('spinner-border spinner-border-sm');
+            }
+        });
+    });
 
     // Ubah semua data teks yang diketik/ditempel menjadi huruf kapital, kecuali email.
     $(document).on('input', '#modalAdd input:not([type="email"]):not([type="number"]), #modalAdd textarea, #modalEdit input:not([type="email"]):not([type="number"]), #modalEdit textarea', function () {

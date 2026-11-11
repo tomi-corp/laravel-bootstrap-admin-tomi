@@ -290,6 +290,7 @@ Route::middleware(['AdminMiddleware'])->group(
                 Route::post('/ksp/add/perusahaan', [KspController::class, 'addPerusahaan'])->name('admin.ksp.add.perusahaan');
                 Route::post('/ksp/detail/perusahaan', [KspController::class, 'detailPerusahaan'])->name('admin.ksp.detail.perusahaan');
                 Route::post('/ksp/edit/perusahaan', [KspController::class, 'editPerusahaan'])->name('admin.ksp.edit.perusahaan');
+                Route::post('/ksp/update/perusahaan/pks', [KspController::class, 'updatePerusahaanPks'])->name('admin.ksp.update.perusahaan.pks');
                 Route::post('/ksp/delete/perusahaan', [KspController::class, 'deletePerusahaan'])->name('admin.ksp.delete.perusahaan');
                 // KSP => Perusahaan => invoiving
                 Route::get('/ksp/pinjaman/invoicing', [KspController::class, 'kspInvoicingIndex'])->name('admin.ksp.invoicing.index');
