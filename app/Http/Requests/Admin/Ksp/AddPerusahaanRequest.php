@@ -42,8 +42,12 @@ class AddPerusahaanRequest extends FormRequest
             'active_set_pinjaman' => 'required|in:active,nonactive',
             'active_tanggal' => 'required|integer|min:0',
             'max_plafon' => 'nullable|numeric|min:0',
-            'nomor_pks' => 'nullable|required_with:feature_id|string|max:255',
-            'feature_id' => 'nullable|required_with:nomor_pks|exists:features,id',
+            'nomor_pks' => 'nullable|string|max:255',
+            'feature_id' => 'nullable|exists:features,id',
+            'pks_number' => 'nullable|required_with:feature_id|string|max:150',
+            'pks_date' => 'nullable|required_with:feature_id|date',
+            'pks_expired_at' => 'nullable|date|after_or_equal:pks_date',
+            'is_active' => 'nullable|boolean',
         ];
     }
 }

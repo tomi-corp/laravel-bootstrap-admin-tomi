@@ -375,10 +375,30 @@
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-0">
-                                            <label for="nomor_pks">Nomor PKS</label>
-                                            <input class="form-control" id="nomor_pks" placeholder="012/KSPDUMI-FIT/VIII/2025"
+                                            <label for="pksNumberAdd">Nomor PKS</label>
+                                            <input class="form-control" id="pksNumberAdd" placeholder="012/KSPDUMI-FIT/VIII/2025"
                                                 type="text" maxlength="255">
-                                            <small class="text-danger" id="errNomor_pks"></small>
+                                            <small class="text-danger" id="errPksNumberAdd"></small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-0">
+                                            <label for="pksDateAdd">Tanggal PKS</label>
+                                            <input class="form-control" id="pksDateAdd" type="date">
+                                            <small class="text-danger" id="errPksDateAdd"></small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-0">
+                                            <label for="pksExpiredAtAdd">Tanggal Berakhir PKS</label>
+                                            <input class="form-control" id="pksExpiredAtAdd" type="date">
+                                            <small class="text-danger" id="errPksExpiredAtAdd"></small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mt-3">
+                                        <div class="custom-control custom-switch">
+                                            <input class="custom-control-input" id="pksIsActiveAdd" type="checkbox" checked>
+                                            <label class="custom-control-label" for="pksIsActiveAdd">PKS Aktif</label>
                                         </div>
                                     </div>
                                 </div>
@@ -648,10 +668,30 @@
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group mb-0">
-                                            <label for="nomor_pksEdit">Nomor PKS</label>
-                                            <input class="form-control" id="nomor_pksEdit" placeholder="012/KSPDUMI-FIT/VIII/2025"
+                                            <label for="pksNumberEdit">Nomor PKS</label>
+                                            <input class="form-control" id="pksNumberEdit" placeholder="012/KSPDUMI-FIT/VIII/2025"
                                                 type="text" maxlength="255">
-                                            <small class="text-danger" id="errNomor_pksEdit"></small>
+                                            <small class="text-danger" id="errPksNumberEdit"></small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-0">
+                                            <label for="pksDateEdit">Tanggal PKS</label>
+                                            <input class="form-control" id="pksDateEdit" type="date">
+                                            <small class="text-danger" id="errPksDateEdit"></small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group mb-0">
+                                            <label for="pksExpiredAtEdit">Tanggal Berakhir PKS</label>
+                                            <input class="form-control" id="pksExpiredAtEdit" type="date">
+                                            <small class="text-danger" id="errPksExpiredAtEdit"></small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mt-3">
+                                        <div class="custom-control custom-switch">
+                                            <input class="custom-control-input" id="pksIsActiveEdit" type="checkbox">
+                                            <label class="custom-control-label" for="pksIsActiveEdit">PKS Aktif</label>
                                         </div>
                                     </div>
                                 </div>
@@ -713,12 +753,12 @@
 
     $('#buttonTogglePksAdd').on('click', function () {
         $('#cardPksAdd').toggleClass('d-none');
-        $('#nomor_pks').trigger('focus');
+        $('#pksNumberAdd').trigger('focus');
     });
 
     $('#buttonTogglePksEdit').on('click', function () {
         $('#cardPksEdit').toggleClass('d-none');
-        $('#nomor_pksEdit').trigger('focus');
+        $('#pksNumberEdit').trigger('focus');
     });
 
     // Ubah semua data teks yang diketik/ditempel menjadi huruf kapital, kecuali email.
@@ -1074,8 +1114,12 @@
                 'active_set_pinjaman': $("#activeSetPinjaman").val(),
                 'active_tanggal': $("#activeTanggal").val(),
                 'max_plafon': $("#maxPlafon").val(),
-                'nomor_pks': $("#nomor_pks").val(),
+                'nomor_pks': $("#pksNumberAdd").val(),
                 'feature_id': $("#featurePksAdd").val(),
+                'pks_number': $("#pksNumberAdd").val(),
+                'pks_date': $("#pksDateAdd").val(),
+                'pks_expired_at': $("#pksExpiredAtAdd").val(),
+                'is_active': $("#pksIsActiveAdd").is(':checked') ? 1 : 0,
             },
             type: 'POST',
             dataType: 'json',
@@ -1099,7 +1143,9 @@
                 $('#errEmailPerusahaan').text(err.responseJSON.errors.email_perusahaan);
                 $('#errTelepon').text(err.responseJSON.errors.telepon);
                 $('#errAlamatLengkap').text(err.responseJSON.errors.alamat_lengkap);
-                $('#errNomor_pks').text(err.responseJSON.errors.nomor_pks);
+                $('#errPksNumberAdd').text(err.responseJSON.errors.pks_number);
+                $('#errPksDateAdd').text(err.responseJSON.errors.pks_date);
+                $('#errPksExpiredAtAdd').text(err.responseJSON.errors.pks_expired_at);
                 $('#errFeaturePksAdd').text(err.responseJSON.errors.feature_id);
                 $('#errProvinsi').text(err.responseJSON.errors.provinsi);
                 $('#errKabupaten').text(err.responseJSON.errors.kabupaten);
@@ -1131,8 +1177,12 @@
                 $("#lenderSelectEdit").val(detail.data.id_lender);
                 $("#teleponEdit").val(detail.data.telp);
                 $("#alamatEdit").val(detail.data.alamat_lengkap);
-                $("#nomor_pksEdit").val(detail.data.nomor_pks);
-                $("#featurePksEdit").val(detail.data.feature_id);
+                var companyFeature = detail.data.company_feature || {};
+                $("#pksNumberEdit").val(companyFeature.pks_number || detail.data.nomor_pks || '');
+                $("#featurePksEdit").val(companyFeature.feature_id || '');
+                $("#pksDateEdit").val(companyFeature.pks_date || '');
+                $("#pksExpiredAtEdit").val(companyFeature.pks_expired_at || '');
+                $("#pksIsActiveEdit").prop('checked', companyFeature.is_active === undefined ? true : Boolean(companyFeature.is_active));
                 $("#statusEdit").val(detail.data.status);
                 $("#paymentDateEdit").val(detail.data.payment_date);
                 $("#hMinJatuhTempoEdit").val(detail.data.h_min_jatuh_tempo);
@@ -1198,8 +1248,12 @@
                 'active_set_pinjaman': $("#activeSetPinjamanEdit").val(),
                 'active_tanggal': $("#activeTanggalEdit").val(),
                 'max_plafon': $("#maxPlafonEdit").val(),
-                'nomor_pks': $("#nomor_pksEdit").val(),
+                'nomor_pks': $("#pksNumberEdit").val(),
                 'feature_id': $("#featurePksEdit").val(),
+                'pks_number': $("#pksNumberEdit").val(),
+                'pks_date': $("#pksDateEdit").val(),
+                'pks_expired_at': $("#pksExpiredAtEdit").val(),
+                'is_active': $("#pksIsActiveEdit").is(':checked') ? 1 : 0,
                 'status': $("#statusEdit").val(),
             },
             type: 'POST',
@@ -1224,7 +1278,9 @@
                 $('#errEmailPerusahaanEdit').text(err.responseJSON.errors.email_perusahaan);
                 $('#errTeleponEdit').text(err.responseJSON.errors.telepon);
                 $('#errAlamatEdit').text(err.responseJSON.errors.alamat_lengkap);
-                $('#errNomor_pksEdit').text(err.responseJSON.errors.nomor_pks);
+                $('#errPksNumberEdit').text(err.responseJSON.errors.pks_number);
+                $('#errPksDateEdit').text(err.responseJSON.errors.pks_date);
+                $('#errPksExpiredAtEdit').text(err.responseJSON.errors.pks_expired_at);
                 $('#errFeaturePksEdit').text(err.responseJSON.errors.feature_id);
             }
         });

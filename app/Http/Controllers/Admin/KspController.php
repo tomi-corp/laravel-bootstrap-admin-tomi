@@ -143,11 +143,14 @@ class KspController extends Controller
         $perusahaan->id_desa = $desa->id;
         $perusahaan->save();
 
-        if ($req->filled('feature_id') || $req->filled('nomor_pks')) {
+        if ($req->filled('feature_id')) {
             CompanyFeature::create([
                 'company_id' => $perusahaan->id,
                 'feature_id' => $req->feature_id,
-                'nomor_pks' => $req->nomor_pks,
+                'pks_number' => $req->pks_number,
+                'pks_date' => $req->pks_date,
+                'pks_expired_at' => $req->pks_expired_at,
+                'is_active' => $req->boolean('is_active', true),
             ]);
         }
 
@@ -205,14 +208,25 @@ class KspController extends Controller
 
         $perusahaan->save();
 
-        if ($req->filled('feature_id') && $req->filled('nomor_pks')) {
-            CompanyFeature::updateOrCreate(
-                ['company_id' => $perusahaan->id],
-                [
-                    'feature_id' => $req->feature_id,
-                    'nomor_pks' => $req->nomor_pks,
-                ]
-            );
+        if ($req->filled('feature_id')) {
+            CompanyFeature::where('company_id', $perusahaan->id)
+                ->where('feature_id', '!=', $req->feature_id)
+                ->delete();
+
+            $companyFeature = CompanyFeature::withTrashed()->firstOrNew([
+                'company_id' => $perusahaan->id,
+                'feature_id' => $req->feature_id,
+            ]);
+            $companyFeature->fill([
+                'pks_number' => $req->pks_number,
+                'pks_date' => $req->pks_date,
+                'pks_expired_at' => $req->pks_expired_at,
+                'is_active' => $req->boolean('is_active', true),
+            ]);
+            if ($companyFeature->exists && $companyFeature->trashed()) {
+                $companyFeature->restore();
+            }
+            $companyFeature->save();
         } else {
             CompanyFeature::where('company_id', $perusahaan->id)->delete();
         }
