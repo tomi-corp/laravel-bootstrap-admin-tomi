@@ -1208,14 +1208,22 @@ class TomiDanaController extends Controller
     public function companies()
     {
         $provinsis = provinsi::get();
-        $perusahaan = ListPerusahaan::select('id', 'status')->get();
+        $perusahaan = ListPerusahaan::query()
+            ->whereExists(function ($query) {
+                $query->select(DB::raw(1))
+                    ->from('company_features')
+                    ->join('features', 'features.id', '=', 'company_features.feature_id')
+                    ->whereColumn('company_features.company_id', 'list_perusahaans.id')
+                    ->whereRaw("REPLACE(LOWER(features.name), ' ', '') = ?", ['tomidana'])
+                    ->whereNull('company_features.deleted_at')
+                    ->whereNull('features.deleted_at');
+            })
+            ->select('id', 'status')
+            ->get();
 
         return view('admin.tomi-dana.companies.index', [
             'provinsis' => $provinsis,
             'lenders' => lender::select('id', 'nama')->orderBy('nama')->get(),
-            'features' => Schema::hasTable('features')
-                ? DB::table('features')->whereNull('deleted_at')->orderBy('id')->get(['id', 'name'])
-                : collect(),
             'perusahaanTidakAktif' => $perusahaan->where('status', 'nonactive')->count(),
             'perusahaanAktif' => $perusahaan->where('status', 'active')->count(),
         ]);
@@ -1294,6 +1302,16 @@ class TomiDanaController extends Controller
             $query = ListPerusahaan::query()
                 ->select('list_perusahaans.*')
                 ->with(['lender', 'karyawan', 'karyawanPending', 'pinjaman', 'provinsi', 'kabupaten', 'kecamatan', 'desa']);
+
+            $query->whereExists(function ($featureQuery) {
+                $featureQuery->select(DB::raw(1))
+                    ->from('company_features')
+                    ->join('features', 'features.id', '=', 'company_features.feature_id')
+                    ->whereColumn('company_features.company_id', 'list_perusahaans.id')
+                    ->whereRaw("REPLACE(LOWER(features.name), ' ', '') = ?", ['tomidana'])
+                    ->whereNull('company_features.deleted_at')
+                    ->whereNull('features.deleted_at');
+            });
 
             $admin = auth()->guard('admin')->user();
             if ($admin?->type === 'pic') {
