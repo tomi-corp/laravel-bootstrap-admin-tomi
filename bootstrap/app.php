@@ -77,7 +77,8 @@ return Application::configure(basePath: dirname(__DIR__))
             '/callback/peminjaman/payroll/disbursement',
             '/callback/pembayaran/tagihan/perusahaan/tomi',
             '/callback/register/privy',
-            '/daftar/ekasbon'
+            '/daftar/ekasbon',
+            '/pengajuan-penghapusan-akun'
         ]);
     })
 
