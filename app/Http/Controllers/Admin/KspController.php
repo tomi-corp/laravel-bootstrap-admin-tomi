@@ -47,6 +47,8 @@ use Psy\Readline\Hoa\Console;
 use Spatie\Browsershot\Browsershot;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 
 class KspController extends Controller
@@ -62,7 +64,11 @@ class KspController extends Controller
 
         $lenders = lender::select('id', 'nama')->orderBy('nama')->get();
 
-        return view('admin.ksp.perusahaan.index', compact('provinsis', 'lenders', 'perusahaanTidakAktif', 'perusahaanAktif'));
+        $features = Schema::hasTable('features')
+            ? DB::table('features')->whereNull('deleted_at')->orderBy('id')->get(['id', 'name'])
+            : collect();
+
+        return view('admin.ksp.perusahaan.index', compact('provinsis', 'lenders', 'features', 'perusahaanTidakAktif', 'perusahaanAktif'));
     }
 
     public function kabupaten(Request $req)
