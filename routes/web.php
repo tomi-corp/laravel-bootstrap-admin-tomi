@@ -4,6 +4,7 @@ use App\Http\Controllers\User\AuthController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Guest\CallbackController;
 use App\Http\Controllers\Guest\DownloadController;
+use App\Http\Controllers\Guest\AccountDeletionRequestController;
 use App\Http\Controllers\Guest\VerifEmailController;
 use Illuminate\Support\Facades\Route;
 
@@ -18,6 +19,9 @@ Route::get('/invoicee/{encrypted}/{unique}/{idEnc}/{codePerusahaanEnc}', [Dashbo
 Route::get('/invoicing-layanan/{encrypted}/{unique}/{idEnc}/{codePerusahaanEnc}', [DashboardController::class, 'invoiceeLender']);
 
 Route::post('/callback/register/privy', [CallbackController::class, 'privyRegisterCallback']);
+
+Route::post('/pengajuan-penghapusan-akun', [AccountDeletionRequestController::class, 'store'])
+    ->name('account.deletion.requests.store');
 
 // show document
 Route::get('/preview', [AuthController::class, 'preview'])
