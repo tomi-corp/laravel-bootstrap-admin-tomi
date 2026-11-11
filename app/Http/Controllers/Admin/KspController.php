@@ -205,7 +205,7 @@ class KspController extends Controller
 
         $perusahaan->save();
 
-        if ($req->filled('feature_id') || $req->filled('nomor_pks')) {
+        if ($req->filled('feature_id') && $req->filled('nomor_pks')) {
             CompanyFeature::updateOrCreate(
                 ['company_id' => $perusahaan->id],
                 [
@@ -213,6 +213,8 @@ class KspController extends Controller
                     'nomor_pks' => $req->nomor_pks,
                 ]
             );
+        } else {
+            CompanyFeature::where('company_id', $perusahaan->id)->delete();
         }
 
         return response()->json([
