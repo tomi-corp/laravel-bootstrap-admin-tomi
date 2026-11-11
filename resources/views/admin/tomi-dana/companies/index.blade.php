@@ -188,6 +188,25 @@
                             <small class="text-danger" id="errLender"></small>
                         </div>
                     </div>
+                    <div class="col-md-12">
+                        <div class="form-group mb-0">
+                            <label>Feature</label>
+                            <ul class="nav nav-tabs nav-bordered" role="tablist">
+                                @forelse ($features as $feature)
+                                    <li class="nav-item">
+                                        <a href="#feature-add-{{ $feature->id }}" data-toggle="tab" role="tab"
+                                            class="nav-link {{ $loop->first ? 'active' : '' }}">
+                                            {{ $feature->name }}
+                                        </a>
+                                    </li>
+                                @empty
+                                    <li class="nav-item">
+                                        <span class="nav-link disabled">Feature belum tersedia</span>
+                                    </li>
+                                @endforelse
+                            </ul>
+                        </div>
+                    </div>
                     <div class="col-md-6">
                         <div class="form-group">
                             <label>Email Perusahaan</label>
@@ -427,6 +446,25 @@
                                 @endforeach
                             </select>
                             <small class="text-danger" id="errLenderEdit"></small>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group mb-0">
+                            <label>Feature</label>
+                            <ul class="nav nav-tabs nav-bordered" role="tablist">
+                                @forelse ($features as $feature)
+                                    <li class="nav-item">
+                                        <a href="#feature-edit-{{ $feature->id }}" data-toggle="tab" role="tab"
+                                            class="nav-link {{ $loop->first ? 'active' : '' }}">
+                                            {{ $feature->name }}
+                                        </a>
+                                    </li>
+                                @empty
+                                    <li class="nav-item">
+                                        <span class="nav-link disabled">Feature belum tersedia</span>
+                                    </li>
+                                @endforelse
+                            </ul>
                         </div>
                     </div>
 

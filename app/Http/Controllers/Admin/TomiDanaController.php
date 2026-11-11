@@ -1213,6 +1213,9 @@ class TomiDanaController extends Controller
         return view('admin.tomi-dana.companies.index', [
             'provinsis' => $provinsis,
             'lenders' => lender::select('id', 'nama')->orderBy('nama')->get(),
+            'features' => Schema::hasTable('features')
+                ? DB::table('features')->whereNull('deleted_at')->orderBy('id')->get(['id', 'name'])
+                : collect(),
             'perusahaanTidakAktif' => $perusahaan->where('status', 'nonactive')->count(),
             'perusahaanAktif' => $perusahaan->where('status', 'active')->count(),
         ]);
