@@ -6,6 +6,7 @@ use App\Http\Resources\Admin\Ksp\WilayahDesaResource;
 use App\Http\Resources\Admin\Ksp\WilayahKabupatenResource;
 use App\Http\Resources\Admin\Ksp\WilayahKecamatanResource;
 use App\Models\kecamatan;
+use App\Models\CompanyFeature;
 use App\Models\kelurahan;
 use App\Models\kota;
 use App\Models\provinsi;
@@ -35,6 +36,7 @@ class DetailPerusahaanResource extends JsonResource
             'alamat_lengkap' => $this->alamat_lengkap,
             'telp' => $this->telp,
             'nomor_pks' => $this->nomor_pks,
+            'feature_id' => CompanyFeature::where('company_id', $this->id)->value('feature_id'),
             'status' => $this->status,
             'provinsi' => $this->provinsi->provinsi,
             'list_kabupaten' => WilayahKabupatenResource::collection($list_kota),

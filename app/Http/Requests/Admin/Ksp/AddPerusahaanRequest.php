@@ -43,6 +43,7 @@ class AddPerusahaanRequest extends FormRequest
             'active_tanggal' => 'required|integer|min:0',
             'max_plafon' => 'nullable|numeric|min:0',
             'nomor_pks' => 'nullable|string|max:255',
+            'feature_id' => 'nullable|required_with:nomor_pks|exists:features,id',
         ];
     }
 }

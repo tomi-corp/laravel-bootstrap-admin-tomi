@@ -370,6 +370,7 @@
                                                     <option value="" disabled>Feature belum tersedia</option>
                                                 @endforelse
                                             </select>
+                                            <small class="text-danger" id="errFeaturePksAdd"></small>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
@@ -642,6 +643,7 @@
                                                     <option value="" disabled>Feature belum tersedia</option>
                                                 @endforelse
                                             </select>
+                                            <small class="text-danger" id="errFeaturePksEdit"></small>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
@@ -1073,6 +1075,7 @@
                 'active_tanggal': $("#activeTanggal").val(),
                 'max_plafon': $("#maxPlafon").val(),
                 'nomor_pks': $("#nomor_pks").val(),
+                'feature_id': $("#featurePksAdd").val(),
             },
             type: 'POST',
             dataType: 'json',
@@ -1097,6 +1100,7 @@
                 $('#errTelepon').text(err.responseJSON.errors.telepon);
                 $('#errAlamatLengkap').text(err.responseJSON.errors.alamat_lengkap);
                 $('#errNomor_pks').text(err.responseJSON.errors.nomor_pks);
+                $('#errFeaturePksAdd').text(err.responseJSON.errors.feature_id);
                 $('#errProvinsi').text(err.responseJSON.errors.provinsi);
                 $('#errKabupaten').text(err.responseJSON.errors.kabupaten);
                 $('#errKecamatan').text(err.responseJSON.errors.kecamatan);
@@ -1128,6 +1132,7 @@
                 $("#teleponEdit").val(detail.data.telp);
                 $("#alamatEdit").val(detail.data.alamat_lengkap);
                 $("#nomor_pksEdit").val(detail.data.nomor_pks);
+                $("#featurePksEdit").val(detail.data.feature_id);
                 $("#statusEdit").val(detail.data.status);
                 $("#paymentDateEdit").val(detail.data.payment_date);
                 $("#hMinJatuhTempoEdit").val(detail.data.h_min_jatuh_tempo);
@@ -1194,6 +1199,7 @@
                 'active_tanggal': $("#activeTanggalEdit").val(),
                 'max_plafon': $("#maxPlafonEdit").val(),
                 'nomor_pks': $("#nomor_pksEdit").val(),
+                'feature_id': $("#featurePksEdit").val(),
                 'status': $("#statusEdit").val(),
             },
             type: 'POST',
@@ -1219,6 +1225,7 @@
                 $('#errTeleponEdit').text(err.responseJSON.errors.telepon);
                 $('#errAlamatEdit').text(err.responseJSON.errors.alamat_lengkap);
                 $('#errNomor_pksEdit').text(err.responseJSON.errors.nomor_pks);
+                $('#errFeaturePksEdit').text(err.responseJSON.errors.feature_id);
             }
         });
     })

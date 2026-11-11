@@ -23,6 +23,7 @@ use App\Imports\ExportImportData;
 use App\Imports\KaryawanPendingImport;
 use App\Models\amount_pinjaman;
 use App\Models\bank;
+use App\Models\CompanyFeature;
 use App\Models\cost;
 use App\Models\history_invoicing_lender;
 use App\Models\invoicing_pinjaman;
@@ -141,6 +142,15 @@ class KspController extends Controller
         $perusahaan->id_kecamatan = $kecamatan->id;
         $perusahaan->id_desa = $desa->id;
         $perusahaan->save();
+
+        if ($req->filled('feature_id') || $req->filled('nomor_pks')) {
+            CompanyFeature::create([
+                'company_id' => $perusahaan->id,
+                'feature_id' => $req->feature_id,
+                'nomor_pks' => $req->nomor_pks,
+            ]);
+        }
+
         return response()->json([
             'status' => 200,
             'message' => 'Perusahaan Berhasil Ditambahkan',
@@ -194,6 +204,17 @@ class KspController extends Controller
         $perusahaan->status = $req->status;
 
         $perusahaan->save();
+
+        if ($req->filled('feature_id') || $req->filled('nomor_pks')) {
+            CompanyFeature::updateOrCreate(
+                ['company_id' => $perusahaan->id],
+                [
+                    'feature_id' => $req->feature_id,
+                    'nomor_pks' => $req->nomor_pks,
+                ]
+            );
+        }
+
         return response()->json([
             'status' => 200,
             'message' => 'Perusahaan Berhasil Diubah',
