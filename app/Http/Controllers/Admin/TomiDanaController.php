@@ -496,7 +496,7 @@ class TomiDanaController extends Controller
         $invoice->tanggal_pembayaran = $data['tanggal'];
         $invoice->bukti_transfer = $request->file('bukti_transfer')->store('assets/invoice-lender');
         $invoice->update_by = auth('admin')->id();
-        $invoice->save();
+        $invoice->saveQuietly();
 
         return response()->json([
             'status' => 200,
