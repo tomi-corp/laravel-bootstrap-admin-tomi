@@ -1,6 +1,16 @@
 @extends('layout.app')
 @php($isTomiDana = request()->routeIs('admin.tomi-dana.perusahaan'))
 @section('title', $isTomiDana ? 'Perusahaan TomiDana' : 'Koperasi Simpan Pinjam')
+@push('css')
+<style>
+    #modalAdd .form-section { border: 1px solid #e9ecef; border-radius: 6px; padding: 16px 16px 12px; margin-bottom: 16px; background: #fff; }
+    #modalAdd .form-section-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; color: #188ae2; border-bottom: 1px dashed #e9ecef; padding-bottom: 8px; margin-bottom: 14px; }
+    #modalAdd .form-section-title i { margin-right: 4px; }
+    #modalAdd label { font-weight: 600; font-size: 13px; }
+    #modalAdd .pks-card { background: #f8f9fa; }
+    #modalAdd .modal-body { background: #f5f6f8; }
+</style>
+@endpush
 @section('content')
 <div class="row">
     <div class="col-12">
@@ -135,233 +145,211 @@
 
 
 {{-- modal tambah --}}
-<div class="modal fade" id="modalAdd" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-    <div class=" modal-dialog modal-lg modal-dialog-centered modal-dialog-centered modal-dialog-scrollable"
-        role="document">
+<div class="modal fade" id="modalAdd" role="dialog" aria-labelledby="modalAddTitle" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalCenterTitle">Tambah Perusahaan
-                </h5>
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-
+                <h5 class="modal-title" id="modalAddTitle"><i class="mdi mdi-domain mr-1"></i> Tambah Perusahaan</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Tutup"><span aria-hidden="true">&times;</span></button>
             </div>
             <div class="modal-body">
 
-                <div class="row">
-
-
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label>Nama PIC Perusahaan</label>
-                            <input class="form-control" id="namaPicPerusahaan" placeholder="PIC Perushaan"></input>
-                            <small class="text-danger" id="errNamaPicPerusahaan"></small>
+                {{-- 1. Informasi Perusahaan --}}
+                <div class="form-section">
+                    <h6 class="form-section-title"><i class="mdi mdi-card-account-details-outline"></i> Informasi Perusahaan</h6>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="namaPerusahaan">Nama Perusahaan <span class="text-danger">*</span></label>
+                                <input class="form-control" id="namaPerusahaan" placeholder="NAMA PERUSAHAAN">
+                                <small class="text-danger" id="errNamaPerusahaan"></small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="namaPicPerusahaan">Nama PIC Perusahaan <span class="text-danger">*</span></label>
+                                <input class="form-control" id="namaPicPerusahaan" placeholder="NAMA PIC PERUSAHAAN">
+                                <small class="text-danger" id="errNamaPicPerusahaan"></small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="namaPicInternal">Nama PIC HC / HRD <span class="text-danger">*</span></label>
+                                <input class="form-control" id="namaPicInternal" placeholder="NAMA PIC HC / HRD">
+                                <small class="text-danger" id="errNamaPicInternal"></small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-md-0">
+                                <label for="emailPerusahaan">Email Perusahaan <span class="text-danger">*</span></label>
+                                <input class="form-control" id="emailPerusahaan" placeholder="email@perusahaan.com" type="email">
+                                <small class="text-danger" id="errEmailPerusahaan"></small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-0">
+                                <label for="telepon">Telepon <span class="text-danger">*</span></label>
+                                <input class="form-control" id="telepon" placeholder="628123456789" type="number">
+                                <small class="text-danger" id="errTelepon"></small>
+                            </div>
                         </div>
                     </div>
+                </div>
 
-
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label>Nama PIC HC / HRD</label>
-                            <input class="form-control" id="namaPicInternal" placeholder="PIC Internal"></input>
-                            <small class="text-danger" id="errNamaPicInternal"></small>
+                {{-- 2. Alamat --}}
+                <div class="form-section">
+                    <h6 class="form-section-title"><i class="mdi mdi-map-marker-outline"></i> Alamat Perusahaan</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="provinsiSelect">Provinsi <span class="text-danger">*</span></label>
+                                <select class="form-control" id="provinsiSelect" style="width: 100%">
+                                    <option disabled>Select</option>
+                                    @foreach ($provinsis as $provinsi)
+                                    <option value="{{ $provinsi->provinsi }}">{{ $provinsi->provinsi }}</option>
+                                    @endforeach
+                                </select>
+                                <small class="text-danger" id="errProvinsi"></small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="kabupatenSelect">Kabupaten / Kota <span class="text-danger">*</span></label>
+                                <select class="form-control" id="kabupatenSelect" style="width: 100%">
+                                    <option disabled>Select</option>
+                                </select>
+                                <small class="text-danger" id="errKabupaten_kota"></small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="kecamatanSelect">Kecamatan <span class="text-danger">*</span></label>
+                                <select class="form-control" id="kecamatanSelect" style="width: 100%">
+                                    <option disabled>Select</option>
+                                </select>
+                                <small class="text-danger" id="errKecamatan"></small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="desaSelect">Desa <span class="text-danger">*</span></label>
+                                <select class="form-control" id="desaSelect" style="width: 100%">
+                                    <option disabled>Select</option>
+                                </select>
+                                <small class="text-danger" id="errDesa"></small>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group mb-0">
+                                <label for="alamatLengkap">Alamat Lengkap <span class="text-danger">*</span></label>
+                                <textarea class="form-control" id="alamatLengkap" rows="3"
+                                    placeholder="NAMA JALAN, NOMOR, RT/RW"></textarea>
+                                <small class="text-danger" id="errAlamatLengkap"></small>
+                            </div>
                         </div>
                     </div>
+                </div>
 
-                    <div class="col-md-12">
-                        <div class="form-group">
-                            <label>Nama Perusahaan</label>
-                            <input class="form-control" id="namaPerusahaan" placeholder="Nama Perusahaan"></input>
-                            <small class="text-danger" id="errNamaPerusahaan"></small>
+                {{-- 3. Pembayaran & Konfigurasi --}}
+                <div class="form-section">
+                    <h6 class="form-section-title"><i class="mdi mdi-cog-outline"></i> Pembayaran &amp; Konfigurasi Pinjaman</h6>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="paymentDate">Payment Date <span class="text-danger">*</span></label>
+                                <select class="form-control" id="paymentDate">
+                                    @for ($day = 1; $day <= 31; $day++)
+                                    <option value="{{ $day }}">TANGGAL {{ $day }}</option>
+                                    @endfor
+                                </select>
+                                <small class="text-danger" id="errPaymentDate"></small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="hMinJatuhTempo">H-Jatuh Tempo</label>
+                                <div class="input-group">
+                                    <input class="form-control" id="hMinJatuhTempo" type="number" min="0" value="0">
+                                    <div class="input-group-append"><span class="input-group-text">HARI</span></div>
+                                </div>
+                                <small class="text-danger" id="errHMinJatuhTempo"></small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="status">Status</label>
+                                <select class="form-control" id="status">
+                                    <option value="active">ACTIVE</option>
+                                    <option value="nonactive">NONACTIVE</option>
+                                </select>
+                                <small class="text-danger" id="errStatus"></small>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3">
+                            <div class="form-group mb-lg-0">
+                                <label for="activeProfesionalFee">Profesional Fee</label>
+                                <select class="form-control" id="activeProfesionalFee">
+                                    <option value="active">ACTIVE</option>
+                                    <option value="nonactive">NONACTIVE</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3">
+                            <div class="form-group mb-lg-0">
+                                <label for="activeSetPinjaman">Set Pinjaman</label>
+                                <select class="form-control" id="activeSetPinjaman">
+                                    <option value="active">ACTIVE</option>
+                                    <option value="nonactive">NONACTIVE</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3">
+                            <div class="form-group mb-md-0">
+                                <label for="activeTanggal">Aktif Tanggal</label>
+                                <input class="form-control" id="activeTanggal" type="number" min="0" value="0">
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3">
+                            <div class="form-group mb-0">
+                                <label for="maxPlafon">Maksimal Plafon</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend"><span class="input-group-text">Rp.</span></div>
+                                    <input class="form-control" id="maxPlafon" type="number" min="0" step="1" placeholder="0">
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label>Email Perusahaan</label>
-                            <input class="form-control" id="emailPerusahaan" placeholder="Email Perusahaan"
-                                type="email"></input>
-                            <small class="text-danger" id="errEmailPerusahaan"></small>
-                        </div>
+                </div>
+
+                {{-- 4. Lender & PKS --}}
+                <div class="form-section mb-0">
+                    <h6 class="form-section-title"><i class="mdi mdi-file-document-outline"></i> Lender &amp; PKS</h6>
+                    <div class="form-group">
+                        <label for="lenderSelect">Lender</label>
+                        <select class="form-control" id="lenderSelect">
+                            <option value="">Tanpa Lender</option>
+                            @foreach ($lenders as $lender)
+                            <option value="{{ $lender->id }}">{{ $lender->nama }}</option>
+                            @endforeach
+                        </select>
+                        <small class="text-danger" id="errLender"></small>
                     </div>
 
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label>Telepon</label>
-                            <input class="form-control" id="telepon" placeholder="62535252" type="number"></input>
-                            <small class="text-danger" id="errTelepon"></small>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label>Provinsi</label>
-                            <select class="form-control" id="provinsiSelect" style="width: 100%">
-                                <option disabled>Select</option>
-                                @foreach ($provinsis as $provinsi)
-                                <option value="{{ $provinsi->provinsi }}">{{ $provinsi->provinsi }}</option>
-                                @endforeach
-                            </select>
-                            <small class="text-danger" id="errProvinsi"></small>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label>Kabupaten / Kota</label>
-                            <select class="form-control" id="kabupatenSelect" style="width: 100%">
-                                <option disabled>Select</option>
-                            </select>
-                            <small class="text-danger" id="errKabupaten_kota"></small>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label>Kecamatan</label>
-                            <select class="form-control" id="kecamatanSelect" style="width: 100%">
-                                <option disabled>Select</option>
-                            </select>
-                            <small class="text-danger" id="errKecamatan"></small>
-                        </div>
-                    </div>
-
-
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label>Desa</label>
-                            <select class="form-control" id="desaSelect" style="width: 100%">
-                                <option disabled>Select</option>
-                            </select>
-                            <small class="text-danger" id="errDesa"></small>
-                        </div>
-                    </div>
-
-
-                    <div class="col-md-12">
-                        <div class="form-group">
-                            <label>Alamat Lengkap</label>
-                            <textarea class="form-control" id="alamatLengkap" style="height: 70px;"
-                                placeholder="Alamat Lengkap"></textarea>
-                            <small class="text-danger" id="errAlamatLengkap"></small>
-                        </div>
-                    </div>
-
-
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label>Payment Date</label>
-                            <select class="form-control" id="paymentDate" placeholder="Alamat Lengkap" type="date">
-                                <option value="1">1</option>
-                                <option value="2">2</option>
-                                <option value="3">3</option>
-                                <option value="4">4</option>
-                                <option value="5">5</option>
-                                <option value="6">6</option>
-                                <option value="7">7</option>
-                                <option value="8">8</option>
-                                <option value="9">9</option>
-                                <option value="10">10</option>
-                                <option value="11">11</option>
-                                <option value="12">12</option>
-                                <option value="13">13</option>
-                                <option value="14">14</option>
-                                <option value="15">15</option>
-                                <option value="16">16</option>
-                                <option value="17">17</option>
-                                <option value="18">18</option>
-                                <option value="19">19</option>
-                                <option value="20">20</option>
-                                <option value="21">21</option>
-                                <option value="22">22</option>
-                                <option value="23">23</option>
-                                <option value="24">24</option>
-                                <option value="25">25</option>
-                                <option value="26">26</option>
-                                <option value="27">27</option>
-                                <option value="28">28</option>
-                                <option value="29">29</option>
-                                <option value="30">30</option>
-                                <option value="31">31</option>
-                            </select>
-                            <small class="text-danger" id="errPaymentDate"></small>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label>H-Jatuh Tempo</label>
-                            <input class="form-control" id="hMinJatuhTempo" type="number" min="0" value="0">
-                            <small class="text-danger" id="errHMinJatuhTempo"></small>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label>Status</label>
-                            <select class="form-control" id="status">
-                                <option value="active">ACTIVE</option>
-                                <option value="nonactive">NONACTIVE</option>
-                            </select>
-                            <small class="text-danger" id="errStatus"></small>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label>Profesional Fee</label>
-                            <select class="form-control" id="activeProfesionalFee">
-                                <option value="active">ACTIVE</option>
-                                <option value="nonactive">NONACTIVE</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label>Set Pinjaman</label>
-                            <select class="form-control" id="activeSetPinjaman">
-                                <option value="active">ACTIVE</option>
-                                <option value="nonactive">NONACTIVE</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label>Aktif Tanggal</label>
-                            <input class="form-control" id="activeTanggal" type="number" min="0" value="0">
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label>Maksimal Plafon</label>
-                            <input class="form-control" id="maxPlafon" type="number" min="0" step="0.01">
-                        </div>
-                    </div>
-
-                    <div class="col-md-12">
-                        <div class="form-group">
-                            <label>Lender</label>
-                            <select class="form-control" id="lenderSelect">
-                                <option value="">Tanpa Lender</option>
-                                @foreach ($lenders as $lender)
-                                <option value="{{ $lender->id }}">{{ $lender->nama }}</option>
-                                @endforeach
-                            </select>
-                            <small class="text-danger" id="errLender"></small>
-                        </div>
-                    </div>
-                    <div class="col-md-12 text-right">
-                        <button type="button" class="btn btn-outline-info btn-sm mb-3" id="buttonTogglePksAdd">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <label class="mb-0">Daftar PKS</label>
+                        <button type="button" class="btn btn-outline-info btn-sm" id="buttonTogglePksAdd">
                             <i class="mdi mdi-plus-circle"></i> Tambah PKS
                         </button>
-                        <div id="pksCardsAdd">
-                        <div class="card border-info pks-card" id="cardPksAdd">
-                            <div class="card-body py-3 text-left">
-                                <h6 class="text-info text-left">Form PKS</h6>
-                                <div class="row text-left">
+                    </div>
+                    <div id="pksCardsAdd">
+                        <div class="card border pks-card mb-2" id="cardPksAdd">
+                            <div class="card-body py-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h6 class="text-info mb-0">Form PKS</h6>
+                                </div>
+                                <div class="row">
                                     <div class="col-md-6">
-                                        <div class="form-group mb-0">
+                                        <div class="form-group">
                                             <label for="featurePksAdd">Feature</label>
                                             <select class="form-control pks-feature" id="featurePksAdd">
                                                 <option value="">Pilih Feature</option>
@@ -375,45 +363,43 @@
                                         </div>
                                     </div>
                                     <div class="col-md-6">
-                                        <div class="form-group mb-0">
+                                        <div class="form-group">
                                             <label for="pksNumberAdd">Nomor PKS</label>
                                             <input class="form-control pks-number" id="pksNumberAdd" placeholder="012/KSPDUMI-FIT/VIII/2025"
                                                 type="text" maxlength="255">
                                             <small class="text-danger" id="errPksNumberAdd"></small>
                                         </div>
                                     </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group mb-0">
+                                    <div class="col-md-5">
+                                        <div class="form-group mb-md-0">
                                             <label for="pksDateAdd">Tanggal PKS</label>
                                             <input class="form-control pks-date" id="pksDateAdd" type="date">
                                             <small class="text-danger" id="errPksDateAdd"></small>
                                         </div>
                                     </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group mb-0">
+                                    <div class="col-md-5">
+                                        <div class="form-group mb-md-0">
                                             <label for="pksExpiredAtAdd">Tanggal Berakhir PKS</label>
                                             <input class="form-control pks-expired-at" id="pksExpiredAtAdd" type="date">
                                             <small class="text-danger" id="errPksExpiredAtAdd"></small>
                                         </div>
                                     </div>
-                                    <div class="col-md-6 mt-3">
-                                        <div class="custom-control custom-switch">
+                                    <div class="col-md-2 d-flex align-items-end">
+                                        <div class="custom-control custom-switch mb-2">
                                             <input class="custom-control-input pks-is-active" id="pksIsActiveAdd" type="checkbox" checked>
-                                            <label class="custom-control-label" for="pksIsActiveAdd">PKS Aktif</label>
+                                            <label class="custom-control-label" for="pksIsActiveAdd">Aktif</label>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        </div>
                     </div>
-
                 </div>
 
             </div>
             <div class="modal-footer">
-                <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                <button class="btn btn-primary" type="button" id="buttonSubmit">Save <div id="loadingText">
+                <button class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                <button class="btn btn-primary" type="button" id="buttonSubmit">Simpan <div id="loadingText">
                     </div></button>
             </div>
         </div>
