@@ -433,7 +433,8 @@ class TomiDanaController extends Controller
             'declaration' => 'accepted',
         ]);
 
-        $loan = pinjaman::where('id', $request->integer('id'))
+        $loan = pinjaman::with('data_karyawan')
+            ->where('id', $request->integer('id'))
             ->whereRaw('LOWER(TRIM(status_otp)) = ?', ['success'])
             ->whereRaw('LOWER(TRIM(ttd)) = ?', ['y'])
             ->whereRaw('LOWER(TRIM(status)) = ?', ['pending'])
@@ -446,14 +447,27 @@ class TomiDanaController extends Controller
             ], 422);
         }
 
+        $employee = $loan->data_karyawan;
+        if (! $employee || ! filled($employee->id_nama_bank) || ! filled($employee->nomor_bank)
+            || ! filled($employee->nama_rekening) || ! filled($loan->jumlah_yang_diterima)) {
+            return response()->json([
+                'status' => 422,
+                'message' => 'Data rekening atau nominal pencairan karyawan belum lengkap.',
+            ], 422);
+        }
+
         $proof = $request->file('transfer_proof');
         $proofName = 'transfer-proof-' . $loan->id . '-' . time() . '-' . Str::random(8) . '.' . $proof->getClientOriginalExtension();
         $proofPath = $proof->storeAs('assets/disbursements', $proofName);
 
-        DB::transaction(function () use ($loan, $request, $proofPath) {
+        DB::transaction(function () use ($loan, $employee, $request, $proofPath) {
             $disbursement = disbursement::where('pinjaman_id', $loan->id)->first() ?? new disbursement();
             $disbursement->pinjaman_id = $loan->id;
             $disbursement->admin_id = auth('admin')->id();
+            $disbursement->bank_id = $employee->id_nama_bank;
+            $disbursement->dana_yang_dicairkan = $loan->jumlah_yang_diterima;
+            $disbursement->atas_nama = $employee->nama_rekening;
+            $disbursement->nomor_rekening = $employee->nomor_bank;
             $disbursement->transfer_date = $request->input('transfer_date');
             $disbursement->transfer_proof = $proofPath;
             $disbursement->save();
