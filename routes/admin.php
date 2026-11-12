@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\InvoiceFeePageController;
 use App\Http\Controllers\Admin\InvoiceFeePdfController;
 use App\Http\Controllers\Admin\KspController;
 use App\Http\Controllers\Admin\LenderController;
+use App\Http\Controllers\Admin\LenderPageController;
 use App\Http\Controllers\Admin\MenuMobileController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\OtaController;
@@ -296,7 +297,7 @@ Route::middleware(['AdminMiddleware'])->group(
                 Route::post('/ksp/list/perusahaan/invoicing/table', [KspController::class, 'listPerusahaanInvoicingTable'])->name('admin.ksp.perusahaan.invoicing.table');
                 Route::get('/ksp/pengajuan/invoicing/pdf/{id}', [KspController::class, 'invoicingDownload'])->name('admin.ksp.invoicing.download');
                 // ksp => lender
-                Route::get('/ksp/lender', [LenderController::class, 'indexLender'])->name('admin.lender.index');
+                Route::get('/ksp/lender', [LenderPageController::class, 'index'])->name('admin.lender.index');
                 Route::post('/ksp/lender/add', [LenderController::class, 'addLender'])->name('admin.lender.add');
                 Route::post('/ksp/lender/table', [LenderController::class, 'lenderTable'])->name('admin.lender.table');
                 Route::post('/ksp/lender/pks/show', [LenderController::class, 'pksShow'])->name('admin.lender.pks.show');

@@ -35,10 +35,16 @@ class UpdateLenderRequest extends FormRequest
             'nomor_pks' => 'required',
             'bank' => 'required',
             'file_pks' => 'sometimes|nullable|mimes:pdf|max:5120',
-            'logoLender' => 'required|nullable|mimes:jpeg,jpg,png|max:2048',
+            'logoLender' => 'sometimes|nullable|mimes:jpeg,jpg,png|max:2048',
             'colorLender' => 'required',
             'an_rekening' => 'required',
             'no_rekening' => 'required|numeric',
+            'lender_features' => 'nullable|array',
+            'lender_features.*.feature_id' => 'required|exists:features,id',
+            'lender_features.*.pks_number' => 'nullable|string|max:255',
+            'lender_features.*.pks_date' => 'nullable|date',
+            'lender_features.*.pks_expired_at' => 'nullable|date|after_or_equal:lender_features.*.pks_date',
+            'lender_features.*.is_active' => 'nullable|boolean',
         ];
     }
 }

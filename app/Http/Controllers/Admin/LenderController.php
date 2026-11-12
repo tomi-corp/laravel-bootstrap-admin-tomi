@@ -19,6 +19,7 @@ use App\Models\kecamatan;
 use App\Models\kelurahan;
 use App\Models\kota;
 use App\Models\lender;
+use App\Models\LenderFeature;
 use App\Models\lender_update;
 use App\Models\pinjaman;
 use App\Models\provinsi;
@@ -28,6 +29,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -42,7 +44,7 @@ class LenderController extends Controller
             'provinsis' => $provinsis,
         ];
 
-        return view('admin.ksp.lender.index', compact('data'));
+        return view('admin.lender.index', compact('data'));
     }
 
     public function addLender(AddLenderRequest $req)
@@ -97,6 +99,7 @@ class LenderController extends Controller
         $lender->created_by = auth('admin')->user()->id;
 
         $lender->save();
+        $this->syncLenderFeatures($lender->id, $req->input('lender_features', []));
 
         return response()->json([
             'status' => 200,
@@ -178,20 +181,9 @@ class LenderController extends Controller
                 return $status;
             })
             ->addColumn('action', function ($row) {
-
-                if (isset($row->pendingApproval)) {
-                    $action = '<button class="btn btn-sm btn-primary mr-2 disabled" ><i class="mdi mdi-pencil"></i> </button>
-                    <button class="btn btn-sm btn-info mr-2" onclick="historyUpdate('.$row->id.')"><i class="mdi mdi-history"></i> </button>
-                    <button class="btn btn-sm btn-danger mr-2 disabled"><i class=" mdi mdi-trash-can"></i> </button>
-                    ';
-                } else {
-                    $action = '<button class="btn btn-sm btn-primary mr-2" onclick="editLender('.$row->id.')"><i class="mdi mdi-pencil"></i> </button>
-                    <button class="btn btn-sm btn-info mr-2" onclick="historyUpdate('.$row->id.')"><i class="mdi mdi-history"></i> </button>
-                    <button class="btn btn-sm btn-danger mr-2" onclick="deleteLender('.$row->id.')"><i class=" mdi mdi-trash-can"></i> </button>
-                    ';
-                }
-
-                return $action;
+                return '<button class="btn btn-sm btn-primary mr-2" onclick="editLender('.$row->id.')"><i class="mdi mdi-pencil"></i> </button>
+                <button class="btn btn-sm btn-info mr-2" onclick="historyUpdate('.$row->id.')"><i class="mdi mdi-history"></i> </button>
+                <button class="btn btn-sm btn-danger mr-2" onclick="deleteLender('.$row->id.')"><i class=" mdi mdi-trash-can"></i> </button>';
             })
 
             ->rawColumns(['action', 'status', 'pks', 'pendingApproval', 'logo'])
@@ -255,18 +247,22 @@ class LenderController extends Controller
             'desa',
         ])->first();
 
+        $detail = (new DetailLenderResource($lender))->resolve();
+        $detail['lender_features'] = Schema::hasTable('lender_features')
+            ? LenderFeature::where('lender_id', $lender->id)
+                ->get(['feature_id', 'pks_number', 'pks_date', 'pks_expired_at', 'is_active'])
+            : [];
+
         return response()->json([
             'status' => 200,
-            'data' => new DetailLenderResource($lender),
+            'data' => $detail,
         ], 200);
     }
 
     public function updateLender(UpdateLenderRequest $req)
     {
         $lender = lender::where('id', $req->id)->first();
-        $oldData = $lender->getOriginal();
 
-        // Lakukan perubahan pada model (sebelum disimpan ke database)
         $lender->pic_lender = $req->pic_lender;
         $lender->pic_internal = $req->pic_internal;
         $lender->nama = $req->nama_lender;
@@ -282,6 +278,12 @@ class LenderController extends Controller
             $path = $file->storeAs('pks_lender', $filename);
             $lender->file_pks = $filename;
             $lender->last_update_file_pks = Carbon::now()->format('Y-m-d');
+        }
+
+        if ($req->hasFile('logoLender')) {
+            $imageName = time().'_'.$req->nama_lender.'.'.$req->file('logoLender')->extension();
+            $req->file('logoLender')->move(public_path('assets/images'), $imageName);
+            $lender->logo = $imageName;
         }
 
         $provinsi = provinsi::where('provinsi', $req->provinsi)->first();
@@ -300,30 +302,44 @@ class LenderController extends Controller
         $lender->id_bank = $req->bank;
         $lender->nama_rekening = $req->an_rekening;
         $lender->no_rekening = $req->no_rekening;
-        $lender->update_by = auth('admin')->user()->id;
-
-        // Dapatkan data yang diubah (hanya kolom yang berubah)
-        $changedData = $lender->getDirty();
-
-        // Gabungkan oldData dan newData ke dalam satu array untuk JSON
-        $logData = [
-            'old_data' => array_intersect_key($oldData, $changedData), // Ambil data lama hanya untuk kolom yang berubah
-            'new_data' => $changedData,
-        ];
-
-        // Simpan data perubahan ke tabel sementara
-        $lender_updates = new lender_update;
-        $lender_updates->lender_id = $lender->id;
-        $lender_updates->new_data = json_encode($logData);
-        $lender_updates->requester_id = auth('admin')->user()->id;
-        $lender_updates->status_pertama = 'pending';
-        $lender_updates->status_kedua = 'pending';
-        $lender_updates->save();
+        $lender->save();
+        $this->syncLenderFeatures($lender->id, $req->input('lender_features', []));
 
         return response()->json([
             'status' => 200,
-            'message' => 'Request Update Lender Berhasil, Harap menunggu approval',
+            'message' => 'Data lender berhasil diperbarui.',
         ], 200);
+    }
+
+    private function syncLenderFeatures(int $lenderId, array $features): void
+    {
+        if (! Schema::hasTable('lender_features')) {
+            return;
+        }
+
+        $features = collect($features)->filter(fn ($feature) => ! empty($feature['feature_id']));
+        $featureIds = $features->pluck('feature_id')->values()->all();
+
+        LenderFeature::where('lender_id', $lenderId)
+            ->when($featureIds, fn ($query) => $query->whereNotIn('feature_id', $featureIds))
+            ->delete();
+
+        foreach ($features as $feature) {
+            $lenderFeature = LenderFeature::withTrashed()->firstOrNew([
+                'lender_id' => $lenderId,
+                'feature_id' => $feature['feature_id'],
+            ]);
+            $lenderFeature->fill([
+                'pks_number' => $feature['pks_number'] ?? null,
+                'pks_date' => $feature['pks_date'] ?? null,
+                'pks_expired_at' => $feature['pks_expired_at'] ?? null,
+                'is_active' => (bool) ($feature['is_active'] ?? true),
+            ]);
+            if ($lenderFeature->exists && $lenderFeature->trashed()) {
+                $lenderFeature->restore();
+            }
+            $lenderFeature->save();
+        }
     }
 
     public function deleteLender(Request $req)

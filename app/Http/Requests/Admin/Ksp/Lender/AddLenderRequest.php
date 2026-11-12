@@ -39,6 +39,12 @@ class AddLenderRequest extends FormRequest
             'colorLender' => 'required',
             'an_rekening' => 'required',
             'no_rekening' => 'required|numeric',
+            'lender_features' => 'nullable|array',
+            'lender_features.*.feature_id' => 'required|exists:features,id',
+            'lender_features.*.pks_number' => 'nullable|string|max:255',
+            'lender_features.*.pks_date' => 'nullable|date',
+            'lender_features.*.pks_expired_at' => 'nullable|date|after_or_equal:lender_features.*.pks_date',
+            'lender_features.*.is_active' => 'nullable|boolean',
         ];
     }
 }

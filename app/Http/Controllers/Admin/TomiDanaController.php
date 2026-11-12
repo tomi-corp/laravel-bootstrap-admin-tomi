@@ -1237,6 +1237,9 @@ class TomiDanaController extends Controller
     public function companies()
     {
         $provinsis = provinsi::get();
+        $features = Schema::hasTable('features')
+            ? DB::table('features')->whereNull('deleted_at')->orderBy('id')->get(['id', 'name'])
+            : collect();
         $perusahaan = ListPerusahaan::query()
             ->whereExists(function ($query) {
                 $query->select(DB::raw(1))
@@ -1253,6 +1256,7 @@ class TomiDanaController extends Controller
         return view('admin.tomi-dana.companies.index', [
             'provinsis' => $provinsis,
             'lenders' => lender::select('id', 'nama')->orderBy('nama')->get(),
+            'features' => $features,
             'perusahaanTidakAktif' => $perusahaan->where('status', 'nonactive')->count(),
             'perusahaanAktif' => $perusahaan->where('status', 'active')->count(),
         ]);
