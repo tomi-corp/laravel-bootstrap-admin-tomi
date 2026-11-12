@@ -3,12 +3,8 @@
 @section('title', $isTomiDana ? 'Perusahaan TomiDana' : 'Koperasi Simpan Pinjam')
 @push('css')
 <style>
-    #modalAdd .form-section { border: 1px solid #e9ecef; border-radius: 6px; padding: 16px 16px 12px; margin-bottom: 16px; background: #fff; }
-    #modalAdd .form-section-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; color: #188ae2; border-bottom: 1px dashed #e9ecef; padding-bottom: 8px; margin-bottom: 14px; }
-    #modalAdd .form-section-title i { margin-right: 4px; }
-    #modalAdd label { font-weight: 600; font-size: 13px; }
+    #modalAdd label { font-weight: 600; }
     #modalAdd .pks-card { background: #f8f9fa; }
-    #modalAdd .modal-body { background: #f5f6f8; }
 </style>
 @endpush
 @section('content')
@@ -146,248 +142,225 @@
 
 {{-- modal tambah --}}
 <div class="modal fade" id="modalAdd" role="dialog" aria-labelledby="modalAddTitle" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modalAddTitle"><i class="mdi mdi-domain mr-1"></i> Tambah Perusahaan</h5>
+                <h5 class="modal-title" id="modalAddTitle">Tambah Perusahaan</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Tutup"><span aria-hidden="true">&times;</span></button>
             </div>
             <div class="modal-body">
-
-                {{-- 1. Informasi Perusahaan --}}
-                <div class="form-section">
-                    <h6 class="form-section-title"><i class="mdi mdi-card-account-details-outline"></i> Informasi Perusahaan</h6>
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label for="namaPerusahaan">Nama Perusahaan <span class="text-danger">*</span></label>
-                                <input class="form-control" id="namaPerusahaan" placeholder="NAMA PERUSAHAAN">
-                                <small class="text-danger" id="errNamaPerusahaan"></small>
-                            </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="namaPerusahaan">Nama Perusahaan <span class="text-danger">*</span></label>
+                            <input class="form-control" id="namaPerusahaan" placeholder="NAMA PERUSAHAAN">
+                            <small class="text-danger" id="errNamaPerusahaan"></small>
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="namaPicPerusahaan">Nama PIC Perusahaan <span class="text-danger">*</span></label>
-                                <input class="form-control" id="namaPicPerusahaan" placeholder="NAMA PIC PERUSAHAAN">
-                                <small class="text-danger" id="errNamaPicPerusahaan"></small>
-                            </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="emailPerusahaan">Email Perusahaan <span class="text-danger">*</span></label>
+                            <input class="form-control" id="emailPerusahaan" placeholder="email@perusahaan.com" type="email">
+                            <small class="text-danger" id="errEmailPerusahaan"></small>
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="namaPicInternal">Nama PIC HC / HRD <span class="text-danger">*</span></label>
-                                <input class="form-control" id="namaPicInternal" placeholder="NAMA PIC HC / HRD">
-                                <small class="text-danger" id="errNamaPicInternal"></small>
-                            </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="namaPicPerusahaan">Nama PIC Perusahaan <span class="text-danger">*</span></label>
+                            <input class="form-control" id="namaPicPerusahaan" placeholder="NAMA PIC PERUSAHAAN">
+                            <small class="text-danger" id="errNamaPicPerusahaan"></small>
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group mb-md-0">
-                                <label for="emailPerusahaan">Email Perusahaan <span class="text-danger">*</span></label>
-                                <input class="form-control" id="emailPerusahaan" placeholder="email@perusahaan.com" type="email">
-                                <small class="text-danger" id="errEmailPerusahaan"></small>
-                            </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="namaPicInternal">Nama PIC HC / HRD <span class="text-danger">*</span></label>
+                            <input class="form-control" id="namaPicInternal" placeholder="NAMA PIC HC / HRD">
+                            <small class="text-danger" id="errNamaPicInternal"></small>
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group mb-0">
-                                <label for="telepon">Telepon <span class="text-danger">*</span></label>
-                                <input class="form-control" id="telepon" placeholder="628123456789" type="number">
-                                <small class="text-danger" id="errTelepon"></small>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="telepon">Telepon <span class="text-danger">*</span></label>
+                            <input class="form-control" id="telepon" placeholder="628123456789" type="number">
+                            <small class="text-danger" id="errTelepon"></small>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="status">Status</label>
+                            <select class="form-control" id="status">
+                                <option value="active">ACTIVE</option>
+                                <option value="nonactive">NONACTIVE</option>
+                            </select>
+                            <small class="text-danger" id="errStatus"></small>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="provinsiSelect">Provinsi <span class="text-danger">*</span></label>
+                            <select class="form-control" id="provinsiSelect" style="width: 100%">
+                                <option disabled>Select</option>
+                                @foreach ($provinsis as $provinsi)
+                                <option value="{{ $provinsi->provinsi }}">{{ $provinsi->provinsi }}</option>
+                                @endforeach
+                            </select>
+                            <small class="text-danger" id="errProvinsi"></small>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="kabupatenSelect">Kabupaten / Kota <span class="text-danger">*</span></label>
+                            <select class="form-control" id="kabupatenSelect" style="width: 100%">
+                                <option disabled>Select</option>
+                            </select>
+                            <small class="text-danger" id="errKabupaten_kota"></small>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="kecamatanSelect">Kecamatan <span class="text-danger">*</span></label>
+                            <select class="form-control" id="kecamatanSelect" style="width: 100%">
+                                <option disabled>Select</option>
+                            </select>
+                            <small class="text-danger" id="errKecamatan"></small>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="desaSelect">Desa <span class="text-danger">*</span></label>
+                            <select class="form-control" id="desaSelect" style="width: 100%">
+                                <option disabled>Select</option>
+                            </select>
+                            <small class="text-danger" id="errDesa"></small>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="alamatLengkap">Alamat Lengkap <span class="text-danger">*</span></label>
+                            <textarea class="form-control" id="alamatLengkap" rows="3" placeholder="NAMA JALAN, NOMOR, RT/RW"></textarea>
+                            <small class="text-danger" id="errAlamatLengkap"></small>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="paymentDate">Payment Date <span class="text-danger">*</span></label>
+                            <select class="form-control" id="paymentDate">
+                                @for ($day = 1; $day <= 31; $day++)
+                                <option value="{{ $day }}">TANGGAL {{ $day }}</option>
+                                @endfor
+                            </select>
+                            <small class="text-danger" id="errPaymentDate"></small>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="hMinJatuhTempo">H-Jatuh Tempo</label>
+                            <div class="input-group">
+                                <input class="form-control" id="hMinJatuhTempo" type="number" min="0" value="0">
+                                <div class="input-group-append"><span class="input-group-text">HARI</span></div>
+                            </div>
+                            <small class="text-danger" id="errHMinJatuhTempo"></small>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="activeProfesionalFee">Profesional Fee</label>
+                            <select class="form-control" id="activeProfesionalFee">
+                                <option value="active">ACTIVE</option>
+                                <option value="nonactive">NONACTIVE</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="activeSetPinjaman">Set Pinjaman</label>
+                            <select class="form-control" id="activeSetPinjaman">
+                                <option value="active">ACTIVE</option>
+                                <option value="nonactive">NONACTIVE</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="activeTanggal">Aktif Tanggal</label>
+                            <input class="form-control" id="activeTanggal" type="number" min="0" value="0">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="maxPlafon">Maksimal Plafon</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend"><span class="input-group-text">Rp.</span></div>
+                                <input class="form-control" id="maxPlafon" type="number" min="0" step="1" placeholder="0">
                             </div>
                         </div>
                     </div>
-                </div>
-
-                {{-- 2. Alamat --}}
-                <div class="form-section">
-                    <h6 class="form-section-title"><i class="mdi mdi-map-marker-outline"></i> Alamat Perusahaan</h6>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="provinsiSelect">Provinsi <span class="text-danger">*</span></label>
-                                <select class="form-control" id="provinsiSelect" style="width: 100%">
-                                    <option disabled>Select</option>
-                                    @foreach ($provinsis as $provinsi)
-                                    <option value="{{ $provinsi->provinsi }}">{{ $provinsi->provinsi }}</option>
-                                    @endforeach
-                                </select>
-                                <small class="text-danger" id="errProvinsi"></small>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="kabupatenSelect">Kabupaten / Kota <span class="text-danger">*</span></label>
-                                <select class="form-control" id="kabupatenSelect" style="width: 100%">
-                                    <option disabled>Select</option>
-                                </select>
-                                <small class="text-danger" id="errKabupaten_kota"></small>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="kecamatanSelect">Kecamatan <span class="text-danger">*</span></label>
-                                <select class="form-control" id="kecamatanSelect" style="width: 100%">
-                                    <option disabled>Select</option>
-                                </select>
-                                <small class="text-danger" id="errKecamatan"></small>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="desaSelect">Desa <span class="text-danger">*</span></label>
-                                <select class="form-control" id="desaSelect" style="width: 100%">
-                                    <option disabled>Select</option>
-                                </select>
-                                <small class="text-danger" id="errDesa"></small>
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <div class="form-group mb-0">
-                                <label for="alamatLengkap">Alamat Lengkap <span class="text-danger">*</span></label>
-                                <textarea class="form-control" id="alamatLengkap" rows="3"
-                                    placeholder="NAMA JALAN, NOMOR, RT/RW"></textarea>
-                                <small class="text-danger" id="errAlamatLengkap"></small>
-                            </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="lenderSelect">Lender</label>
+                            <select class="form-control" id="lenderSelect">
+                                <option value="">Tanpa Lender</option>
+                                @foreach ($lenders as $lender)
+                                <option value="{{ $lender->id }}">{{ $lender->nama }}</option>
+                                @endforeach
+                            </select>
+                            <small class="text-danger" id="errLender"></small>
                         </div>
                     </div>
-                </div>
-
-                {{-- 3. Pembayaran & Konfigurasi --}}
-                <div class="form-section">
-                    <h6 class="form-section-title"><i class="mdi mdi-cog-outline"></i> Pembayaran &amp; Konfigurasi Pinjaman</h6>
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label for="paymentDate">Payment Date <span class="text-danger">*</span></label>
-                                <select class="form-control" id="paymentDate">
-                                    @for ($day = 1; $day <= 31; $day++)
-                                    <option value="{{ $day }}">TANGGAL {{ $day }}</option>
-                                    @endfor
-                                </select>
-                                <small class="text-danger" id="errPaymentDate"></small>
-                            </div>
+                    <div class="col-md-12">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <label class="mb-0">Daftar PKS</label>
+                            <button type="button" class="btn btn-outline-info btn-sm" id="buttonTogglePksAdd">
+                                <i class="mdi mdi-plus-circle"></i> Tambah PKS
+                            </button>
                         </div>
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label for="hMinJatuhTempo">H-Jatuh Tempo</label>
-                                <div class="input-group">
-                                    <input class="form-control" id="hMinJatuhTempo" type="number" min="0" value="0">
-                                    <div class="input-group-append"><span class="input-group-text">HARI</span></div>
-                                </div>
-                                <small class="text-danger" id="errHMinJatuhTempo"></small>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label for="status">Status</label>
-                                <select class="form-control" id="status">
-                                    <option value="active">ACTIVE</option>
-                                    <option value="nonactive">NONACTIVE</option>
-                                </select>
-                                <small class="text-danger" id="errStatus"></small>
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-lg-3">
-                            <div class="form-group mb-lg-0">
-                                <label for="activeProfesionalFee">Profesional Fee</label>
-                                <select class="form-control" id="activeProfesionalFee">
-                                    <option value="active">ACTIVE</option>
-                                    <option value="nonactive">NONACTIVE</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-lg-3">
-                            <div class="form-group mb-lg-0">
-                                <label for="activeSetPinjaman">Set Pinjaman</label>
-                                <select class="form-control" id="activeSetPinjaman">
-                                    <option value="active">ACTIVE</option>
-                                    <option value="nonactive">NONACTIVE</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-lg-3">
-                            <div class="form-group mb-md-0">
-                                <label for="activeTanggal">Aktif Tanggal</label>
-                                <input class="form-control" id="activeTanggal" type="number" min="0" value="0">
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-lg-3">
-                            <div class="form-group mb-0">
-                                <label for="maxPlafon">Maksimal Plafon</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend"><span class="input-group-text">Rp.</span></div>
-                                    <input class="form-control" id="maxPlafon" type="number" min="0" step="1" placeholder="0">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- 4. Lender & PKS --}}
-                <div class="form-section mb-0">
-                    <h6 class="form-section-title"><i class="mdi mdi-file-document-outline"></i> Lender &amp; PKS</h6>
-                    <div class="form-group">
-                        <label for="lenderSelect">Lender</label>
-                        <select class="form-control" id="lenderSelect">
-                            <option value="">Tanpa Lender</option>
-                            @foreach ($lenders as $lender)
-                            <option value="{{ $lender->id }}">{{ $lender->nama }}</option>
-                            @endforeach
-                        </select>
-                        <small class="text-danger" id="errLender"></small>
-                    </div>
-
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <label class="mb-0">Daftar PKS</label>
-                        <button type="button" class="btn btn-outline-info btn-sm" id="buttonTogglePksAdd">
-                            <i class="mdi mdi-plus-circle"></i> Tambah PKS
-                        </button>
-                    </div>
-                    <div id="pksCardsAdd">
-                        <div class="card border pks-card mb-2" id="cardPksAdd">
-                            <div class="card-body py-3">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <h6 class="text-info mb-0">Form PKS</h6>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="featurePksAdd">Feature</label>
-                                            <select class="form-control pks-feature" id="featurePksAdd">
-                                                <option value="">Pilih Feature</option>
-                                                @forelse ($features as $feature)
-                                                    <option value="{{ $feature->id }}">{{ $feature->name }}</option>
-                                                @empty
-                                                    <option value="" disabled>Feature belum tersedia</option>
-                                                @endforelse
-                                            </select>
-                                            <small class="text-danger" id="errFeaturePksAdd"></small>
-                                        </div>
+                        <div id="pksCardsAdd">
+                            <div class="card border pks-card mb-2" id="cardPksAdd">
+                                <div class="card-body py-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <h6 class="text-info mb-0">Form PKS</h6>
                                     </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="pksNumberAdd">Nomor PKS</label>
-                                            <input class="form-control pks-number" id="pksNumberAdd" placeholder="012/KSPDUMI-FIT/VIII/2025"
-                                                type="text" maxlength="255">
-                                            <small class="text-danger" id="errPksNumberAdd"></small>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="featurePksAdd">Feature</label>
+                                                <select class="form-control pks-feature" id="featurePksAdd">
+                                                    <option value="">Pilih Feature</option>
+                                                    @forelse ($features as $feature)
+                                                        <option value="{{ $feature->id }}">{{ $feature->name }}</option>
+                                                    @empty
+                                                        <option value="" disabled>Feature belum tersedia</option>
+                                                    @endforelse
+                                                </select>
+                                                <small class="text-danger" id="errFeaturePksAdd"></small>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="col-md-5">
-                                        <div class="form-group mb-md-0">
-                                            <label for="pksDateAdd">Tanggal PKS</label>
-                                            <input class="form-control pks-date" id="pksDateAdd" type="date">
-                                            <small class="text-danger" id="errPksDateAdd"></small>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="pksNumberAdd">Nomor PKS</label>
+                                                <input class="form-control pks-number" id="pksNumberAdd" placeholder="012/KSPDUMI-FIT/VIII/2025" type="text" maxlength="255">
+                                                <small class="text-danger" id="errPksNumberAdd"></small>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="col-md-5">
-                                        <div class="form-group mb-md-0">
-                                            <label for="pksExpiredAtAdd">Tanggal Berakhir PKS</label>
-                                            <input class="form-control pks-expired-at" id="pksExpiredAtAdd" type="date">
-                                            <small class="text-danger" id="errPksExpiredAtAdd"></small>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="pksDateAdd">Tanggal PKS</label>
+                                                <input class="form-control pks-date" id="pksDateAdd" type="date">
+                                                <small class="text-danger" id="errPksDateAdd"></small>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="col-md-2 d-flex align-items-end">
-                                        <div class="custom-control custom-switch mb-2">
-                                            <input class="custom-control-input pks-is-active" id="pksIsActiveAdd" type="checkbox" checked>
-                                            <label class="custom-control-label" for="pksIsActiveAdd">Aktif</label>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="pksExpiredAtAdd">Tanggal Berakhir PKS</label>
+                                                <input class="form-control pks-expired-at" id="pksExpiredAtAdd" type="date">
+                                                <small class="text-danger" id="errPksExpiredAtAdd"></small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="custom-control custom-switch">
+                                                <input class="custom-control-input pks-is-active" id="pksIsActiveAdd" type="checkbox" checked>
+                                                <label class="custom-control-label" for="pksIsActiveAdd">PKS Aktif</label>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -395,7 +368,6 @@
                         </div>
                     </div>
                 </div>
-
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" data-dismiss="modal">Batal</button>
