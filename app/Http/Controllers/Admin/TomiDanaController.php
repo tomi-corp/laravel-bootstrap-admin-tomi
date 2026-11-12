@@ -360,8 +360,8 @@ class TomiDanaController extends Controller
                 return '<a href="' . route('admin.tomi-dana.disbursements.evidence', [$row->id, 'ktp']) . '" target="_blank" class="btn btn-sm btn-outline-info" title="Lihat KTP"><i class="mdi mdi-account-box-outline"></i></a>';
             })
             ->addColumn('selfie', function ($row) {
-                $path = $this->evidencePath('assets/users', $row->user?->privy?->local_selfie_path)
-                    ?? $this->evidencePath('assets/users', $row->user?->kyc?->selfie);
+                $path = $this->evidencePath('assets/image', $row->user?->privy?->local_selfie_path)
+                    ?? $this->evidencePath('assets/image', $row->user?->kyc?->selfie);
 
                 return $path
                     ? '<a href="' . route('admin.tomi-dana.disbursements.evidence', [$row->id, 'selfie']) . '" target="_blank" class="btn btn-sm btn-outline-info" title="Lihat selfie"><i class="mdi mdi-camera-outline"></i></a>'
@@ -403,10 +403,10 @@ class TomiDanaController extends Controller
 
         $path = match ($type) {
             'tte' => $this->evidencePath('assets/pk', $loan->document_name),
-            'ktp' => $this->evidencePath('assets/users', $loan->user?->privy?->local_ktp_path)
-                ?? $this->evidencePath('assets/users', $loan->user?->kyc?->ktp),
-            'selfie' => $this->evidencePath('assets/users', $loan->user?->privy?->local_selfie_path)
-                ?? $this->evidencePath('assets/users', $loan->user?->kyc?->selfie),
+            'ktp' => $this->evidencePath('assets/image', $loan->user?->privy?->local_ktp_path)
+                ?? $this->evidencePath('assets/image', $loan->user?->kyc?->ktp),
+            'selfie' => $this->evidencePath('assets/image', $loan->user?->privy?->local_selfie_path)
+                ?? $this->evidencePath('assets/image', $loan->user?->kyc?->selfie),
         };
 
         abort_if(blank($path), 404, 'Bukti dokumen tidak tersedia.');
