@@ -278,11 +278,18 @@
             ]
         });
 
+        function togglePriorityColumn() {
+            var showPriority = statusTab === 'belum_diproses';
+            table.column(1).visible(showPriority, false);
+            table.columns.adjust();
+        }
+
         $('#disbursementStatusTabs').on('click', '[data-status-tab]', function (event) {
             event.preventDefault();
             statusTab = $(this).data('status-tab');
             $('#disbursementStatusTabs .nav-link').removeClass('active');
             $(this).addClass('active');
+            togglePriorityColumn();
             table.ajax.reload();
         });
 
