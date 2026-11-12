@@ -453,6 +453,7 @@ class TomiDanaController extends Controller
         DB::transaction(function () use ($loan, $request, $proofPath) {
             $disbursement = disbursement::where('pinjaman_id', $loan->id)->first() ?? new disbursement();
             $disbursement->pinjaman_id = $loan->id;
+            $disbursement->admin_id = auth('admin')->id();
             $disbursement->transfer_date = $request->input('transfer_date');
             $disbursement->transfer_proof = $proofPath;
             $disbursement->save();
