@@ -117,7 +117,7 @@
     <div class="payment-summary clearfix">
         <div class="payment-info">
             <div class="payment-title">Noted:</div>
-            <div>Harap segera dibayarkan tagihan sesuai invoice terlampir maksimum tanggal {{ strtoupper($invoice->batas_pembayaran) }} ke rekening bank berikut:</div>
+            <div>Harap segera dibayarkan tagihan sesuai invoice terlampir maksimum tanggal {{ $invoice->batas_pembayaran }} ke rekening bank berikut:</div>
             <table class="bank-details">
                 <tr>
                     <td>BANK</td>
