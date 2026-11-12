@@ -327,7 +327,7 @@
             $(this).attr('href', invoiceUrl.toString());
         });
 
-        $('.edit-invoice-payment').on('click', function () {
+        $(document).on('click', '.edit-invoice-payment', function () {
             const button = $(this);
             $('#invoicePaymentForm')[0].reset();
             $('#paymentInvoiceId').val(button.data('invoice-id'));
