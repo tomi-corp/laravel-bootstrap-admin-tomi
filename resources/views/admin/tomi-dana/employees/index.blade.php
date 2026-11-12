@@ -29,9 +29,6 @@
                     <button type="button" class="btn btn-success mr-1 mb-1" data-toggle="modal" data-target="#importEmployeeModal">
                         <i class="mdi mdi-file-excel mr-1"></i>Impor Excel
                     </button>
-                    <button type="button" class="btn btn-primary mb-1" onclick="openEmployeeModal()">
-                        <i class="mdi mdi-plus mr-1"></i>Tambah Karyawan
-                    </button>
                 </div>
             @endif
         </div>
@@ -46,7 +43,6 @@
                         <th>NIP</th>
                         <th>WhatsApp</th>
                         <th>Status</th>
-                        <th>Aksi</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
@@ -150,8 +146,7 @@
                 { data: 'nik', name: 'nik', defaultContent: '-' },
                 { data: 'nip', name: 'nip', defaultContent: '-' },
                 { data: 'whatsapp', name: 'whatsapp', defaultContent: '-' },
-                { data: 'status_label', name: 'status', orderable: false, searchable: false, defaultContent: '-' },
-                { data: 'action', name: 'action', orderable: false, searchable: false, defaultContent: '-' }
+                { data: 'status_label', name: 'status', orderable: false, searchable: false, defaultContent: '-' }
             ]
         });
 
