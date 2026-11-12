@@ -257,10 +257,13 @@ Get-ChildItem -Force .env*
 
 ## Aturan Branch dan Commit
 
-- Setiap pekerjaan fitur, perubahan perilaku, perbaikan bug, refactor, atau perubahan konfigurasi harus dimulai dengan membuat branch baru dari branch dasar yang sedang ditentukan. Jangan mengerjakan perubahan langsung di `main`, `master`, atau branch fitur lain yang sudah ada.
-- Gunakan nama branch yang singkat dan deskriptif dengan pola seperti `feature/nama-fitur`, `fix/nama-bug`, `refactor/nama-area`, atau `chore/nama-pekerjaan`.
-- Sebelum membuat branch, periksa status dan branch aktif menggunakan `git status` serta pastikan perubahan milik pengguna tidak ikut terbawa atau tertimpa. Jangan menghapus, mereset, atau meng-commit perubahan yang tidak terkait tanpa instruksi eksplisit.
+- Secara default, kerjakan dan commit perubahan di branch yang sedang aktif. Jangan membuat branch baru untuk setiap permintaan.
+- Buat branch baru hanya jika:
+  - user eksplisit meminta branch baru, atau
+  - branch aktif adalah `main` atau `master` (jangan commit langsung ke branch utama).
+- Jika branch baru dibuat, gunakan nama yang singkat dan deskriptif dengan pola seperti `feature/nama-fitur`, `fix/nama-bug`, `refactor/nama-area`, atau `chore/nama-pekerjaan`.
+- Sebelum mulai bekerja, periksa status dan branch aktif menggunakan `git status` serta pastikan perubahan milik pengguna tidak ikut terbawa atau tertimpa. Jangan menghapus, mereset, atau meng-commit perubahan yang tidak terkait tanpa instruksi eksplisit.
 - Commit setiap proses atau unit kerja yang bermakna setelah perubahan tersebut selesai dan diverifikasi. Hindari menumpuk seluruh pekerjaan hingga akhir dalam satu commit besar.
 - Gunakan pesan commit yang jelas dan konsisten, misalnya `feat: tambah fitur`, `fix: perbaiki validasi`, atau `test: tambah pengujian`.
 - Sebelum setiap commit, tinjau `git diff` dan `git status`, jalankan validasi atau test yang relevan, lalu commit hanya file yang terkait dengan unit kerja tersebut.
-- Setelah pekerjaan selesai, pastikan seluruh perubahan fitur tercatat dalam commit di branch baru. Jangan melakukan merge, push, atau menghapus branch tanpa instruksi pengguna.
+- Setelah pekerjaan selesai, pastikan seluruh perubahan tercatat dalam commit di branch yang dipakai. Jangan melakukan merge, push, atau menghapus branch tanpa instruksi pengguna.
