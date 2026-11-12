@@ -482,6 +482,28 @@ class TomiDanaController extends Controller
         ]);
     }
 
+    public function updateLenderInvoicePayment(Request $request)
+    {
+        $data = $request->validate([
+            'id' => 'required|integer|exists:history_invoicing_lenders,id',
+            'tanggal' => 'required|date|date_format:Y-m-d\\TH:i',
+            'bukti_transfer' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'pernyataan' => 'accepted',
+        ]);
+
+        $invoice = history_invoicing_lender::findOrFail($data['id']);
+        $invoice->status = 'lunas';
+        $invoice->tanggal_pembayaran = $data['tanggal'];
+        $invoice->bukti_transfer = $request->file('bukti_transfer')->store('assets/invoice-lender');
+        $invoice->update_by = auth('admin')->id();
+        $invoice->save();
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Pembayaran invoice berhasil disimpan.',
+        ]);
+    }
+
     public function repayments(Request $request, ?int $companyId = null)
     {
         if ($companyId === null) {

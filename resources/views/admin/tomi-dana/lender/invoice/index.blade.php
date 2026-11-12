@@ -345,7 +345,7 @@
             submitButton.prop('disabled', true);
 
             $.ajax({
-                url: '{{ route('admin.lender.invoicing.pending.update') }}',
+                url: '{{ route('admin.tomi-dana.lender.invoice.payment') }}',
                 type: 'POST',
                 data: formData,
                 processData: false,

@@ -68,6 +68,8 @@ Route::middleware(['AdminMiddleware'])->group(
                     ->name('admin.application-history.table');
                 Route::get('/tomi-dana/lender/invoice', [TomiDanaController::class, 'lenderInvoiceDashboard'])
                     ->name('admin.tomi-dana.lender.invoice');
+                Route::post('/tomi-dana/lender/invoice/payment', [TomiDanaController::class, 'updateLenderInvoicePayment'])
+                    ->name('admin.tomi-dana.lender.invoice.payment');
                 Route::get('/lender/dashboard', function () {
                     return view('lender.dashboard.index');
                 })->name('lender.dashboard.index');
