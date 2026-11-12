@@ -34,7 +34,8 @@ class TomiDanaEmployeeImport implements ToCollection, WithHeadingRow
             $employee->departement = $row['departemen'] ?? $row['departement'] ?? null;
             $employee->jabatan = $row['jabatan'] ?? null;
             $employee->status = $row['status'] ?? 'active';
-            $employee->status_sp = $row['status_sp'] ?? null;
+            $statusSp = $row['status_sp'] ?? null;
+            $employee->status_sp = $statusSp === null ? null : (string) $statusSp;
             $employee->nama_rekening = $row['nama_rekening'] ?? null;
             $employee->nomor_bank = $row['nomor_bank'] ?? null;
             $employee->max_plafon = $row['max_plafon'] ?? null;
