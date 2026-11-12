@@ -1106,6 +1106,8 @@ class TomiDanaController extends Controller
             'periode' => $month->locale('id')->translatedFormat('F Y'),
             'periode_mulai' => $month->copy()->startOfMonth()->format('Y-m-d'),
             'periode_selesai' => $month->copy()->endOfMonth()->format('Y-m-d'),
+            // Batas pembayaran: H+3 dari tanggal 1 bulan berikutnya setelah periode invoice.
+            'batas_pembayaran' => $month->copy()->startOfMonth()->addMonthNoOverflow()->addDays(3)->locale('id')->translatedFormat('j F Y'),
             'lender' => $selectedLender?->nama ?? 'Seluruh Lender',
             'lender_code' => $selectedLender?->id_code_lender ?? '-',
         ];
