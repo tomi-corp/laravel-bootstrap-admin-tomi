@@ -21,8 +21,8 @@
     <div class="card-body">
         <h4 class="header-title">Daftar Lender TomiDana</h4>
         <p class="text-muted">Daftar lender yang memiliki fitur TomiDana pada pengaturan fitur lender.</p>
-        <div class="table-responsive">
-            <table id="tableLenderTomiDana" class="table table-hover table-striped text-center" style="width:100%">
+        <div>
+            <table id="tableLenderTomiDana" class="table table-hover table-striped text-center nowrap" style="width:100%">
                 <thead>
                     <tr>
                         <th>No</th>
@@ -52,7 +52,6 @@
         lenderTable = $('#tableLenderTomiDana').DataTable({
             processing: true,
             serverSide: true,
-            responsive: true,
             scrollX: true,
             scrollCollapse: true,
             dom: 'B<"row mt-2"<"col-md-6"l><"col-md-6"f>>rtip',
