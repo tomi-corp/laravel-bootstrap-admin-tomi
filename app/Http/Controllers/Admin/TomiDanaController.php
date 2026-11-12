@@ -292,7 +292,21 @@ class TomiDanaController extends Controller
 
     public function disbursements()
     {
-        return view('admin.tomi-dana.disbursements.index');
+        $statusCounts = pinjaman::query()
+            ->whereRaw('LOWER(TRIM(status_otp)) = ?', ['success'])
+            ->whereRaw('LOWER(TRIM(ttd)) = ?', ['y'])
+            ->whereRaw('LOWER(TRIM(status)) IN (?, ?, ?)', ['pending', 'approve', 'done'])
+            ->selectRaw('LOWER(TRIM(status)) as status, COUNT(*) as total')
+            ->groupByRaw('LOWER(TRIM(status))')
+            ->pluck('total', 'status');
+
+        return view('admin.tomi-dana.disbursements.index', [
+            'statusCounts' => [
+                'belum_diproses' => (int) ($statusCounts['pending'] ?? 0),
+                'aktif' => (int) ($statusCounts['approve'] ?? 0),
+                'lunas' => (int) ($statusCounts['done'] ?? 0),
+            ],
+        ]);
     }
 
     public function disbursementsTable()

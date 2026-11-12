@@ -19,6 +19,27 @@
         vertical-align: middle;
         white-space: nowrap;
     }
+
+    .disbursement-status-card {
+        border-left: 4px solid;
+    }
+
+    .disbursement-status-card .status-count {
+        font-size: 24px;
+        font-weight: 700;
+        line-height: 1;
+    }
+
+    .disbursement-status-card .status-label {
+        color: #6c757d;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .status-card-pending { border-left-color: #f0ad4e; }
+    .status-card-active { border-left-color: #28a745; }
+    .status-card-paid { border-left-color: #007bff; }
 </style>
 @endpush
 
@@ -33,6 +54,35 @@
                 </ol>
             </div>
             <h4 class="page-title">Pencairan TomiDana</h4>
+        </div>
+    </div>
+</div>
+
+@php($statusCounts = $statusCounts ?? [])
+
+<div class="row mb-3">
+    <div class="col-md-4 mb-3 mb-md-0">
+        <div class="card mb-0 disbursement-status-card status-card-pending">
+            <div class="card-body">
+                <div class="status-label">Belum Diproses</div>
+                <div class="status-count text-warning">{{ number_format($statusCounts['belum_diproses'] ?? 0, 0, ',', '.') }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3 mb-md-0">
+        <div class="card mb-0 disbursement-status-card status-card-active">
+            <div class="card-body">
+                <div class="status-label">Aktif</div>
+                <div class="status-count text-success">{{ number_format($statusCounts['aktif'] ?? 0, 0, ',', '.') }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card mb-0 disbursement-status-card status-card-paid">
+            <div class="card-body">
+                <div class="status-label">Lunas</div>
+                <div class="status-count text-primary">{{ number_format($statusCounts['lunas'] ?? 0, 0, ',', '.') }}</div>
+            </div>
         </div>
     </div>
 </div>
