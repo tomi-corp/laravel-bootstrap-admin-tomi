@@ -262,7 +262,10 @@ class TomiDanaController extends Controller
 
     public function employeeTemplate()
     {
-        return Excel::download(new TomiDanaEmployeeTemplateExport(), 'template-import-karyawan-tomidana.xlsx');
+        return Storage::disk('local')->download(
+            'template/template-import-karyawan.xlsx',
+            'template-import-karyawan.xlsx'
+        );
     }
 
     private function validateEmployee(Request $request, bool $includeCompany = true): array
