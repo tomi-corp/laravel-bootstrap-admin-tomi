@@ -210,14 +210,6 @@ Route::middleware(['AdminMiddleware'])->group(
                     ->name('admin.tomi-dana.lender.pinjaman.detail.table');
                 Route::post('/tomi-dana/lender/table', [TomiDanaController::class, 'lendersTable'])
                     ->name('admin.tomi-dana.lender.table');
-                Route::post('/tomi-dana/lender/store', [TomiDanaController::class, 'storeLender'])
-                    ->name('admin.tomi-dana.lender.store');
-                Route::post('/tomi-dana/lender/detail', [TomiDanaController::class, 'detailLender'])
-                    ->name('admin.tomi-dana.lender.detail');
-                Route::post('/tomi-dana/lender/update', [TomiDanaController::class, 'updateLender'])
-                    ->name('admin.tomi-dana.lender.update');
-                Route::post('/tomi-dana/lender/delete', [TomiDanaController::class, 'deleteLender'])
-                    ->name('admin.tomi-dana.lender.delete');
                 Route::post('/tomi-dana/perusahaan/kabupaten', [TomiDanaController::class, 'kabupaten'])
                     ->name('admin.tomi-dana.kabupaten');
                 Route::post('/tomi-dana/perusahaan/kecamatan', [TomiDanaController::class, 'kecamatan'])
