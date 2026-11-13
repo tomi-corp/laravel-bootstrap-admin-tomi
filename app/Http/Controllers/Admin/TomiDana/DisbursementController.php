@@ -77,18 +77,18 @@ class DisbursementController extends Controller
             })
             ->addColumn('doc_pk', function ($row) {
                 return $row->document_name
-                    ? '<a href="'.route('admin.tomi-dana.disbursements.evidence', [$row->id, 'tte']).'" target="_blank" class="btn btn-sm btn-outline-info" title="Lihat dokumen PK"><i class="mdi mdi-file-document-outline"></i></a>'
+                    ? '<a href="'.route('admin.tomi-dana.disbursements.evidence', [$row->id, 'tte']).'" target="_blank" class="btn btn-sm btn-info" title="Lihat dokumen PK"><i class="mdi mdi-file-document-outline"></i></a>'
                     : '<span class="text-muted">-</span>';
             })
             ->addColumn('ktp', function ($row) {
-                return '<a href="'.route('admin.tomi-dana.disbursements.evidence', [$row->id, 'ktp']).'" target="_blank" class="btn btn-sm btn-outline-info" title="Lihat KTP"><i class="mdi mdi-account-box-outline"></i></a>';
+                return '<a href="'.route('admin.tomi-dana.disbursements.evidence', [$row->id, 'ktp']).'" target="_blank" class="btn btn-sm btn-info" title="Lihat KTP"><i class="mdi mdi-account-box-outline"></i></a>';
             })
             ->addColumn('selfie', function ($row) {
                 $path = $this->evidencePath('assets/users', $row->user?->privy?->local_selfie_path)
                     ?? $this->evidencePath('assets/users', $row->user?->kyc?->selfie);
 
                 return $path
-                    ? '<a href="'.route('admin.tomi-dana.disbursements.evidence', [$row->id, 'selfie']).'" target="_blank" class="btn btn-sm btn-outline-info" title="Lihat selfie"><i class="mdi mdi-camera-outline"></i></a>'
+                    ? '<a href="'.route('admin.tomi-dana.disbursements.evidence', [$row->id, 'selfie']).'" target="_blank" class="btn btn-sm btn-info" title="Lihat selfie"><i class="mdi mdi-camera-outline"></i></a>'
                     : '<span class="text-muted">-</span>';
             })
             ->addColumn('id_pinjaman', fn ($row) => $row->id_pinjaman ?? ('TD-'.$row->id))
@@ -112,7 +112,7 @@ class DisbursementController extends Controller
                 : '-')
             ->addColumn('action', function ($row) {
                 return strtolower(trim((string) $row->status)) === 'pending'
-                    ? '<button type="button" class="btn btn-sm btn-outline-primary" onclick="editDisbursement('.$row->id.')" title="Edit status disbursement"><i class="mdi mdi-pencil-outline"></i></button>'
+                    ? '<button type="button" class="btn btn-sm btn-info" onclick="editDisbursement('.$row->id.')" title="Edit status disbursement"><i class="mdi mdi-pencil-outline"></i></button>'
                     : '<span class="text-muted">-</span>';
             })
             ->rawColumns(['prioritas', 'doc_pk', 'ktp', 'selfie', 'status_label', 'action'])
