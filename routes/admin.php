@@ -76,6 +76,9 @@ Route::middleware(['AdminMiddleware'])->group(
                     ->name('admin.tomi-dana.lender.invoice');
                 Route::post('/tomi-dana/aplication-fee/payment', [TomiDanaApplicationFeeController::class, 'updateLenderInvoicePayment'])
                     ->name('admin.tomi-dana.lender.invoice.payment');
+                Route::get('/tomi-dana/aplication-fee/payment/{id}/proof', [TomiDanaApplicationFeeController::class, 'showLenderInvoicePaymentProof'])
+                    ->whereNumber('id')
+                    ->name('admin.tomi-dana.lender.invoice.payment-proof');
                 Route::get('/lender/dashboard', function () {
                     return view('lender.dashboard.index');
                 })->name('lender.dashboard.index');

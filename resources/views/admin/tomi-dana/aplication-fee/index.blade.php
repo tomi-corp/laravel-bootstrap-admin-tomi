@@ -169,15 +169,19 @@ $statusStyles = [
                                 @endif
                             </td>
                             <td>
-                                @php($isPaid = data_get($invoice, 'status') === 'lunas')
-                                <button type="button"
-                                    class="btn btn-sm {{ $isPaid ? 'btn-success' : 'btn-primary' }} edit-invoice-payment"
-                                    title="{{ $isPaid ? 'Detail pembayaran invoice' : 'Upload bukti pembayaran invoice' }}"
+                                @if (data_get($invoice, 'status') === 'lunas' && data_get($invoice, 'payment_proof_url'))
+                                <a class="btn btn-sm btn-success" href="{{ data_get($invoice, 'payment_proof_url') }}"
+                                    target="_blank" rel="noopener" title="Lihat bukti transfer"
+                                    aria-label="Lihat bukti transfer"><i class="mdi mdi-eye"></i></a>
+                                @else
+                                <button type="button" class="btn btn-sm btn-primary edit-invoice-payment"
+                                    title="Upload bukti pembayaran invoice"
                                     data-invoice-id="{{ data_get($invoice, 'id') }}"
                                     data-invoice-number="{{ data_get($invoice, 'invoice_number') }}"
                                     data-payment-date="{{ data_get($invoice, 'payment_date') }}">
-                                    <i class="mdi {{ $isPaid ? 'mdi-eye' : 'mdi-upload' }}"></i>
+                                    <i class="mdi mdi-upload"></i>
                                 </button>
+                                @endif
                             </td>
                         </tr>
                         @endforeach

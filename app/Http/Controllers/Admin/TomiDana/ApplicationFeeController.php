@@ -7,6 +7,7 @@ use App\Models\history_invoicing_lender;
 use App\Models\lender;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ApplicationFeeController extends Controller
 {
@@ -89,6 +90,9 @@ class ApplicationFeeController extends Controller
                 'payment_date' => $invoice->tanggal_pembayaran
                     ? Carbon::parse($invoice->tanggal_pembayaran)->format('Y-m-d\\TH:i')
                     : null,
+                'payment_proof_url' => $invoice->bukti_transfer
+                    ? route('admin.tomi-dana.lender.invoice.payment-proof', $invoice->id)
+                    : null,
                 'download_url' => route('admin.tomi-dana.lender.pinjaman.invoice-fee', [
                     'month' => $period->format('Y-m'),
                     'lender_id' => $invoice->id_lender,
@@ -157,6 +161,15 @@ class ApplicationFeeController extends Controller
             'status' => 200,
             'message' => 'Pembayaran invoice berhasil disimpan.',
         ]);
+    }
+
+    public function showLenderInvoicePaymentProof(int $id)
+    {
+        $invoice = history_invoicing_lender::findOrFail($id);
+
+        abort_unless($invoice->bukti_transfer && Storage::exists($invoice->bukti_transfer), 404);
+
+        return Storage::response($invoice->bukti_transfer);
     }
 }
 
