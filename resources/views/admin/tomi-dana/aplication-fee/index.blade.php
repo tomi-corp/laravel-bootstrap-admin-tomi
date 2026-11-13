@@ -127,9 +127,31 @@ $statusStyles = [
             </div>
         </div>
 
+        @php
+        $invoiceCollection = collect($invoices);
+        $invoiceTabs = [
+        'pending' => ['label' => 'Pending', 'title' => 'Tagihan Pemberi Pinjaman Pending', 'rows' => $invoiceCollection->filter(fn ($invoice) => data_get($invoice, 'status') !== 'lunas')],
+        'done' => ['label' => 'Done', 'title' => 'Tagihan Pemberi Pinjaman Done', 'rows' => $invoiceCollection->filter(fn ($invoice) => data_get($invoice, 'status') === 'lunas')],
+        ];
+        @endphp
         <div class="card">
             <div class="card-body">
-                <table id="tableLenderInvoices" class="table dt-responsive table-hover mt-4 text-center justify-center"
+                <ul class="nav nav-tabs nav-bordered" role="tablist">
+                    @foreach ($invoiceTabs as $tabKey => $tab)
+                    <li class="nav-item">
+                        <a href="#invoiceTab{{ ucfirst($tabKey) }}" data-toggle="tab" role="tab"
+                            class="nav-link {{ $loop->first ? 'active' : '' }}">
+                            {{ $tab['label'] }}
+                            <span class="badge {{ $tabKey === 'done' ? 'badge-success' : 'badge-warning' }} ml-1">{{ $formatNumber($tab['rows']->count()) }}</span>
+                        </a>
+                    </li>
+                    @endforeach
+                </ul>
+                <div class="tab-content">
+                    @foreach ($invoiceTabs as $tabKey => $tab)
+                    <div class="tab-pane {{ $loop->first ? 'show active' : '' }}" id="invoiceTab{{ ucfirst($tabKey) }}" role="tabpanel">
+                <table id="tableLenderInvoices{{ ucfirst($tabKey) }}" data-title="{{ $tab['title'] }}"
+                    class="table dt-responsive table-hover mt-4 text-center justify-center lender-invoice-table"
                     style="width:100%">
                     <thead>
                         <tr>
@@ -147,7 +169,7 @@ $statusStyles = [
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($invoices as $invoice)
+                        @foreach ($tab['rows'] as $invoice)
                         @php($style = $statusStyles[data_get($invoice, 'status', 'draft')] ?? $statusStyles['draft'])
                         <tr class="{{ $selectedInvoice && data_get($selectedInvoice, 'id') == data_get($invoice, 'id') ? 'table-active' : '' }}">
                             <td>{{ strtoupper(data_get($invoice, 'invoice_number', '-')) }}</td>
@@ -184,6 +206,9 @@ $statusStyles = [
                         @endforeach
                     </tbody>
                 </table>
+                    </div>
+                    @endforeach
+                </div>
             </div>
         </div>
     </div>
@@ -282,7 +307,10 @@ $statusStyles = [
     $(function () {
         const exportColumns = [0, 1, 2, 3, 4, 5, 6, 7, 8];
 
-        $('#tableLenderInvoices').DataTable({
+        $('.lender-invoice-table').each(function () {
+        const exportTitle = $(this).data('title');
+
+        $(this).DataTable({
             dom: 'B<"clear">lfrtip',
             buttons: [
                 {
@@ -290,7 +318,7 @@ $statusStyles = [
                     className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
                     text: '<span class="mdi mdi-file-excel"><span class="pl-1">Excel</span></span>',
                     header: true,
-                    title: 'Tagihan Pemberi Pinjaman',
+                    title: exportTitle,
                     exportOptions: { columns: exportColumns },
                 },
                 {
@@ -298,7 +326,7 @@ $statusStyles = [
                     className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
                     text: '<span class="mdi mdi-content-copy"><span class="pl-1">Copy</span></span>',
                     header: true,
-                    title: 'Tagihan Pemberi Pinjaman',
+                    title: exportTitle,
                     exportOptions: { columns: exportColumns },
                 },
                 {
@@ -306,7 +334,7 @@ $statusStyles = [
                     className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
                     text: '<span class="mdi mdi-printer"><span class="pl-1">Print</span></span>',
                     header: true,
-                    title: 'Tagihan Pemberi Pinjaman',
+                    title: exportTitle,
                     exportOptions: { columns: exportColumns },
                 }
             ],
@@ -320,6 +348,11 @@ $statusStyles = [
                 emptyTable: 'Belum ada invoice tagihan lender',
                 zeroRecords: 'Invoice tidak ditemukan',
             }
+        });
+        });
+
+        $('a[data-toggle="tab"]').on('shown.bs.tab', function () {
+            $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
         });
 
         $(document).on('click', '.download-invoice', function (event) {
