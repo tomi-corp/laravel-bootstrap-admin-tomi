@@ -4,22 +4,6 @@
 
 @push('css')
 <style>
-    .disbursement-table th {
-        background: #f8f9fb;
-        border-top: 0;
-        color: #6c757d;
-        font-size: 11px;
-        font-weight: 700;
-        letter-spacing: .04em;
-        text-transform: uppercase;
-        white-space: nowrap;
-    }
-
-    .disbursement-table td {
-        vertical-align: middle;
-        white-space: nowrap;
-    }
-
     .disbursement-status-card {
         border-left: 4px solid;
     }
@@ -108,8 +92,9 @@
             </li>
         </ul>
 
-        <div class="table-responsive">
-            <table id="tableDisbursements" class="table table-hover disbursement-table mb-0"
+        <div>
+            <table id="tableDisbursements" class="table dt-responsive table-hover mt-4 text-center justify-center"
+                style="width:100%"
                 data-table-url="{{ route('admin.tomi-dana.disbursements.table') }}"
                 data-approve-url="{{ route('admin.tomi-dana.disbursements.approve') }}"
                 data-csrf-token="{{ csrf_token() }}">
@@ -219,25 +204,28 @@
             serverSide: true,
             responsive: false,
             scrollX: true,
-            pageLength: 10,
-            dom: 'B<"row"<"col-md-6"l><"col-md-6 text-right"f>>rt<"row"<"col-md-6"i><"col-md-6"p>>',
+            lengthMenu: [10, 50, 100, 500, 1000, 2000, 5000, 10000, 50000, 100000],
+            dom: 'B<"clear">lfrtip',
             buttons: [
                 {
-                    extend: 'copy',
-                    className: 'btn btn-sm btn-purple mb-2 mr-1',
-                    text: '<span class="mdi mdi-content-copy mr-1"></span>Copy',
+                    extend: 'excel',
+                    className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
+                    text: '<span class="mdi mdi-file-excel"><span class="pl-1">Excel</span></span>',
+                    header: true,
                     title: 'Daftar Pinjaman TomiDana'
                 },
                 {
-                    extend: 'excel',
-                    className: 'btn btn-sm btn-purple mb-2 mr-1',
-                    text: '<span class="mdi mdi-file-excel mr-1"></span>Excel',
+                    extend: 'copy',
+                    className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
+                    text: '<span class="mdi mdi-content-copy"><span class="pl-1">Copy</span></span>',
+                    header: true,
                     title: 'Daftar Pinjaman TomiDana'
                 },
                 {
                     extend: 'print',
-                    className: 'btn btn-sm btn-purple mb-2 mr-1',
-                    text: '<span class="mdi mdi-printer mr-1"></span>Print',
+                    className: 'btn btn-sm btn-purple mb-2 ml-1 mr-1',
+                    text: '<span class="mdi mdi-printer"><span class="pl-1">Print</span></span>',
+                    header: true,
                     title: 'Daftar Pinjaman TomiDana'
                 }
             ],
