@@ -169,19 +169,16 @@ $statusStyles = [
                                 @endif
                             </td>
                             <td>
-                                @if (data_get($invoice, 'status') === 'lunas' && data_get($invoice, 'payment_proof_url'))
-                                <a class="btn btn-sm btn-success" href="{{ data_get($invoice, 'payment_proof_url') }}"
-                                    target="_blank" rel="noopener" title="Lihat bukti transfer"
-                                    aria-label="Lihat bukti transfer"><i class="mdi mdi-eye"></i></a>
-                                @else
-                                <button type="button" class="btn btn-sm btn-primary edit-invoice-payment"
-                                    title="Upload bukti pembayaran invoice"
+                                @php($proofUrl = data_get($invoice, 'status') === 'lunas' ? data_get($invoice, 'payment_proof_url') : null)
+                                <button type="button"
+                                    class="btn btn-sm {{ $proofUrl ? 'btn-success' : 'btn-primary' }} edit-invoice-payment"
+                                    title="{{ $proofUrl ? 'Detail pembayaran invoice' : 'Upload bukti pembayaran invoice' }}"
                                     data-invoice-id="{{ data_get($invoice, 'id') }}"
                                     data-invoice-number="{{ data_get($invoice, 'invoice_number') }}"
-                                    data-payment-date="{{ data_get($invoice, 'payment_date') }}">
-                                    <i class="mdi mdi-upload"></i>
+                                    data-payment-date="{{ data_get($invoice, 'payment_date') }}"
+                                    data-proof-url="{{ $proofUrl }}">
+                                    <i class="mdi {{ $proofUrl ? 'mdi-eye' : 'mdi-upload' }}"></i>
                                 </button>
-                                @endif
                             </td>
                         </tr>
                         @endforeach
@@ -247,13 +244,21 @@ $statusStyles = [
                         <label for="paymentDate">Waktu Pembayaran <span class="text-danger">*</span></label>
                         <input type="datetime-local" class="form-control" name="tanggal" id="paymentDate" required>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" id="paymentProofUpload">
                         <label for="paymentProof">Bukti Transfer <span class="text-danger">*</span></label>
                         <input type="file" class="form-control" name="bukti_transfer" id="paymentProof"
                             accept=".jpg,.jpeg,.png,.pdf" required>
                         <small class="form-text text-muted">Format JPG, PNG, atau PDF. Maksimal 5 MB.</small>
                     </div>
-                    <div class="form-check">
+                    <div class="form-group d-none" id="paymentProofView">
+                        <label>Bukti Transfer</label>
+                        <div>
+                            <a href="#" id="paymentProofLink" target="_blank" rel="noopener"
+                                class="btn btn-success btn-block waves-effect waves-light">
+                                <i class="mdi mdi-eye"></i> Lihat Bukti Transfer</a>
+                        </div>
+                    </div>
+                    <div class="form-check" id="paymentDeclarationGroup">
                         <input type="checkbox" class="form-check-input" name="pernyataan" value="1"
                             id="paymentDeclaration" required>
                         <label class="form-check-label" for="paymentDeclaration">Saya menyatakan bahwa invoicing
@@ -337,6 +342,19 @@ $statusStyles = [
             $('#paymentInvoiceId').val(button.data('invoice-id'));
             $('#paymentInvoiceNumber').val(button.data('invoice-number'));
             $('#paymentDate').val(button.data('payment-date') || '');
+
+            const proofUrl = button.data('proof-url') || '';
+            const isDetail = proofUrl !== '';
+            $('#invoicePaymentModal .modal-title').text(isDetail ? 'Detail Pembayaran Invoice Lender' : 'Pembayaran Invoice Lender');
+            $('#paymentDate').prop('readonly', isDetail);
+            $('#paymentProofUpload').toggleClass('d-none', isDetail);
+            $('#paymentProof').prop({ disabled: isDetail, required: !isDetail });
+            $('#paymentProofView').toggleClass('d-none', !isDetail);
+            $('#paymentProofLink').attr('href', proofUrl || '#');
+            $('#paymentDeclarationGroup').toggleClass('d-none', isDetail);
+            $('#paymentDeclaration').prop({ disabled: isDetail, required: !isDetail });
+            $('#submitInvoicePayment').toggleClass('d-none', isDetail);
+
             $('#invoicePaymentModal').modal('show');
         });
 
