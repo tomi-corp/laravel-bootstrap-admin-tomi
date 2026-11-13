@@ -267,8 +267,9 @@ $statusStyles = [
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary waves-effect" data-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary waves-effect waves-light" id="submitInvoicePayment">
-                        <i class="mdi mdi-content-save"></i> Simpan Pembayaran</button>
+                    <button type="submit" class="btn btn-primary waves-effect waves-light" id="submitInvoicePayment"
+                        disabled>
+                        <i class="mdi mdi-content-save"></i> Simpan</button>
                 </div>
             </form>
         </div>
@@ -353,9 +354,13 @@ $statusStyles = [
             $('#paymentProofLink').attr('href', proofUrl || '#');
             $('#paymentDeclarationGroup').toggleClass('d-none', isDetail);
             $('#paymentDeclaration').prop({ disabled: isDetail, required: !isDetail });
-            $('#submitInvoicePayment').toggleClass('d-none', isDetail);
+            $('#submitInvoicePayment').toggleClass('d-none', isDetail).prop('disabled', true);
 
             $('#invoicePaymentModal').modal('show');
+        });
+
+        $('#paymentDeclaration').on('change', function () {
+            $('#submitInvoicePayment').prop('disabled', !this.checked);
         });
 
         $('#invoicePaymentForm').on('submit', function (event) {
@@ -384,7 +389,7 @@ $statusStyles = [
                     if (window.toastr) toastr.error(message);
                 },
                 complete: function () {
-                    submitButton.prop('disabled', false);
+                    submitButton.prop('disabled', !$('#paymentDeclaration').is(':checked'));
                 }
             });
         });
