@@ -972,6 +972,7 @@
                 name: 'action',
                 orderable: false,
                 searchable: false,
+                visible: false,
                 defaultContent: '-'
             }
         ]
