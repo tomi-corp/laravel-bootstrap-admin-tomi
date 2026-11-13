@@ -12,14 +12,13 @@ use Illuminate\Support\Facades\Response;
 
 class DownloadController extends Controller
 {
-    protected $allowedFiles = [
-        'tomi-101.apk',
-    ];
+    // Hanya izinkan nama file APK resmi, contoh: tomi-101.apk, tomi-1.1.1.37.apk
+    protected $allowedPattern = '/^tomi-\d+(\.\d+)*\.apk$/';
 
     public function download($filename)
     {
 
-        if (!in_array($filename, $this->allowedFiles)) {
+        if (!preg_match($this->allowedPattern, $filename)) {
             abort(404);
         }
 
