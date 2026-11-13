@@ -68,9 +68,9 @@ Route::middleware(['AdminMiddleware'])->group(
                 Route::post('/profile/enableTwoFactor', [ProfileController::class, 'enableTwoFactor'])->name('admin.profile.enableTwoFactor');
 
                 Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('admin.dashboard.index');
-                Route::get('/pengajuan/riwayat', [DashboardController::class, 'applicationHistory'])
+                Route::get('/applications/history', [DashboardController::class, 'applicationHistory'])
                     ->name('admin.application-history.index');
-                Route::get('/pengajuan/riwayat/table', [DashboardController::class, 'applicationHistoryTable'])
+                Route::get('/applications/history/table', [DashboardController::class, 'applicationHistoryTable'])
                     ->name('admin.application-history.table');
                 Route::get('/tomi-dana/aplication-fee', [TomiDanaApplicationFeeController::class, 'lenderInvoiceDashboard'])
                     ->name('admin.tomi-dana.lender.invoice');
