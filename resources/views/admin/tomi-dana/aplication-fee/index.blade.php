@@ -171,12 +171,12 @@ $statusStyles = [
                             <td>
                                 @php($isPaid = data_get($invoice, 'status') === 'lunas')
                                 <button type="button"
-                                    class="btn btn-sm {{ $isPaid ? 'btn-warning' : 'btn-primary' }} edit-invoice-payment"
-                                    title="{{ $isPaid ? 'Edit pembayaran invoice' : 'Upload bukti pembayaran invoice' }}"
+                                    class="btn btn-sm {{ $isPaid ? 'btn-success' : 'btn-primary' }} edit-invoice-payment"
+                                    title="{{ $isPaid ? 'Detail pembayaran invoice' : 'Upload bukti pembayaran invoice' }}"
                                     data-invoice-id="{{ data_get($invoice, 'id') }}"
                                     data-invoice-number="{{ data_get($invoice, 'invoice_number') }}"
                                     data-payment-date="{{ data_get($invoice, 'payment_date') }}">
-                                    <i class="mdi {{ $isPaid ? 'mdi-pencil' : 'mdi-upload' }}"></i>
+                                    <i class="mdi {{ $isPaid ? 'mdi-eye' : 'mdi-upload' }}"></i>
                                 </button>
                             </td>
                         </tr>
