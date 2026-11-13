@@ -66,7 +66,7 @@
                 title: 'Riwayat Pengajuan'
             }
         ],
-        ajax: '{{ route('admin.application-history.table') }}',
+        ajax: '{{ route('admin.tomi-dana.application-history.table') }}',
         columns: [
             { data: 'tanggal', name: 'created_at' },
             { data: 'id_pengajuan', name: 'id_pinjaman' },

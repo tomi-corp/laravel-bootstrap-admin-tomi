@@ -253,7 +253,7 @@ $limitedProductRole = in_array($roleType, ['pic', 'staff']);
                             </a>
                         </li>
                         <li>
-                            <a href="{{ route('admin.application-history.index') }}">
+                            <a href="{{ route('admin.tomi-dana.application-history.index') }}">
                                 Riwayat Pengajuan
                             </a>
                         </li>

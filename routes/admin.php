@@ -68,10 +68,10 @@ Route::middleware(['AdminMiddleware'])->group(
                 Route::post('/profile/enableTwoFactor', [ProfileController::class, 'enableTwoFactor'])->name('admin.profile.enableTwoFactor');
 
                 Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('admin.dashboard.index');
-                Route::get('/applications/history', [DashboardController::class, 'applicationHistory'])
-                    ->name('admin.application-history.index');
-                Route::get('/applications/history/table', [DashboardController::class, 'applicationHistoryTable'])
-                    ->name('admin.application-history.table');
+                Route::get('/tomi-dana/application-history', [DashboardController::class, 'applicationHistory'])
+                    ->name('admin.tomi-dana.application-history.index');
+                Route::get('/tomi-dana/application-history/table', [DashboardController::class, 'applicationHistoryTable'])
+                    ->name('admin.tomi-dana.application-history.table');
                 Route::get('/tomi-dana/aplication-fee', [TomiDanaApplicationFeeController::class, 'lenderInvoiceDashboard'])
                     ->name('admin.tomi-dana.lender.invoice');
                 Route::post('/tomi-dana/aplication-fee/payment', [TomiDanaApplicationFeeController::class, 'updateLenderInvoicePayment'])
