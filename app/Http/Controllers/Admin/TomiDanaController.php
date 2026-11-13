@@ -4,25 +4,23 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Ksp\AddKonfigurasiRequest;
-use App\Http\Requests\Admin\Ksp\AmountPinjamanRequest;
 use App\Http\Requests\Admin\Ksp\AddPerusahaanRequest;
+use App\Http\Requests\Admin\Ksp\AmountPinjamanRequest;
 use App\Http\Requests\Admin\Ksp\EditPerusahaanRequest;
 use App\Http\Resources\Admin\Ksp\DetailPerusahaanResource;
 use App\Http\Resources\Admin\Ksp\TenorPinjamanResource;
-use App\Exports\TomiDanaEmployeeTemplateExport;
 use App\Imports\TomiDanaEmployeeImport;
 use App\Models\amount_pinjaman;
 use App\Models\disbursement;
-use App\Models\invoicing_pinjaman;
 use App\Models\history_invoicing_lender;
+use App\Models\invoicing_pinjaman;
+use App\Models\jatuh_tempo;
 use App\Models\kecamatan;
 use App\Models\kelurahan;
 use App\Models\kota;
-use App\Models\ListPerusahaan;
-use App\Models\jatuh_tempo;
-use App\Models\list_karyawan;
 use App\Models\lender;
-use App\Models\bank;
+use App\Models\list_karyawan;
+use App\Models\ListPerusahaan;
 use App\Models\pinjaman;
 use App\Models\provinsi;
 use App\Models\tenor_pinjaman;
@@ -39,793 +37,7 @@ use Yajra\DataTables\Facades\DataTables;
 
 class TomiDanaController extends Controller
 {
-    public function adminInvoiceDashboard(Request $request)
-    {
-        return $this->lenderInvoiceDashboard($request, 'admin.dashboard.index');
-    }
 
-    public function lenderInvoiceDashboard(Request $request, string $view = 'admin.tomi-dana.lender.invoice.index')
-    {
-        $month = $request->filled('month') ? $request->integer('month') : null;
-        $year = $request->filled('year') ? $request->integer('year') : null;
-
-        abort_if($month !== null && ($month < 1 || $month > 12), 404);
-
-        $historyInvoices = history_invoicing_lender::query()
-            ->with(['lender.pinjaman.disbursement'])
-            ->when($year !== null, fn ($query) => $query->whereYear('period', $year))
-            ->when($month !== null, fn ($query) => $query->whereMonth('period', $month))
-            ->when($request->filled('lender_id'), fn ($query) => $query->where('id_lender', $request->integer('lender_id')))
-            ->orderByDesc('period')
-            ->orderByDesc('id')
-            ->get();
-
-        $statusStyles = [
-            'draft' => ['label' => 'Draf'],
-            'menunggu' => ['label' => 'Menunggu Penagihan'],
-            'mulai_jatuh_tempo' => ['label' => 'Mulai Jatuh Tempo'],
-            'jatuh_tempo' => ['label' => 'Jatuh Tempo'],
-            'lunas' => ['label' => 'Sudah Terbayar'],
-        ];
-
-        $invoiceRows = $historyInvoices->map(function ($invoice) use ($statusStyles) {
-            $period = Carbon::parse($invoice->period)->startOfMonth();
-            $dueDate = $period->copy()->endOfMonth();
-            $loans = collect($invoice->lender?->pinjaman ?? [])
-                ->filter(fn ($loan) => $loan->disbursement
-                    && in_array(strtolower((string) $loan->status), ['approve', 'done'], true)
-                    && Carbon::parse($loan->disbursement->created_at)->format('Y-m') === $period->format('Y-m'))
-                ->values();
-
-            $serviceFee = 0;
-            $adminFee = 0;
-            $totalBilling = 0;
-
-            foreach ($loans as $loan) {
-                $nominal = (float) ($loan->nominal ?? 0);
-                $cutoff = Carbon::create($period->year, 4, 17)->startOfDay();
-
-                if (Carbon::parse($loan->created_at)->startOfDay()->lt($cutoff)) {
-                    $serviceFee += 20000;
-                    $totalBilling += ($nominal * 0.03) + 20000;
-                } else {
-                    $adminFee += $nominal * 0.01;
-                    $serviceFee += 10000;
-                    $totalBilling += ($nominal * 0.01) + 10000;
-                }
-            }
-
-            $rawStatus = strtolower((string) $invoice->status);
-            $status = $rawStatus === 'lunas'
-                ? 'lunas'
-                : ($dueDate->isPast()
-                    ? 'jatuh_tempo'
-                    : ($dueDate->diffInDays(today()) <= 3 ? 'mulai_jatuh_tempo' : 'menunggu'));
-
-            return [
-                'id' => $invoice->id,
-                'invoice_number' => $invoice->no_invoice ?? '-',
-                'lender_name' => $invoice->lender?->nama ?? '-',
-                'period_label' => $period->format('M Y'),
-                'transaction_count' => $loans->count(),
-                'transaction_value' => $loans->sum(fn ($loan) => (float) ($loan->nominal ?? 0)),
-                'service_fee' => $serviceFee,
-                'admin_fee' => $adminFee,
-                'amount' => $totalBilling,
-                'due_date' => $dueDate->format('d M Y'),
-                'status' => $status,
-                'status_label' => $statusStyles[$status]['label'],
-                'payment_date' => $invoice->tanggal_pembayaran
-                    ? Carbon::parse($invoice->tanggal_pembayaran)->format('Y-m-d\\TH:i')
-                    : null,
-                'download_url' => route('admin.tomi-dana.lender.pinjaman.invoice-fee', [
-                    'month' => $period->format('Y-m'),
-                    'lender_id' => $invoice->id_lender,
-                ]),
-            ];
-        })->filter(function ($invoice) use ($request) {
-            return ! $request->filled('status') || $invoice['status'] === $request->input('status');
-        })->values();
-
-        $statusSummary = collect($statusStyles)->mapWithKeys(function ($style, $status) use ($invoiceRows) {
-            $rows = $invoiceRows->where('status', $status);
-
-            return [$status => [
-                'count' => $rows->count(),
-                'amount' => $rows->sum('amount'),
-            ]];
-        })->all();
-
-        $paidRows = $invoiceRows->where('status', 'lunas');
-        $dueRows = $invoiceRows->whereIn('status', ['mulai_jatuh_tempo', 'jatuh_tempo']);
-        $summary = [
-            'total_lenders' => $invoiceRows->pluck('lender_name')->filter()->unique()->count(),
-            'total_invoices' => $invoiceRows->count(),
-            'service_fee' => $invoiceRows->sum('service_fee'),
-            'admin_fee' => $invoiceRows->sum('admin_fee'),
-            'total_billing' => $invoiceRows->sum('amount'),
-            'paid_count' => $paidRows->count(),
-            'paid_amount' => $paidRows->sum('amount'),
-            'due_count' => $dueRows->count(),
-            'due_amount' => $dueRows->sum('amount'),
-        ];
-
-        $selectedInvoice = $request->filled('invoice_id')
-            ? $invoiceRows->firstWhere('id', $request->integer('invoice_id'))
-            : $invoiceRows->first();
-
-        return view($view, [
-            'summary' => $summary,
-            'statusSummary' => $statusSummary,
-            'actionInvoices' => $invoiceRows->whereNotIn('status', ['lunas'])->take(5)->values(),
-            'invoices' => $invoiceRows,
-            'selectedInvoice' => $selectedInvoice,
-            'lenders' => lender::query()->orderBy('nama')->get(['id', 'nama']),
-        ]);
-    }
-
-    public function employees(?int $companyId = null)
-    {
-        if ($companyId === null) {
-            return view('admin.tomi-dana.employees.companies');
-        }
-
-        return view('admin.tomi-dana.employees.index', [
-            'companyId' => $companyId,
-            'company' => $companyId ? ListPerusahaan::find($companyId) : null,
-        ]);
-    }
-
-    public function employeesTable()
-    {
-        $query = list_karyawan::with('perusahaan')->latest('id');
-
-        if (request()->filled('company_id')) {
-            $query->where('id_list_perusahaan', request()->integer('company_id'));
-        }
-
-        $keyword = trim((string) request()->input('search.value', ''));
-        if ($keyword !== '') {
-            $query->where(function ($searchQuery) use ($keyword) {
-                $searchQuery->where('nama_karyawan', 'like', "%{$keyword}%")
-                    ->orWhere('nik', 'like', "%{$keyword}%")
-                    ->orWhere('nip', 'like', "%{$keyword}%")
-                    ->orWhere('whatsapp', 'like', "%{$keyword}%")
-                    ->orWhereHas('perusahaan', fn ($q) => $q->where('nama', 'like', "%{$keyword}%"));
-            });
-        }
-
-        return DataTables::of($query->get())
-            ->addIndexColumn()
-            ->addColumn('nama_karyawan', fn ($row) => strtoupper($row->nama_karyawan ?? '-'))
-            ->addColumn('perusahaan', fn ($row) => strtoupper($row->perusahaan?->nama ?? '-'))
-            ->addColumn('status_label', fn ($row) => '<span class="badge badge-secondary">' . e(strtoupper((string) ($row->status ?? '-'))) . '</span>')
-            ->addColumn('action', fn ($row) => '<button type="button" class="btn btn-sm btn-warning mr-1" onclick="editEmployee(' . $row->id . ')"><i class="mdi mdi-pencil"></i></button><button type="button" class="btn btn-sm btn-danger" onclick="deleteEmployee(' . $row->id . ')"><i class="mdi mdi-trash-can"></i></button>')
-            ->rawColumns(['status_label', 'action'])
-            ->toJson();
-    }
-
-    public function employeeCompaniesTable()
-    {
-        return DataTables::eloquent(ListPerusahaan::query()->select(['id', 'nama', 'status'])->latest('id'))
-            ->addIndexColumn()
-            ->addColumn('status_label', fn ($row) => '<span class="badge badge-' . ($row->status === 'active' ? 'success' : 'secondary') . '">' . e(strtoupper((string) ($row->status ?? '-'))) . '</span>')
-            ->addColumn('action', fn ($row) => '<a href="' . route('admin.tomi-dana.employees.company', $row->id) . '" class="btn btn-sm btn-info"><i class="mdi mdi-account-group-outline mr-1"></i> Lihat Karyawan</a>')
-            ->rawColumns(['status_label', 'action'])
-            ->toJson();
-    }
-
-    public function storeEmployee(Request $request)
-    {
-        $data = $this->validateEmployee($request, true);
-        $employee = new list_karyawan();
-        $employee->fill($data);
-        $employee->save();
-
-        return response()->json(['status' => 200, 'message' => 'Data karyawan berhasil ditambahkan.']);
-    }
-
-    public function employeeDetail(int $id)
-    {
-        return response()->json(['status' => 200, 'data' => list_karyawan::findOrFail($id)]);
-    }
-
-    public function updateEmployee(Request $request)
-    {
-        $employee = list_karyawan::findOrFail($request->integer('id'));
-        $data = $this->validateEmployee($request, false);
-        $employee->fill($data);
-        $employee->save();
-
-        return response()->json(['status' => 200, 'message' => 'Data karyawan berhasil diubah.']);
-    }
-
-    public function deleteEmployee(Request $request)
-    {
-        $request->validate(['id' => 'required|integer|exists:list_karyawans,id']);
-        list_karyawan::findOrFail($request->integer('id'))->delete();
-
-        return response()->json(['status' => 200, 'message' => 'Data karyawan berhasil dihapus.']);
-    }
-
-    public function importEmployees(Request $request)
-    {
-        $data = $request->validate([
-            'id_list_perusahaan' => 'required|integer|exists:list_perusahaans,id',
-            'file' => 'required|file|mimes:xlsx,xls,csv|max:10240',
-        ]);
-
-        Excel::import(new TomiDanaEmployeeImport((int) $data['id_list_perusahaan']), $request->file('file'));
-
-        return response()->json(['status' => 200, 'message' => 'Data karyawan berhasil diimpor.']);
-    }
-
-    public function employeeTemplate()
-    {
-        return Storage::disk('local')->download(
-            'template/template-import-karyawan.xlsx',
-            'template-import-karyawan.xlsx'
-        );
-    }
-
-    private function validateEmployee(Request $request, bool $includeCompany = true): array
-    {
-        $rules = [
-            'nama_karyawan' => 'required|string|max:255',
-            'tanggal_bergabung' => 'nullable|date',
-            'nik' => 'nullable|string|max:100',
-            'nip' => 'nullable|string|max:100',
-            'whatsapp' => 'nullable|string|max:50',
-            'alamat' => 'nullable|string',
-            'divisi' => 'nullable|string|max:255',
-            'departement' => 'nullable|string|max:255',
-            'jabatan' => 'nullable|string|max:255',
-            'status' => 'nullable|string|max:50',
-            'status_sp' => 'nullable|string|max:50',
-            'nomor_bank' => 'nullable|string|max:100',
-            'max_plafon' => 'nullable|numeric',
-        ];
-
-        if ($includeCompany) {
-            $rules['id_list_perusahaan'] = 'required|integer|exists:list_perusahaans,id';
-        }
-
-        return $request->validate($rules);
-    }
-
-    public function disbursements()
-    {
-        $statusCounts = pinjaman::query()
-            ->whereRaw('LOWER(TRIM(status_otp)) = ?', ['success'])
-            ->whereRaw('LOWER(TRIM(ttd)) = ?', ['y'])
-            ->whereRaw('LOWER(TRIM(status)) IN (?, ?, ?)', ['pending', 'approve', 'done'])
-            ->selectRaw('LOWER(TRIM(status)) as status, COUNT(*) as total')
-            ->groupByRaw('LOWER(TRIM(status))')
-            ->pluck('total', 'status');
-
-        return view('admin.tomi-dana.disbursements.index', [
-            'statusCounts' => [
-                'belum_diproses' => (int) ($statusCounts['pending'] ?? 0),
-                'aktif' => (int) ($statusCounts['approve'] ?? 0),
-                'lunas' => (int) ($statusCounts['done'] ?? 0),
-            ],
-        ]);
-    }
-
-    public function disbursementsTable()
-    {
-        $statusMap = [
-            'belum_diproses' => 'pending',
-            'aktif' => 'approve',
-            'lunas' => 'done',
-        ];
-        $loanStatus = $statusMap[request()->input('status_tab', 'belum_diproses')] ?? 'pending';
-
-        $query = pinjaman::with(['user.kyc', 'user.privy', 'data_karyawan.bank', 'lender', 'perusahaan', 'disbursement'])
-            ->whereRaw('LOWER(TRIM(status_otp)) = ?', ['success'])
-            ->whereRaw('LOWER(TRIM(ttd)) = ?', ['y'])
-            ->whereRaw('LOWER(TRIM(status)) = ?', [$loanStatus])
-            ->latest('id');
-
-        $keyword = trim((string) request()->input('search.value', ''));
-        if ($keyword !== '') {
-            $query->where(function ($searchQuery) use ($keyword) {
-                $searchQuery->where('id_pinjaman', 'like', "%{$keyword}%")
-                    ->orWhereHas('data_karyawan', fn ($q) => $q->where('nama_karyawan', 'like', "%{$keyword}%"))
-                    ->orWhereHas('user', fn ($q) => $q->where('name', 'like', "%{$keyword}%"))
-                    ->orWhereHas('lender', fn ($q) => $q->where('nama', 'like', "%{$keyword}%"))
-                    ->orWhereHas('perusahaan', fn ($q) => $q->where('nama', 'like', "%{$keyword}%"));
-            });
-        }
-
-        return DataTables::of($query->get())
-            ->addIndexColumn()
-            ->addColumn('loan_id', fn ($row) => $row->id)
-            ->addColumn('tanggal', fn ($row) => $row->created_at ? Carbon::parse($row->created_at)->format('d/m/Y') : '-')
-            ->addColumn('prioritas', function ($row) {
-                $ageHours = $row->created_at
-                    ? max(0, Carbon::parse($row->created_at)->diffInHours(now(), false))
-                    : 0;
-
-                return match (true) {
-                    $ageHours >= 24 => '🔴 Sangat Mendesak',
-                    $ageHours >= 4 => '🟠 Mendesak',
-                    $ageHours >= 1 => '🟡 Normal',
-                    default => '🔵 Baru Masuk',
-                };
-            })
-            ->addColumn('doc_pk', function ($row) {
-                return $row->document_name
-                    ? '<a href="' . route('admin.tomi-dana.disbursements.evidence', [$row->id, 'tte']) . '" target="_blank" class="btn btn-sm btn-outline-info" title="Lihat dokumen PK"><i class="mdi mdi-file-document-outline"></i></a>'
-                    : '<span class="text-muted">-</span>';
-            })
-            ->addColumn('ktp', function ($row) {
-                return '<a href="' . route('admin.tomi-dana.disbursements.evidence', [$row->id, 'ktp']) . '" target="_blank" class="btn btn-sm btn-outline-info" title="Lihat KTP"><i class="mdi mdi-account-box-outline"></i></a>';
-            })
-            ->addColumn('selfie', function ($row) {
-                $path = $this->evidencePath('assets/users', $row->user?->privy?->local_selfie_path)
-                    ?? $this->evidencePath('assets/users', $row->user?->kyc?->selfie);
-
-                return $path
-                    ? '<a href="' . route('admin.tomi-dana.disbursements.evidence', [$row->id, 'selfie']) . '" target="_blank" class="btn btn-sm btn-outline-info" title="Lihat selfie"><i class="mdi mdi-camera-outline"></i></a>'
-                    : '<span class="text-muted">-</span>';
-            })
-            ->addColumn('id_pinjaman', fn ($row) => $row->id_pinjaman ?? ('TD-' . $row->id))
-            ->addColumn('nama_perusahaan', fn ($row) => strtoupper($row->perusahaan?->nama ?? '-'))
-            ->addColumn('nama_karyawan', fn ($row) => strtoupper($row->data_karyawan?->nama_karyawan ?? $row->user?->name ?? '-'))
-            ->addColumn('total_pinjaman', fn ($row) => 'Rp. ' . number_format((float) ($row->nominal ?? 0), 0, ',', '.'))
-            ->addColumn('jumlah_disbursement', fn ($row) => 'Rp. ' . number_format((float) ($row->jumlah_yang_diterima ?? 0), 0, ',', '.'))
-            ->addColumn('bank', fn ($row) => strtoupper($row->data_karyawan?->bank?->code_bank ?? $row->data_karyawan?->bank?->nama_bank ?? $row->data_karyawan?->bank?->name ?? '-'))
-            ->addColumn('no_rekening', fn ($row) => $row->data_karyawan?->nomor_bank ?? '-')
-            ->addColumn('atas_nama', fn ($row) => strtoupper($row->data_karyawan?->nama_rekening ?? '-'))
-            ->addColumn('status_label', function ($row) {
-                return match (strtolower(trim((string) $row->status))) {
-                    'pending' => '<span class="badge badge-warning">BELUM DIPROSES</span>',
-                    'approve' => '<span class="badge badge-success">AKTIF</span>',
-                    'done' => '<span class="badge badge-primary">LUNAS</span>',
-                    default => '<span class="badge badge-secondary">' . e(strtoupper((string) $row->status)) . '</span>',
-                };
-            })
-            ->addColumn('tanggal_transfer', fn ($row) => $row->disbursement?->transfer_date
-                ? Carbon::parse($row->disbursement->transfer_date)->format('d/m/Y')
-                : '-')
-            ->addColumn('action', function ($row) {
-                return strtolower(trim((string) $row->status)) === 'pending'
-                    ? '<button type="button" class="btn btn-sm btn-outline-primary" onclick="editDisbursement(' . $row->id . ')" title="Edit status disbursement"><i class="mdi mdi-pencil-outline"></i></button>'
-                    : '<span class="text-muted">-</span>';
-            })
-            ->rawColumns(['prioritas', 'doc_pk', 'ktp', 'selfie', 'status_label', 'action'])
-            ->toJson();
-    }
-
-    public function disbursementEvidence(int $id, string $type)
-    {
-        abort_unless(in_array($type, ['tte', 'selfie', 'ktp'], true), 404);
-
-        $loan = pinjaman::with(['user.kyc', 'user.privy'])->findOrFail($id);
-
-        $path = match ($type) {
-            'tte' => $this->evidencePath('assets/pk', $loan->document_name),
-            'ktp' => $this->evidencePath('assets/users', $loan->user?->privy?->local_ktp_path)
-                ?? $this->evidencePath('assets/users', $loan->user?->kyc?->ktp),
-            'selfie' => $this->evidencePath('assets/users', $loan->user?->privy?->local_selfie_path)
-                ?? $this->evidencePath('assets/users', $loan->user?->kyc?->selfie),
-        };
-
-        abort_if(blank($path), 404, 'Bukti dokumen tidak tersedia.');
-
-        $disk = Storage::disk('local');
-        abort_unless($disk->exists($path), 404, 'Bukti dokumen tidak ditemukan.');
-
-        return response()->file($disk->path($path), [
-            'Content-Disposition' => 'inline; filename="' . basename($path) . '"',
-        ]);
-    }
-
-    private function evidencePath(string $directory, ?string $fileName): ?string
-    {
-        return filled($fileName) ? $directory . '/' . basename($fileName) : null;
-    }
-
-    public function approveDisbursement(Request $request)
-    {
-        $request->validate([
-            'id' => 'required|integer',
-            'transfer_date' => 'required|date',
-            'transfer_proof' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
-            'declaration' => 'accepted',
-        ]);
-
-        $loan = pinjaman::with('data_karyawan')
-            ->where('id', $request->integer('id'))
-            ->whereRaw('LOWER(TRIM(status_otp)) = ?', ['success'])
-            ->whereRaw('LOWER(TRIM(ttd)) = ?', ['y'])
-            ->whereRaw('LOWER(TRIM(status)) = ?', ['pending'])
-            ->first();
-
-        if (! $loan) {
-            return response()->json([
-                'status' => 422,
-                'message' => 'Pinjaman tidak memenuhi syarat untuk di-approve.',
-            ], 422);
-        }
-
-        $employee = $loan->data_karyawan;
-        if (! $employee || ! filled($employee->id_nama_bank) || ! filled($employee->nomor_bank)
-            || ! filled($employee->nama_rekening) || ! filled($loan->jumlah_yang_diterima)) {
-            return response()->json([
-                'status' => 422,
-                'message' => 'Data rekening atau nominal pencairan karyawan belum lengkap.',
-            ], 422);
-        }
-
-        $proof = $request->file('transfer_proof');
-        $proofName = 'transfer-proof-' . $loan->id . '-' . time() . '-' . Str::random(8) . '.' . $proof->getClientOriginalExtension();
-        $proofPath = $proof->storeAs('assets/disbursements', $proofName);
-
-        DB::transaction(function () use ($loan, $employee, $request, $proofPath) {
-            $disbursement = disbursement::where('pinjaman_id', $loan->id)->first() ?? new disbursement();
-            $disbursement->pinjaman_id = $loan->id;
-            $disbursement->admin_id = auth('admin')->id();
-            $disbursement->bank_id = $employee->id_nama_bank;
-            $disbursement->dana_yang_dicairkan = $loan->jumlah_yang_diterima;
-            $disbursement->atas_nama = $employee->nama_rekening;
-            $disbursement->nomor_rekening = $employee->nomor_bank;
-            $disbursement->transfer_date = $request->input('transfer_date');
-            $disbursement->transfer_proof = $proofPath;
-            $disbursement->save();
-
-            $loan->status = 'approve';
-            $loan->save();
-        });
-
-        return response()->json([
-            'status' => 200,
-            'message' => 'Pinjaman berhasil di-approve.',
-        ]);
-    }
-
-    public function updateLenderInvoicePayment(Request $request)
-    {
-        $data = $request->validate([
-            'id' => 'required|integer|exists:history_invoicing_lenders,id',
-            'tanggal' => 'required|date|date_format:Y-m-d\\TH:i',
-            'bukti_transfer' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
-            'pernyataan' => 'accepted',
-        ]);
-
-        $invoice = history_invoicing_lender::findOrFail($data['id']);
-        $invoice->status = 'lunas';
-        $invoice->tanggal_pembayaran = $data['tanggal'];
-        $invoice->bukti_transfer = $request->file('bukti_transfer')->store('assets/invoice-lender');
-        $invoice->update_by = auth('admin')->id();
-        $invoice->saveQuietly();
-
-        return response()->json([
-            'status' => 200,
-            'message' => 'Pembayaran invoice berhasil disimpan.',
-        ]);
-    }
-
-    public function repayments(Request $request, ?int $companyId = null)
-    {
-        if ($companyId === null) {
-            $companies = ListPerusahaan::query()
-                ->orderBy('nama')
-                ->get(['id', 'id_code_perusahaan', 'nama', 'status']);
-
-            $invoices = invoicing_pinjaman::with([
-                'pinjaman' => function ($query) {
-                    $query->whereIn('status', ['approve', 'done'])->with(['angsuran', 'data_karyawan', 'user']);
-                },
-            ])
-                ->whereIn('id_list_perusahaan', $companies->pluck('id'))
-                ->orderByDesc('period')
-                ->get()
-                ->groupBy('id_list_perusahaan');
-
-            $companyRows = $companies->flatMap(function ($company) use ($invoices) {
-                $companyInvoices = $invoices->get($company->id, collect());
-
-                if ($companyInvoices->isEmpty()) {
-                    return [(object) [
-                        'id' => $company->id,
-                        'id_code_perusahaan' => $company->id_code_perusahaan,
-                        'nama' => $company->nama,
-                        'status' => $company->status,
-                        'jatuh_tempo' => '-',
-                        'jumlah_pinjaman' => 0,
-                        'total_tagihan' => 0,
-                        'invoice' => '-',
-                        'invoice_id' => null,
-                        'status_label' => '-',
-                        'status_invoice' => '-',
-                    ]];
-                }
-
-                return $companyInvoices->map(function ($invoice) use ($company) {
-                    $invoicePeriod = $invoice->period
-                        ? Carbon::parse($invoice->period)
-                        : Carbon::createFromDate($invoice->tahun, $invoice->bulan, 1);
-                    $targetPeriod = $invoicePeriod->format('m-Y');
-                    $loans = $invoice->pinjaman->filter(function ($loan) use ($targetPeriod) {
-                        return $loan->angsuran->contains(fn ($installment) =>
-                            $installment->jatuh_tempo
-                            && Carbon::parse($installment->jatuh_tempo)->format('m-Y') === $targetPeriod
-                        );
-                    });
-
-                    return (object) [
-                        'id' => $company->id,
-                        'id_code_perusahaan' => $company->id_code_perusahaan,
-                        'nama' => $company->nama,
-                        'status' => $company->status,
-                        'jatuh_tempo' => $invoicePeriod->format('d/m/Y'),
-                        'jumlah_pinjaman' => $loans->count(),
-                        'total_tagihan' => $loans->sum('total_angsuran_perbulan'),
-                        'invoice' => 'INV-' . strtoupper($invoicePeriod->format('M')) . '-' . $company->id_code_perusahaan . '-' . $invoice->id,
-                        'invoice_id' => $invoice->id,
-                        'status_label' => $this->repaymentTimelineStatus(
-                            $invoicePeriod,
-                            strtolower((string) $invoice->status) === 'lunas'
-                        ),
-                        'status_invoice' => strtolower((string) $invoice->status) === 'lunas' ? 'LUNAS' : 'BELUM LUNAS',
-                    ];
-                });
-            })->values();
-
-            return view('admin.tomi-dana.repayments.index', [
-                'companies' => $companyRows,
-                'company' => null,
-                'companyId' => null,
-            ]);
-        }
-
-        $company = ListPerusahaan::findOrFail($companyId);
-
-        $request->validate([
-            'search' => 'nullable|string|max:100',
-            'status' => 'nullable|in:lunas,pending,terlambat',
-            'period' => 'nullable|date_format:Y-m',
-        ]);
-
-        $query = jatuh_tempo::with(['pinjaman.data_karyawan', 'pinjaman.perusahaan', 'pinjaman.user'])
-            ->whereHas('pinjaman', function ($loanQuery) {
-                $loanQuery->where('status_otp', 'success');
-            })
-            ->whereHas('pinjaman', function ($loanQuery) use ($companyId) {
-                $loanQuery->where('id_perusahaan', $companyId);
-            })
-            ->when($request->filled('search'), function ($query) use ($request) {
-                $search = trim($request->input('search'));
-
-                $query->whereHas('pinjaman', function ($loanQuery) use ($search) {
-                    $loanQuery->where('id', 'like', "%{$search}%")
-                        ->orWhereHas('data_karyawan', function ($borrowerQuery) use ($search) {
-                            $borrowerQuery->where('nama_karyawan', 'like', "%{$search}%");
-                        });
-                });
-            })
-            ->when($request->filled('period'), function ($query) use ($request) {
-                $query->whereYear('jatuh_tempo', substr($request->input('period'), 0, 4))
-                    ->whereMonth('jatuh_tempo', substr($request->input('period'), 5, 2));
-            })
-            ->orderBy('jatuh_tempo')
-            ->orderBy('id_pinjaman');
-
-        $repayments = $query->get()->map(function ($installment) {
-            $dueDate = $installment->jatuh_tempo ? Carbon::parse($installment->jatuh_tempo) : null;
-            $isPaid = strtolower((string) $installment->status) === 'lunas';
-            $status = $isPaid ? 'lunas' : ($dueDate?->isBefore(Carbon::today()) ? 'terlambat' : 'pending');
-
-            return [
-                'borrower_name' => $installment->pinjaman?->data_karyawan?->nama_karyawan ?? $installment->pinjaman?->user?->name ?? '-',
-                'loan_number' => 'TD-' . str_pad((string) ($installment->id_pinjaman ?? '-'), 6, '0', STR_PAD_LEFT),
-                'installment_number' => $installment->pembayaran ?? '-',
-                'due_date' => $dueDate?->format('d/m/Y') ?? '-',
-                'amount' => (float) ($installment->pinjaman?->total_angsuran_perbulan ?? 0),
-                'status' => $status,
-            ];
-        })->filter(function ($repayment) use ($request) {
-            return ! $request->filled('status') || $repayment['status'] === $request->input('status');
-        })->values();
-
-        return view('admin.tomi-dana.repayments.index', [
-            'companies' => collect(),
-            'company' => $company,
-            'companyId' => $companyId,
-            'repayments' => $repayments,
-            'totalRepayments' => $repayments->count(),
-            'paidRepayments' => $repayments->where('status', 'lunas')->count(),
-            'pendingRepayments' => $repayments->where('status', 'pending')->count(),
-            'overdueRepayments' => $repayments->where('status', 'terlambat')->count(),
-        ]);
-    }
-
-    public function invoiceLender(int $invoiceId)
-    {
-        return view('admin.tomi-dana.repayments.invoice-lender', array_merge(
-            $this->invoiceLenderData($invoiceId),
-            ['isPdf' => false]
-        ));
-    }
-
-    public function invoiceLenderPdf(int $invoiceId)
-    {
-        $data = array_merge($this->invoiceLenderData($invoiceId), ['isPdf' => true]);
-        $pdf = Pdf::loadView('admin.tomi-dana.repayments.invoice-lender', $data)
-            ->setPaper('a4', 'landscape');
-
-        return $pdf->stream($data['invoiceNumber'] . '.pdf');
-    }
-
-    private function invoiceLenderData(int $invoiceId): array
-    {
-        $invoice = invoicing_pinjaman::with([
-            'perusahaan.lender',
-            'pinjaman' => function ($query) {
-                $query->whereIn('status', ['approve', 'done'])->with(['angsuran', 'data_karyawan', 'user']);
-            },
-        ])->findOrFail($invoiceId);
-
-        $company = $invoice->perusahaan;
-        $invoicePeriod = $invoice->period
-            ? Carbon::parse($invoice->period)
-            : Carbon::createFromDate($invoice->tahun, $invoice->bulan, 1);
-        $targetPeriod = $invoicePeriod->format('m-Y');
-        $pinjaman = $invoice->pinjaman->filter(function ($loan) use ($targetPeriod) {
-            return $loan->angsuran->contains(fn ($installment) =>
-                $installment->jatuh_tempo
-                && Carbon::parse($installment->jatuh_tempo)->format('m-Y') === $targetPeriod
-            );
-        })->values();
-
-        return [
-            'invoice' => $invoice,
-            'company' => $company,
-            'invoicePeriod' => $invoicePeriod,
-            'invoiceNumber' => 'INV-' . strtoupper($invoicePeriod->format('M')) . '-' . $company->id_code_perusahaan . '-' . $invoice->id,
-            'pinjaman' => $pinjaman,
-            'jumlahPinjaman' => $pinjaman->count(),
-            'totalTagihan' => $pinjaman->sum('total_angsuran_perbulan'),
-        ];
-    }
-
-    public function updateRepaymentInvoice(Request $request)
-    {
-        $data = $request->validate([
-            'invoice_id' => 'required|integer|exists:invoicing_pinjaman,id',
-            'payment_time' => 'required|date',
-            'payment_proof' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
-            'declaration' => 'accepted',
-        ]);
-
-        $invoice = invoicing_pinjaman::findOrFail($data['invoice_id']);
-        $proofPath = $request->file('payment_proof')->store('assets/invoices/proof');
-        $invoice->status = 'lunas';
-
-        if (Schema::hasColumn($invoice->getTable(), 'tanggal_pembayaran')) {
-            $invoice->tanggal_pembayaran = $data['payment_time'];
-        }
-
-        foreach (['bukti_bayar', 'bukti_pembayaran', 'payment_proof'] as $proofColumn) {
-            if (Schema::hasColumn($invoice->getTable(), $proofColumn)) {
-                $invoice->{$proofColumn} = $proofPath;
-                break;
-            }
-        }
-
-        $invoice->save();
-
-        return response()->json([
-            'status' => 200,
-            'message' => 'Pembayaran invoice berhasil disimpan.',
-        ]);
-    }
-
-    private function repaymentTimelineStatus(?Carbon $dueDate, bool $isPaid): string
-    {
-        if ($isPaid) {
-            return '<span class="badge badge-success">LUNAS</span>';
-        }
-
-        if (! $dueDate) {
-            return '-';
-        }
-
-        $daysUntilDue = Carbon::today()->diffInDays($dueDate, false);
-        $timeline = match (true) {
-            $daysUntilDue >= 5 => ['H-5', '&#9898;', 'Belum Jatuh Tempo'],
-            $daysUntilDue === 4 => ['H-4', '&#9898;', 'Belum Jatuh Tempo'],
-            $daysUntilDue === 3 => ['H-3', '&#9898;', 'Belum Jatuh Tempo'],
-            $daysUntilDue === 2 => ['H-2', '&#9898;', 'Belum Jatuh Tempo'],
-            $daysUntilDue === 1 => ['H-1', '&#9898;', 'Belum Jatuh Tempo'],
-            $daysUntilDue === 0 => ['H0', '&#128309;', 'Baru Masuk Tagihan'],
-            $daysUntilDue === -1 => ['H+1', '&#128993;', 'Normal'],
-            $daysUntilDue === -2 => ['H+2', '&#128992;', 'Mendesak'],
-            default => ['H+3', '&#128308;', 'Sangat Mendesak'],
-        };
-
-        [$dayLabel, $symbol, $status] = $timeline;
-
-        return $symbol . ' ' . $dayLabel . ' - ' . $status;
-    }
-
-    public function repaymentsTable(Request $request)
-    {
-        $today = Carbon::today();
-        $query = jatuh_tempo::with(['pinjaman.data_karyawan', 'pinjaman.user', 'pinjaman.lender', 'pinjaman.perusahaan'])
-            ->whereHas('pinjaman', function ($loanQuery) {
-                $loanQuery->where('status_otp', 'success');
-            })
-            ->when($request->filled('status'), function ($query) use ($request, $today) {
-                $status = $request->input('status');
-
-                if ($status === 'lunas') {
-                    $query->where('status', 'lunas');
-                } elseif ($status === 'terlambat') {
-                    $query->where('status', '!=', 'lunas')->whereDate('jatuh_tempo', '<', $today);
-                } elseif ($status === 'pending') {
-                    $query->where('status', '!=', 'lunas')->where(function ($pendingQuery) use ($today) {
-                        $pendingQuery->whereDate('jatuh_tempo', '>=', $today)
-                            ->orWhereNull('jatuh_tempo');
-                    });
-                }
-            })
-            ->when($request->filled('period'), function ($query) use ($request) {
-                $query->whereYear('jatuh_tempo', substr($request->input('period'), 0, 4))
-                    ->whereMonth('jatuh_tempo', substr($request->input('period'), 5, 2));
-            })
-            ->when($request->filled('company_id'), function ($query) use ($request) {
-                $query->whereHas('pinjaman', function ($loanQuery) use ($request) {
-                    $loanQuery->where('id_perusahaan', $request->integer('company_id'));
-                });
-            });
-
-        return DataTables::eloquent($query)
-            ->addIndexColumn()
-            ->addColumn('nama_peminjam', function ($row) {
-                return strtoupper($row->pinjaman?->data_karyawan?->nama_karyawan ?? $row->pinjaman?->user?->name ?? '-');
-            })
-            ->addColumn('nomor_pinjaman', function ($row) {
-                return strtolower(ltrim((string) ($row->pinjaman?->id_pinjaman ?? '-'), '#'));
-            })
-            ->addColumn('lender', fn ($row) => strtoupper($row->pinjaman?->lender?->nama ?? '-'))
-            ->addColumn('perusahaan', fn ($row) => strtoupper($row->pinjaman?->perusahaan?->nama ?? '-'))
-            ->addColumn('angsuran_ke', fn ($row) => $row->pembayaran ?? '-')
-            ->addColumn('periode', fn ($row) => $row->jatuh_tempo ? Carbon::parse($row->jatuh_tempo)->format('m/Y') : '-')
-            ->addColumn('tanggal_jatuh_tempo', fn ($row) => $row->jatuh_tempo ? Carbon::parse($row->jatuh_tempo)->format('d/m/Y') : '-')
-            ->addColumn('nominal', fn ($row) => 'Rp. ' . number_format((float) ($row->pinjaman?->total_angsuran_perbulan ?? 0), 0, ',', '.'))
-            ->addColumn('status_label', function ($row) {
-                return $this->repaymentTimelineStatus(
-                    $row->jatuh_tempo ? Carbon::parse($row->jatuh_tempo) : null,
-                    strtolower((string) $row->status) === 'lunas'
-                );
-            })
-            ->addColumn('action', fn () => '<button type="button" class="btn btn-sm btn-light" title="Detail" disabled><i class="mdi mdi-eye-outline"></i></button>')
-            ->filterColumn('nama_peminjam', function ($query, $keyword) {
-                $query->whereHas('pinjaman.data_karyawan', function ($borrowerQuery) use ($keyword) {
-                    $borrowerQuery->where('nama_karyawan', 'like', "%{$keyword}%");
-                });
-            })
-            ->filterColumn('nomor_pinjaman', function ($query, $keyword) {
-                $query->whereHas('pinjaman', function ($loanQuery) use ($keyword) {
-                    $loanQuery->where('id_pinjaman', 'like', '%' . ltrim($keyword, '#') . '%');
-                });
-            })
-            ->filterColumn('lender', function ($query, $keyword) {
-                $query->whereHas('pinjaman.lender', function ($lenderQuery) use ($keyword) {
-                    $lenderQuery->where('nama', 'like', "%{$keyword}%");
-                });
-            })
-            ->filterColumn('perusahaan', function ($query, $keyword) {
-                $query->whereHas('pinjaman.perusahaan', function ($companyQuery) use ($keyword) {
-                    $companyQuery->where('nama', 'like', "%{$keyword}%");
-                });
-            })
-            ->rawColumns(['status_label', 'action'])
-            ->toJson();
-    }
 
     public function configurations()
     {
@@ -852,27 +64,27 @@ class TomiDanaController extends Controller
 
         return DataTables::of($tenor)
             ->addIndexColumn()
-            ->addColumn('tenor', fn ($row) => $row->tenor . ' bulan')
-            ->addColumn('rate', fn ($row) => $row->rate . ' %')
-            ->addColumn('asuransi', fn ($row) => $row->asuransi . ' %')
-            ->addColumn('provisi', fn ($row) => $row->provisi . ' %')
-            ->addColumn('biaya_admin', fn ($row) => $row->biaya_admin . ' %')
-            ->addColumn('fee_tomi', fn ($row) => $row->fee_tomi . ' %')
-            ->addColumn('profesional_fee_1', fn ($row) => $row->profesional_fee_1 . ' %')
-            ->addColumn('profesional_fee_2', fn ($row) => $row->profesional_fee_2 . ' %')
-            ->addColumn('ksp', fn ($row) => $row->ksp . ' %')
-            ->addColumn('iuran_anggota', fn ($row) => 'Rp. ' . number_format($row->tenor * ($amount?->iuran_anggota ?? 0), 0, ',', '.'))
-            ->addColumn('biaya_layanan', fn ($row) => 'Rp. ' . number_format($row->biaya_layanan, 0, ',', '.'))
-            ->addColumn('minimal_nominal', fn ($row) => 'Rp. ' . number_format($row->minimal_nominal, 0, ',', '.'))
-            ->addColumn('maximal_nominal', fn ($row) => 'Rp. ' . number_format($row->maximal_nominal, 0, ',', '.'))
-            ->addColumn('action', fn ($row) => '<button class="btn btn-sm btn-primary mr-2" onclick="edit(' . $row->id . ')"><i class="mdi mdi-pencil"></i></button><button class="btn btn-sm btn-danger" onclick="deleteKonfigurasi(' . $row->id . ')"><i class="mdi mdi-trash-can"></i></button>')
+            ->addColumn('tenor', fn ($row) => $row->tenor.' bulan')
+            ->addColumn('rate', fn ($row) => $row->rate.' %')
+            ->addColumn('asuransi', fn ($row) => $row->asuransi.' %')
+            ->addColumn('provisi', fn ($row) => $row->provisi.' %')
+            ->addColumn('biaya_admin', fn ($row) => $row->biaya_admin.' %')
+            ->addColumn('fee_tomi', fn ($row) => $row->fee_tomi.' %')
+            ->addColumn('profesional_fee_1', fn ($row) => $row->profesional_fee_1.' %')
+            ->addColumn('profesional_fee_2', fn ($row) => $row->profesional_fee_2.' %')
+            ->addColumn('ksp', fn ($row) => $row->ksp.' %')
+            ->addColumn('iuran_anggota', fn ($row) => 'Rp. '.number_format($row->tenor * ($amount?->iuran_anggota ?? 0), 0, ',', '.'))
+            ->addColumn('biaya_layanan', fn ($row) => 'Rp. '.number_format($row->biaya_layanan, 0, ',', '.'))
+            ->addColumn('minimal_nominal', fn ($row) => 'Rp. '.number_format($row->minimal_nominal, 0, ',', '.'))
+            ->addColumn('maximal_nominal', fn ($row) => 'Rp. '.number_format($row->maximal_nominal, 0, ',', '.'))
+            ->addColumn('action', fn ($row) => '<button class="btn btn-sm btn-primary mr-2" onclick="edit('.$row->id.')"><i class="mdi mdi-pencil"></i></button><button class="btn btn-sm btn-danger" onclick="deleteKonfigurasi('.$row->id.')"><i class="mdi mdi-trash-can"></i></button>')
             ->rawColumns(['action'])
             ->toJson();
     }
 
     public function addConfiguration(AddKonfigurasiRequest $request)
     {
-        $tenor = new tenor_pinjaman();
+        $tenor = new tenor_pinjaman;
         $this->fillConfiguration($tenor, $request);
         $tenor->id_perusahaan = $request->id;
         $tenor->save();
@@ -933,44 +145,12 @@ class TomiDanaController extends Controller
         $tenor->ksp = $request->ksp;
     }
 
-    public function lenders()
-    {
-        return view('admin.tomi-dana.lender.index');
-    }
-
-    public function lendersTable()
-    {
-        // Hanya lender yang memiliki fitur TomiDana terdaftar di lender_features.
-        $query = lender::with('bank')
-            ->whereExists(function ($query) {
-                $query->select(DB::raw(1))
-                    ->from('lender_features')
-                    ->join('features', 'features.id', '=', 'lender_features.feature_id')
-                    ->whereColumn('lender_features.lender_id', 'lenders.id')
-                    ->whereRaw("REPLACE(LOWER(features.name), ' ', '') = ?", ['tomidana'])
-                    ->whereNull('lender_features.deleted_at')
-                    ->whereNull('features.deleted_at');
-            })
-            ->latest();
-
-        return DataTables::eloquent($query)
-            ->addIndexColumn()
-            ->addColumn('bank', fn ($row) => $row->bank?->code_bank ?? '-')
-            ->addColumn('status_label', function ($row) {
-                return $row->status === 'active'
-                    ? '<span class="badge badge-success">ACTIVE</span>'
-                    : '<span class="badge badge-warning">INACTIVE</span>';
-            })
-            ->addColumn('action', fn ($row) => '<a href="' . route('admin.tomi-dana.lender.pinjaman', ['lender_id' => $row->id]) . '" class="btn btn-sm btn-info" title="Lihat pinjaman"><i class="mdi mdi-format-list-bulleted"></i></a>')
-            ->rawColumns(['status_label', 'action'])
-            ->toJson();
-    }
-
     public function lenderLoans(Request $request)
     {
         $lender = $request->filled('lender_id')
             ? lender::find($request->integer('lender_id'))
             : null;
+
         return view('admin.tomi-dana.lender.pinjaman', compact('lender'));
     }
 
@@ -993,9 +173,9 @@ class TomiDanaController extends Controller
             ->addIndexColumn()
             ->addColumn('bulan_label', fn ($row) => Carbon::createFromFormat('Y-m', $row->bulan)->locale('id')->translatedFormat('F Y'))
             ->editColumn('total_pinjaman', fn ($row) => number_format((int) $row->total_pinjaman, 0, ',', '.'))
-            ->addColumn('total_nominal', fn ($row) => 'Rp. ' . number_format((float) $row->total_nominal, 0, ',', '.'))
+            ->addColumn('total_nominal', fn ($row) => 'Rp. '.number_format((float) $row->total_nominal, 0, ',', '.'))
             ->addColumn('action', function ($row) {
-                $invoiceButton = '<button type="button" class="btn btn-sm btn-danger" onclick="showInvoiceFee(\'' . e($row->bulan) . '\')" title="Lihat invoice fee PDF"><i class="mdi mdi-file-pdf-box"></i> Invoice Fee</button>';
+                $invoiceButton = '<button type="button" class="btn btn-sm btn-danger" onclick="showInvoiceFee(\''.e($row->bulan).'\')" title="Lihat invoice fee PDF"><i class="mdi mdi-file-pdf-box"></i> Invoice Fee</button>';
 
                 return $invoiceButton;
             })
@@ -1127,7 +307,7 @@ class TomiDanaController extends Controller
             : $loans->first()?->lender;
 
         $invoice = (object) [
-            'nomor' => 'TD/' . $month->format('Ym') . '/' . ($request->input('lender_id') ?: 'ALL'),
+            'nomor' => 'TD/'.$month->format('Ym').'/'.($request->input('lender_id') ?: 'ALL'),
             'periode' => $month->locale('id')->translatedFormat('F Y'),
             'periode_mulai' => $month->copy()->startOfMonth()->format('Y-m-d'),
             'periode_selesai' => $month->copy()->endOfMonth()->format('Y-m-d'),
@@ -1146,14 +326,14 @@ class TomiDanaController extends Controller
         ])->all();
 
         $viewData = compact('invoice', 'items', 'summary', 'fieldLabels', 'selectedFields', 'fieldTotals') + ['isPdf' => true];
-        $pdf = Pdf::loadView('admin.tomi-dana.lender.invoice-fee', $viewData)
+        $pdf = Pdf::loadView('admin.tomi-dana.aplication-fee.invoice-fee', $viewData)
             ->setPaper('a4', 'landscape');
 
         if (! $request->boolean('download')) {
-            return $pdf->stream('invoice-fee-tomidana-' . $month->format('Ym') . '.pdf');
+            return $pdf->stream('invoice-fee-tomidana-'.$month->format('Ym').'.pdf');
         }
 
-        return $pdf->download('invoice-fee-tomidana-' . $month->format('Ym') . '.pdf');
+        return $pdf->download('invoice-fee-tomidana-'.$month->format('Ym').'.pdf');
     }
 
     public function lenderLoansDetailTable(Request $request)
@@ -1166,9 +346,9 @@ class TomiDanaController extends Controller
             ->addIndexColumn()
             ->addColumn('nama_karyawan', fn ($row) => strtoupper($row->data_karyawan?->nama_karyawan ?? '-'))
             ->addColumn('perusahaan', fn ($row) => strtoupper($row->perusahaan?->nama ?? '-'))
-            ->addColumn('nominal', fn ($row) => 'Rp. ' . number_format((float) $row->nominal, 0, ',', '.'))
-            ->addColumn('tenor_label', fn ($row) => ($row->tenor ?? 0) . ' bulan')
-            ->addColumn('status_label', fn ($row) => '<span class="badge badge-secondary">' . e(strtoupper((string) ($row->status ?? '-'))) . '</span>')
+            ->addColumn('nominal', fn ($row) => 'Rp. '.number_format((float) $row->nominal, 0, ',', '.'))
+            ->addColumn('tenor_label', fn ($row) => ($row->tenor ?? 0).' bulan')
+            ->addColumn('status_label', fn ($row) => '<span class="badge badge-secondary">'.e(strtoupper((string) ($row->status ?? '-'))).'</span>')
             ->addColumn('tanggal_pengajuan', fn ($row) => optional($row->created_at)->format('d/m/Y H:i') ?? '-')
             ->rawColumns(['status_label'])
             ->toJson();
@@ -1198,34 +378,6 @@ class TomiDanaController extends Controller
         return $query;
     }
 
-    public function companies()
-    {
-        $provinsis = provinsi::get();
-        $features = Schema::hasTable('features')
-            ? DB::table('features')->whereNull('deleted_at')->orderBy('id')->get(['id', 'name'])
-            : collect();
-        $perusahaan = ListPerusahaan::query()
-            ->whereExists(function ($query) {
-                $query->select(DB::raw(1))
-                    ->from('company_features')
-                    ->join('features', 'features.id', '=', 'company_features.feature_id')
-                    ->whereColumn('company_features.company_id', 'list_perusahaans.id')
-                    ->whereRaw("REPLACE(LOWER(features.name), ' ', '') = ?", ['tomidana'])
-                    ->whereNull('company_features.deleted_at')
-                    ->whereNull('features.deleted_at');
-            })
-            ->select('id', 'status')
-            ->get();
-
-        return view('admin.tomi-dana.companies.index', [
-            'provinsis' => $provinsis,
-            'lenders' => lender::select('id', 'nama')->orderBy('nama')->get(),
-            'features' => $features,
-            'perusahaanTidakAktif' => $perusahaan->where('status', 'nonactive')->count(),
-            'perusahaanAktif' => $perusahaan->where('status', 'active')->count(),
-        ]);
-    }
-
     public function kabupaten(Request $request)
     {
         return kota::where('provinsi', $request->provinsi)->get();
@@ -1243,7 +395,7 @@ class TomiDanaController extends Controller
 
     public function addCompany(AddPerusahaanRequest $request)
     {
-        $perusahaan = new ListPerusahaan();
+        $perusahaan = new ListPerusahaan;
         $perusahaan->id_code_perusahaan = $this->generateCompanyCode();
         $perusahaan->unique_code = $this->generateUniqueCode();
         $this->fillCompany($perusahaan, $request);
@@ -1293,69 +445,6 @@ class TomiDanaController extends Controller
         ]);
     }
 
-    public function companiesTable()
-    {
-        try {
-            $query = ListPerusahaan::query()
-                ->select('list_perusahaans.*')
-                ->with(['lender', 'karyawan', 'karyawanPending', 'pinjaman', 'provinsi', 'kabupaten', 'kecamatan', 'desa']);
-
-            $query->whereExists(function ($featureQuery) {
-                $featureQuery->select(DB::raw(1))
-                    ->from('company_features')
-                    ->join('features', 'features.id', '=', 'company_features.feature_id')
-                    ->whereColumn('company_features.company_id', 'list_perusahaans.id')
-                    ->whereRaw("REPLACE(LOWER(features.name), ' ', '') = ?", ['tomidana'])
-                    ->whereNull('company_features.deleted_at')
-                    ->whereNull('features.deleted_at');
-            });
-
-            $admin = auth()->guard('admin')->user();
-            if ($admin?->type === 'pic') {
-                $query->when($admin->company_id, fn ($companyQuery) => $companyQuery->where('list_perusahaans.id', $admin->company_id));
-                if (empty($admin->company_id)) {
-                    $query->whereRaw('1 = 0');
-                }
-            }
-
-            return DataTables::eloquent($query)
-                ->addIndexColumn()
-                ->addColumn('lender', fn ($row) => optional($row->lender)->nama ?? '-')
-                ->addColumn('list_karyawan', function ($row) {
-                    return '<a href="' . route('admin.list.karyawan', encryptSecure($row->id)) . '" target="_blank"><span class="badge badge-primary"><span class="badge badge-info">' . $row->karyawan->count() . '</span><span class="badge badge-pink">' . $row->karyawanPending->count() . '</span></span></a>';
-                })
-                ->addColumn('proses_pengajuan', function ($row) {
-                    return '<a href="' . route('admin.ksp.pengajuan', encryptSecure($row->id)) . '" target="_blank"><span class="badge badge-primary"><span class="badge badge-warning">' . $row->pinjaman->where('status', 'on_proses')->count() . '</span><span class="badge badge-purple">' . $row->pinjaman->where('status', 'exported')->count() . '</span><span class="badge badge-info">' . $row->pinjaman->where('status', 'approve')->count() . '</span><span class="badge badge-pink">' . $row->pinjaman->where('status', 'reject')->count() . '</span></span></a>';
-                })
-                ->addColumn('provinsi', fn ($row) => optional($row->provinsi)->provinsi ?? '-')
-                ->addColumn('unique_code', fn ($row) => $row->unique_code ?? '-')
-                ->addColumn('kabupaten', fn ($row) => optional($row->kabupaten)->kabupaten ?? '-')
-                ->addColumn('kecamatan', fn ($row) => optional($row->kecamatan)->kecamatan ?? '-')
-                ->addColumn('desa', fn ($row) => $row->desa ? ($row->desa->desa ?? '-') . ' - ' . ($row->desa->kodepos ?? '-') : '-')
-                ->addColumn('alamat_lengkap', fn ($row) => $row->alamat_lengkap ?? '-')
-                ->addColumn('konfigurasi_pinjaman', fn ($row) => '<a href="' . route('admin.tomi-dana.configurations.index', encryptSecure($row->id)) . '" target="_blank"><i class="mdi mdi-settings"></i></a>')
-                ->addColumn('status', function ($row) {
-                    return match ($row->status) {
-                        'active' => '<span class="badge badge-success">ACTIVE</span>',
-                        'nonactive' => '<span class="badge badge-warning">INACTIVE</span>',
-                        default => '<span class="badge badge-secondary">UNKNOWN</span>',
-                    };
-                })
-                ->addColumn('action', fn ($row) => '<button type="button" class="btn btn-sm btn-primary mr-1" onclick="edit(' . $row->id . ')"><i class="mdi mdi-pencil"></i></button><button type="button" class="btn btn-sm btn-danger" onclick="deletePerusahaan(' . $row->id . ')"><i class="mdi mdi-trash-can"></i></button>')
-                ->filterColumn('lender', fn ($query, $keyword) => $query->whereHas('lender', fn ($q) => $q->where('nama', 'like', "%{$keyword}%")))
-                ->filterColumn('provinsi', fn ($query, $keyword) => $query->whereHas('provinsi', fn ($q) => $q->where('provinsi', 'like', "%{$keyword}%")))
-                ->filterColumn('kabupaten', fn ($query, $keyword) => $query->whereHas('kabupaten', fn ($q) => $q->where('kabupaten', 'like', "%{$keyword}%")))
-                ->filterColumn('kecamatan', fn ($query, $keyword) => $query->whereHas('kecamatan', fn ($q) => $q->where('kecamatan', 'like', "%{$keyword}%")))
-                ->filterColumn('desa', fn ($query, $keyword) => $query->whereHas('desa', fn ($q) => $q->where('desa', 'like', "%{$keyword}%")->orWhere('kodepos', 'like', "%{$keyword}%")))
-                ->rawColumns(['status', 'action', 'proses_pengajuan', 'list_karyawan', 'konfigurasi_pinjaman'])
-                ->make(true);
-        } catch (\Throwable $exception) {
-            Log::error('ERROR TOMI DANA COMPANIES TABLE', ['message' => $exception->getMessage()]);
-
-            return response()->json(['error' => true, 'message' => 'Gagal mengambil data perusahaan.'], 500);
-        }
-    }
-
     private function fillCompany(ListPerusahaan $perusahaan, Request $request): void
     {
         $perusahaan->pic_perusahaan = $request->pic_perusahaan;
@@ -1383,7 +472,7 @@ class TomiDanaController extends Controller
     private function generateCompanyCode(): string
     {
         do {
-            $code = '#TomiDana-' . Carbon::now()->format('dmY') . '-' . random_int(1000, 9999);
+            $code = '#TomiDana-'.Carbon::now()->format('dmY').'-'.random_int(1000, 9999);
         } while (ListPerusahaan::where('id_code_perusahaan', $code)->exists());
 
         return $code;

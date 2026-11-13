@@ -102,24 +102,24 @@
                             <th>Payment Date</th> <!-- Jadwal penting -->
                             <th>H-Jatuh Tempo</th> <!-- Jadwal penting -->
                             <th>Status</th> <!-- Status penting -->
-                            <th class="none">Lender</th> <!-- Status penting -->
+                            <th>Lender</th> <!-- Status penting -->
 
                             <!-- 3. Identifikasi -->
-                            <th class="none">Unique Code</th> <!-- ID unik untuk referensi -->
-                            <th class="none">ID Perusahaan</th> <!-- ID sistem -->
+                            <th>Unique Code</th> <!-- ID unik untuk referensi -->
+                            <th>ID Perusahaan</th> <!-- ID sistem -->
 
                             <!-- 4. Detail Alamat -->
-                            <th class="none">Provinsi</th>
-                            <th class="none">Kabupaten / Kota</th>
-                            <th class="none">Kecamatan</th>
-                            <th class="none">Desa</th>
-                            <th class="none">Alamat Lengkap</th>
+                            <th>Provinsi</th>
+                            <th>Kabupaten / Kota</th>
+                            <th>Kecamatan</th>
+                            <th>Desa</th>
+                            <th>Alamat Lengkap</th>
 
                             <!-- 5. Konfigurasi -->
-                            <th class="none">Konfigurasi Pinjaman</th> <!-- Fitur penting -->
-                            <th class="none">Proses Pengajuan</th> <!-- Proses terkait -->
-                            <th class="none">List Karyawan</th> <!-- Data terkait -->
-                            <th class="none">Nomor PKS</th> <!-- Dokumen terkait -->
+                            <th>Konfigurasi Pinjaman</th> <!-- Fitur penting -->
+                            <th>Proses Pengajuan</th> <!-- Proses terkait -->
+                            <th>List Karyawan</th> <!-- Data terkait -->
+                            <th>Nomor PKS</th> <!-- Dokumen terkait -->
 
                             <!-- 6. Aksi -->
                             <th>Aksi</th>
@@ -825,7 +825,8 @@
 
         lengthMenu: [10, 50, 100, 500, 1000, 2000, 5000, 10000, 50000, 100000],
         processing: true,
-        responsive: true,
+        responsive: false,
+        scrollX: true,
         serverSide: true,
 
         language: {
