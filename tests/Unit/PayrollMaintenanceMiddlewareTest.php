@@ -16,11 +16,12 @@ class PayrollMaintenanceMiddlewareTest extends TestCase
         parent::tearDown();
     }
 
-    public function test_payment_date_above_25_uses_h_minus_7_until_end_of_month(): void
+    public function test_payment_date_above_25_uses_h_minus_7_until_h_plus_7_across_month_boundary(): void
     {
         $this->assertMaintenanceOn('2026-09-19', 26);
         $this->assertMaintenanceOn('2026-09-30', 26);
-        $this->assertMaintenanceOff('2026-10-01', 26);
+        $this->assertMaintenanceOn('2026-10-03', 26);
+        $this->assertMaintenanceOff('2026-10-04', 26);
     }
 
     public function test_payment_date_25_or_below_uses_h_minus_7_until_h_plus_7(): void
