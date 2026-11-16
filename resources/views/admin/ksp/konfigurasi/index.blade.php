@@ -201,7 +201,7 @@
                 <div class="form-group">
                     <label>Biaya Admin</label>
                     <div class="input-group">
-                        <input class="form-control" id="biayaadmin" placeholder="Biaya Admin" type="number" step="0.01">
+                        <input class="form-control" id="biayaadmin" placeholder="Biaya Admin" type="number" step="0.01" disabled>
                         <span class="input-group-text">%</span>
                     </div>
                     <small class="text-danger" id="errBiayaAdmin"></small>
@@ -323,7 +323,7 @@
                 <div class="form-group">
                     <label>Biaya Admin</label>
                     <div class="input-group">
-                        <input class="form-control" id="biayaadminEdit" placeholder="Biaya Admin" type="number" step="0.01">
+                        <input class="form-control" id="biayaadminEdit" placeholder="Biaya Admin" type="number" step="0.01" disabled>
                         <span class="input-group-text">%</span>
                     </div>
                     <small class="text-danger" id="errBiayaAdminEdit"></small>
@@ -580,6 +580,8 @@
                 $('#biayalayananEdit')
                     .attr('data-original-value', data.biaya_layanan) // Simpan nilai integer mentah
                     .val(formatRupiah(data.biaya_layanan)); // Tampilkan nilai yang diformat
+
+                calculateBiayaAdmin('Edit');
 
                 // Minimal Nominal
                 $('#minimalNominalTenorEdit')
@@ -917,25 +919,30 @@
         $(this).val(formatRupiah(rawValue));
     });
 
-    $('.hitung-admin').on('input', function () {
-        let fee1 = parseFloat($('#profesional_fee_1').val()) || 0;
-        let fee2 = parseFloat($('#profesional_fee_2').val()) || 0;
-        let ksp = parseFloat($('#ksp').val()) || 0;
+    function calculateBiayaAdmin(suffix = '') {
+        const value = (selector) => parseFloat($(selector).val()) || 0;
+        const biayaLayanan = parseFloat($(`#biayalayanan${suffix}`).attr('data-original-value')) || 0;
+        const total = value(`#rate${suffix}`)
+            + value(`#asuransi${suffix}`)
+            + value(`#provisi${suffix}`)
+            + value(`#profesional_fee_1${suffix}`)
+            + value(`#profesional_fee_2${suffix}`)
+            + value(`#ksp${suffix}`)
+            + value(`#feeTomi${suffix}`)
+            + biayaLayanan;
 
-        let total = fee1 + fee2 + ksp;
+        $(`#biayaadmin${suffix}`).val(total.toFixed(2));
+    }
 
-        $('#biayaadmin').val(total.toFixed(2));
-    });
+    $('#rate, #asuransi, #provisi, #profesional_fee_1, #profesional_fee_2, #ksp, #feeTomi, #biayalayanan')
+        .on('input keyup', function () {
+            calculateBiayaAdmin();
+        });
 
-
-    $('.hitung-adminEdit').on('input', function () {
-        let fee1 = parseFloat($('#profesional_fee_1Edit').val()) || 0;
-        let fee2 = parseFloat($('#profesional_fee_2Edit').val()) || 0;
-        let ksp = parseFloat($('#kspEdit').val()) || 0;
-        let total = fee1 + fee2 + ksp;
-
-        $('#biayaadminEdit').val(total.toFixed(2));
-    });
+    $('#rateEdit, #asuransiEdit, #provisiEdit, #profesional_fee_1Edit, #profesional_fee_2Edit, #kspEdit, #feeTomiEdit, #biayalayananEdit')
+        .on('input keyup', function () {
+            calculateBiayaAdmin('Edit');
+        });
 
     const inputView = document.getElementById('maximal_pinjaman_view');
     const inputReal = document.getElementById('maximal_pinjaman');

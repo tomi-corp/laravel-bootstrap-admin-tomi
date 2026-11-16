@@ -40,6 +40,24 @@ class AddKonfigurasiRequest extends FormRequest
         if ($values !== []) {
             $this->merge($values);
         }
+
+        $biayaAdminFields = [
+            'rate',
+            'asuransi',
+            'provisi',
+            'profesional_fee_1',
+            'profesional_fee_2',
+            'ksp',
+            'fee_tomi',
+            'biaya_layanan',
+        ];
+
+        $this->merge([
+            'biaya_admin' => array_sum(array_map(
+                fn (string $field): float => (float) $this->input($field, 0),
+                $biayaAdminFields
+            )),
+        ]);
     }
 
     /**
