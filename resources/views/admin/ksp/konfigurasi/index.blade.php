@@ -204,6 +204,7 @@
                         <input class="form-control" id="biayaadmin" placeholder="Biaya Admin" type="number" step="0.01" disabled>
                         <span class="input-group-text">%</span>
                     </div>
+                    <small class="form-text text-muted">Catatan: Biaya admin otomatis terisi dari total persentase rate, asuransi, provisi, referal 1, referal 2, KSP, dan fee Tomi. Biaya layanan tidak termasuk.</small>
                     <small class="text-danger" id="errBiayaAdmin"></small>
                 </div>
 
@@ -326,6 +327,7 @@
                         <input class="form-control" id="biayaadminEdit" placeholder="Biaya Admin" type="number" step="0.01" disabled>
                         <span class="input-group-text">%</span>
                     </div>
+                    <small class="form-text text-muted">Catatan: Biaya admin otomatis terisi dari total persentase rate, asuransi, provisi, referal 1, referal 2, KSP, dan fee Tomi. Biaya layanan tidak termasuk.</small>
                     <small class="text-danger" id="errBiayaAdminEdit"></small>
                 </div>
 
