@@ -921,25 +921,23 @@
 
     function calculateBiayaAdmin(suffix = '') {
         const value = (selector) => parseFloat($(selector).val()) || 0;
-        const biayaLayanan = parseFloat($(`#biayalayanan${suffix}`).attr('data-original-value')) || 0;
         const total = value(`#rate${suffix}`)
             + value(`#asuransi${suffix}`)
             + value(`#provisi${suffix}`)
             + value(`#profesional_fee_1${suffix}`)
             + value(`#profesional_fee_2${suffix}`)
             + value(`#ksp${suffix}`)
-            + value(`#feeTomi${suffix}`)
-            + biayaLayanan;
+            + value(`#feeTomi${suffix}`);
 
         $(`#biayaadmin${suffix}`).val(total.toFixed(2));
     }
 
-    $('#rate, #asuransi, #provisi, #profesional_fee_1, #profesional_fee_2, #ksp, #feeTomi, #biayalayanan')
+    $('#rate, #asuransi, #provisi, #profesional_fee_1, #profesional_fee_2, #ksp, #feeTomi')
         .on('input keyup', function () {
             calculateBiayaAdmin();
         });
 
-    $('#rateEdit, #asuransiEdit, #provisiEdit, #profesional_fee_1Edit, #profesional_fee_2Edit, #kspEdit, #feeTomiEdit, #biayalayananEdit')
+    $('#rateEdit, #asuransiEdit, #provisiEdit, #profesional_fee_1Edit, #profesional_fee_2Edit, #kspEdit, #feeTomiEdit')
         .on('input keyup', function () {
             calculateBiayaAdmin('Edit');
         });

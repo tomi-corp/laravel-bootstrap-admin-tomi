@@ -49,7 +49,6 @@ class AddKonfigurasiRequest extends FormRequest
             'profesional_fee_2',
             'ksp',
             'fee_tomi',
-            'biaya_layanan',
         ];
 
         $this->merge([
