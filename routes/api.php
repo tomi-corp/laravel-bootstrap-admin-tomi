@@ -51,7 +51,9 @@ Route::middleware(['LanguangeMiddleware'])->group(function () {
             Route::post('/verif/kirim/ulang/otp', [AuthController::class, 'kirimUlangOtp']);
             Route::post('/verif/kirim/ulang/otp/email', [AuthController::class, 'kirimUlangOtpEmail']);
             Route::middleware('PayrollMaintenanceMiddleware')->group(function () {
-                Route::post('/action/pinjaman/otp/ulang', [PinjamanController::class, 'actionPinjamanOTPUlang']);
+                Route::middleware('WeekdaySubmissionMiddleware')->group(function () {
+                    Route::post('/action/pinjaman/otp/ulang', [PinjamanController::class, 'actionPinjamanOTPUlang']);
+                });
             });
             Route::post('/action/gadget-installments/otp/ulang', [GadgetInstallmentController::class, 'actionGadgetInstallmentOTPUlang']);
         });
@@ -92,8 +94,10 @@ Route::middleware(['LanguangeMiddleware'])->group(function () {
                 Route::post('/get/tenor', [PinjamanController::class, 'getTenor']);
                 Route::post('/get/simulation', [PinjamanController::class, 'getSimulation']);
 
-                Route::post('/action/pinjaman', [PinjamanController::class, 'actionPinjaman']);
-                Route::post('/action/pinjaman/otp', [PinjamanController::class, 'actionPinjamanOTP']);
+                Route::middleware('WeekdaySubmissionMiddleware')->group(function () {
+                    Route::post('/action/pinjaman', [PinjamanController::class, 'actionPinjaman']);
+                    Route::post('/action/pinjaman/otp', [PinjamanController::class, 'actionPinjamanOTP']);
+                });
                 Route::get('/action/pinjaman/pk/pdf/{id?}', [PinjamanController::class, 'previewPkPdf']);
                 Route::post('/action/pinjaman/show/berkas', [PinjamanController::class, 'showberkas']);
                 Route::post('/action/pinjaman/ttd/berkas', [PinjamanController::class, 'tandaTangan']);
