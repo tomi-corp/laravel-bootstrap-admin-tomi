@@ -42,9 +42,6 @@ class AddKonfigurasiRequest extends FormRequest
         }
 
         $biayaAdminFields = [
-            'rate',
-            'asuransi',
-            'provisi',
             'profesional_fee_1',
             'profesional_fee_2',
             'ksp',

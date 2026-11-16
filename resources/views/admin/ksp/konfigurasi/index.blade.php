@@ -204,7 +204,7 @@
                         <input class="form-control" id="biayaadmin" placeholder="Biaya Admin" type="number" step="0.01" disabled>
                         <span class="input-group-text">%</span>
                     </div>
-                    <small class="form-text text-muted">Catatan: Biaya admin otomatis terisi dari total persentase rate, asuransi, provisi, referal 1, referal 2, KSP, dan fee Tomi. Biaya layanan tidak termasuk.</small>
+                    <small class="form-text text-muted">Catatan: Biaya admin otomatis terisi dari total persentase referal 1, referal 2, KSP, dan fee Tomi. Biaya layanan tidak termasuk.</small>
                     <small class="text-danger" id="errBiayaAdmin"></small>
                 </div>
 
@@ -327,7 +327,7 @@
                         <input class="form-control" id="biayaadminEdit" placeholder="Biaya Admin" type="number" step="0.01" disabled>
                         <span class="input-group-text">%</span>
                     </div>
-                    <small class="form-text text-muted">Catatan: Biaya admin otomatis terisi dari total persentase rate, asuransi, provisi, referal 1, referal 2, KSP, dan fee Tomi. Biaya layanan tidak termasuk.</small>
+                    <small class="form-text text-muted">Catatan: Biaya admin otomatis terisi dari total persentase referal 1, referal 2, KSP, dan fee Tomi. Biaya layanan tidak termasuk.</small>
                     <small class="text-danger" id="errBiayaAdminEdit"></small>
                 </div>
 
@@ -923,10 +923,7 @@
 
     function calculateBiayaAdmin(suffix = '') {
         const value = (selector) => parseFloat($(selector).val()) || 0;
-        const total = value(`#rate${suffix}`)
-            + value(`#asuransi${suffix}`)
-            + value(`#provisi${suffix}`)
-            + value(`#profesional_fee_1${suffix}`)
+        const total = value(`#profesional_fee_1${suffix}`)
             + value(`#profesional_fee_2${suffix}`)
             + value(`#ksp${suffix}`)
             + value(`#feeTomi${suffix}`);
