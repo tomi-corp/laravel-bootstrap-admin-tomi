@@ -4,6 +4,7 @@ namespace App\Services\Insight;
 
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Route;
 
 /**
  * Rincian satu kartu KPI dasbor: daftar akun/transaksi yang membentuk angkanya + pecahannya.
@@ -48,9 +49,7 @@ class InsightDetail
     /** Syarat tambahan untuk query pengajuan (tahap alur), diisi saat metrik = funnel. */
     private $stageConstraint = null;
 
-    public function __construct(private readonly InsightService $insight)
-    {
-    }
+    public function __construct(private readonly InsightService $insight) {}
 
     /** Query pengajuan produk pada periode + syarat tahap alur (bila ada). */
     private function apps(string $product, InsightPeriod $period, ?int $lenderId)
@@ -138,10 +137,10 @@ class InsightDetail
             'stage' => $stage,
             'filters' => (object) $filters,
             'definition' => $metric === 'funnel'
-                ? 'Pengajuan yang masuk pada periode ini dan sudah sampai tahap “' . $this->insight->stageDefinitions($scope)[$stage][0] . '”'
-                    . (($sub = $this->insight->stageDefinitions($scope)[$stage][1]) ? ' (' . $sub . ')' : '') . '. Tiap tahap dihitung sendiri dari pengajuan yang masuk pada periode.'
-                : $this->definition($scope, $metric) . (! empty($opts['only']) && $scope === 'overview'
-                    ? ' Hanya ' . implode(' & ', array_map(fn ($k) => InsightService::PRODUCTS[$k]['name'], $products)) . '.' : ''),
+                ? 'Pengajuan yang masuk pada periode ini dan sudah sampai tahap “'.$this->insight->stageDefinitions($scope)[$stage][0].'”'
+                    .(($sub = $this->insight->stageDefinitions($scope)[$stage][1]) ? ' ('.$sub.')' : '').'. Tiap tahap dihitung sendiri dari pengajuan yang masuk pada periode.'
+                : $this->definition($scope, $metric).(! empty($opts['only']) && $scope === 'overview'
+                    ? ' Hanya '.implode(' & ', array_map(fn ($k) => InsightService::PRODUCTS[$k]['name'], $products)).'.' : ''),
             'as_of' => in_array($metric, ['outstanding', 'noa_out', 'late'], true) ? InsightPeriod::date($period->to) : null,
             'summary' => $summary,
             'breakdowns' => $breakdowns,
@@ -154,7 +153,7 @@ class InsightDetail
     }
 
     /* ===================================================================== */
-    /* Baris per produk                                                       */
+    /* Baris per produk */
     /* ===================================================================== */
 
     private function rows(string $product, string $metric, InsightPeriod $period, ?int $lenderId): array
@@ -181,7 +180,7 @@ class InsightDetail
             case 'noa':
             case 'revenue':
                 $rev = 'COALESCE(p.pendapatan_bunga,0) + COALESCE(p.total_biaya_admin,0) + COALESCE(p.biaya_admin_pandu,0) + COALESCE(p.biaya_layanan,0)'
-                    . ' + COALESCE(p.jumlah_asuransi,0) + COALESCE(p.jumlah_provisi,0) + COALESCE(p.jumlah_profesional_1,0) + COALESCE(p.jumlah_profesional_2,0)';
+                    .' + COALESCE(p.jumlah_asuransi,0) + COALESCE(p.jumlah_provisi,0) + COALESCE(p.jumlah_profesional_1,0) + COALESCE(p.jumlah_profesional_2,0)';
 
                 return $people($this->insight->danaDisbursements($period, $lenderId))
                     ->leftJoin('lenders as l', 'l.id', '=', 'p.id_lender')
@@ -191,8 +190,8 @@ class InsightDetail
                         $metric === 'revenue' ? (float) $r->rev : (float) $r->dana_yang_dicairkan,
                         $r->status === 'done' ? ['good', 'Lunas'] : ['info', 'Berjalan'],
                         $metric === 'revenue'
-                            ? 'Bunga ' . $this->rp($r->pendapatan_bunga) . ' · admin ' . $this->rp($r->total_biaya_admin)
-                            : 'Tenor ' . $r->tenor . ' bln'))->all();
+                            ? 'Bunga '.$this->rp($r->pendapatan_bunga).' · admin '.$this->rp($r->total_biaya_admin)
+                            : 'Tenor '.$r->tenor.' bln'))->all();
 
             case 'outstanding':
             case 'noa_out':
@@ -207,7 +206,7 @@ class InsightDetail
                         $status = $due->lt($at) ? ['crit', 'Menunggak'] : ($due->lte($at->addDays(7)) ? ['warn', 'Jatuh tempo ≤ 7 hari'] : ['good', 'Lancar']);
 
                         return $this->row($r->created_at, $r->ref, $r->name, $r->company, $r->lender, (float) $r->sisa, $status,
-                            $r->open_count . ' cicilan tersisa · berikutnya ' . InsightPeriod::date($due));
+                            $r->open_count.' cicilan tersisa · berikutnya '.InsightPeriod::date($due));
                     })->all();
 
             case 'late':
@@ -216,14 +215,14 @@ class InsightDetail
                     ->where('jt.jatuh_tempo', '<', $at->toDateString())
                     ->get(['jt.jatuh_tempo', 'p.id_pinjaman', 'k.nama_karyawan', 'lp.nama as company', 'l.nama as lender', 'p.total_angsuran_perbulan'])
                     ->map(fn ($r) => $this->row($r->jatuh_tempo, $r->id_pinjaman, $r->nama_karyawan, $r->company, $r->lender, (float) $r->total_angsuran_perbulan,
-                        ['crit', 'Lewat ' . (int) CarbonImmutable::parse($r->jatuh_tempo)->diffInDays($at) . ' hari'], null))->all();
+                        ['crit', 'Lewat '.(int) CarbonImmutable::parse($r->jatuh_tempo)->diffInDays($at).' hari'], null))->all();
 
             case 'repaid':
                 return $this->insight->danaRepayments($period, $lenderId)
                     ->leftJoin('lenders as l', 'l.id', '=', 'lp.id_lender')
                     ->get(['r.tanggal_pembayaran', 'i.no_invoice', 'i.period', 'lp.nama as company', 'l.nama as lender', 'r.amount_total'])
                     ->map(fn ($r) => $this->row($r->tanggal_pembayaran, $r->no_invoice ?: '-', null, $r->company, $r->lender, (float) $r->amount_total, ['good', 'Dibayar'],
-                        $r->period ? 'Tagihan periode ' . InsightPeriod::date(CarbonImmutable::parse($r->period)) : null))->all();
+                        $r->period ? 'Tagihan periode '.InsightPeriod::date(CarbonImmutable::parse($r->period)) : null))->all();
 
             case 'applications':
             case 'approval':
@@ -245,8 +244,8 @@ class InsightDetail
         $datePaid = 'COALESCE(s.payment_date, s.updated_at)';
         $base = fn ($q) => $q->leftJoin('list_perusahaans as lp', 'lp.id', '=', 's.id_perusahaan')->leftJoin('lenders as l', 'l.id', '=', 's.lender_id');
         $cols = ['s.id', 's.agreement_number', 's.status', 's.loan_amount', 's.total_dibayarkan', 's.total_fee', 's.total_borrowers', 'l.nama as lender', DB::raw('COALESCE(lp.nama, s.company_name) as company')];
-        $map = fn (string $dateCol, callable $amount) => fn ($r) => $this->row($r->{$dateCol}, $r->agreement_number ?: 'TomiGaji #' . $r->id, null, $r->company, $r->lender,
-            $amount($r), self::GAJI_STATUS[$r->status] ?? ['mute', $r->status], $r->total_borrowers . ' karyawan');
+        $map = fn (string $dateCol, callable $amount) => fn ($r) => $this->row($r->{$dateCol}, $r->agreement_number ?: 'TomiGaji #'.$r->id, null, $r->company, $r->lender,
+            $amount($r), self::GAJI_STATUS[$r->status] ?? ['mute', $r->status], $r->total_borrowers.' karyawan');
 
         $q = match ($metric) {
             'disbursed', 'noa', 'revenue', 'borrowers' => $this->insight->gajiQuery($lenderId)->whereIn('s.status', InsightService::GAJI_DISBURSED)
@@ -259,7 +258,9 @@ class InsightDetail
         if (! $q) {
             return [];
         }
-        $dateSql = match ($metric) { 'repaid' => $datePaid, 'applications', 'approval' => 's.created_at', default => $dateDisb };
+        $dateSql = match ($metric) {
+            'repaid' => $datePaid, 'applications', 'approval' => 's.created_at', default => $dateDisb
+        };
         $amount = match ($metric) {
             'revenue' => fn ($r) => (float) $r->total_fee,
             'borrowers' => fn ($r) => (float) $r->total_borrowers,
@@ -283,7 +284,7 @@ class InsightDetail
                 $base($this->insight->invoiceQuery($lenderId))->whereBetween("f.finance_invoice_term_date_$n", [$period->start(), $period->end()])
                     ->get(array_merge($cols, ["f.finance_invoice_term_date_$n as dt", "f.finance_invoice_term_amount_$n as amt"]))
                     ->each(function ($r) use (&$out, $n) {
-                        $out[] = $this->row($r->dt, $r->purchase_order_number ?: '-', $r->vendor, $r->client, $r->lender, (float) $r->amt, ['info', 'Termin ' . $n], null);
+                        $out[] = $this->row($r->dt, $r->purchase_order_number ?: '-', $r->vendor, $r->client, $r->lender, (float) $r->amt, ['info', 'Termin '.$n], null);
                     });
             }
 
@@ -295,10 +296,10 @@ class InsightDetail
 
             return $base($this->insight->invoiceOpenAt($at, $lenderId))
                 ->select(array_merge($cols, ['f.approved_at']))
-                ->selectRaw('COALESCE(f.approved_financing_amount, 0) - ' . InsightService::INVOICE_BILLED_SQL . ' as sisa', [$at, $at, $at])
+                ->selectRaw('COALESCE(f.approved_financing_amount, 0) - '.InsightService::INVOICE_BILLED_SQL.' as sisa', [$at, $at, $at])
                 ->get()
                 ->map(fn ($r) => $this->row($r->approved_at, $r->purchase_order_number ?: '-', $r->vendor, $r->client, $r->lender, (float) $r->sisa, ['info', 'Berjalan'],
-                    'Disetujui ' . $this->rp($r->approved_financing_amount)))->all();
+                    'Disetujui '.$this->rp($r->approved_financing_amount)))->all();
         }
 
         $q = match ($metric) {
@@ -334,11 +335,11 @@ class InsightDetail
         return $q->leftJoin('users as u', 'u.id', '=', 'g.user_id')->leftJoin('lenders as l', 'l.id', '=', 'g.lender_id')
             ->get(['g.created_at', 'g.updated_at', 'g.invoice_number', 'g.status', 'g.total_amount', 'g.tenor_months', 'u.nama_lengkap', 'l.nama as lender'])
             ->map(fn ($r) => $this->row($metric === 'repaid' ? $r->updated_at : $r->created_at, $r->invoice_number ?: '-', $r->nama_lengkap, null, $r->lender,
-                (float) $r->total_amount, $status[$r->status] ?? ['mute', $r->status], $r->tenor_months ? 'Tenor ' . $r->tenor_months . ' bln' : null))->all();
+                (float) $r->total_amount, $status[$r->status] ?? ['mute', $r->status], $r->tenor_months ? 'Tenor '.$r->tenor_months.' bln' : null))->all();
     }
 
     /* ===================================================================== */
-    /* Ringkasan, pecahan, kolom, tautan                                      */
+    /* Ringkasan, pecahan, kolom, tautan */
     /* ===================================================================== */
 
     private function row($date, $ref, $name, $company, $lender, float $amount, ?array $status, ?string $extra): array
@@ -384,7 +385,7 @@ class InsightDetail
             if (count($agg) > $limit) {
                 $rest = array_slice($agg, $limit - 1);
                 $agg = array_slice($agg, 0, $limit - 1);
-                $agg[] = ['label' => 'Lainnya (' . count($rest) . ')', 'value' => array_sum(array_column($rest, 'value')), 'count' => array_sum(array_column($rest, 'count')), 'slot' => null, 'tone' => null];
+                $agg[] = ['label' => 'Lainnya ('.count($rest).')', 'value' => array_sum(array_column($rest, 'value')), 'count' => array_sum(array_column($rest, 'count')), 'slot' => null, 'tone' => null];
             }
 
             return array_values($agg);
@@ -477,7 +478,7 @@ class InsightDetail
                 continue;
             }
             [$route, $label] = $map[$k];
-            if (\Illuminate\Support\Facades\Route::has($route)) {
+            if (Route::has($route)) {
                 $out[] = ['label' => $label, 'url' => route($route)];
             }
         }
@@ -489,6 +490,6 @@ class InsightDetail
     {
         $v = (float) $value;
 
-        return $v >= 1e6 ? 'Rp ' . number_format($v / 1e6, 1, ',', '.') . ' jt' : 'Rp ' . number_format($v, 0, ',', '.');
+        return $v >= 1e6 ? 'Rp '.number_format($v / 1e6, 1, ',', '.').' jt' : 'Rp '.number_format($v, 0, ',', '.');
     }
 }

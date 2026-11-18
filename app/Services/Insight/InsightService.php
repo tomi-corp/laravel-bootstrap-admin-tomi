@@ -6,6 +6,7 @@ use App\Models\pinjaman;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Route;
 
 /**
  * Angka untuk Dasbor utama & dasbor per produk.
@@ -55,7 +56,6 @@ class InsightService
 
     public const GAJI_DISBURSED = ['uploaded_transfer', 'uploaded_bayar', 'lunas'];
 
-
     public function earliest(): CarbonImmutable
     {
         $dates = array_filter([
@@ -69,7 +69,7 @@ class InsightService
     }
 
     /* ===================================================================== */
-    /* Dashboard utama                                                        */
+    /* Dashboard utama */
     /* ===================================================================== */
 
     public function overview(InsightPeriod $period, ?int $lenderId): array
@@ -113,8 +113,8 @@ class InsightService
             ],
             'kpis' => [
                 $this->kpi('noa', 'NOA penyaluran', $totals['count'], 'num', true, $sumSeries('noa'), 'Akun cair pada periode ini'),
-                $this->kpi('noa_out', 'NOA outstanding', $totals['noa_out'], 'num', true, $sumSeries('noa_out'), 'Akun belum lunas per ' . InsightPeriod::date($period->to)),
-                $this->kpi('outstanding', 'Sisa pinjaman berjalan', $totals['outstanding'], 'rp', true, $sumSeries('outstanding'), 'Per ' . InsightPeriod::date($period->to)),
+                $this->kpi('noa_out', 'NOA outstanding', $totals['noa_out'], 'num', true, $sumSeries('noa_out'), 'Akun belum lunas per '.InsightPeriod::date($period->to)),
+                $this->kpi('outstanding', 'Sisa pinjaman berjalan', $totals['outstanding'], 'rp', true, $sumSeries('outstanding'), 'Per '.InsightPeriod::date($period->to)),
                 $this->kpi('repaid', 'Pembayaran diterima', $totals['repaid'], 'rp', true, $sumSeries('repaid')),
                 $this->kpi('revenue', 'Pendapatan (gabungan)', $totals['revenue'], 'rp', true, $sumSeries('revenue'), 'Definisi sementara'),
                 $this->kpi('late', 'Tunggakan TomiDana', ['value' => $danaHealth['late'], 'prev' => null], 'rp', false, null, 'Cicilan lewat jatuh tempo'),
@@ -150,7 +150,7 @@ class InsightService
     }
 
     /* ===================================================================== */
-    /* Dashboard per produk                                                   */
+    /* Dashboard per produk */
     /* ===================================================================== */
 
     public function product(string $key, InsightPeriod $period, ?int $lenderId): array
@@ -179,9 +179,9 @@ class InsightService
 
         $kpis = [
             $this->kpi('disbursed', $cur['labels']['disbursed'], $t('disbursed'), 'rp', true, $cur['series']['disbursed']),
-            $this->kpi('noa', 'NOA penyaluran', $t('count'), 'num', true, $cur['series']['noa'], '1 akun = 1 ' . $cur['count_label'] . ' cair'),
-            $this->kpi('outstanding', 'Sisa pembiayaan berjalan', $t('outstanding'), 'rp', true, $cur['series']['outstanding'], 'Per ' . InsightPeriod::date($period->to)),
-            $this->kpi('noa_out', 'NOA outstanding', $t('noa_out'), 'num', true, $cur['series']['noa_out'], ucfirst($cur['count_label']) . ' belum lunas per ' . InsightPeriod::date($period->to)),
+            $this->kpi('noa', 'NOA penyaluran', $t('count'), 'num', true, $cur['series']['noa'], '1 akun = 1 '.$cur['count_label'].' cair'),
+            $this->kpi('outstanding', 'Sisa pembiayaan berjalan', $t('outstanding'), 'rp', true, $cur['series']['outstanding'], 'Per '.InsightPeriod::date($period->to)),
+            $this->kpi('noa_out', 'NOA outstanding', $t('noa_out'), 'num', true, $cur['series']['noa_out'], ucfirst($cur['count_label']).' belum lunas per '.InsightPeriod::date($period->to)),
             $this->kpi('applications', 'Pengajuan masuk', $t('applications'), 'num', true, $cur['series']['applications'] ?? null),
             $this->kpi('approval', 'Tingkat persetujuan', ['value' => $approval($cur), 'prev' => $prev ? $approval($prev) : null], 'pct', true, null),
             $this->kpi('repaid', $cur['labels']['repaid'], $t('repaid'), 'rp', true, $cur['series']['repaid']),
@@ -196,7 +196,7 @@ class InsightService
     }
 
     /* ===================================================================== */
-    /* Total & deret per produk                                               */
+    /* Total & deret per produk */
     /* ===================================================================== */
 
     private function allTotals(InsightPeriod $period, ?int $lenderId, bool $withSeries): array
@@ -265,7 +265,7 @@ class InsightService
 
     private function danaTotals(InsightPeriod $period, ?int $lenderId, bool $withSeries): array
     {
-        $revenueSql = implode(' + ', array_map(fn ($c) => 'COALESCE(' . $c[1] . ',0)', self::DANA_REVENUE));
+        $revenueSql = implode(' + ', array_map(fn ($c) => 'COALESCE('.$c[1].',0)', self::DANA_REVENUE));
         $row = $this->danaDisbursements($period, $lenderId)
             ->selectRaw("COUNT(*) c, COALESCE(SUM(d.dana_yang_dicairkan),0) amt, COALESCE(SUM($revenueSql),0) rev")
             ->first();
@@ -406,14 +406,14 @@ class InsightService
 
     /** SQL termin Tomi Invoice yang sudah ditagihkan s.d. tanggal (butuh 3 binding tanggal yang sama). */
     public const INVOICE_BILLED_SQL = '(CASE WHEN f.finance_invoice_term_date_1 IS NOT NULL AND f.finance_invoice_term_date_1 <= ? THEN COALESCE(f.finance_invoice_term_amount_1, 0) ELSE 0 END'
-        . ' + CASE WHEN f.finance_invoice_term_date_2 IS NOT NULL AND f.finance_invoice_term_date_2 <= ? THEN COALESCE(f.finance_invoice_term_amount_2, 0) ELSE 0 END'
-        . ' + CASE WHEN f.finance_invoice_term_date_3 IS NOT NULL AND f.finance_invoice_term_date_3 <= ? THEN COALESCE(f.finance_invoice_term_amount_3, 0) ELSE 0 END)';
+        .' + CASE WHEN f.finance_invoice_term_date_2 IS NOT NULL AND f.finance_invoice_term_date_2 <= ? THEN COALESCE(f.finance_invoice_term_amount_2, 0) ELSE 0 END'
+        .' + CASE WHEN f.finance_invoice_term_date_3 IS NOT NULL AND f.finance_invoice_term_date_3 <= ? THEN COALESCE(f.finance_invoice_term_amount_3, 0) ELSE 0 END)';
 
     /** Tagihan Tomi Invoice disetujui s.d. $at yang terminnya belum ditagihkan penuh. */
     public function invoiceOpenAt(string $at, ?int $lenderId): Builder
     {
         return $this->invoiceQuery($lenderId)->where('f.analyst_decision', 'approved')->where('f.approved_at', '<=', $at)
-            ->whereRaw('COALESCE(f.approved_financing_amount, 0) > ' . self::INVOICE_BILLED_SQL, [$at, $at, $at]);
+            ->whereRaw('COALESCE(f.approved_financing_amount, 0) > '.self::INVOICE_BILLED_SQL, [$at, $at, $at]);
     }
 
     /** Cicilan TomiGawai yang masih berjalan (status approved) dan dibuat s.d. $at. */
@@ -519,7 +519,7 @@ class InsightService
     }
 
     /* ===================================================================== */
-    /* Alur pengajuan (dipakai grafik alur & panel rincian)                   */
+    /* Alur pengajuan (dipakai grafik alur & panel rincian) */
     /* ===================================================================== */
 
     /** Pengajuan suatu produk yang masuk pada periode (titik awal alur). */
@@ -576,13 +576,13 @@ class InsightService
     }
 
     /* ===================================================================== */
-    /* Rincian per produk                                                     */
+    /* Rincian per produk */
     /* ===================================================================== */
 
     private function danaDetail(InsightPeriod $period, ?int $lenderId, array $kpis): array
     {
         $health = $this->danaHealth($period, $lenderId);
-        $kpis[] = $this->kpi('late', 'Tunggakan', ['value' => $health['late'], 'prev' => null], 'rp', false, null, 'Cicilan lewat jatuh tempo per ' . $health['as_of']);
+        $kpis[] = $this->kpi('late', 'Tunggakan', ['value' => $health['late'], 'prev' => null], 'rp', false, null, 'Cicilan lewat jatuh tempo per '.$health['as_of']);
 
         $stages = $this->stageCounts('tomidana', $period, $lenderId);
 
@@ -608,12 +608,12 @@ class InsightService
         return [
             'kpis' => $kpis,
             'funnel' => ['title' => 'Alur pengajuan', 'note' => 'Pengajuan yang gagal OTP dihapus otomatis oleh sistem, jadi tahap pertama hanya menghitung pengajuan yang masih tersimpan.', 'stages' => $stages],
-            'breakdown' => ['title' => 'Per perusahaan', 'sub' => 'Dana dicairkan pada periode ini', 'rows' => $companies->map(fn ($r) => ['name' => $r->name ?? '-', 'sub' => ($r->lender ?? '-') . ' · ' . $r->c . ' pinjaman', 'value' => (float) $r->v,
+            'breakdown' => ['title' => 'Per perusahaan', 'sub' => 'Dana dicairkan pada periode ini', 'rows' => $companies->map(fn ($r) => ['name' => $r->name ?? '-', 'sub' => ($r->lender ?? '-').' · '.$r->c.' pinjaman', 'value' => (float) $r->v,
                 'filters' => ['company' => $r->name ?? '-', 'lender' => $r->lender ?? '-']])->all()],
             'health' => $health,
-            'columns' => ['title' => 'Sebaran tenor', 'sub' => 'Jumlah pinjaman dicairkan per tenor', 'categories' => $tenor->map(fn ($r) => $r->t . ' bln')->all(), 'data' => $tenor->map(fn ($r) => (int) $r->c)->all(), 'unit' => 'pinjaman'],
+            'columns' => ['title' => 'Sebaran tenor', 'sub' => 'Jumlah pinjaman dicairkan per tenor', 'categories' => $tenor->map(fn ($r) => $r->t.' bln')->all(), 'data' => $tenor->map(fn ($r) => (int) $r->c)->all(), 'unit' => 'pinjaman'],
             'tables' => [
-                ['title' => 'Antrean pencairan', 'sub' => 'Sudah tanda tangan, menunggu ditransfer pemberi dana', 'badge' => count($queue) . ' menunggu', 'link' => self::link('admin.ksp.index'),
+                ['title' => 'Antrean pencairan', 'sub' => 'Sudah tanda tangan, menunggu ditransfer pemberi dana', 'badge' => count($queue).' menunggu', 'link' => self::link('admin.ksp.index'),
                     'columns' => ['Pinjaman', 'Karyawan', 'Nominal', 'Prioritas'], 'num' => [2], 'rows' => $queue, 'empty' => 'Tidak ada antrean pencairan'],
                 $this->danaInvoiceTable($lenderId),
             ],
@@ -643,9 +643,9 @@ class InsightService
                     ['text' => $i->nama, 'strong' => true],
                     ['text' => InsightPeriod::date($period)],
                     ['money' => $amount],
-                    $days < 0 ? ['badge' => ['tone' => 'crit', 'icon' => 'alert', 'label' => 'Lewat ' . (int) abs($days) . ' hari']]
-                        : ($days <= 7 ? ['badge' => ['tone' => 'warn', 'icon' => 'clock', 'label' => $days == 0 ? 'Hari ini' : (int) $days . ' hari lagi']]
-                            : ['badge' => ['tone' => 'good', 'icon' => 'check', 'label' => (int) $days . ' hari lagi']]),
+                    $days < 0 ? ['badge' => ['tone' => 'crit', 'icon' => 'alert', 'label' => 'Lewat '.(int) abs($days).' hari']]
+                        : ($days <= 7 ? ['badge' => ['tone' => 'warn', 'icon' => 'clock', 'label' => $days == 0 ? 'Hari ini' : (int) $days.' hari lagi']]
+                            : ['badge' => ['tone' => 'good', 'icon' => 'check', 'label' => (int) $days.' hari lagi']]),
                 ];
             })->all();
 
@@ -668,7 +668,7 @@ class InsightService
             ->get(['s.created_at', 's.loan_amount', 's.total_borrowers', 's.status', DB::raw('COALESCE(lp.nama, s.company_name) as name')])
             ->map(fn ($r) => [
                 ['text' => $r->name ?? '-', 'sub' => InsightPeriod::date(CarbonImmutable::parse($r->created_at)), 'strong' => true],
-                ['text' => $r->total_borrowers . ' karyawan'],
+                ['text' => $r->total_borrowers.' karyawan'],
                 ['money' => (float) $r->loan_amount],
                 ['badge' => ['tone' => $statusLabel[$r->status][0] ?? 'mute', 'icon' => $statusLabel[$r->status][1] ?? 'clock', 'label' => $statusLabel[$r->status][2] ?? $r->status]],
             ])->all();
@@ -676,7 +676,7 @@ class InsightService
         return [
             'kpis' => $kpis,
             'funnel' => ['title' => 'Alur pengajuan gaji', 'note' => null, 'stages' => $stages],
-            'breakdown' => ['title' => 'Per perusahaan', 'sub' => 'Dana dicairkan pada periode ini', 'rows' => $companies->map(fn ($r) => ['name' => $r->name ?? '-', 'sub' => $r->c . ' pengajuan · ' . $r->b . ' karyawan', 'value' => (float) $r->v,
+            'breakdown' => ['title' => 'Per perusahaan', 'sub' => 'Dana dicairkan pada periode ini', 'rows' => $companies->map(fn ($r) => ['name' => $r->name ?? '-', 'sub' => $r->c.' pengajuan · '.$r->b.' karyawan', 'value' => (float) $r->v,
                 'filters' => ['company' => $r->name ?? '-']])->all()],
             'health' => null,
             'columns' => null,
@@ -708,7 +708,7 @@ class InsightService
         return [
             'kpis' => $kpis,
             'funnel' => ['title' => 'Alur tagihan', 'note' => null, 'stages' => $stages],
-            'breakdown' => ['title' => 'Per pelanggan', 'sub' => 'Pembiayaan disetujui pada periode ini', 'rows' => $vendors->map(fn ($r) => ['name' => $r->name ?? '-', 'sub' => $r->c . ' tagihan', 'value' => (float) $r->v,
+            'breakdown' => ['title' => 'Per pelanggan', 'sub' => 'Pembiayaan disetujui pada periode ini', 'rows' => $vendors->map(fn ($r) => ['name' => $r->name ?? '-', 'sub' => $r->c.' tagihan', 'value' => (float) $r->v,
                 'filters' => ['name' => $r->name ?? '-']])->all()],
             'health' => null,
             'columns' => null,
@@ -732,7 +732,7 @@ class InsightService
     }
 
     /* ===================================================================== */
-    /* Blok bersama                                                           */
+    /* Blok bersama */
     /* ===================================================================== */
 
     private function revenueBlock(array $cur, ?array $prev, array $buckets): array
@@ -805,19 +805,19 @@ class InsightService
             ->leftJoin('list_perusahaans as lp', 'lp.id', '=', 'p.id_perusahaan')
             ->when($lenderId, fn ($q) => $q->where('p.id_lender', $lenderId))
             ->orderByDesc('d.created_at')->limit(5)->get(['d.created_at', 'd.dana_yang_dicairkan', 'lp.nama'])
-            ->each(fn ($r) => $events->push(['at' => $r->created_at, 'tone' => 'info', 'icon' => 'arrow', 'product' => 'TomiDana', 'title' => 'Pencairan ' . $this->rp($r->dana_yang_dicairkan), 'sub' => $r->nama]));
+            ->each(fn ($r) => $events->push(['at' => $r->created_at, 'tone' => 'info', 'icon' => 'arrow', 'product' => 'TomiDana', 'title' => 'Pencairan '.$this->rp($r->dana_yang_dicairkan), 'sub' => $r->nama]));
         DB::table('repayments as r')->leftJoin('invoicing_pinjamen as i', 'i.id', '=', 'r.id_invoicing')
             ->leftJoin('list_perusahaans as lp', 'lp.id', '=', 'i.id_list_perusahaan')
             ->when($lenderId, fn ($q) => $q->where('lp.id_lender', $lenderId))
             ->orderByDesc('r.tanggal_pembayaran')->limit(5)->get(['r.tanggal_pembayaran', 'r.amount_total', 'lp.nama'])
-            ->each(fn ($r) => $events->push(['at' => $r->tanggal_pembayaran, 'tone' => 'good', 'icon' => 'check', 'product' => 'TomiDana', 'title' => 'Tagihan dibayar ' . $this->rp($r->amount_total), 'sub' => $r->nama]));
+            ->each(fn ($r) => $events->push(['at' => $r->tanggal_pembayaran, 'tone' => 'good', 'icon' => 'check', 'product' => 'TomiDana', 'title' => 'Tagihan dibayar '.$this->rp($r->amount_total), 'sub' => $r->nama]));
         $this->gajiQuery($lenderId)->leftJoin('list_perusahaans as lp', 'lp.id', '=', 's.id_perusahaan')
             ->orderByDesc('s.updated_at')->limit(4)->get(['s.updated_at', 's.loan_amount', 's.status', DB::raw('COALESCE(lp.nama, s.company_name) n')])
             ->each(fn ($r) => $events->push(['at' => $r->updated_at, 'tone' => $r->status === 'lunas' ? 'good' : 'info', 'icon' => $r->status === 'lunas' ? 'check' : 'arrow', 'product' => 'TomiGaji',
-                'title' => ($r->status === 'lunas' ? 'Pengajuan lunas ' : 'Pengajuan diperbarui ') . $this->rp($r->loan_amount), 'sub' => $r->n]));
+                'title' => ($r->status === 'lunas' ? 'Pengajuan lunas ' : 'Pengajuan diperbarui ').$this->rp($r->loan_amount), 'sub' => $r->n]));
         $this->invoiceQuery($lenderId)->leftJoin('vendors as v', 'v.id', '=', 'f.vendor_id')
             ->orderByDesc('f.updated_at')->limit(4)->get(['f.updated_at', 'f.approved_financing_amount', 'f.purchase_order_amount', DB::raw('v.name n')])
-            ->each(fn ($r) => $events->push(['at' => $r->updated_at, 'tone' => 'info', 'icon' => 'arrow', 'product' => 'Tomi Invoice', 'title' => 'Tagihan ' . $this->rp($r->approved_financing_amount ?: $r->purchase_order_amount), 'sub' => $r->n]));
+            ->each(fn ($r) => $events->push(['at' => $r->updated_at, 'tone' => 'info', 'icon' => 'arrow', 'product' => 'Tomi Invoice', 'title' => 'Tagihan '.$this->rp($r->approved_financing_amount ?: $r->purchase_order_amount), 'sub' => $r->n]));
 
         return $events->filter(fn ($e) => $e['at'])->sortByDesc('at')->take(7)->values()
             ->map(fn ($e) => $e + ['when' => CarbonImmutable::parse($e['at'])->locale('id')->diffForHumans()])->all();
@@ -833,11 +833,11 @@ class InsightService
         arsort($byProduct);
         $top = array_key_first($byProduct);
         $share = $byProduct[$top] / $total;
-        $text = self::PRODUCTS[$top]['name'] . ' menyumbang ' . round($share * 100) . '% dari total penyaluran.';
+        $text = self::PRODUCTS[$top]['name'].' menyumbang '.round($share * 100).'% dari total penyaluran.';
         $prevTotal = $prev ? array_sum(array_map(fn ($p) => $p['totals']['disbursed'], $prev)) : 0;
         if ($prevTotal > 0) {
             $change = ($total - $prevTotal) / $prevTotal;
-            $text = 'Penyaluran ' . ($change >= 0 ? 'naik ' : 'turun ') . number_format(abs($change) * 100, 1, ',', '.') . '% dibanding ' . $period->prevLabel . '. ' . $text;
+            $text = 'Penyaluran '.($change >= 0 ? 'naik ' : 'turun ').number_format(abs($change) * 100, 1, ',', '.').'% dibanding '.$period->prevLabel.'. '.$text;
         }
 
         return $text;
@@ -855,7 +855,7 @@ class InsightService
     /** URL halaman operasional bila route-nya ada di aplikasi ini. */
     private static function link(string $route): ?string
     {
-        return \Illuminate\Support\Facades\Route::has($route) ? route($route) : null;
+        return Route::has($route) ? route($route) : null;
     }
 
     /** $metric = kunci rincian (panel detail) — lihat InsightDetail. */
@@ -886,17 +886,16 @@ class InsightService
         return array_map(fn ($b) => (float) ($rows[$b['key']] ?? 0), $period->buckets());
     }
 
-
     private function rp($value): string
     {
         $v = (float) $value;
         if ($v >= 1e9) {
-            return 'Rp ' . number_format($v / 1e9, 1, ',', '.') . ' M';
+            return 'Rp '.number_format($v / 1e9, 1, ',', '.').' M';
         }
         if ($v >= 1e6) {
-            return 'Rp ' . number_format($v / 1e6, 1, ',', '.') . ' jt';
+            return 'Rp '.number_format($v / 1e6, 1, ',', '.').' jt';
         }
 
-        return 'Rp ' . number_format($v, 0, ',', '.');
+        return 'Rp '.number_format($v, 0, ',', '.');
     }
 }

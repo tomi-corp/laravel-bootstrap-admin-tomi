@@ -18,9 +18,7 @@ use Illuminate\Support\Facades\DB;
  */
 class InsightController extends Controller
 {
-    public function __construct(private readonly InsightService $insight)
-    {
-    }
+    public function __construct(private readonly InsightService $insight) {}
 
     public function index()
     {
@@ -94,7 +92,7 @@ class InsightController extends Controller
     private function csv(array $data, string $filename)
     {
         // Pemisah ";" supaya langsung terbaca per kolom di Excel berlocale Indonesia; BOM untuk UTF-8.
-        $safe = fn ($v) => is_string($v) && $v !== '' && in_array($v[0], ['=', '+', '-', '@', "\t", "\r"], true) ? "'" . $v : $v;
+        $safe = fn ($v) => is_string($v) && $v !== '' && in_array($v[0], ['=', '+', '-', '@', "\t", "\r"], true) ? "'".$v : $v;
 
         return response()->streamDownload(function () use ($data, $safe) {
             $out = fopen('php://output', 'w');

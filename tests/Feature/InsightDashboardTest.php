@@ -33,9 +33,9 @@ class InsightDashboardTest extends TestCase
 
     private function makeAdmin(): Admin
     {
-        $admin = new Admin();
-        $admin->username = 'insight_test_' . Str::random(8);
-        $admin->email = $admin->username . '@example.test';
+        $admin = new Admin;
+        $admin->username = 'insight_test_'.Str::random(8);
+        $admin->email = $admin->username.'@example.test';
         $admin->type = 'master';
         $admin->password = Hash::make('Secret#123');
         $admin->saveQuietly();
@@ -54,11 +54,11 @@ class InsightDashboardTest extends TestCase
 
         $this->actingAs($admin, 'admin')->get('/backoffice/insight')->assertOk()->assertSee('Dasbor utama');
         foreach (self::PRODUCTS as $p) {
-            $this->actingAs($admin, 'admin')->get('/backoffice/insight/' . $p)->assertOk();
+            $this->actingAs($admin, 'admin')->get('/backoffice/insight/'.$p)->assertOk();
         }
         foreach ($periods as $q) {
             foreach (array_merge(['overview'], self::PRODUCTS) as $scope) {
-                $this->actingAs($admin, 'admin')->getJson('/backoffice/insight/data?' . http_build_query($q + ['scope' => $scope]))
+                $this->actingAs($admin, 'admin')->getJson('/backoffice/insight/data?'.http_build_query($q + ['scope' => $scope]))
                     ->assertOk()
                     ->assertJsonStructure(['period' => ['mode', 'from', 'to', 'granularity', 'label'], 'lender' => ['id', 'name'], 'data' => ['trend' => ['categories', 'series'], 'revenue' => ['components', 'total']]]);
             }
@@ -106,7 +106,7 @@ class InsightDashboardTest extends TestCase
 
         // Dasbor produk memuat kedua NOA + deret per bucket
         foreach (['tomidana', 'tomigaji', 'tomiinvoice', 'tomigawai'] as $p) {
-            $pj = $this->actingAs($admin, 'admin')->getJson('/backoffice/insight/data?scope=' . $p . '&mode=year')->assertOk()->json('data');
+            $pj = $this->actingAs($admin, 'admin')->getJson('/backoffice/insight/data?scope='.$p.'&mode=year')->assertOk()->json('data');
             $labels = array_column($pj['kpis'], 'label');
             $this->assertContains('NOA penyaluran', $labels, $p);
             $this->assertContains('NOA outstanding', $labels, $p);
@@ -121,7 +121,7 @@ class InsightDashboardTest extends TestCase
         $noaOut = $kpi['NOA outstanding'];
         $this->assertEqualsWithDelta($noaOut['value'], end($noaOut['spark']), 0.1);
         foreach (['tomidana', 'tomigaji', 'tomiinvoice', 'tomigawai'] as $p) {
-            $pj = $this->actingAs($admin, 'admin')->getJson('/backoffice/insight/data?scope=' . $p . '&mode=year')->json('data');
+            $pj = $this->actingAs($admin, 'admin')->getJson('/backoffice/insight/data?scope='.$p.'&mode=year')->json('data');
             $k = collect($pj['kpis'])->firstWhere('label', 'Sisa pembiayaan berjalan');
             $this->assertEqualsWithDelta($k['value'], end($k['spark']), 1, $p);
             $this->assertCount(count($pj['trend']['categories']), $pj['trend']['outstanding'], $p);
@@ -151,7 +151,7 @@ class InsightDashboardTest extends TestCase
 
         $lenderId = DB::table('lenders')->orderBy('id')->value('id');
         if ($lenderId) {
-            $json = $this->actingAs($admin, 'admin')->getJson('/backoffice/insight/data?scope=overview&mode=all&lender=' . $lenderId)->assertOk()->json();
+            $json = $this->actingAs($admin, 'admin')->getJson('/backoffice/insight/data?scope=overview&mode=all&lender='.$lenderId)->assertOk()->json();
             $this->assertSame((int) $lenderId, $json['lender']['id']);
         }
     }
