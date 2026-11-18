@@ -89,7 +89,7 @@ class DashboardReportSheet implements FromCollection, WithHeadings, WithTitle, S
             ];
         }
 
-        if (in_array($this->scope, ['tomidana', 'tomigaji'], true)) {
+        if (in_array($this->scope, ['tomidana', 'tomigaji', 'tomiinvoice'], true)) {
             return [
                 'Produk',
                 'Perusahaan',
