@@ -14,8 +14,9 @@ use Illuminate\Support\Facades\Route;
  *
  * PENYALURAN, NOA PENYALURAN & PENDAPATAN mengikuti definisi catatan kantor (pivot "Tanggal Realisasi"):
  * - TomiDana aplikasi = pinjamen status approve/done (tidak dihapus); tanggal = pinjamen.created_at (pengajuan);
- *   nilai = pinjamen.nominal (kotor); perusahaan = perusahaan karyawan (list_karyawans.id_list_perusahaan,
- *   cadangan pinjamen.id_perusahaan); NOA = 1 per pinjaman.
+ *   nilai = pinjamen.nominal (kotor); perusahaan = perusahaan saat pinjaman diajukan (pinjamen.id_perusahaan,
+ *   bukan perusahaan karyawan sekarang: karyawan yang pindah perusahaan tetap tercatat di perusahaan lamanya
+ *   untuk pinjaman lama); NOA = 1 per pinjaman.
  * - TomiDana upload manual = invoice_generate_manuals (menu Buat Tagihan): tanggal = created_at; nilai = total_pinjaman;
  *   NOA = jumlah_peminjam; pemberi dana lewat company_id → list_perusahaans.id_lender (kosong = tidak ikut saat
  *   filter pemberi dana dipilih).
@@ -65,8 +66,11 @@ class InsightService
     /** Pinjaman TomiDana yang dihitung sebagai penyaluran. */
     public const DANA_STATUS = ['approve', 'done'];
 
-    /** Perusahaan pinjaman TomiDana = perusahaan karyawan (beberapa pinjaman lama salah id_perusahaan). Butuh alias k & p. */
-    public const DANA_COMPANY = 'COALESCE(k.id_list_perusahaan, p.id_perusahaan)';
+    /**
+     * Perusahaan pinjaman TomiDana = perusahaan saat pinjaman diajukan (disimpan PinjamanController saat pengajuan).
+     * Jangan pakai list_karyawans.id_list_perusahaan: itu perusahaan karyawan SEKARANG dan berubah kalau karyawan pindah.
+     */
+    public const DANA_COMPANY = 'p.id_perusahaan';
 
     public const DANA_FEE_SQL = 'COALESCE(p.nominal,0) * '.self::FEE_TOMIDANA;
 
@@ -677,7 +681,7 @@ class InsightService
         return [
             'kpis' => $kpis,
             'funnel' => ['title' => 'Alur pengajuan', 'note' => 'Pengajuan yang gagal OTP dihapus otomatis oleh sistem, jadi tahap pertama hanya menghitung pengajuan yang masih tersimpan.', 'stages' => $stages],
-            'breakdown' => ['title' => 'Per perusahaan', 'sub' => 'Penyaluran pada periode ini (perusahaan karyawan)', 'rows' => $companies->map(fn ($r) => ['name' => $r->name, 'sub' => $r->lender.' · '.$r->c.($r->manual ? ' peminjam (upload manual)' : ' pinjaman'), 'value' => $r->v,
+            'breakdown' => ['title' => 'Per perusahaan', 'sub' => 'Penyaluran pada periode ini (perusahaan saat pengajuan)', 'rows' => $companies->map(fn ($r) => ['name' => $r->name, 'sub' => $r->lender.' · '.$r->c.($r->manual ? ' peminjam (upload manual)' : ' pinjaman'), 'value' => $r->v,
                 'filters' => ['company' => $r->name, 'lender' => $r->lender]])->all()],
             'health' => $health,
             'columns' => ['title' => 'Sebaran tenor', 'sub' => 'Jumlah pinjaman aplikasi per tenor (upload manual tidak punya tenor)', 'categories' => $tenor->map(fn ($r) => $r->t.' bln')->all(), 'data' => $tenor->map(fn ($r) => (int) $r->c)->all(), 'unit' => 'pinjaman'],
