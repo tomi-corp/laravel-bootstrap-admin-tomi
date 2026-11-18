@@ -93,30 +93,30 @@ class DashboardReportSheet implements FromCollection, WithHeadings, WithTitle, S
                 'sfi.account_number',
                 'sfi.account_holder_name',
             ])
-            ->map(fn ($row) => [
-                'TomiGaji',
-                $row->financing_id,
-                $row->agreement_number,
-                $row->lender_name,
-                $row->company_name,
-                $row->id_perusahaan,
-                $row->financing_status,
-                $this->dateValue($row->application_date ?? $row->financing_created_at),
-                $this->dateValue($row->transfer_date ?? $row->financing_created_at),
-                $this->dateValue($row->item_payment_date ?? $row->financing_payment_date),
-                $row->loan_amount,
-                $row->total_dibayarkan,
-                $row->total_fee,
-                $row->total_borrowers,
-                $row->employee_name,
-                $row->nik,
-                $row->nip,
-                $row->work_placement,
-                $row->income_amount,
-                $row->bank,
-                $row->account_number,
-                $row->account_holder_name,
-            ]);
+            ->map(function ($row) {
+                $values = [
+                    'TomiGaji',
+                    $row->company_name,
+                    $row->employee_name,
+                    $this->dateValue($row->application_date ?? $row->financing_created_at),
+                    $this->dateValue($row->transfer_date ?? $row->financing_created_at),
+                    null,
+                    $row->financing_status,
+                    $row->loan_amount,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    $this->dateValue($row->item_payment_date ?? $row->financing_payment_date),
+                    $row->financing_status === 'lunas' ? 'Lunas' : 'Belum Lunas',
+                ];
+
+                $values = array_pad($values, 35, null);
+                $values[] = $row->total_fee;
+
+                return $values;
+            });
     }
 
     private function tomiDanaRows(): Collection
@@ -278,34 +278,7 @@ class DashboardReportSheet implements FromCollection, WithHeadings, WithTitle, S
             ];
         }
 
-        if ($this->scope === 'tomigaji') {
-            return [
-                'Produk',
-                'ID Pengajuan',
-                'Nomor Perjanjian',
-                'Lender',
-                'Perusahaan',
-                'ID Perusahaan',
-                'Status Pengajuan',
-                'Tanggal Pengajuan',
-                'Tanggal Transfer',
-                'Tanggal Pembayaran',
-                'Total Pembiayaan Pengajuan',
-                'Total Dibayarkan Pengajuan',
-                'Total Fee Pengajuan',
-                'Total Borrower Pengajuan',
-                'Nama Karyawan',
-                'NIK',
-                'NIP',
-                'Penempatan Kerja',
-                'Penghasilan',
-                'Bank',
-                'Nomor Rekening',
-                'Nama Pemilik Rekening',
-            ];
-        }
-
-        if (in_array($this->scope, ['tomidana', 'tomiinvoice'], true)) {
+        if (in_array($this->scope, ['tomidana', 'tomigaji', 'tomiinvoice'], true)) {
             return [
                 'Produk',
                 'Perusahaan',
