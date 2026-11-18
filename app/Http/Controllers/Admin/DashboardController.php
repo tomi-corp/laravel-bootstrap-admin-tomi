@@ -24,12 +24,14 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Flasher\Laravel\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Crypt;
 use App\Http\Requests\Public\Ekasbon\DaftarEkasbonRequest;
 use App\Models\daftar_e_kasbon;
+use App\Services\Insight\InsightPeriod;
+use App\Services\Insight\InsightService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -100,10 +102,12 @@ class DashboardController extends Controller
         return view('admin.dashboard.index', compact('register'));
     }
 
-    public function exportReport()
+    public function exportReport(Request $request, InsightService $insight)
     {
+        $period = InsightPeriod::fromRequest($request, $insight->earliest());
+
         return Excel::download(
-            new DashboardReportExport(),
+            new DashboardReportExport($insight, $period),
             'dashboard-report-' . now()->format('Y-m-d') . '.xlsx'
         );
     }

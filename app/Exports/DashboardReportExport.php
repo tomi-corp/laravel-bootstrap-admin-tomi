@@ -2,41 +2,25 @@
 
 namespace App\Exports;
 
-use App\Models\download;
-use App\Models\User;
-use Carbon\Carbon;
-use Illuminate\Support\Collection;
-use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\ShouldAutoSize;
-use Maatwebsite\Excel\Concerns\WithHeadings;
+use App\Services\Insight\InsightPeriod;
+use App\Services\Insight\InsightService;
+use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 
-class DashboardReportExport implements FromCollection, WithHeadings, ShouldAutoSize
+class DashboardReportExport implements WithMultipleSheets
 {
-    public function collection(): Collection
-    {
-        $now = Carbon::now();
-        $lastMonth = $now->copy()->subMonth();
-
-        return collect([
-            ['Total Register', User::count(), 'Sepanjang waktu'],
-            ['Register Bulan Ini', User::whereMonth('created_at', $now->month)
-                ->whereYear('created_at', $now->year)
-                ->count(), $now->translatedFormat('F Y')],
-            ['Register Bulan Kemarin', User::whereMonth('created_at', $lastMonth->month)
-                ->whereYear('created_at', $lastMonth->year)
-                ->count(), $lastMonth->translatedFormat('F Y')],
-            ['Total Unduhan', download::count(), 'Sepanjang waktu'],
-            ['Unduhan Bulan Ini', download::whereMonth('created_at', $now->month)
-                ->whereYear('created_at', $now->year)
-                ->count(), $now->translatedFormat('F Y')],
-            ['Unduhan Bulan Kemarin', download::whereMonth('created_at', $lastMonth->month)
-                ->whereYear('created_at', $lastMonth->year)
-                ->count(), $lastMonth->translatedFormat('F Y')],
-        ]);
+    public function __construct(
+        private readonly InsightService $insight,
+        private readonly InsightPeriod $period,
+    ) {
     }
 
-    public function headings(): array
+    public function sheets(): array
     {
-        return ['Metrik', 'Jumlah', 'Periode'];
+        return [
+            new DashboardReportSheet('overview', 'All Produk', $this->insight, $this->period),
+            new DashboardReportSheet('tomidana', 'TomiDana', $this->insight, $this->period),
+            new DashboardReportSheet('tomigaji', 'TomiGaji', $this->insight, $this->period),
+            new DashboardReportSheet('tomiinvoice', 'TomiInvoice', $this->insight, $this->period),
+        ];
     }
 }
