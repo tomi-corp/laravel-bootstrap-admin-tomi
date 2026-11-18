@@ -5,6 +5,12 @@
 
 @section('content')
 <div x-data="insight(@js($cfg))">
+    <div class="mb-4 flex justify-end">
+        <a href="{{ route('admin.dashboard.export-report') }}" class="chip" aria-label="Export report dashboard">
+            Export Report
+        </a>
+    </div>
+
     @include('admin.insight.partials.filters')
 
     <div class="mt-4 rounded-lg border px-4 py-3 text-sm" style="border-color: var(--crit-bg); background: var(--crit-bg); color: var(--crit)" x-show="error" x-cloak x-text="error"></div>
