@@ -28,6 +28,10 @@ class DashboardReportSheet implements FromCollection, WithHeadings, WithTitle, S
             return $this->tomiDanaRows();
         }
 
+        if ($this->scope === 'tomigaji') {
+            return $this->tomiGajiRows();
+        }
+
         $data = $this->scope === 'overview'
             ? $this->insight->overview($this->period, null)
             : $this->insight->product($this->scope, $this->period, null);
@@ -50,6 +54,69 @@ class DashboardReportSheet implements FromCollection, WithHeadings, WithTitle, S
         }
 
         return $rows;
+    }
+
+    private function tomiGajiRows(): Collection
+    {
+        $dateDisbursed = 'COALESCE(sf.transfer_date, sf.created_at)';
+
+        return DB::table('salary_financing_items as sfi')
+            ->join('salary_financings as sf', 'sf.id', '=', 'sfi.salary_financing_id')
+            ->leftJoin('lenders as l', 'l.id', '=', 'sf.lender_id')
+            ->whereNull('sfi.deleted_at')
+            ->whereIn('sf.status', InsightService::GAJI_DISBURSED)
+            ->whereRaw("$dateDisbursed BETWEEN ? AND ?", [$this->period->start(), $this->period->end()])
+            ->orderByRaw("$dateDisbursed")
+            ->orderBy('sfi.id')
+            ->get([
+                'sf.id as financing_id',
+                'sf.agreement_number',
+                'sf.company_name',
+                'sf.id_perusahaan',
+                'l.nama as lender_name',
+                'sf.status as financing_status',
+                'sf.created_at as financing_created_at',
+                'sf.transfer_date',
+                'sf.payment_date as financing_payment_date',
+                'sf.loan_amount',
+                'sf.total_dibayarkan',
+                'sf.total_fee',
+                'sf.total_borrowers',
+                'sfi.application_date',
+                'sfi.name as employee_name',
+                'sfi.nik',
+                'sfi.nip',
+                'sfi.work_placement',
+                'sfi.income_amount',
+                'sfi.payment_date as item_payment_date',
+                'sfi.bank',
+                'sfi.account_number',
+                'sfi.account_holder_name',
+            ])
+            ->map(fn ($row) => [
+                'TomiGaji',
+                $row->financing_id,
+                $row->agreement_number,
+                $row->lender_name,
+                $row->company_name,
+                $row->id_perusahaan,
+                $row->financing_status,
+                $this->dateValue($row->application_date ?? $row->financing_created_at),
+                $this->dateValue($row->transfer_date ?? $row->financing_created_at),
+                $this->dateValue($row->item_payment_date ?? $row->financing_payment_date),
+                $row->loan_amount,
+                $row->total_dibayarkan,
+                $row->total_fee,
+                $row->total_borrowers,
+                $row->employee_name,
+                $row->nik,
+                $row->nip,
+                $row->work_placement,
+                $row->income_amount,
+                $row->bank,
+                $row->account_number,
+                $row->account_holder_name,
+            ]);
     }
 
     private function tomiDanaRows(): Collection
@@ -211,7 +278,34 @@ class DashboardReportSheet implements FromCollection, WithHeadings, WithTitle, S
             ];
         }
 
-        if (in_array($this->scope, ['tomidana', 'tomigaji', 'tomiinvoice'], true)) {
+        if ($this->scope === 'tomigaji') {
+            return [
+                'Produk',
+                'ID Pengajuan',
+                'Nomor Perjanjian',
+                'Lender',
+                'Perusahaan',
+                'ID Perusahaan',
+                'Status Pengajuan',
+                'Tanggal Pengajuan',
+                'Tanggal Transfer',
+                'Tanggal Pembayaran',
+                'Total Pembiayaan Pengajuan',
+                'Total Dibayarkan Pengajuan',
+                'Total Fee Pengajuan',
+                'Total Borrower Pengajuan',
+                'Nama Karyawan',
+                'NIK',
+                'NIP',
+                'Penempatan Kerja',
+                'Penghasilan',
+                'Bank',
+                'Nomor Rekening',
+                'Nama Pemilik Rekening',
+            ];
+        }
+
+        if (in_array($this->scope, ['tomidana', 'tomiinvoice'], true)) {
             return [
                 'Produk',
                 'Perusahaan',
