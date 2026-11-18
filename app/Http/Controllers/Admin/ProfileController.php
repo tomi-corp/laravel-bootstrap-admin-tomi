@@ -73,7 +73,7 @@ class ProfileController extends Controller
         $valid = $google2fa->verifyKey($user->google2fa_secret, $req->code);
         if ($valid) {
             session(['2fa_passed' => true]);
-            return redirect()->intended(route('admin.dashboard.index'));
+            return redirect()->intended(route('admin.insight.index'));
         } else {
             return back()->withErrors([
                 'code' => 'Kode dua faktor yang Anda masukkan tidak valid.',

@@ -1,0 +1,12 @@
+/*
+ * Backoffice TOMI — halaman native kerangka baru (Tailwind v4): Dasbor utama & dasbor produk.
+ * Halaman lama yang dibuka di kerangka baru memakai backoffice-legacy.css.
+ * Warna = palet TOMI (logo + aplikasi mobile). Palet grafik sudah divalidasi untuk buta warna & kontras.
+ */
+@import "tailwindcss" source(none);
+@import "./ui-core.css";
+
+@source "../views/layout/shell.blade.php";
+@source "../views/layout/partials/shell";
+@source "../views/admin/insight";
+@source "../js/backoffice.js";

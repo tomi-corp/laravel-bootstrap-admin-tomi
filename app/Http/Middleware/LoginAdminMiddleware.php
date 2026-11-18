@@ -18,7 +18,7 @@ class LoginAdminMiddleware
     {
         try {
             if (auth('admin')->check()) {
-                return redirect()->route('admin.dashboard.index');
+                return redirect()->route('admin.insight.index');
             } else {
                 return $next($request);
             }

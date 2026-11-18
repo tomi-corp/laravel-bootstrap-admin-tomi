@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\DailyCheckinController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\GadgetInstallmentController;
 use App\Http\Controllers\Admin\GenerateInvoiceController;
+use App\Http\Controllers\Admin\InsightController;
 use App\Http\Controllers\Admin\InvoiceFeePageController;
 use App\Http\Controllers\Admin\InvoiceFeePdfController;
 use App\Http\Controllers\Admin\KspController;
@@ -59,6 +60,14 @@ Route::middleware(['AdminMiddleware'])->group(
                 Route::post('/profile/enableTwoFactor', [ProfileController::class, 'enableTwoFactor'])->name('admin.profile.enableTwoFactor');
 
                 Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('admin.dashboard.index');
+                // Dasbor utama & dasbor per produk → /backoffice/insight/*
+                Route::prefix('insight')->name('admin.insight.')->group(function () {
+                    Route::get('/', [InsightController::class, 'index'])->name('index');
+                    Route::get('/data', [InsightController::class, 'data'])->name('data');
+                    Route::get('/detail', [InsightController::class, 'detail'])->name('detail');
+                    Route::get('/{product}', [InsightController::class, 'product'])
+                        ->whereIn('product', ['tomidana', 'tomigaji', 'tomiinvoice', 'tomigawai'])->name('product');
+                });
                 // ppob
                 Route::get('/ppob', [PpobController::class, 'index'])->name('admin.ppob.index');
                 Route::get('/ppob/transaction/komisi', [PpobController::class, 'komisiIndex'])->name('admin.ppob.komisi');
