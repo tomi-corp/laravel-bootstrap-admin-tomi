@@ -176,7 +176,7 @@ class DashboardReportSheet implements FromCollection, WithHeadings, WithTitle, S
                 'sfi.work_placement',
                 'sfi.income_amount',
                 'sfi.payment_date as item_payment_date',
-                'sfi.bank_id',
+                'sfi.bank',
                 'sfi.account_number',
                 'sfi.account_holder_name',
             ])
