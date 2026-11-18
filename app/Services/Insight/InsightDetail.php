@@ -18,16 +18,15 @@ class InsightDetail
 
     /** metrik => [jenis nilai, label kolom tanggal, label kolom nilai] */
     private const METRICS = [
-        'disbursed' => ['money', 'Tanggal cair', 'Nominal'],
-        'noa' => ['count', 'Tanggal cair', 'Nominal'],
+        'disbursed' => ['money', 'Tanggal realisasi', 'Nominal'],
+        'noa' => ['count', 'Tanggal realisasi', 'Nominal'],
         'outstanding' => ['money', 'Tanggal cair', 'Sisa'],
         'noa_out' => ['count', 'Tanggal cair', 'Sisa'],
         'repaid' => ['money', 'Tanggal', 'Nominal'],
-        'revenue' => ['money', 'Tanggal cair', 'Pendapatan'],
+        'revenue' => ['money', 'Tanggal realisasi', 'Pendapatan TOMI'],
         'late' => ['money', 'Jatuh tempo', 'Cicilan'],
         'applications' => ['count', 'Tanggal pengajuan', 'Nominal'],
         'approval' => ['rate', 'Tanggal pengajuan', 'Nominal'],
-        'borrowers' => ['sum', 'Tanggal cair', 'Karyawan'],
         'po_amount' => ['money', 'Tanggal pengajuan', 'Nilai pesanan'],
         'funnel' => ['count', 'Tanggal pengajuan', 'Nominal'],
     ];
@@ -39,8 +38,8 @@ class InsightDetail
     private const AVAILABLE = [
         'overview' => ['disbursed', 'noa', 'noa_out', 'outstanding', 'repaid', 'revenue', 'late'],
         'tomidana' => ['disbursed', 'noa', 'outstanding', 'noa_out', 'applications', 'approval', 'repaid', 'revenue', 'late', 'funnel'],
-        'tomigaji' => ['disbursed', 'noa', 'outstanding', 'noa_out', 'applications', 'approval', 'repaid', 'revenue', 'borrowers', 'funnel'],
-        'tomiinvoice' => ['disbursed', 'noa', 'outstanding', 'noa_out', 'applications', 'approval', 'repaid', 'po_amount', 'funnel'],
+        'tomigaji' => ['disbursed', 'noa', 'outstanding', 'noa_out', 'applications', 'approval', 'repaid', 'revenue', 'funnel'],
+        'tomiinvoice' => ['disbursed', 'noa', 'outstanding', 'noa_out', 'applications', 'approval', 'repaid', 'revenue', 'po_amount', 'funnel'],
         'tomigawai' => ['disbursed', 'noa', 'outstanding', 'noa_out', 'applications', 'approval', 'repaid', 'funnel'],
     ];
 
@@ -179,19 +178,25 @@ class InsightDetail
             case 'disbursed':
             case 'noa':
             case 'revenue':
-                $rev = 'COALESCE(p.pendapatan_bunga,0) + COALESCE(p.total_biaya_admin,0) + COALESCE(p.biaya_admin_pandu,0) + COALESCE(p.biaya_layanan,0)'
-                    .' + COALESCE(p.jumlah_asuransi,0) + COALESCE(p.jumlah_provisi,0) + COALESCE(p.jumlah_profesional_1,0) + COALESCE(p.jumlah_profesional_2,0)';
-
-                return $people($this->insight->danaDisbursements($period, $lenderId))
+                $rev = $metric === 'revenue';
+                $loans = $this->insight->danaLoans($period, $lenderId)
+                    ->leftJoin('list_perusahaans as lp', 'lp.id', '=', DB::raw(InsightService::DANA_COMPANY))
                     ->leftJoin('lenders as l', 'l.id', '=', 'p.id_lender')
-                    ->get(['d.created_at', 'p.id_pinjaman', 'k.nama_karyawan', 'lp.nama as company', 'l.nama as lender', 'd.dana_yang_dicairkan', 'p.tenor', 'p.status',
-                        'p.pendapatan_bunga', 'p.total_biaya_admin', DB::raw("($rev) as rev")])
+                    ->get(['p.created_at', 'p.id_pinjaman', 'k.nama_karyawan', 'lp.nama as company', 'l.nama as lender', 'p.nominal', 'p.tenor', 'p.status', 'p.biaya_layanan',
+                        DB::raw('('.InsightService::DANA_FEE_SQL.') as fee')])
                     ->map(fn ($r) => $this->row($r->created_at, $r->id_pinjaman, $r->nama_karyawan, $r->company, $r->lender,
-                        $metric === 'revenue' ? (float) $r->rev : (float) $r->dana_yang_dicairkan,
+                        $rev ? (float) $r->fee + (float) $r->biaya_layanan : (float) $r->nominal,
                         $r->status === 'done' ? ['good', 'Lunas'] : ['info', 'Berjalan'],
-                        $metric === 'revenue'
-                            ? 'Bunga '.$this->rp($r->pendapatan_bunga).' · admin '.$this->rp($r->total_biaya_admin)
-                            : 'Tenor '.$r->tenor.' bln'))->all();
+                        $rev ? 'Fee 1% '.$this->rp($r->fee).' · layanan '.$this->rp($r->biaya_layanan).' · pinjaman '.$this->rp($r->nominal)
+                            : 'Tenor '.$r->tenor.' bln'));
+                $manual = $this->insight->manualUploads($period, $lenderId)
+                    ->leftJoin('lenders as l', 'l.id', '=', 'lpm.id_lender')
+                    ->get(['m.id', 'm.created_at', 'm.filename', 'm.jumlah_peminjam', 'm.total_pinjaman', 'm.total_fee', 'l.nama as lender', DB::raw('COALESCE(lpm.nama, m.nama_perusahaan) as company')])
+                    ->map(fn ($r) => $this->row($r->created_at, 'Upload manual #'.$r->id, $r->jumlah_peminjam.' peminjam', $r->company, $r->lender,
+                        $rev ? (float) $r->total_fee : (float) $r->total_pinjaman, ['mute', 'Upload manual'],
+                        ($rev ? 'Fee dari file · pinjaman '.$this->rp($r->total_pinjaman).' · ' : 'Buat Tagihan · ').$r->filename, (int) $r->jumlah_peminjam));
+
+                return $loans->concat($manual)->all();
 
             case 'outstanding':
             case 'noa_out':
@@ -244,12 +249,13 @@ class InsightDetail
         $datePaid = 'COALESCE(s.payment_date, s.updated_at)';
         $base = fn ($q) => $q->leftJoin('list_perusahaans as lp', 'lp.id', '=', 's.id_perusahaan')->leftJoin('lenders as l', 'l.id', '=', 's.lender_id');
         $cols = ['s.id', 's.agreement_number', 's.status', 's.loan_amount', 's.total_dibayarkan', 's.total_fee', 's.total_borrowers', 'l.nama as lender', DB::raw('COALESCE(lp.nama, s.company_name) as company')];
+        // NOA penyaluran TomiGaji = per karyawan, jadi satu pengajuan bernilai total_borrowers
+        $perEmployee = in_array($metric, ['disbursed', 'noa', 'revenue'], true);
         $map = fn (string $dateCol, callable $amount) => fn ($r) => $this->row($r->{$dateCol}, $r->agreement_number ?: 'TomiGaji #'.$r->id, null, $r->company, $r->lender,
-            $amount($r), self::GAJI_STATUS[$r->status] ?? ['mute', $r->status], $r->total_borrowers.' karyawan');
+            $amount($r), self::GAJI_STATUS[$r->status] ?? ['mute', $r->status], $r->total_borrowers.' karyawan', $perEmployee ? (int) $r->total_borrowers : 1);
 
         $q = match ($metric) {
-            'disbursed', 'noa', 'revenue', 'borrowers' => $this->insight->gajiQuery($lenderId)->whereIn('s.status', InsightService::GAJI_DISBURSED)
-                ->whereRaw("$dateDisb BETWEEN ? AND ?", [$period->start(), $period->end()]),
+            'disbursed', 'noa', 'revenue' => $this->insight->gajiDisbursed($period, $lenderId),
             'outstanding', 'noa_out' => $this->insight->gajiOpenAt($period->end(), $lenderId),
             'repaid' => $this->insight->gajiQuery($lenderId)->where('s.status', 'lunas')->whereRaw("$datePaid BETWEEN ? AND ?", [$period->start(), $period->end()]),
             'applications', 'approval' => $this->apps('tomigaji', $period, $lenderId),
@@ -259,11 +265,10 @@ class InsightDetail
             return [];
         }
         $dateSql = match ($metric) {
-            'repaid' => $datePaid, 'applications', 'approval' => 's.created_at', default => $dateDisb
+            'repaid' => $datePaid, 'applications', 'approval', 'disbursed', 'noa', 'revenue' => 's.created_at', default => $dateDisb
         };
         $amount = match ($metric) {
-            'revenue' => fn ($r) => (float) $r->total_fee,
-            'borrowers' => fn ($r) => (float) $r->total_borrowers,
+            'revenue' => fn ($r) => (float) $r->loan_amount * InsightService::FEE_TOMIGAJI,
             'outstanding', 'noa_out', 'repaid' => fn ($r) => (float) $r->total_dibayarkan,
             default => fn ($r) => (float) $r->loan_amount,
         };
@@ -277,6 +282,18 @@ class InsightDetail
             ->leftJoin('lenders as l', 'l.id', '=', 'f.lender_id');
         $cols = ['f.purchase_order_number', 'f.analyst_decision', 'f.approved_financing_amount', 'f.purchase_order_amount', 'v.name as vendor', 'c.name as client', 'l.nama as lender'];
         $decision = fn ($d) => $d === 'approved' ? ['good', 'Disetujui'] : ($d === 'rejected' ? ['crit', 'Ditolak'] : ['warn', 'Menunggu analis']);
+
+        if (in_array($metric, ['disbursed', 'noa', 'revenue'], true)) {
+            return $this->insight->invoiceTerms($period, $lenderId)
+                ->leftJoin('vendors as v', 'v.id', '=', 'it.vendor_id')->leftJoin('clients as c', 'c.id', '=', 'it.client_id')
+                ->leftJoin('lenders as l', 'l.id', '=', 'it.lender_id')
+                ->get(['it.dt', 'it.term_no', 'it.pct', 'it.purchase_order_number', 'it.approved_financing_amount', 'v.name as vendor', 'c.name as client', 'l.nama as lender',
+                    DB::raw('('.InsightService::INVOICE_TERM_SQL.') as amt')])
+                ->map(fn ($r) => $this->row($r->dt, $r->purchase_order_number ?: '-', $r->vendor, $r->client, $r->lender,
+                    $metric === 'revenue' ? (float) $r->amt * InsightService::FEE_TOMIINVOICE : (float) $r->amt,
+                    ['info', 'Termin '.$r->term_no.' · '.rtrim(rtrim(number_format((float) $r->pct, 2, ',', '.'), '0'), ',').'%'],
+                    ($metric === 'revenue' ? 'Fee 1% dari termin '.$this->rp($r->amt).' · ' : '').'Pembiayaan disetujui '.$this->rp($r->approved_financing_amount)))->all();
+        }
 
         if ($metric === 'repaid') {
             $out = [];
@@ -303,18 +320,16 @@ class InsightDetail
         }
 
         $q = match ($metric) {
-            'disbursed', 'noa' => $this->insight->invoiceQuery($lenderId)->where('f.analyst_decision', 'approved')->whereBetween('f.approved_at', [$period->start(), $period->end()]),
             'applications', 'approval', 'po_amount' => $this->apps('tomiinvoice', $period, $lenderId),
             default => null,
         };
         if (! $q) {
             return [];
         }
-        $dateCol = in_array($metric, ['disbursed', 'noa'], true) ? 'f.approved_at' : 'f.created_at';
 
-        return $base($q)->get(array_merge($cols, [DB::raw("$dateCol as d_date")]))
+        return $base($q)->get(array_merge($cols, [DB::raw('f.created_at as d_date')]))
             ->map(fn ($r) => $this->row($r->d_date, $r->purchase_order_number ?: '-', $r->vendor, $r->client, $r->lender,
-                (float) ($metric === 'po_amount' ? $r->purchase_order_amount : ($metric === 'disbursed' || $metric === 'noa' ? $r->approved_financing_amount : ($r->approved_financing_amount ?: $r->purchase_order_amount))),
+                (float) ($metric === 'po_amount' ? $r->purchase_order_amount : ($r->approved_financing_amount ?: $r->purchase_order_amount)),
                 $decision($r->analyst_decision), null))->all();
     }
 
@@ -342,7 +357,8 @@ class InsightDetail
     /* Ringkasan, pecahan, kolom, tautan */
     /* ===================================================================== */
 
-    private function row($date, $ref, $name, $company, $lender, float $amount, ?array $status, ?string $extra): array
+    /** $units = bobot NOA baris ini (upload manual = jumlah peminjam, TomiGaji = jumlah karyawan, lainnya 1). */
+    private function row($date, $ref, $name, $company, $lender, float $amount, ?array $status, ?string $extra, int $units = 1): array
     {
         return [
             'date' => $date ? CarbonImmutable::parse($date)->format('Y-m-d H:i') : null,
@@ -353,6 +369,7 @@ class InsightDetail
             'status' => $status ? ['tone' => $status[0], 'label' => $status[1]] : null,
             'amount' => $amount,
             'extra' => $extra,
+            'units' => $units,
         ];
     }
 
@@ -361,7 +378,7 @@ class InsightDetail
         $count = count($rows);
         $sum = array_sum(array_column($rows, 'amount'));
         $value = match ($kind) {
-            'count' => $count,
+            'count' => array_sum(array_column($rows, 'units')),
             'rate' => $count > 0 ? count(array_filter($rows, fn ($r) => in_array($r['status']['label'] ?? '', ['Dicairkan', 'Lunas', 'Disetujui', 'Berjalan', 'Sudah ditransfer', 'Bukti bayar masuk'], true))) / $count : null,
             default => $sum,
         };
@@ -378,7 +395,7 @@ class InsightDetail
             foreach ($rows as $r) {
                 $k = $key($r);
                 $agg[$k] ??= ['label' => $k, 'value' => 0.0, 'count' => 0, 'slot' => $r['slot'] ?? null, 'tone' => $r['status']['tone'] ?? null];
-                $agg[$k]['value'] += $money ? $r['amount'] : 1;
+                $agg[$k]['value'] += $money ? $r['amount'] : ($r['units'] ?? 1);
                 $agg[$k]['count']++;
             }
             usort($agg, fn ($a, $b) => $b['value'] <=> $a['value']);
@@ -435,7 +452,10 @@ class InsightDetail
         if ($has('status')) {
             $cols[] = ['key' => 'status', 'label' => 'Status', 'type' => 'badge'];
         }
-        $cols[] = ['key' => 'amount', 'label' => $valueLabel, 'type' => $metric === 'borrowers' ? 'num' : 'money', 'sortable' => true];
+        if (in_array($metric, ['disbursed', 'noa', 'revenue'], true) && array_filter($rows, fn ($r) => ($r['units'] ?? 1) !== 1)) {
+            $cols[] = ['key' => 'units', 'label' => 'NOA', 'type' => 'num'];
+        }
+        $cols[] = ['key' => 'amount', 'label' => $valueLabel, 'type' => 'money', 'sortable' => true];
 
         return $cols;
     }
@@ -444,18 +464,16 @@ class InsightDetail
     {
         $all = $scope === 'overview';
         $def = [
-            'disbursed' => $all ? 'Jumlah dana yang cair pada periode ini dari semua produk: TomiDana (dana dicairkan), TomiGaji (dana ditransfer), Tomi Invoice (pembiayaan disetujui), TomiGawai (cicilan disetujui).'
-                : 'Jumlah dana yang cair pada periode ini.',
-            'noa' => 'NOA penyaluran = jumlah akun yang cair pada periode ini. Dihitung per akun pinjaman, bukan per orang: TomiDana per pinjaman, TomiGaji per pengajuan, Tomi Invoice per tagihan disetujui, TomiGawai per cicilan.',
+            'disbursed' => 'Penyaluran pada periode ini (definisi catatan kantor): TomiDana = nominal pinjaman disetujui menurut tanggal pengajuan + upload manual menu Buat Tagihan; TomiGaji = nilai pembiayaan menurut tanggal pengajuan; Tomi Invoice = pembayaran ke pelanggan per termin (pembiayaan disetujui × % termin) menurut tanggal bayar; TomiGawai = cicilan disetujui.',
+            'noa' => 'NOA penyaluran (definisi catatan kantor): TomiDana 1 per pinjaman aplikasi + jumlah peminjam di upload manual; TomiGaji per karyawan; Tomi Invoice per termin pembayaran ke pelanggan; TomiGawai per cicilan.',
             'noa_out' => 'NOA outstanding = jumlah akun yang masih berjalan (belum lunas) pada tanggal akhir periode.',
             'outstanding' => 'Sisa yang belum kembali pada tanggal akhir periode. TomiDana: cicilan belum lunas × angsuran per bulan; TomiGaji: pengajuan cair yang belum lunas; Tomi Invoice: pembiayaan disetujui dikurangi termin yang sudah ditagihkan; TomiGawai: cicilan berjalan.',
             'repaid' => $all ? 'Uang yang kembali pada periode ini: pembayaran tagihan TomiDana, pelunasan TomiGaji, termin Tomi Invoice yang ditagihkan, cicilan TomiGawai yang lunas.'
                 : 'Pembayaran / pelunasan yang tercatat pada periode ini.',
-            'revenue' => 'Pendapatan diakui saat dana cair (definisi sementara): TomiDana = bunga + biaya admin + admin Pandu + layanan + asuransi + provisi + biaya profesional; TomiGaji = biaya jasa.',
+            'revenue' => 'Pendapatan bagian TOMI (definisi catatan kantor, tanpa bagian pemberi dana): TomiDana = 1% × nominal pinjaman + biaya layanan; upload manual = fee dari file Buat Tagihan; TomiGaji = 1,5% × nilai pembiayaan; Tomi Invoice = 1% × nilai termin dibayar ke pelanggan.',
             'late' => 'Cicilan TomiDana yang sudah lewat jatuh tempo dan belum lunas pada tanggal akhir periode.',
             'applications' => 'Pengajuan yang masuk pada periode ini, apa pun statusnya.',
             'approval' => 'Persentase pengajuan pada periode ini yang sudah disetujui / dicairkan.',
-            'borrowers' => 'Total karyawan dalam pengajuan TomiGaji yang cair pada periode ini.',
             'po_amount' => 'Total nilai pesanan pembelian (PO) dari tagihan yang diajukan pada periode ini.',
         ];
 

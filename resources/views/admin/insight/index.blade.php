@@ -143,7 +143,7 @@
         {{-- ===================== 3. Pendapatan ===================== --}}
         <div class="mb-3 mt-8 flex flex-wrap items-baseline gap-x-3">
             <h2 class="section-title">Pendapatan</h2>
-            <p class="section-sub">Gabungan semua komponen, bisa dilihat per komponen</p>
+            <p class="section-sub">Bagian TOMI dari semua produk, bisa dilihat per komponen</p>
         </div>
         @include('admin.insight.partials.revenue')
 
@@ -155,7 +155,7 @@
         <div class="grid gap-4 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
             <section class="panel panel-pad fade-in">
                 <div class="panel-title">Perusahaan mitra teratas</div>
-                <div class="panel-sub">Dana dicairkan TomiDana &amp; TomiGaji pada periode ini · klik baris untuk rinciannya</div>
+                <div class="panel-sub">Penyaluran TomiDana &amp; TomiGaji pada periode ini · klik baris untuk rinciannya</div>
                 <div class="-mx-3 mt-3 overflow-x-auto">
                     <table class="tbl">
                         <thead><tr><th>Perusahaan</th><th>Pemberi dana</th><th class="r">TomiDana</th><th class="r">TomiGaji</th><th class="w-28"></th></tr></thead>
@@ -165,7 +165,7 @@
                                     @click="openDetail(rowKpi(c.name, c.dana + c.gaji, { company: c.name }, 'Perusahaan mitra · TomiDana & TomiGaji', 'tomidana,tomigaji'), $el)"
                                     @keydown.enter.prevent="openDetail(rowKpi(c.name, c.dana + c.gaji, { company: c.name }, 'Perusahaan mitra · TomiDana & TomiGaji', 'tomidana,tomigaji'), $el)"
                                     @keydown.space.prevent="openDetail(rowKpi(c.name, c.dana + c.gaji, { company: c.name }, 'Perusahaan mitra · TomiDana & TomiGaji', 'tomidana,tomigaji'), $el)">
-                                    <td><span class="font-semibold" x-text="c.name"></span><div class="text-xs text-muted" x-text="c.dana_count ? c.dana_count + ' pinjaman' : ''"></div></td>
+                                    <td><span class="font-semibold" x-text="c.name"></span><div class="text-xs text-muted" x-text="c.dana_count ? c.dana_count + ' NOA TomiDana' : ''"></div></td>
                                     <td class="text-ink-2" x-text="c.lender"></td>
                                     <td class="r" x-text="c.dana ? fmt.rp(c.dana) : '—'"></td>
                                     <td class="r" x-text="c.gaji ? fmt.rp(c.gaji) : '—'"></td>
@@ -177,7 +177,7 @@
                                     </td>
                                 </tr>
                             </template>
-                            <tr x-show="!(d?.companies || []).length"><td colspan="5" class="py-8 text-center text-muted">Belum ada pencairan pada periode ini</td></tr>
+                            <tr x-show="!(d?.companies || []).length"><td colspan="5" class="py-8 text-center text-muted">Belum ada penyaluran pada periode ini</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -203,7 +203,7 @@
             </div>
         </div>
 
-        <p class="mt-8 text-center text-xs text-muted">Definisi angka masih sementara dan perlu dikonfirmasi tim bisnis.</p>
+        <p class="mt-8 text-center text-xs text-muted">Penyaluran, NOA penyaluran, dan pendapatan mengikuti definisi catatan kantor. Sisa, NOA outstanding, dan pembayaran masih definisi sementara.</p>
     </div>
 
     @include('admin.insight.partials.detail')

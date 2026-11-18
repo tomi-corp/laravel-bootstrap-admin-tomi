@@ -96,8 +96,13 @@ class InsightDashboardTest extends TestCase
         $this->assertSame($products->sum('noa_out'), (int) $kpi['NOA outstanding']['value']);
         $this->assertSame((int) $kpi['NOA penyaluran']['value'], array_sum($data['trend']['noa']));
 
-        // TomiDana dihitung langsung dari tabel: pinjaman cair & pinjaman cair yang masih punya cicilan belum lunas
-        $danaDisbursed = DB::table('disbursements as d')->join('pinjamen as p', 'p.id', '=', 'd.pinjaman_id')->count();
+        // NOA penyaluran (catatan kantor) dihitung langsung dari tabel:
+        // TomiDana = pinjaman approve/done + jumlah peminjam upload manual; TomiGaji = jumlah karyawan pengajuan yang ditransfer
+        $danaDisbursed = DB::table('pinjamen')->whereNull('deleted_at')->whereIn('status', ['approve', 'done'])->count()
+            + (int) DB::table('invoice_generate_manuals')->sum('jumlah_peminjam');
+        $gajiDisbursed = (int) DB::table('salary_financings')->whereIn('status', ['uploaded_transfer', 'uploaded_bayar', 'lunas'])->sum('total_borrowers');
+        $this->assertSame($gajiDisbursed, (int) $products['tomigaji']['count']);
+        // NOA outstanding TomiDana: pinjaman cair yang masih punya cicilan belum lunas
         $danaOpen = DB::table('jatuh_tempos as jt')->join('pinjamen as p', 'p.id', '=', 'jt.id_pinjaman')
             ->join('disbursements as d', 'd.pinjaman_id', '=', 'p.id')
             ->whereNull('p.deleted_at')->where('jt.status', '!=', 'lunas')->distinct()->count('p.id');
