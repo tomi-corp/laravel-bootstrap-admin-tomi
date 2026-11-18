@@ -1,0 +1,14 @@
+/*
+ * Kerangka baru untuk halaman backoffice lama (layout.app).
+ * Sama dengan backoffice.css tapi TANPA preflight Tailwind: reset dasar diserahkan ke Bootstrap (layer `legacy`),
+ * supaya isi halaman lama tidak rusak. Urutan layer: theme < base < legacy < components < utilities.
+ */
+@layer theme, base, legacy, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities) source(none);
+@import "./ui-core.css";
+@import "./legacy-skin.css";
+
+@source "../views/layout/shell.blade.php";
+@source "../views/layout/partials/shell";
+@source "../js/backoffice.js";
