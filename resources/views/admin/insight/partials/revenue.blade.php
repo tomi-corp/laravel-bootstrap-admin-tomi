@@ -19,7 +19,7 @@
                     </template>
                 </div>
             </div>
-            <div class="mt-3 grid gap-6 lg:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
+            <div class="mt-3 grid gap-6 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
                 <div x-ref="revenue" class="min-h-[300px]"></div>
                 <div>
                     <div class="mb-2 text-[13px] font-semibold">Rincian komponen</div>

@@ -990,16 +990,9 @@ class InsightService
         return array_map(fn ($b) => (float) ($rows[$b['key']] ?? 0), $period->buckets());
     }
 
+    /** Rupiah lengkap tanpa singkatan & tanpa desimal, mis. "Rp 5.417.295.922". */
     private function rp($value): string
     {
-        $v = (float) $value;
-        if ($v >= 1e9) {
-            return 'Rp '.number_format($v / 1e9, 1, ',', '.').' M';
-        }
-        if ($v >= 1e6) {
-            return 'Rp '.number_format($v / 1e6, 1, ',', '.').' jt';
-        }
-
-        return 'Rp '.number_format($v, 0, ',', '.');
+        return 'Rp '.number_format(round((float) $value), 0, ',', '.');
     }
 }

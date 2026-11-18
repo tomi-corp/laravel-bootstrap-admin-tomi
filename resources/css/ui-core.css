@@ -153,6 +153,8 @@
   /* ---------- angka ---------- */
   .figure-xl { font-size: 40px; font-weight: 600; letter-spacing: -.025em; line-height: 1.05; }
   .figure-lg { font-size: 22px; font-weight: 600; letter-spacing: -.015em; line-height: 1.15; }
+  /* rupiah ditulis lengkap: jangan dipatah jadi "Rp" / angka di baris berbeda */
+  .figure-xl, .figure-lg { white-space: nowrap; }
   .num { font-variant-numeric: tabular-nums; }
   .delta { font-size: 12px; font-weight: 600; white-space: nowrap; }
   .delta small { font-weight: 400; color: var(--muted); }

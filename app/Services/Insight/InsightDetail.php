@@ -504,10 +504,9 @@ class InsightDetail
         return $out;
     }
 
+    /** Rupiah lengkap tanpa singkatan & tanpa desimal, mis. "Rp 5.417.295.922". */
     private function rp($value): string
     {
-        $v = (float) $value;
-
-        return $v >= 1e6 ? 'Rp '.number_format($v / 1e6, 1, ',', '.').' jt' : 'Rp '.number_format($v, 0, ',', '.');
+        return 'Rp '.number_format(round((float) $value), 0, ',', '.');
     }
 }

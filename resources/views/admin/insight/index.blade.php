@@ -124,12 +124,13 @@
                         <svg class="i go ml-auto !h-4 !w-4"><use href="#i-arrow"/></svg>
                     </div>
                     <div class="text-xs text-muted" x-text="p.desc"></div>
-                    <div class="mt-3 flex items-end justify-between gap-3">
-                        <div>
-                            <div class="figure-lg" x-text="p.disbursed > 0 || p.outstanding > 0 ? fmt.rp(p.disbursed) : 'Belum ada data'"></div>
-                            <div class="delta mt-1" :class="delta(p.disbursed, p.prev).cls"><span x-text="delta(p.disbursed, p.prev).text"></span> <small x-text="delta(p.disbursed, p.prev).sub"></small></div>
+                    {{-- angka rupiah ditulis lengkap: satu baris sendiri, grafik kecil di bawahnya --}}
+                    <div class="mt-3">
+                        <div class="figure-lg whitespace-nowrap" x-text="p.disbursed > 0 || p.outstanding > 0 ? fmt.rp(p.disbursed) : 'Belum ada data'"></div>
+                        <div class="mt-1 flex items-end justify-between gap-3">
+                            <div class="delta" :class="delta(p.disbursed, p.prev).cls"><span x-text="delta(p.disbursed, p.prev).text"></span> <small x-text="delta(p.disbursed, p.prev).sub"></small></div>
+                            <svg class="spark" viewBox="0 0 88 28" preserveAspectRatio="none" aria-hidden="true" x-spark="{ data: p.series, color: `var(--s${p.slot})` }"></svg>
                         </div>
-                        <svg class="spark" viewBox="0 0 88 28" preserveAspectRatio="none" aria-hidden="true" x-spark="{ data: p.series, color: `var(--s${p.slot})` }"></svg>
                     </div>
                     <dl class="mt-3 grid grid-cols-2 gap-x-3 gap-y-1 border-t border-line pt-3 text-xs">
                         <dt class="text-muted">NOA penyaluran</dt><dd class="num text-right font-semibold text-ink-2" x-text="fmt.num(p.count)"></dd>
