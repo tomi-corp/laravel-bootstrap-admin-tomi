@@ -32,6 +32,10 @@ class DashboardReportSheet implements FromCollection, WithHeadings, WithTitle, S
             return $this->tomiGajiRows();
         }
 
+        if ($this->scope === 'tomiinvoice') {
+            return $this->tomiInvoiceRows();
+        }
+
         $data = $this->scope === 'overview'
             ? $this->insight->overview($this->period, null)
             : $this->insight->product($this->scope, $this->period, null);
@@ -54,6 +58,77 @@ class DashboardReportSheet implements FromCollection, WithHeadings, WithTitle, S
         }
 
         return $rows;
+    }
+
+    private function tomiInvoiceRows(): Collection
+    {
+        return DB::table('financing_request_invoices as f')
+            ->leftJoin('clients as c', 'c.id', '=', 'f.client_id')
+            ->leftJoin('vendors as v', 'v.id', '=', 'f.vendor_id')
+            ->leftJoin('lenders as l', 'l.id', '=', 'f.lender_id')
+            ->whereNull('f.deleted_at')
+            ->where('f.analyst_decision', 'approved')
+            ->whereBetween('f.approved_at', [$this->period->start(), $this->period->end()])
+            ->orderBy('f.approved_at')
+            ->orderBy('f.id')
+            ->get([
+                'f.id',
+                'f.created_at',
+                'f.approved_at',
+                'f.analyst_decision',
+                'f.status',
+                'f.purchase_order_amount',
+                'f.approved_financing_amount',
+                'f.finance_invoice_term_date_1',
+                'f.finance_invoice_term_date_2',
+                'f.finance_invoice_term_date_3',
+                'f.finance_invoice_term_amount_1',
+                'f.finance_invoice_term_amount_2',
+                'f.finance_invoice_term_amount_3',
+                'f.finance_vendor_payment_proof_date_1',
+                'f.finance_vendor_payment_proof_date_2',
+                'f.finance_vendor_payment_proof_date_3',
+                'c.name as client_name',
+                'v.name as vendor_name',
+                'l.nama as lender_name',
+            ])
+            ->map(function ($row) {
+                $nominal = (float) ($row->approved_financing_amount ?? $row->purchase_order_amount ?? 0);
+                $terms = collect([1, 2, 3])->map(fn (int $number) => [
+                    'date' => $row->{"finance_invoice_term_date_{$number}"},
+                    'amount' => (float) ($row->{"finance_invoice_term_amount_{$number}"} ?? 0),
+                ]);
+                $firstTermDate = $terms->pluck('date')->filter()->sort()->first();
+                $billed = $terms->sum('amount');
+                $paymentDate = collect([1, 2, 3])
+                    ->map(fn (int $number) => $row->{"finance_vendor_payment_proof_date_{$number}"})
+                    ->filter()
+                    ->sort()
+                    ->last();
+
+                $values = [
+                    'Tomi Invoice',
+                    $row->vendor_name,
+                    $row->client_name,
+                    $this->dateValue($row->created_at),
+                    $this->dateValue($row->approved_at),
+                    $this->dateValue($firstTermDate),
+                    $row->status ?: $row->analyst_decision,
+                    $nominal,
+                    null,
+                    null,
+                    null,
+                    null,
+                    max(0, $nominal - $billed),
+                    $this->dateValue($paymentDate),
+                    $billed >= $nominal && $nominal > 0 ? 'Lunas' : 'Belum Lunas',
+                ];
+
+                $values = array_pad($values, 35, null);
+                $values[] = null;
+
+                return $values;
+            });
     }
 
     private function tomiGajiRows(): Collection
