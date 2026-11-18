@@ -16,8 +16,12 @@ class DashboardReportExport implements WithMultipleSheets
 
     public function sheets(): array
     {
+        $allProducts = new DashboardReportSheet('overview', 'All Produk', $this->insight, $this->period);
+        $allProductRows = $allProducts->collection();
+
         return [
-            new DashboardReportSheet('overview', 'All Produk', $this->insight, $this->period),
+            new DashboardReportPivotSheet($allProductRows),
+            new DashboardReportSheet('overview', 'All Produk', $this->insight, $this->period, $allProductRows),
             new DashboardReportSheet('tomidana', 'TomiDana', $this->insight, $this->period),
             new DashboardReportSheet('tomigaji', 'TomiGaji', $this->insight, $this->period),
             new DashboardReportSheet('tomiinvoice', 'TomiInvoice', $this->insight, $this->period),

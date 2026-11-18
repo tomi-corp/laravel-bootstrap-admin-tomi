@@ -19,11 +19,16 @@ class DashboardReportSheet implements FromCollection, WithHeadings, WithTitle, S
         private readonly string $sheetTitle,
         private readonly InsightService $insight,
         private readonly InsightPeriod $period,
+        private readonly ?Collection $cachedRows = null,
     ) {
     }
 
     public function collection(): Collection
     {
+        if ($this->cachedRows !== null) {
+            return $this->cachedRows;
+        }
+
         if ($this->scope === 'tomidana') {
             return $this->tomiDanaRows();
         }
@@ -115,8 +120,8 @@ class DashboardReportSheet implements FromCollection, WithHeadings, WithTitle, S
 
                 $values = [
                     'Tomi Invoice',
-                    $row->vendor_name,
-                    $row->client_name,
+                $row->client_name,
+                $row->vendor_name,
                     $this->dateValue($row->created_at),
                     $this->dateValue($row->approved_at),
                     $this->dateValue($firstTermDate),
@@ -184,7 +189,7 @@ class DashboardReportSheet implements FromCollection, WithHeadings, WithTitle, S
                     $this->dateValue($row->transfer_date ?? $row->financing_created_at),
                     null,
                     $row->financing_status,
-                    $row->loan_amount,
+                    $row->income_amount,
                     null,
                     null,
                     null,
