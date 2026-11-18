@@ -48,6 +48,47 @@ class DashboardReportSheet implements FromCollection, WithHeadings, WithTitle, S
 
     public function headings(): array
     {
+        if ($this->scope === 'overview') {
+            return [
+                'Produk',
+                'Lender',
+                'Perusahaan',
+                'Nama',
+                'Tanggal Transaksi',
+                'Tanggal Realisasi',
+                'Tanggal Jatuh Tempo Pembayaran',
+                'Status Pinjaman',
+                'Nominal',
+                'Angsuran Perbulan',
+                'Tenor',
+                'Angsuran ke',
+                'Sisa Tenor',
+                'Sisa Outstanding',
+                'Tanggal Pembayaran',
+                'Status Pembayaran',
+                'Rate (%)',
+                'Rate (Rp)',
+                'Rate LENDER (%)',
+                'Pendapatan Bunga LENDER (%)',
+                'Pendapatan Bunga LENDER (Rp)',
+                'Rate TOMI (%)',
+                'Pendapatan Bunga TOMI (%)',
+                'Pendapatan Bunga TOMI (Rp)',
+                'Biaya Admin (%)',
+                'Biaya Admin LENDER (%)',
+                'Biaya Admin LENDER (Rp)',
+                'Biaya Admin TOMI (%)',
+                'Biaya Admin TOMI (Rp)',
+                'Biaya Admin Referal 1 (%)',
+                'Biaya Admin Referal 1 (Rp)',
+                'Biaya Admin Referal 2 (%)',
+                'Biaya Admin Referal 2 (Rp)',
+                'Biaya Layanan TOMI',
+                'Iuran Anggota',
+                'Total Pendapatan TOMI (Rp)',
+            ];
+        }
+
         return ['Metrik', 'Nilai', 'Format', 'Periode'];
     }
 
