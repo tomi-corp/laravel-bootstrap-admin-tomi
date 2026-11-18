@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exports\DashboardReportExport;
 use App\Http\Controllers\Controller;
 use App\Mail\InvoiceEmail;
 use App\Mail\InvoiceKeLender;
@@ -30,6 +31,7 @@ use Illuminate\Support\Facades\Crypt;
 use App\Http\Requests\Public\Ekasbon\DaftarEkasbonRequest;
 use App\Models\daftar_e_kasbon;
 use Illuminate\Support\Facades\Http;
+use Maatwebsite\Excel\Facades\Excel;
 
 
 class DashboardController extends Controller
@@ -96,6 +98,14 @@ class DashboardController extends Controller
         ];
         // transaction
         return view('admin.dashboard.index', compact('register'));
+    }
+
+    public function exportReport()
+    {
+        return Excel::download(
+            new DashboardReportExport(),
+            'dashboard-report-' . now()->format('Y-m-d') . '.xlsx'
+        );
     }
 
     public function invoicee($encrypted, $unique, $idEnc, $codePerusahaanEnc)

@@ -5,6 +5,9 @@
         <div class="col-12">
             <div class="page-title-box">
                 <div class="page-title-right">
+                    <a href="{{ route('admin.dashboard.export-report') }}" class="btn btn-success mr-2">
+                        <i class="mdi mdi-file-excel-outline mr-1"></i> Export Report
+                    </a>
                     <ol class="breadcrumb m-0">
                         <li class="breadcrumb-item"><a href="javascript: void(0);">Tomi</a></li>
                         <li class="breadcrumb-item active">Dashboard</li>

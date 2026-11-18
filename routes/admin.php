@@ -60,6 +60,7 @@ Route::middleware(['AdminMiddleware'])->group(
                 Route::post('/profile/enableTwoFactor', [ProfileController::class, 'enableTwoFactor'])->name('admin.profile.enableTwoFactor');
 
                 Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('admin.dashboard.index');
+                Route::get('/dashboard/export-report', [DashboardController::class, 'exportReport'])->name('admin.dashboard.export-report');
                 // Dasbor utama & dasbor per produk → /backoffice/insight/*
                 Route::prefix('insight')->name('admin.insight.')->group(function () {
                     Route::get('/', [InsightController::class, 'index'])->name('index');
