@@ -36,6 +36,13 @@ class DashboardReportSheet implements FromCollection, WithHeadings, WithTitle, S
             return $this->tomiInvoiceRows();
         }
 
+        if ($this->scope === 'overview') {
+            return $this->tomiDanaRows()
+                ->concat($this->tomiGajiRows())
+                ->concat($this->tomiInvoiceRows())
+                ->values();
+        }
+
         $data = $this->scope === 'overview'
             ? $this->insight->overview($this->period, null)
             : $this->insight->product($this->scope, $this->period, null);
@@ -124,7 +131,7 @@ class DashboardReportSheet implements FromCollection, WithHeadings, WithTitle, S
                     $billed >= $nominal && $nominal > 0 ? 'Lunas' : 'Belum Lunas',
                 ];
 
-                $values = array_pad($values, 35, null);
+                $values = array_pad($values, 34, null);
                 $values[] = null;
 
                 return $values;
@@ -187,7 +194,7 @@ class DashboardReportSheet implements FromCollection, WithHeadings, WithTitle, S
                     $row->financing_status === 'lunas' ? 'Lunas' : 'Belum Lunas',
                 ];
 
-                $values = array_pad($values, 35, null);
+                $values = array_pad($values, 34, null);
                 $values[] = $row->total_fee;
 
                 return $values;
@@ -315,7 +322,6 @@ class DashboardReportSheet implements FromCollection, WithHeadings, WithTitle, S
         if ($this->scope === 'overview') {
             return [
                 'Produk',
-                'Lender',
                 'Perusahaan',
                 'Nama',
                 'Tanggal Transaksi',
