@@ -6,6 +6,18 @@
     <style>
         #lenderTable th,
         #lenderTable td { white-space: nowrap; vertical-align: middle; }
+
+        #lenderModal .modal-dialog {
+            max-height: calc(100vh - 2rem);
+        }
+
+        #lenderModal .modal-content {
+            max-height: calc(100vh - 2rem);
+        }
+
+        #lenderModal .modal-body {
+            overflow-y: auto;
+        }
     </style>
 @endpush
 
@@ -37,7 +49,10 @@
     <div class="modal fade" id="lenderModal" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
             <div class="modal-content">
-                <div class="modal-header"><h5 class="modal-title" id="lenderModalTitle">Add Lender</h5><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span>&times;</span></button></div>
+                <div class="modal-header">
+                    <h5 class="modal-title" id="lenderModalTitle">Add Lender</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span>&times;</span></button>
+                </div>
                 <form id="lenderForm" enctype="multipart/form-data">
                     <div class="modal-body">
                         <input type="hidden" id="lenderId">
@@ -61,7 +76,10 @@
                             <div class="col-md-6 form-group"><label>Lender Logo</label><input class="form-control" id="lenderLogo" name="logoLender" type="file" accept="image/jpeg,image/png"></div>
                         </div>
                     </div>
-                    <div class="modal-footer"><button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button><button class="btn btn-primary" type="submit" id="saveLenderButton">Save Lender</button></div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                        <button class="btn btn-primary" type="submit" id="saveLenderButton">Save Lender</button>
+                    </div>
                 </form>
             </div>
         </div>
