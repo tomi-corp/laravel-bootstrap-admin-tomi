@@ -7,6 +7,7 @@ use App\Http\Controllers\Internal\TomiDana\CompanyController as TomiDanaCompanyC
 use App\Http\Controllers\Internal\TomiDana\ConfigurationController as TomiDanaConfigurationController;
 use App\Http\Controllers\Internal\TomiDana\DisbursementController as TomiDanaDisbursementController;
 use App\Http\Controllers\Internal\TomiDana\RepaymentController as TomiDanaRepaymentController;
+use App\Http\Controllers\Internal\TomiDana\GenerateInvoiceController as TomiDanaGenerateInvoiceController;
 use App\Http\Controllers\Internal\TomiDana\EmployeeController as TomiDanaEmployeeController;
 use App\Http\Controllers\Internal\TomiDana\LoanApplicationController as TomiDanaLoanApplicationController;
 use App\Http\Controllers\Internal\WilayahController;
@@ -92,6 +93,11 @@ Route::prefix('/tomi-dana')->name('tomi-dana.')->group(function () {
     Route::post('/repayment/utils', [TomiDanaRepaymentController::class, 'utils'])->name('repayment.utils');
     Route::post('/repayment/list', [TomiDanaRepaymentController::class, 'list'])->name('repayment.list');
     Route::post('/repayment/action', [TomiDanaRepaymentController::class, 'action'])->name('repayment.action');
+
+    // Generate invoice dari upload Excel
+    Route::get('/generate-invoice', [TomiDanaGenerateInvoiceController::class, 'index'])->name('generate-invoice');
+    Route::post('/generate-invoice', [TomiDanaGenerateInvoiceController::class, 'store'])->name('generate-invoice.store');
+    Route::get('/generate-invoice/{id}/pdf', [TomiDanaGenerateInvoiceController::class, 'pdf'])->whereNumber('id')->name('generate-invoice.pdf');
 });
 Route::view('/tomi-dana-plus', 'internal.tomi-dana-plus.index')->name('tomi-dana-plus');
 Route::view('/tomi-gaji', 'internal.tomi-gaji.index')->name('tomi-gaji');
