@@ -65,22 +65,21 @@ class CompanyController extends Controller
             ->editColumn('email_perusahaan', fn ($row) => Str::lower((string) $row->email_perusahaan))
             ->filterColumn('lender', fn ($query, $keyword) => $query->whereHas('lender', fn ($q) => $q->where('nama', 'like', "%{$keyword}%")))
             ->filterColumn('pks_number', fn ($query, $keyword) => $query->whereHas('pks', fn ($q) => $pksOfFeature($q)->where('agreement_number', 'like', "%{$keyword}%")))
-            ->addColumn('actions', function ($row) {
-                $badge = fn ($count, $class, $title) => '<span class="badge badge-'.$class.' ml-1" title="'.$title.'">'.number_format($count, 0, ',', '.').'</span>';
-
-                return '<a class="btn btn-sm btn-outline-secondary mr-1" title="Konfigurasi pinjaman" href="'.route('internal.tomi-dana.configuration', $row->id).'">'
-                        .'<i class="mdi mdi-settings mr-1"></i>Konfigurasi</a>'
-                    .'<a class="btn btn-sm btn-outline-primary mr-1" title="Proses pengajuan" href="'.route('internal.tomi-dana.applications', $row->id).'">'
-                        .'<i class="mdi mdi-file-document-outline mr-1"></i>Proses Pengajuan'
-                        .$badge($row->pengajuan_on_proses_count, 'warning', 'Pengajuan on proses')
-                        .$badge($row->pengajuan_exported_count, 'purple', 'Pengajuan exported').'</a>'
-                    .'<a class="btn btn-sm btn-outline-info" title="List karyawan" href="'.route('internal.tomi-dana.employees', $row->id).'">'
-                        .'<i class="mdi mdi-account-group mr-1"></i>List Karyawan'
-                        .$badge($row->karyawan_count, 'info', 'Karyawan disetujui 2 layer')
-                        .$badge($row->karyawan_pending_count, 'pink', 'Karyawan menunggu persetujuan').'</a>';
-            })
-            ->rawColumns(['status', 'pks_status', 'actions'])
+            ->addColumn('configuration', fn ($row) => '<a class="btn btn-sm btn-outline-secondary" title="Konfigurasi pinjaman" href="'.route('internal.tomi-dana.configuration', $row->id).'">'
+                .'<i class="mdi mdi-settings"></i></a>')
+            ->addColumn('applications', fn ($row) => '<a class="btn btn-sm btn-outline-primary" title="Proses pengajuan" href="'.route('internal.tomi-dana.applications', $row->id).'">'
+                .$this->countBadge($row->pengajuan_on_proses_count, 'warning', 'Pengajuan on proses')
+                .$this->countBadge($row->pengajuan_exported_count, 'purple', 'Pengajuan exported').'</a>')
+            ->addColumn('employees', fn ($row) => '<a class="btn btn-sm btn-outline-info" title="Daftar karyawan" href="'.route('internal.tomi-dana.employees', $row->id).'">'
+                .$this->countBadge($row->karyawan_count, 'info', 'Karyawan disetujui 2 layer')
+                .$this->countBadge($row->karyawan_pending_count, 'pink', 'Karyawan menunggu persetujuan').'</a>')
+            ->rawColumns(['status', 'pks_status', 'configuration', 'applications', 'employees'])
             ->make(true);
+    }
+
+    private function countBadge(int $count, string $class, string $title): string
+    {
+        return '<span class="badge badge-'.$class.' mx-1" title="'.$title.'">'.number_format($count, 0, ',', '.').'</span>';
     }
 
     private function feature(): Feature

@@ -36,7 +36,9 @@
                                     <th>Masa Berlaku PKS</th>
                                     <th>Status PKS</th>
                                     <th>Status Perusahaan</th>
-                                    <th>Aksi</th>
+                                    <th class="text-center">Konfigurasi</th>
+                                    <th class="text-center">Proses Pengajuan</th>
+                                    <th class="text-center">Daftar Karyawan</th>
                                 </tr>
                             </thead>
                         </table>
@@ -67,7 +69,9 @@
                     { data: 'pks_period', name: 'pks_period', orderable: false, searchable: false },
                     { data: 'pks_status', name: 'pks_status', orderable: false, searchable: false },
                     { data: 'status', name: 'status' },
-                    { data: 'actions', name: 'actions', orderable: false, searchable: false }
+                    { data: 'configuration', name: 'configuration', orderable: false, searchable: false, className: 'text-center' },
+                    { data: 'applications', name: 'applications', orderable: false, searchable: false, className: 'text-center' },
+                    { data: 'employees', name: 'employees', orderable: false, searchable: false, className: 'text-center' }
                 ],
                 order: [[2, 'asc']],
                 language: {
