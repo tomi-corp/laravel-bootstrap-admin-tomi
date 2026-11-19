@@ -1,11 +1,19 @@
-{{-- Perusahaan mitra: terdaftar, baru, berhenti, bertransaksi per periode. Definisi: App\Services\Insight\CompanyInsight. --}}
+{{--
+    Perusahaan mitra: terdaftar, baru, berhenti, bertransaksi per periode. Definisi: App\Services\Insight\CompanyInsight.
+    Dipakai di Dasbor utama (lengkap) dan halaman Perusahaan ($compact = true: kotak angka + grafik saja, rincian di Dasbor utama).
+--}}
+@php($compact = $compact ?? false)
 <section class="panel fade-in overflow-hidden">
-    <div class="kpi-strip [--cols:1] sm:[--cols:2] xl:[--cols:4]" role="group" aria-label="Saring tabel perusahaan mitra">
+    <div class="kpi-strip [--cols:1] sm:[--cols:2] xl:[--cols:4]" @unless ($compact) role="group" aria-label="Saring tabel perusahaan mitra" @endunless>
         <template x-for="k in d?.partners?.kpis || []" :key="k.metric">
+            @if ($compact)
+            <div class="kpi-cell flex flex-col justify-between gap-3">
+            @else
             <button type="button" class="kpi-cell kpi-click flex flex-col justify-between gap-3 text-left" :aria-pressed="partnerTab === k.metric"
                     :style="partnerTab === k.metric ? 'background: var(--surface-2)' : ''" @click="partnerTab = k.metric">
+            @endif
                 <div>
-                    <div class="flex items-center gap-2"><span class="kpi-label" x-text="k.label"></span><span class="more" aria-hidden="true">Lihat daftar<svg class="i !h-3.5 !w-3.5"><use href="#i-arrow"/></svg></span></div>
+                    <div class="flex items-center gap-2"><span class="kpi-label" x-text="k.label"></span>@unless ($compact)<span class="more" aria-hidden="true">Lihat daftar<svg class="i !h-3.5 !w-3.5"><use href="#i-arrow"/></svg></span>@endunless</div>
                     <div class="figure-lg mt-1.5" x-count:num="k.value"></div>
                 </div>
                 <div class="flex items-end justify-between gap-3">
@@ -15,19 +23,26 @@
                     </div>
                     <svg class="spark" viewBox="0 0 88 28" preserveAspectRatio="none" aria-hidden="true" x-spark="k.spark" x-show="k.spark"></svg>
                 </div>
+            @if ($compact)
+            </div>
+            @else
             </button>
+            @endif
         </template>
     </div>
 </section>
 
-<div class="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+<div class="mt-4 grid gap-4 {{ $compact ? '' : 'xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]' }}">
     <section class="panel panel-pad fade-in">
-        <div class="mb-2 flex items-start gap-3">
-            <div>
+        <div class="mb-2 flex flex-wrap items-start gap-3">
+            <div class="min-w-0 flex-1 basis-56">
                 <div class="panel-title">Pertumbuhan perusahaan mitra</div>
                 <div class="panel-sub" x-text="partnerChartSub()"></div>
             </div>
-            <button type="button" class="chip ml-auto" :aria-pressed="!!tables.partners" @click="toggleTable('partners')"><svg class="i !h-3.5 !w-3.5"><use href="#i-table"/></svg>Tabel</button>
+            @if ($compact)
+                <a href="{{ route('admin.insight.index') }}#perusahaan-mitra" class="chip ml-auto">Rincian di Dasbor utama<svg class="i !h-3.5 !w-3.5"><use href="#i-arrow"/></svg></a>
+            @endif
+            <button type="button" class="chip {{ $compact ? '' : 'ml-auto' }}" :aria-pressed="!!tables.partners" @click="toggleTable('partners')"><svg class="i !h-3.5 !w-3.5"><use href="#i-table"/></svg>Tabel</button>
         </div>
         <div x-ref="partners" class="min-h-[280px]" x-show="!tables.partners"></div>
         <div class="max-h-[300px] overflow-auto" x-show="tables.partners" x-cloak>
@@ -48,6 +63,7 @@
         </div>
     </section>
 
+    @unless ($compact)
     <section class="panel panel-pad fade-in">
         <div class="panel-title">Status perusahaan sekarang</div>
         <div class="panel-sub">Perusahaan yang masih terdaftar hari ini, tidak terpengaruh filter periode</div>
@@ -70,8 +86,10 @@
             <p class="mt-2 flex gap-2 text-xs leading-relaxed text-muted"><svg class="i mt-px !h-3.5 !w-3.5 flex-none"><use href="#i-info"/></svg><span x-text="n"></span></p>
         </template>
     </section>
+    @endunless
 </div>
 
+@unless ($compact)
 <section class="panel panel-pad fade-in mt-4">
     <div class="flex flex-wrap items-start gap-3">
         <div>
@@ -109,3 +127,4 @@
         </table>
     </div>
 </section>
+@endunless

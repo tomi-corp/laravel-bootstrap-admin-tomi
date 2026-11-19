@@ -324,7 +324,8 @@ Alpine.data('insight', (cfg) => {
         requestId: 0,
 
         init() {
-            const q = new URLSearchParams(window.location.search);
+            // halaman lain yang memuat ringkasan (mis. Perusahaan): filter tidak dibaca dari / ditulis ke URL
+            const q = new URLSearchParams(cfg.syncUrl === false ? '' : window.location.search);
             if (this.modes.some((m) => m.key === q.get('mode'))) this.mode = q.get('mode');
             if (q.get('year')) this.year = Number(q.get('year'));
             ['month', 'day', 'from', 'to'].forEach((k) => { if (q.get(k)) this[k] = q.get(k); });
@@ -365,7 +366,7 @@ Alpine.data('insight', (cfg) => {
                 const json = await resp.json();
                 if (id !== this.requestId) return; // ada permintaan yang lebih baru
                 this.res = json;
-                if (this.revenueKey !== 'all' && !json.data.revenue.components.some((c) => c.key === this.revenueKey)) this.revenueKey = 'all';
+                if (this.revenueKey !== 'all' && !json.data.revenue?.components.some((c) => c.key === this.revenueKey)) this.revenueKey = 'all';
                 this.syncUrl();
                 await this.$nextTick();
                 this.draw();
@@ -379,6 +380,7 @@ Alpine.data('insight', (cfg) => {
         },
 
         syncUrl() {
+            if (cfg.syncUrl === false) return;
             const params = this.params();
             params.delete('scope');
             if (this.detail.open && this.detail.kpi) {

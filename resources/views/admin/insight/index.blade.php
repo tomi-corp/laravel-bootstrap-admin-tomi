@@ -149,7 +149,7 @@
 
         {{-- ===================== 3. Perusahaan mitra ===================== --}}
         <div class="mb-3 mt-8 flex flex-wrap items-baseline gap-x-3">
-            <h2 class="section-title">Perusahaan mitra</h2>
+            <h2 class="section-title scroll-mt-24" id="perusahaan-mitra">Perusahaan mitra</h2>
             <p class="section-sub">Perusahaan yang bekerja sama di semua produk · klik kotak angka untuk melihat daftarnya</p>
         </div>
         @include('admin.insight.partials.partners')

@@ -175,6 +175,20 @@ class InsightDashboardTest extends TestCase
         }
     }
 
+    public function test_company_page_shows_same_partner_summary_as_dashboard(): void
+    {
+        $admin = $this->makeAdmin();
+        $this->actingAs($admin, 'admin')->get(route('admin.ksp.index'))->assertOk()
+            ->assertSee('Rincian di Dasbor utama')
+            ->assertDontSee('PERUSAHAAN DENGAN STATUS');
+
+        foreach ([['mode' => 'all'], ['mode' => 'year']] as $q) {
+            $overview = $this->actingAs($admin, 'admin')->getJson('/backoffice/insight/data?'.http_build_query($q + ['scope' => 'overview']))->json('data.partners');
+            $this->actingAs($admin, 'admin')->getJson('/backoffice/insight/data?'.http_build_query($q + ['scope' => 'partners']))
+                ->assertOk()->assertJsonPath('data.partners', $overview);
+        }
+    }
+
     public function test_real_login_session_can_load_dashboard_data(): void
     {
         $admin = $this->makeAdmin();
