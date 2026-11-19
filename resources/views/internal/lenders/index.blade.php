@@ -43,7 +43,16 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-body">
-                    <div class="d-flex justify-content-end mb-3">
+                    <div class="d-flex flex-wrap justify-content-end mb-3" style="gap: .5rem;">
+                        <button class="btn btn-success" type="button" data-toggle="modal" data-target="#importLenderModal" onclick="resetImportLender()">
+                            <i class="mdi mdi-file-import mr-1"></i>Import
+                        </button>
+                        <a class="btn btn-info" href="{{ route('internal.lenders.export') }}">
+                            <i class="mdi mdi-file-export mr-1"></i>Export
+                        </a>
+                        <button class="btn btn-danger" type="button" id="deleteAllLenderButton" onclick="deleteAllLender()">
+                            <i class="mdi mdi-trash-can mr-1"></i>Hapus Semua
+                        </button>
                         <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#lenderModal" onclick="openCreateLender()">
                             <i class="mdi mdi-plus-circle mr-1"></i>Tambah Lender
                         </button>
@@ -96,6 +105,34 @@
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="importLenderModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Import Lender</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Tutup"><span>&times;</span></button>
+                </div>
+                <form id="importLenderForm" enctype="multipart/form-data">
+                    <div class="modal-body">
+                        <p class="mb-2">Unggah file Excel sesuai template. Lender hasil import berstatus <strong>TIDAK AKTIF</strong>; file PKS dan logo dilengkapi lewat menu ubah.</p>
+                        <a class="btn btn-sm btn-outline-secondary mb-3" href="{{ route('internal.lenders.import.template') }}">
+                            <i class="mdi mdi-download mr-1"></i>Unduh Template
+                        </a>
+                        <div class="form-group mb-0">
+                            <label>File Import (xlsx, xls, csv)</label>
+                            <input class="form-control" id="importLenderFile" name="file" type="file" accept=".xlsx,.xls,.csv">
+                        </div>
+                        <div class="alert alert-danger mt-3 mb-0 d-none" id="importLenderErrors" style="max-height: 200px; overflow-y: auto;"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" type="button" data-dismiss="modal">Batal</button>
+                        <button class="btn btn-success" type="submit" id="importLenderButton">Import</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('js')
@@ -140,7 +177,45 @@
             $('#city').on('change', function () { loadOptions('{{ route('internal.lenders.locations.districts') }}', { kabupaten: this.value }, '#district', 'kecamatan', 'Pilih kecamatan'); $('#village').html(placeholders.village); });
             $('#district').on('change', function () { loadOptions('{{ route('internal.lenders.locations.villages') }}', { kecamatan: this.value }, '#village', 'desa', 'Pilih desa / kelurahan', true); });
             $('#lenderForm').on('submit', submitLender);
+            $('#importLenderForm').on('submit', submitImportLender);
         });
+
+        function escapeHtml(value) {
+            return $('<div>').text(value).html();
+        }
+
+        function resetImportLender() {
+            $('#importLenderForm')[0].reset(); $('#importLenderErrors').addClass('d-none').empty();
+        }
+
+        function submitImportLender(event) {
+            event.preventDefault();
+            const button = $('#importLenderButton');
+            const data = new FormData(this); data.append('_token', '{{ csrf_token() }}');
+            $('#importLenderErrors').addClass('d-none').empty();
+            button.prop('disabled', true).text('Mengimport...');
+            $.ajax({ url: '{{ route('internal.lenders.import') }}', method: 'POST', data, processData: false, contentType: false })
+                .done(response => { $('#importLenderModal').modal('hide'); lenderTable.ajax.reload(null, false); toastr.success(response.message); })
+                .fail(error => {
+                    const json = error.responseJSON || {};
+                    const messages = json.errors ? (Array.isArray(json.errors) ? json.errors : Object.values(json.errors).flat()) : [];
+                    if (messages.length) {
+                        $('#importLenderErrors').removeClass('d-none').html(`<strong>${escapeHtml(json.message || 'Import gagal.')}</strong><ul class="mb-0 pl-3">${messages.map(item => `<li>${escapeHtml(item)}</li>`).join('')}</ul>`);
+                    } else {
+                        toastr.error(json.message || 'Gagal mengimport lender.');
+                    }
+                })
+                .always(() => button.prop('disabled', false).text('Import'));
+        }
+
+        function deleteAllLender() {
+            if (!confirm('Apakah Anda yakin ingin mengajukan penghapusan SEMUA lender? Penghapusan tetap menunggu approval.')) return;
+            const button = $('#deleteAllLenderButton').prop('disabled', true);
+            $.post('{{ route('internal.lenders.delete-all') }}', { _token: '{{ csrf_token() }}' })
+                .done(response => { lenderTable.ajax.reload(null, false); toastr.success(response.message); })
+                .fail(error => toastr.error(error.responseJSON?.message || 'Gagal menghapus semua lender.'))
+                .always(() => button.prop('disabled', false));
+        }
 
         function loadOptions(url, data, selector, label, placeholder, includePostalCode = false) {
             $.post(url, { ...data, _token: '{{ csrf_token() }}' }, function (response) {
