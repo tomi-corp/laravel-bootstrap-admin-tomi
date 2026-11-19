@@ -36,6 +36,7 @@
                                     <th>Masa Berlaku PKS</th>
                                     <th>Status PKS</th>
                                     <th>Status Perusahaan</th>
+                                    <th>Aksi</th>
                                 </tr>
                             </thead>
                         </table>
@@ -65,7 +66,8 @@
                     { data: 'pks_number', name: 'pks_number', orderable: false },
                     { data: 'pks_period', name: 'pks_period', orderable: false, searchable: false },
                     { data: 'pks_status', name: 'pks_status', orderable: false, searchable: false },
-                    { data: 'status', name: 'status' }
+                    { data: 'status', name: 'status' },
+                    { data: 'actions', name: 'actions', orderable: false, searchable: false }
                 ],
                 order: [[2, 'asc']],
                 language: {

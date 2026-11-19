@@ -292,7 +292,13 @@ class CompanyController extends KspController
         $query = $this->visibleCompanies()
             ->select('list_perusahaans.*')
             ->whereHas('pks', $pksOfFeature)
-            ->with(['lender:id,nama', 'pks' => fn ($query) => $pksOfFeature($query)->latest('end_date')]);
+            ->with(['lender:id,nama', 'pks' => fn ($query) => $pksOfFeature($query)->latest('end_date')])
+            ->withCount([
+                'karyawan',
+                'karyawanPending',
+                'pinjaman as pengajuan_on_proses_count' => fn ($query) => $query->where('status', 'on_proses'),
+                'pinjaman as pengajuan_exported_count' => fn ($query) => $query->where('status', 'exported'),
+            ]);
 
         return DataTables::eloquent($query)
             ->addIndexColumn()
@@ -319,7 +325,23 @@ class CompanyController extends KspController
             ->editColumn('email_perusahaan', fn ($row) => Str::lower((string) $row->email_perusahaan))
             ->filterColumn('lender', fn ($query, $keyword) => $query->whereHas('lender', fn ($q) => $q->where('nama', 'like', "%{$keyword}%")))
             ->filterColumn('pks_number', fn ($query, $keyword) => $query->whereHas('pks', fn ($q) => $pksOfFeature($q)->where('agreement_number', 'like', "%{$keyword}%")))
-            ->rawColumns(['status', 'pks_status'])
+            ->addColumn('actions', function ($row) {
+                // Halaman tujuan masih memakai halaman admin KSP (TomiDana) yang sudah ada.
+                $id = encryptSecure($row->id);
+                $badge = fn ($count, $class, $title) => '<span class="badge badge-'.$class.' ml-1" title="'.$title.'">'.number_format($count, 0, ',', '.').'</span>';
+
+                return '<a class="btn btn-sm btn-outline-secondary mr-1" target="_blank" rel="noopener" title="Konfigurasi pinjaman" href="'.route('admin.ksp.konfigurasi', $id).'">'
+                        .'<i class="mdi mdi-settings mr-1"></i>Konfigurasi</a>'
+                    .'<a class="btn btn-sm btn-outline-primary mr-1" target="_blank" rel="noopener" title="Proses pengajuan" href="'.route('admin.ksp.pengajuan', $id).'">'
+                        .'<i class="mdi mdi-file-document-outline mr-1"></i>Proses Pengajuan'
+                        .$badge($row->pengajuan_on_proses_count, 'warning', 'Pengajuan on proses')
+                        .$badge($row->pengajuan_exported_count, 'purple', 'Pengajuan exported').'</a>'
+                    .'<a class="btn btn-sm btn-outline-info" target="_blank" rel="noopener" title="List karyawan" href="'.route('admin.list.karyawan', $id).'">'
+                        .'<i class="mdi mdi-account-group mr-1"></i>List Karyawan'
+                        .$badge($row->karyawan_count, 'info', 'Karyawan disetujui 2 layer')
+                        .$badge($row->karyawan_pending_count, 'pink', 'Karyawan menunggu persetujuan').'</a>';
+            })
+            ->rawColumns(['status', 'pks_status', 'actions'])
             ->make(true);
     }
 
