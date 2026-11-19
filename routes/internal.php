@@ -23,7 +23,7 @@ Route::post('/lenders/add', [LenderController::class, 'addLender'])->name('lende
 Route::post('/lenders/detail', [LenderController::class, 'lenderDetail'])->name('lenders.detail');
 Route::post('/lenders/update', [LenderController::class, 'updateLender'])->name('lenders.update');
 Route::post('/lenders/delete', [LenderController::class, 'deleteLender'])->name('lenders.delete');
-Route::post('/lenders/delete-all', [LenderController::class, 'deleteAllLender'])->name('lenders.delete-all');
+Route::post('/lenders/delete-selected', [LenderController::class, 'deleteSelectedLender'])->name('lenders.delete-selected');
 Route::get('/lenders/export', [LenderController::class, 'exportLender'])->name('lenders.export');
 Route::get('/lenders/import/template', [LenderController::class, 'importTemplate'])->name('lenders.import.template');
 Route::post('/lenders/import', [LenderController::class, 'importLender'])->name('lenders.import');

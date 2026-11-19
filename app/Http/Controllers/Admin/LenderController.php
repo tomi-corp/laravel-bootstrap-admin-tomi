@@ -197,6 +197,7 @@ class LenderController extends Controller
             ->rawColumns(['action', 'status', 'pks', 'pendingApproval', 'logo'])
             ->only([
                 'DT_RowIndex',
+                'id',
                 'id_code_lender',
                 'pks',
                 'pic_lender',

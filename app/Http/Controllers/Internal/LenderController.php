@@ -67,17 +67,29 @@ class LenderController extends \App\Http\Controllers\Admin\LenderController
     }
 
     /**
-     * Ajukan permintaan hapus untuk semua lender. Penghapusan tetap melalui approval seperti hapus satuan.
+     * Ajukan permintaan hapus untuk lender yang dipilih. Penghapusan tetap melalui approval seperti hapus satuan.
      */
-    public function deleteAllLender()
+    public function deleteSelectedLender(Request $req)
     {
+        $req->validate([
+            'ids' => 'required|array|min:1',
+            'ids.*' => 'integer',
+        ], [
+            'ids.required' => 'Pilih minimal satu lender.',
+            'ids.min' => 'Pilih minimal satu lender.',
+        ]);
+
+        $selectedIds = collect($req->ids)->map(fn ($id) => (int) $id)->unique();
         $adminId = auth('admin')->user()->id;
 
         $lockedIds = lender_update::query()
+            ->whereIn('lender_id', $selectedIds)
             ->where(fn ($query) => $query->where('status_pertama', 'pending')->orWhere('status_kedua', 'pending'))
-            ->pluck('lender_id');
+            ->pluck('lender_id')
+            ->unique();
 
         $lenders = lender::query()
+            ->whereIn('id', $selectedIds)
             ->whereNull('deleted_at')
             ->whereNotIn('id', $lockedIds)
             ->get();
@@ -109,7 +121,7 @@ class LenderController extends \App\Http\Controllers\Admin\LenderController
             }
         });
 
-        $skipped = $lockedIds->unique()->count();
+        $skipped = $lockedIds->count();
         $message = number_format($lenders->count(), 0, ',', '.').' permintaan hapus lender berhasil dikirim, harap menunggu approval.';
         if ($skipped > 0) {
             $message .= ' '.number_format($skipped, 0, ',', '.').' lender dilewati karena masih pending approval.';

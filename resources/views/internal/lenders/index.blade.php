@@ -50,8 +50,8 @@
                         <a class="btn btn-info" href="{{ route('internal.lenders.export') }}">
                             <i class="mdi mdi-file-export mr-1"></i>Export
                         </a>
-                        <button class="btn btn-danger" type="button" id="deleteAllLenderButton" onclick="deleteAllLender()">
-                            <i class="mdi mdi-trash-can mr-1"></i>Hapus Semua
+                        <button class="btn btn-danger" type="button" id="deleteSelectedLenderButton" onclick="deleteSelectedLender()" disabled>
+                            <i class="mdi mdi-trash-can mr-1"></i>Hapus Terpilih (<span id="selectedLenderCount">0</span>)
                         </button>
                         <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#lenderModal" onclick="openCreateLender()">
                             <i class="mdi mdi-plus-circle mr-1"></i>Tambah Lender
@@ -59,7 +59,7 @@
                     </div>
                     <div class="table-responsive">
                         <table id="lenderTable" class="table table-hover nowrap" style="width:100%">
-                            <thead><tr><th>No</th><th>Kode Lender</th><th>Nama</th><th>PIC Lender</th><th>PIC Internal</th><th>Email</th><th>Telepon</th><th>Status</th><th>Aksi</th></tr></thead>
+                            <thead><tr><th class="text-center"><input type="checkbox" id="selectAllLender" title="Pilih semua"></th><th>Kode Lender</th><th>Nama</th><th>PIC Lender</th><th>PIC Internal</th><th>Email</th><th>Telepon</th><th>Status</th><th>Aksi</th></tr></thead>
                         </table>
                     </div>
                 </div>
@@ -156,11 +156,13 @@
                     data: { _token: '{{ csrf_token() }}' }
                 },
                 columns: [
-                    { data: 'DT_RowIndex', name: 'DT_RowIndex' }, { data: 'id_code_lender', name: 'id_code_lender' },
+                    { data: 'id', name: 'id', orderable: false, searchable: false, className: 'text-center', render: id => `<input type="checkbox" class="lender-check" value="${id}">` },
+                    { data: 'id_code_lender', name: 'id_code_lender' },
                     { data: 'nama', name: 'nama' }, { data: 'pic_lender', name: 'pic_lender' }, { data: 'pic_internal', name: 'pic_internal' },
                     { data: 'email_lender', name: 'email_lender' }, { data: 'telp', name: 'telp' }, { data: 'status', name: 'status' },
                     { data: 'action', name: 'action', orderable: false, searchable: false }
                 ],
+                order: [[1, 'asc']],
                 language: {
                     processing: 'Memuat...',
                     search: 'Cari:',
@@ -178,7 +180,29 @@
             $('#district').on('change', function () { loadOptions('{{ route('internal.lenders.locations.villages') }}', { kecamatan: this.value }, '#village', 'desa', 'Pilih desa / kelurahan', true); });
             $('#lenderForm').on('submit', submitLender);
             $('#importLenderForm').on('submit', submitImportLender);
+
+            // Pilih semua hanya mencentang baris yang lolos filter pencarian (semua halaman).
+            $('#selectAllLender').on('change', function () {
+                $(lenderTable.rows({ search: 'applied' }).nodes()).find('.lender-check').prop('checked', this.checked);
+                updateSelectedLender();
+            });
+            $('#lenderTable').on('change', '.lender-check', updateSelectedLender);
+            lenderTable.on('xhr.dt', () => setTimeout(updateSelectedLender));
+            lenderTable.on('search.dt', () => setTimeout(updateSelectedLender));
         });
+
+        function selectedLenderIds() {
+            return lenderTable.$('.lender-check:checked').map((_, el) => el.value).get();
+        }
+
+        function updateSelectedLender() {
+            const selected = selectedLenderIds().length;
+            const visible = $(lenderTable.rows({ search: 'applied' }).nodes()).find('.lender-check');
+            const visibleChecked = visible.filter(':checked').length;
+            $('#selectedLenderCount').text(selected.toLocaleString('id-ID'));
+            $('#deleteSelectedLenderButton').prop('disabled', selected === 0);
+            $('#selectAllLender').prop('checked', visible.length > 0 && visibleChecked === visible.length).prop('indeterminate', visibleChecked > 0 && visibleChecked < visible.length);
+        }
 
         function escapeHtml(value) {
             return $('<div>').text(value).html();
@@ -208,13 +232,14 @@
                 .always(() => button.prop('disabled', false).text('Import'));
         }
 
-        function deleteAllLender() {
-            if (!confirm('Apakah Anda yakin ingin mengajukan penghapusan SEMUA lender? Penghapusan tetap menunggu approval.')) return;
-            const button = $('#deleteAllLenderButton').prop('disabled', true);
-            $.post('{{ route('internal.lenders.delete-all') }}', { _token: '{{ csrf_token() }}' })
-                .done(response => { lenderTable.ajax.reload(null, false); toastr.success(response.message); })
-                .fail(error => toastr.error(error.responseJSON?.message || 'Gagal menghapus semua lender.'))
-                .always(() => button.prop('disabled', false));
+        function deleteSelectedLender() {
+            const ids = selectedLenderIds();
+            if (!ids.length) { toastr.warning('Pilih minimal satu lender.'); return; }
+            if (!confirm(`Apakah Anda yakin ingin mengajukan penghapusan ${ids.length.toLocaleString('id-ID')} lender terpilih? Penghapusan tetap menunggu approval.`)) return;
+            const button = $('#deleteSelectedLenderButton').prop('disabled', true);
+            $.post('{{ route('internal.lenders.delete-selected') }}', { ids, _token: '{{ csrf_token() }}' })
+                .done(response => { $('#selectAllLender').prop('checked', false); lenderTable.ajax.reload(null, false); toastr.success(response.message); })
+                .fail(error => { toastr.error(error.responseJSON?.message || 'Gagal menghapus lender terpilih.'); updateSelectedLender(); });
         }
 
         function loadOptions(url, data, selector, label, placeholder, includePostalCode = false) {
