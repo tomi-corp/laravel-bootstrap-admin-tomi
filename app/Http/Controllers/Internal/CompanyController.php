@@ -123,18 +123,18 @@ class CompanyController extends KspController
         $company = $this->visibleCompanies()->findOrFail($req->id);
 
         $items = CompanyPks::query()
-            ->where('id_perusahaan', $company->id)
+            ->where('company_id', $company->id)
             ->with('feature:id,code,name')
-            ->latest('tanggal_pks')
+            ->latest('agreement_date')
             ->get()
             ->map(fn (CompanyPks $pks) => [
                 'id' => $pks->id,
                 'fitur' => $pks->feature?->name ?? '-',
-                'nomor_pks' => $pks->nomor_pks,
-                'tanggal_pks' => $pks->tanggal_pks?->format('d-m-Y'),
-                'mulai_berlaku' => $pks->mulai_berlaku?->format('d-m-Y'),
-                'berakhir' => $pks->berakhir?->format('d-m-Y'),
-                'status' => $pks->berakhir && $pks->berakhir->lt(today()) ? 'BERAKHIR' : 'AKTIF',
+                'nomor_pks' => $pks->agreement_number,
+                'tanggal_pks' => $pks->agreement_date?->format('d-m-Y'),
+                'mulai_berlaku' => $pks->start_date?->format('d-m-Y'),
+                'berakhir' => $pks->end_date?->format('d-m-Y'),
+                'status' => $pks->end_date && $pks->end_date->lt(today()) ? 'BERAKHIR' : 'AKTIF',
                 'file_url' => route('internal.companies.pks.file', $pks->id),
             ]);
 
@@ -224,13 +224,13 @@ class CompanyController extends KspController
                     $storedFiles[] = $filename;
 
                     CompanyPks::create([
-                        'id_perusahaan' => $companyId,
+                        'company_id' => $companyId,
                         'feature_id' => $row['feature_id'],
-                        'nomor_pks' => Str::upper(trim($row['nomor'])),
-                        'tanggal_pks' => $row['tanggal'],
-                        'mulai_berlaku' => $row['mulai_berlaku'],
-                        'berakhir' => $row['berakhir'],
-                        'file_dokumen' => $filename,
+                        'agreement_number' => Str::upper(trim($row['nomor'])),
+                        'agreement_date' => $row['tanggal'],
+                        'start_date' => $row['mulai_berlaku'],
+                        'end_date' => $row['berakhir'],
+                        'document_file' => $filename,
                         'created_by' => auth('admin')->id(),
                     ]);
                 }
@@ -249,7 +249,7 @@ class CompanyController extends KspController
     public function deletePks(Request $req)
     {
         $pks = CompanyPks::query()
-            ->whereIn('id_perusahaan', $this->visibleCompanies()->select('id'))
+            ->whereIn('company_id', $this->visibleCompanies()->select('id'))
             ->findOrFail($req->id);
         $pks->delete();
 
@@ -262,13 +262,13 @@ class CompanyController extends KspController
     public function pksFile(int $id)
     {
         $pks = CompanyPks::query()
-            ->whereIn('id_perusahaan', $this->visibleCompanies()->select('id'))
+            ->whereIn('company_id', $this->visibleCompanies()->select('id'))
             ->findOrFail($id);
-        $path = 'pks_perusahaan/'.$pks->file_dokumen;
+        $path = 'pks_perusahaan/'.$pks->document_file;
 
         abort_unless(Storage::disk('local')->exists($path), 404, 'Dokumen PKS tidak ditemukan.');
 
-        return Storage::disk('local')->response($path, 'PKS_'.Str::slug($pks->nomor_pks).'.pdf', [
+        return Storage::disk('local')->response($path, 'PKS_'.Str::slug($pks->agreement_number).'.pdf', [
             'Content-Type' => 'application/pdf',
         ], 'inline');
     }

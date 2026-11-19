@@ -12,25 +12,25 @@ class CompanyPks extends Model
     protected $table = 'company_pks';
 
     protected $fillable = [
-        'id_perusahaan',
+        'company_id',
         'feature_id',
-        'nomor_pks',
-        'tanggal_pks',
-        'mulai_berlaku',
-        'berakhir',
-        'file_dokumen',
+        'agreement_number',
+        'agreement_date',
+        'start_date',
+        'end_date',
+        'document_file',
         'created_by',
     ];
 
     protected $casts = [
-        'tanggal_pks' => 'date',
-        'mulai_berlaku' => 'date',
-        'berakhir' => 'date',
+        'agreement_date' => 'date',
+        'start_date' => 'date',
+        'end_date' => 'date',
     ];
 
     public function company()
     {
-        return $this->belongsTo(ListPerusahaan::class, 'id_perusahaan');
+        return $this->belongsTo(ListPerusahaan::class, 'company_id');
     }
 
     public function feature()
