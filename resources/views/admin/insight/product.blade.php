@@ -90,7 +90,7 @@
         {{-- ===================== 3. Pendapatan ===================== --}}
         <div class="mb-3 mt-8 flex flex-wrap items-baseline gap-x-3">
             <h2 class="section-title">Pendapatan</h2>
-            <p class="section-sub">Gabungan, bisa dilihat per komponen</p>
+            <p class="section-sub">Bagian TOMI, bisa dilihat per komponen</p>
         </div>
         @include('admin.insight.partials.revenue')
 
@@ -166,7 +166,7 @@
             </template>
         </div>
 
-        <p class="mt-8 text-center text-xs text-muted">Definisi angka masih sementara dan perlu dikonfirmasi tim bisnis.</p>
+        <p class="mt-8 text-center text-xs text-muted">Penyaluran, NOA penyaluran, dan pendapatan mengikuti definisi catatan kantor. Sisa, NOA outstanding, dan pembayaran masih definisi sementara.</p>
     </div>
 
     @include('admin.insight.partials.detail')

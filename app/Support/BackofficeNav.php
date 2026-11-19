@@ -112,16 +112,16 @@ class BackofficeNav
      */
     private static function markActive(array $nav): array
     {
-        $path = '/' . trim(request()->path(), '/');
+        $path = '/'.trim(request()->path(), '/');
         $best = null;
         $bestLen = -1;
         $exact = false;
         $consider = function (string $route, int $gi, ?int $ci, array $also = []) use ($path, &$best, &$bestLen, &$exact) {
-            $p = '/' . trim((string) parse_url(route($route, [], false), PHP_URL_PATH), '/');
+            $p = '/'.trim((string) parse_url(route($route, [], false), PHP_URL_PATH), '/');
             $isExact = request()->routeIs($route) || $path === $p;
             $len = $isExact ? PHP_INT_MAX : -1;
             foreach (array_merge([$p], $also) as $prefix) {
-                if (! $isExact && str_starts_with($path, rtrim($prefix, '/') . '/')) {
+                if (! $isExact && str_starts_with($path, rtrim($prefix, '/').'/')) {
                     $len = max($len, strlen($prefix));
                 }
             }

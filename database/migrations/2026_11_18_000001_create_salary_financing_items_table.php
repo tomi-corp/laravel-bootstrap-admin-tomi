@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('work_placement');
             $table->decimal('income_amount', 18, 2)->default(0.00);
             $table->date('payment_date')->nullable();
-            $table->unsignedBigInteger('bank_id');
+            $table->string('bank')->nullable();
             $table->string('account_number', 50);
             $table->string('account_holder_name');
             $table->timestamps();
@@ -29,15 +29,10 @@ return new class extends Migration
             $table->index('salary_financing_id', 'idx_sfi_salary_financing_id');
             $table->index('nik', 'idx_sfi_nik');
             $table->index('nip', 'idx_sfi_nip');
-            $table->index('bank_id', 'idx_sfi_bank_id');
             $table->index('application_date', 'idx_sfi_application_date');
             $table->index('payment_date', 'idx_sfi_payment_date');
             $table->index('deleted_at', 'idx_sfi_deleted_at');
 
-            $table->foreign('bank_id', 'fk_sfi_bank')
-                ->references('id')
-                ->on('banks')
-                ->onUpdate('cascade');
             $table->foreign('salary_financing_id', 'fk_sfi_salary_financing')
                 ->references('id')
                 ->on('salary_financings')

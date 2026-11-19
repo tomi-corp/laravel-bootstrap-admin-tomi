@@ -12,7 +12,9 @@ const cssVar = (name) => getComputedStyle(document.documentElement).getPropertyV
 const nf = new Intl.NumberFormat('id-ID');
 const nf1 = new Intl.NumberFormat('id-ID', { maximumFractionDigits: 1 });
 export const fmt = {
-    rp(n, compact = true) {
+    // Rupiah ditulis lengkap (tanpa singkatan jt/M) supaya sama persis dengan catatan kantor.
+    // Singkatan hanya untuk label sumbu grafik (fmt.axis) atau bila diminta: fmt.rp(n, true).
+    rp(n, compact = false) {
         n = Number(n) || 0;
         if (!compact) return 'Rp ' + nf.format(Math.round(n));
         const a = Math.abs(n);
