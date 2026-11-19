@@ -33,9 +33,9 @@ class BackofficeShellTest extends TestCase
 
     private function makeAdmin(): Admin
     {
-        $admin = new Admin();
-        $admin->username = 'shell_test_' . Str::random(8);
-        $admin->email = $admin->username . '@example.test';
+        $admin = new Admin;
+        $admin->username = 'shell_test_'.Str::random(8);
+        $admin->email = $admin->username.'@example.test';
         $admin->type = 'master';
         $admin->password = Hash::make('Secret#123');
         $admin->saveQuietly();
@@ -77,7 +77,7 @@ class BackofficeShellTest extends TestCase
 
             $this->assertStringContainsString('id="page-title"', $html, $route);
             $this->assertStringContainsString('aria-current="page"', $html, "$route: menu aktif");
-            $this->assertStringContainsString('<title>' . e($label) . ' · TOMI</title>', $html, $route);
+            $this->assertStringContainsString('<title>'.e($label).' · TOMI</title>', $html, $route);
             $this->assertStringNotContainsString('left-side-menu', $html, "$route: sidebar lama");
             $this->assertStringNotContainsString('navbar-custom', $html, "$route: topbar lama");
             $this->assertDoesNotMatchRegularExpression('/\bv2\b|app-v2|-v2\b|\bv2-/i', $html, "$route: istilah v2");
@@ -114,7 +114,7 @@ class BackofficeShellTest extends TestCase
             $this->markTestSkipped('Butuh minimal satu perusahaan.');
         }
         $admin = $this->makeAdmin();
-        $html = $this->actingAs($admin, 'admin')->get('/backoffice/salary-financing/' . $companyId)->assertOk()->getContent();
+        $html = $this->actingAs($admin, 'admin')->get('/backoffice/salary-financing/'.$companyId)->assertOk()->getContent();
         $this->assertStringContainsString('TomiGaji / Pemantauan', $html);
         $this->assertStringContainsString('data-from-nav="0"', $html);
     }

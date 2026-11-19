@@ -1,4 +1,4 @@
-{{-- Pendapatan: gabungan (bertumpuk per komponen) + pilihan melihat satu komponen. Definisi masih sementara. --}}
+{{-- Pendapatan bagian TOMI: gabungan (bertumpuk per komponen) + pilihan melihat satu komponen. Definisi = catatan kantor. --}}
 <section class="panel panel-pad fade-in">
     <template x-if="revenueComponents().length">
         <div>
@@ -19,7 +19,7 @@
                     </template>
                 </div>
             </div>
-            <div class="mt-3 grid gap-6 lg:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
+            <div class="mt-3 grid gap-6 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
                 <div x-ref="revenue" class="min-h-[300px]"></div>
                 <div>
                     <div class="mb-2 text-[13px] font-semibold">Rincian komponen</div>
@@ -37,7 +37,7 @@
                     </table>
                     <p class="mt-3 flex gap-2 text-xs leading-relaxed text-muted">
                         <svg class="i mt-px !h-3.5 !w-3.5"><use href="#i-info"/></svg>
-                        <span>Definisi sementara: pendapatan diakui saat dana dicairkan, dari kolom biaya pada data pinjaman (bunga, admin, layanan) dan biaya jasa TomiGaji.</span>
+                        <span>Bagian TOMI saja (catatan kantor): TomiDana 1% × nominal + biaya layanan, upload manual = fee dari file Buat Tagihan, TomiGaji 1,5%, Tomi Invoice 1% dari nilai termin. Diakui pada tanggal realisasi.</span>
                     </p>
                     <template x-for="n in d.revenue.notes || []" :key="n"><p class="mt-1 pl-[22px] text-xs text-muted" x-text="n"></p></template>
                 </div>

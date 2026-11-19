@@ -24,8 +24,7 @@ final class InsightPeriod
         public readonly ?CarbonImmutable $prevFrom,
         public readonly ?CarbonImmutable $prevTo,
         public readonly ?string $prevLabel,
-    ) {
-    }
+    ) {}
 
     public static function fromRequest(Request $request, CarbonImmutable $earliest, ?CarbonImmutable $today = null): self
     {
@@ -44,11 +43,11 @@ final class InsightPeriod
                 break;
 
             case 'month':
-                $month = self::parse($request->query('month') . '-01') ?? $today->startOfMonth();
+                $month = self::parse($request->query('month').'-01') ?? $today->startOfMonth();
                 $from = $month->startOfMonth();
                 $to = $month->endOfMonth()->startOfDay();
                 $gran = 'day';
-                $label = self::MONTHS_LONG[$from->month - 1] . ' ' . $from->year;
+                $label = self::MONTHS_LONG[$from->month - 1].' '.$from->year;
                 $prevFrom = $from->subMonthNoOverflow()->startOfMonth();
                 $prevTo = $prevFrom->endOfMonth()->startOfDay();
                 $prevLabel = 'bulan lalu';
@@ -79,10 +78,10 @@ final class InsightPeriod
                 }
                 $days = $from->diffInDays($to) + 1;
                 $gran = $days <= 1 ? 'hour' : ($days <= 62 ? 'day' : 'month');
-                $label = self::date($from) . ' – ' . self::date($to);
+                $label = self::date($from).' – '.self::date($to);
                 $prevTo = $from->subDay();
                 $prevFrom = $prevTo->subDays($days - 1);
-                $prevLabel = $days . ' hari sebelumnya';
+                $prevLabel = $days.' hari sebelumnya';
                 break;
 
             default: // year
@@ -91,14 +90,14 @@ final class InsightPeriod
                 $from = CarbonImmutable::create($year, 1, 1);
                 $to = CarbonImmutable::create($year, 12, 31);
                 $gran = 'month';
-                $label = 'Tahun ' . $year;
+                $label = 'Tahun '.$year;
                 $prevFrom = $from->subYear();
                 $prevTo = $to->subYear();
-                $prevLabel = 'tahun ' . ($year - 1);
+                $prevLabel = 'tahun '.($year - 1);
                 if ($to->gt($today)) {
                     $to = $today;
                     $prevTo = $today->subYear();
-                    $prevLabel = 'periode sama ' . ($year - 1);
+                    $prevLabel = 'periode sama '.($year - 1);
                 }
                 $mode = 'year';
         }
@@ -142,12 +141,12 @@ final class InsightPeriod
             }
         } elseif ($this->granularity === 'day') {
             for ($d = $this->from; $d->lte($this->to); $d = $d->addDay()) {
-                $list[] = ['key' => $d->format('Y-m-d'), 'label' => $d->day . ' ' . self::MONTHS[$d->month - 1]];
+                $list[] = ['key' => $d->format('Y-m-d'), 'label' => $d->day.' '.self::MONTHS[$d->month - 1]];
             }
         } else {
             $multiYear = $this->from->year !== $this->to->year;
             for ($d = $this->from->startOfMonth(); $d->lte($this->to); $d = $d->addMonthNoOverflow()) {
-                $list[] = ['key' => $d->format('Y-m'), 'label' => self::MONTHS[$d->month - 1] . ($multiYear ? ' ' . $d->format('y') : '')];
+                $list[] = ['key' => $d->format('Y-m'), 'label' => self::MONTHS[$d->month - 1].($multiYear ? ' '.$d->format('y') : '')];
             }
         }
 
@@ -181,7 +180,7 @@ final class InsightPeriod
     {
         $today = CarbonImmutable::now()->startOfDay();
         if ($this->granularity === 'month' && $this->to->lt($this->to->endOfMonth()->startOfDay())) {
-            return self::MONTHS_LONG[$this->to->month - 1] . ' baru sampai ' . self::date($this->to);
+            return self::MONTHS_LONG[$this->to->month - 1].' baru sampai '.self::date($this->to);
         }
         if ($this->granularity === 'hour' && $this->to->equalTo($today)) {
             return 'hari ini masih berjalan';
@@ -198,7 +197,7 @@ final class InsightPeriod
             'to' => $this->to->toDateString(),
             'granularity' => $this->granularity,
             'label' => $this->label,
-            'range' => self::date($this->from) . ' – ' . self::date($this->to),
+            'range' => self::date($this->from).' – '.self::date($this->to),
             'prev_label' => $this->prevLabel,
             'partial_note' => $this->partialNote(),
         ];
@@ -206,7 +205,7 @@ final class InsightPeriod
 
     public static function date(CarbonImmutable $d): string
     {
-        return $d->day . ' ' . self::MONTHS[$d->month - 1] . ' ' . $d->year;
+        return $d->day.' '.self::MONTHS[$d->month - 1].' '.$d->year;
     }
 
     private static function parse(?string $value): ?CarbonImmutable

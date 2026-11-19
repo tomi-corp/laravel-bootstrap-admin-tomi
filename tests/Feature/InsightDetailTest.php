@@ -29,9 +29,9 @@ class InsightDetailTest extends TestCase
 
     private function makeAdmin(): Admin
     {
-        $admin = new Admin();
-        $admin->username = 'insight_test_' . Str::random(8);
-        $admin->email = $admin->username . '@example.test';
+        $admin = new Admin;
+        $admin->username = 'insight_test_'.Str::random(8);
+        $admin->email = $admin->username.'@example.test';
         $admin->type = 'master';
         $admin->password = Hash::make('Secret#123');
         $admin->saveQuietly();
@@ -135,17 +135,17 @@ class InsightDetailTest extends TestCase
         if ($all['pagination']['all'] < 2) {
             $this->markTestSkipped('Butuh minimal 2 pencairan TomiDana.');
         }
-        $p2 = $this->getJson($base . '&page=2')->json('data');
+        $p2 = $this->getJson($base.'&page=2')->json('data');
         $this->assertSame(2, $p2['pagination']['page']);
-        $asc = $this->getJson($base . '&sort=amount&dir=asc')->json('data.rows');
+        $asc = $this->getJson($base.'&sort=amount&dir=asc')->json('data.rows');
         $this->assertLessThanOrEqual($asc[1]['amount'], $asc[0]['amount']);
 
         $ref = $all['rows'][0]['ref'];
-        $found = $this->getJson($base . '&q=' . urlencode($ref))->json('data');
+        $found = $this->getJson($base.'&q='.urlencode($ref))->json('data');
         $this->assertGreaterThanOrEqual(1, $found['pagination']['total']);
         $this->assertSame($all['pagination']['all'], $found['pagination']['all']);
 
-        $csv = $this->get($base . '&format=csv');
+        $csv = $this->get($base.'&format=csv');
         $csv->assertOk();
         $this->assertStringContainsString('text/csv', $csv->headers->get('content-type'));
         $body = $csv->streamedContent();

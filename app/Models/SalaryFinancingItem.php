@@ -20,7 +20,6 @@ class SalaryFinancingItem extends Model
             'application_date' => 'date',
             'income_amount' => 'decimal:2',
             'payment_date' => 'date',
-            'bank_id' => 'integer',
         ];
     }
 }
