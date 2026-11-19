@@ -2,9 +2,8 @@
 
 namespace App\Http\Requests\Admin\Ksp;
 
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rules\Password;
-
 
 class EditPerusahaanRequest extends FormRequest
 {
@@ -19,12 +18,13 @@ class EditPerusahaanRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
         return [
             'id' => 'required|exists:list_perusahaans,id',
+            'admin_id' => 'required|exists:admins,id',
             'nama_perusahaan' => 'required',
             'telepon' => 'required|numeric',
             'provinsi' => 'required',
