@@ -93,6 +93,47 @@
         </div>
     </div>
 
+    <div class="modal fade" id="pksModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">PKS Perusahaan <span class="text-muted" id="pksCompanyName"></span></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Tutup"><span>&times;</span></button>
+                </div>
+                <div class="modal-body">
+                    <form id="pksForm" enctype="multipart/form-data" class="border rounded p-3 mb-3">
+                        <input type="hidden" id="pksCompanyId" name="id_perusahaan">
+                        <h6 class="mt-0 mb-3">Tambah PKS</h6>
+                        @if ($features->isEmpty())
+                            <div class="alert alert-warning py-2">Belum ada fitur aktif. Tambahkan data fitur terlebih dahulu.</div>
+                        @endif
+                        <div class="row">
+                            <div class="col-md-6 form-group"><label>Fitur</label><select class="form-control" name="feature_id"><option value="">Pilih fitur</option>@foreach ($features as $feature)<option value="{{ $feature->id }}">{{ strtoupper($feature->name) }}</option>@endforeach</select><small class="text-danger" data-error="feature_id"></small></div>
+                            <div class="col-md-6 form-group"><label>Nomor PKS</label><input class="form-control" name="nomor_pks" maxlength="255"><small class="text-danger" data-error="nomor_pks"></small></div>
+                            <div class="col-md-4 form-group"><label>Tanggal PKS</label><input class="form-control" name="tanggal_pks" type="date"><small class="text-danger" data-error="tanggal_pks"></small></div>
+                            <div class="col-md-4 form-group"><label>Mulai Berlaku</label><input class="form-control" name="mulai_berlaku" type="date"><small class="text-danger" data-error="mulai_berlaku"></small></div>
+                            <div class="col-md-4 form-group"><label>Berakhir</label><input class="form-control" name="berakhir" type="date"><small class="text-danger" data-error="berakhir"></small></div>
+                            <div class="col-md-12 form-group"><label>Upload Dokumen (PDF, maks 5 MB)</label><input class="form-control" name="file_dokumen" type="file" accept="application/pdf"><small class="text-danger" data-error="file_dokumen"></small></div>
+                        </div>
+                        <div class="text-right">
+                            <button class="btn btn-primary" type="submit" id="savePksButton">Simpan PKS</button>
+                        </div>
+                    </form>
+                    <h6 class="mb-2">Daftar PKS</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover mb-0">
+                            <thead><tr><th>No</th><th>Fitur</th><th>Nomor PKS</th><th>Tanggal PKS</th><th>Mulai Berlaku</th><th>Berakhir</th><th>Status</th><th>Aksi</th></tr></thead>
+                            <tbody id="pksTableBody"><tr><td colspan="8" class="text-center text-muted">Memuat...</td></tr></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="modal fade" id="importCompanyModal" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -139,7 +180,7 @@
                     { data: 'pic_perusahaan', name: 'pic_perusahaan' }, { data: 'pic_internal', name: 'pic_internal' },
                     { data: 'email_perusahaan', name: 'email_perusahaan' }, { data: 'telp', name: 'telp' },
                     { data: 'lender', name: 'lender' }, { data: 'status', name: 'status' }, { data: 'payment_date', name: 'payment_date' },
-                    { data: null, name: 'actions', orderable: false, searchable: false, render: row => `<button class="btn btn-sm btn-primary mr-1" onclick="editCompany(${row.id})"><i class="mdi mdi-pencil"></i></button><button class="btn btn-sm btn-danger" onclick="deleteCompany(${row.id})"><i class="mdi mdi-trash-can"></i></button>` }
+                    { data: null, name: 'actions', orderable: false, searchable: false, render: row => `<button class="btn btn-sm btn-info mr-1" title="PKS" onclick="openPksModal(${row.id})"><i class="mdi mdi-file-document-outline"></i></button><button class="btn btn-sm btn-primary mr-1" onclick="editCompany(${row.id})"><i class="mdi mdi-pencil"></i></button><button class="btn btn-sm btn-danger" onclick="deleteCompany(${row.id})"><i class="mdi mdi-trash-can"></i></button>` }
                 ],
                 order: [[1, 'asc']]
             });
@@ -154,6 +195,7 @@
             });
             companyTable.on('draw.dt', updateSelectedCompany);
             $('#importCompanyForm').on('submit', submitImportCompany);
+            $('#pksForm').on('submit', submitPks);
             $('#province').on('change', function () { loadOptions('{{ route('internal.companies.locations.cities') }}', { provinsi: this.value }, '#city', 'kabupaten', 'Pilih kabupaten / kota'); $('#district, #village').html('<option value="">Pilih pilihan</option>'); });
             $('#city').on('change', function () { loadOptions('{{ route('internal.companies.locations.districts') }}', { kabupaten: this.value }, '#district', 'kecamatan', 'Pilih kecamatan'); $('#village').html('<option value="">Pilih desa</option>'); });
             $('#district').on('change', function () { loadOptions('{{ route('internal.companies.locations.villages') }}', { kecamatan: this.value }, '#village', 'desa', 'Pilih desa', true); });
@@ -181,6 +223,55 @@
                 .done(response => { selectedCompanies.clear(); companyTable.ajax.reload(null, false); toastr.success(response.message); })
                 .fail(error => { toastr.error(error.responseJSON?.message || 'Gagal menghapus perusahaan terpilih.'); updateSelectedCompany(); })
                 .always(() => button.prop('disabled', selectedCompanies.size === 0));
+        }
+
+        function openPksModal(id) {
+            $('#pksForm')[0].reset(); $('#pksForm [data-error]').text('');
+            $('#pksCompanyId').val(id); $('#pksCompanyName').text('');
+            $('#pksModal').modal('show');
+            loadPks(id);
+        }
+
+        function loadPks(id) {
+            const body = $('#pksTableBody').html('<tr><td colspan="8" class="text-center text-muted">Memuat...</td></tr>');
+            $.post('{{ route('internal.companies.pks.list') }}', { id, _token: '{{ csrf_token() }}' })
+                .done(response => {
+                    const { company, items } = response.data;
+                    $('#pksCompanyName').text(`- ${String(company || '').toUpperCase()}`);
+                    if (!items.length) { body.html('<tr><td colspan="8" class="text-center text-muted">Belum ada PKS</td></tr>'); return; }
+                    body.html(items.map((item, index) => `<tr>
+                        <td>${index + 1}</td>
+                        <td>${escapeHtml(String(item.fitur).toUpperCase())}</td>
+                        <td>${escapeHtml(String(item.nomor_pks).toUpperCase())}</td>
+                        <td>${item.tanggal_pks}</td><td>${item.mulai_berlaku}</td><td>${item.berakhir}</td>
+                        <td><span class="badge badge-${item.status === 'AKTIF' ? 'success' : 'secondary'}">${item.status}</span></td>
+                        <td class="text-nowrap"><a class="btn btn-sm btn-info mr-1" href="${item.file_url}" target="_blank" rel="noopener" title="Lihat dokumen"><i class="mdi mdi-file-pdf-box"></i></a><button class="btn btn-sm btn-danger" type="button" title="Hapus" onclick="deletePks(${item.id})"><i class="mdi mdi-trash-can"></i></button></td>
+                    </tr>`).join(''));
+                })
+                .fail(error => body.html(`<tr><td colspan="8" class="text-center text-danger">${escapeHtml(error.responseJSON?.message || 'Gagal memuat PKS.')}</td></tr>`));
+        }
+
+        function submitPks(event) {
+            event.preventDefault();
+            const form = $(this); const button = $('#savePksButton');
+            const data = new FormData(this); data.append('_token', '{{ csrf_token() }}');
+            form.find('[data-error]').text('');
+            button.prop('disabled', true).text('Menyimpan...');
+            $.ajax({ url: '{{ route('internal.companies.pks.add') }}', method: 'POST', data, processData: false, contentType: false })
+                .done(response => { const id = $('#pksCompanyId').val(); this.reset(); $('#pksCompanyId').val(id); loadPks(id); toastr.success(response.message); })
+                .fail(error => {
+                    const errors = error.responseJSON?.errors || {};
+                    Object.entries(errors).forEach(([field, messages]) => form.find(`[data-error="${field}"]`).text(messages[0]));
+                    if (!Object.keys(errors).length) toastr.error(error.responseJSON?.message || 'Gagal menyimpan PKS.');
+                })
+                .always(() => button.prop('disabled', false).text('Simpan PKS'));
+        }
+
+        function deletePks(id) {
+            if (!confirm('Apakah Anda yakin ingin menghapus PKS ini?')) return;
+            $.post('{{ route('internal.companies.pks.delete') }}', { id, _token: '{{ csrf_token() }}' })
+                .done(response => { loadPks($('#pksCompanyId').val()); toastr.success(response.message); })
+                .fail(error => toastr.error(error.responseJSON?.message || 'Gagal menghapus PKS.'));
         }
 
         function resetImportCompany() {
