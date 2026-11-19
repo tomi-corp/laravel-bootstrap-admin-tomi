@@ -14,14 +14,16 @@
         <div class="col-12">
             <div class="page-title-box d-flex justify-content-between align-items-center">
                 <h4 class="page-title mb-0">Lenders</h4>
-                <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#lenderModal" onclick="openCreateLender()">
-                    <i class="mdi mdi-plus-circle mr-1"></i>Add Lender
-                </button>
             </div>
         </div>
         <div class="col-12">
             <div class="card">
                 <div class="card-body">
+                    <div class="d-flex justify-content-end mb-3">
+                        <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#lenderModal" onclick="openCreateLender()">
+                            <i class="mdi mdi-plus-circle mr-1"></i>Add Lender
+                        </button>
+                    </div>
                     <div class="table-responsive">
                         <table id="lenderTable" class="table table-hover nowrap" style="width:100%">
                             <thead><tr><th>#</th><th>Lender Code</th><th>Name</th><th>Lender PIC</th><th>Internal PIC</th><th>Email</th><th>Phone</th><th>Status</th><th>Actions</th></tr></thead>
