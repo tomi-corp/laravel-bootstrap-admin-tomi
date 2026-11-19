@@ -22,6 +22,12 @@
                             <h4>Tambah Admin</h4>
 
                             <div class="form-group">
+                                <label>Name</label>
+                                <input class="form-control" id="name" type="text" placeholder="Nama lengkap">
+                                <small id="errName" class="text-danger"></small>
+                            </div>
+
+                            <div class="form-group">
                                 <label>Username</label>
                                 <input class="form-control" name="nama" id="username" type="text"
                                     placeholder="Nama Admin">
@@ -115,6 +121,7 @@
                                         <th>Last Updated AT</th>
                                         <th>Auth 2 FA</th>
                                         <th>Username</th>
+                                        <th>Name</th>
                                         <th>email</th>
                                         <th>Type</th>
                                         <th>Instansi</th>
@@ -265,6 +272,8 @@
             }, {
                 data: 'username'
             }, {
+                data: 'name'
+            }, {
                 data: 'email'
             }, {
                 data: 'type'
@@ -353,6 +362,7 @@
                 data: {
                     '_token': "{{ csrf_token() }}",
 
+                    'name': $("#name").val(),
                     'username': $("#username").val(),
                     'email': $("#email").val(),
                     'instansi_id': instansiId,
@@ -375,6 +385,7 @@
                     $('#buttonSubmit').attr("disabled", false);
                     $('#loadingText').removeClass("spinner-border");
                     $("#username").val('');
+                    $("#name").val('');
                     $("#email").val('');
                     $("#instansi_id").val('');
                     $("#role_id").val('');
@@ -389,6 +400,7 @@
                     $('#buttonSubmit').attr("disabled", false);
                     $('#loadingText').removeClass("spinner-border");
                     $('#errUsername').text(err.responseJSON.errors.username);
+                    $('#errName').text(err.responseJSON.errors.name ?? '');
                     $('#errEmail').text(err.responseJSON.errors.email);
                     $('#errInstansi').text(err.responseJSON.errors.instansi_id ?? '');
                     $('#errRole').text(err.responseJSON.errors.role_id ?? '');

@@ -233,6 +233,7 @@ class AuthController extends Controller
                 'DT_RowIndex',
                 'created_at',
                 'updated_at',
+                'name',
                 'username',
                 'email',
                 'type',
@@ -270,6 +271,7 @@ class AuthController extends Controller
         }
 
         $admin = new Admin;
+        $admin->name = $req->name;
         $admin->username = $req->username;
         $admin->email = $req->email;
         $admin->instansi_id = $role->instansi_id;
