@@ -75,7 +75,11 @@
             lenderTable = $('#lenderTable').DataTable({
                 processing: true,
                 serverSide: false,
-                ajax: '{{ route('internal.lenders.table') }}',
+                ajax: {
+                    url: '{{ route('internal.lenders.table') }}',
+                    type: 'POST',
+                    data: { _token: '{{ csrf_token() }}' }
+                },
                 columns: [
                     { data: 'DT_RowIndex', name: 'DT_RowIndex' }, { data: 'id_code_lender', name: 'id_code_lender' },
                     { data: 'nama', name: 'nama' }, { data: 'pic_lender', name: 'pic_lender' }, { data: 'pic_internal', name: 'pic_internal' },
