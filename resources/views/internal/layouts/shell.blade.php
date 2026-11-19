@@ -11,6 +11,8 @@
     // Menu sidebar. `active` = pola nama route yang menandai menu ini (halaman turunan ikut menandai induknya).
     $menu = [
         ['label' => 'Dasbor', 'icon' => 'home', 'route' => 'internal.dashboard', 'active' => ['internal.dashboard', 'internal.dashboard.page']],
+        ['label' => 'Perusahaan', 'icon' => 'table', 'route' => 'internal.companies', 'active' => ['internal.companies*']],
+        ['label' => 'Pemberi Pinjaman', 'icon' => 'bank', 'route' => 'internal.lenders', 'active' => ['internal.lenders*']],
         ['section' => 'Produk'],
         ['label' => 'Tomi Dana', 'slot' => 1, 'children' => [
             ['label' => 'Daftar Perusahaan', 'route' => 'internal.tomi-dana.companies', 'active' => [
@@ -21,10 +23,18 @@
             ['label' => 'Biaya Aplikasi', 'route' => 'internal.tomi-dana.invoice-fee', 'active' => ['internal.tomi-dana.invoice-fee*']],
             ['label' => 'Buat Tagihan', 'route' => 'internal.tomi-dana.generate-invoice', 'active' => ['internal.tomi-dana.generate-invoice*']],
         ]],
-        // Produk yang baru punya satu halaman: tampil sebagai menu tunggal dengan titik warna produk.
-        ['label' => 'Tomi Dana Plus', 'slot' => 1, 'route' => 'internal.tomi-dana-plus', 'active' => ['internal.tomi-dana-plus*']],
-        ['label' => 'TomiGaji', 'slot' => 2, 'route' => 'internal.tomi-gaji', 'active' => ['internal.tomi-gaji*']],
-        ['label' => 'TomiInvoice', 'slot' => 3, 'route' => 'internal.tomi-invoice', 'active' => ['internal.tomi-invoice*']],
+        ['label' => 'Tomi Dana Plus', 'slot' => 1, 'children' => [
+            ['label' => 'Daftar Perusahaan', 'route' => 'internal.tomi-dana-plus.companies', 'active' => ['internal.tomi-dana-plus.companies*']],
+        ]],
+        ['label' => 'TomiGaji', 'slot' => 2, 'children' => [
+            ['label' => 'Daftar Perusahaan', 'route' => 'internal.tomi-gaji.companies', 'active' => ['internal.tomi-gaji.companies*']],
+        ]],
+        ['label' => 'TomiInvoice', 'slot' => 3, 'children' => [
+            ['label' => 'Daftar Perusahaan', 'route' => 'internal.tomi-invoice.companies', 'active' => ['internal.tomi-invoice.companies*']],
+        ]],
+        ['label' => 'TomiGawai', 'slot' => 4, 'children' => [
+            ['label' => 'Daftar Perusahaan', 'route' => 'internal.tomi-gawai.companies', 'active' => ['internal.tomi-gawai.companies*']],
+        ]],
     ];
 
     // Menu yang sedang dibuka → judul & breadcrumb header. Halaman menu (route persis) memakai label menu;

@@ -10,6 +10,10 @@ use App\Http\Controllers\Internal\TomiDana\RepaymentController as TomiDanaRepaym
 use App\Http\Controllers\Internal\TomiDana\GenerateInvoiceController as TomiDanaGenerateInvoiceController;
 use App\Http\Controllers\Internal\TomiDana\EmployeeController as TomiDanaEmployeeController;
 use App\Http\Controllers\Internal\TomiDana\LoanApplicationController as TomiDanaLoanApplicationController;
+use App\Http\Controllers\Internal\TomiDanaPlus\CompanyController as TomiDanaPlusCompanyController;
+use App\Http\Controllers\Internal\TomiGaji\CompanyController as TomiGajiCompanyController;
+use App\Http\Controllers\Internal\TomiInvoice\CompanyController as TomiInvoiceCompanyController;
+use App\Http\Controllers\Internal\TomiGawai\CompanyController as TomiGawaiCompanyController;
 use App\Http\Controllers\Internal\WilayahController;
 
 Route::view('/', 'internal.dashboard.index')->name('dashboard');
@@ -103,9 +107,29 @@ Route::prefix('/tomi-dana')->name('tomi-dana.')->group(function () {
     Route::view('/invoice-fee', 'internal.tomi-dana.invoice-fee.index')->name('invoice-fee');
 });
 Route::view('/tomi-dana-plus', 'internal.tomi-dana-plus.index')->name('tomi-dana-plus');
+Route::prefix('/tomi-dana-plus')->name('tomi-dana-plus.')->group(function () {
+    Route::get('/companies', [TomiDanaPlusCompanyController::class, 'index'])->name('companies');
+    Route::post('/companies/table', [TomiDanaPlusCompanyController::class, 'table'])->name('companies.table');
+});
+
 Route::view('/tomi-gaji', 'internal.tomi-gaji.index')->name('tomi-gaji');
+Route::prefix('/tomi-gaji')->name('tomi-gaji.')->group(function () {
+    Route::get('/companies', [TomiGajiCompanyController::class, 'index'])->name('companies');
+    Route::post('/companies/table', [TomiGajiCompanyController::class, 'table'])->name('companies.table');
+});
+
 Route::view('/tomi-invoice', 'internal.tomi-invoice.index')->name('tomi-invoice');
+Route::prefix('/tomi-invoice')->name('tomi-invoice.')->group(function () {
+    Route::get('/companies', [TomiInvoiceCompanyController::class, 'index'])->name('companies');
+    Route::post('/companies/table', [TomiInvoiceCompanyController::class, 'table'])->name('companies.table');
+});
+
 Route::view('/tomi-gawai', 'internal.tomi-gawai.index')->name('tomi-gawai');
+Route::prefix('/tomi-gawai')->name('tomi-gawai.')->group(function () {
+    Route::get('/companies', [TomiGawaiCompanyController::class, 'index'])->name('companies');
+    Route::post('/companies/table', [TomiGawaiCompanyController::class, 'table'])->name('companies.table');
+});
+
 Route::view('/daily-attendance', 'internal.daily-attendance.index')->name('daily-attendance');
 Route::view('/mobile', 'internal.mobile.index')->name('mobile');
 Route::view('/admin-management', 'internal.admin-management.index')->name('admin-management');
