@@ -15,43 +15,8 @@
     </div>
 
     <div class="col-12">
-        <div class="row">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="row align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-uppercase mb-1">PERUSAHAAN DENGAN STATUS
-                                    ACTIVE</div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $perusahaanAktif }}</div>
-
-                            </div>
-                            <div class="col-auto">
-                                <i class="fa fa-check fa-2x text-primary"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="row align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-uppercase mb-1">PERUSAHAAN DENGAN STATUS
-                                    NON ACTIVE</div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $perusahaanTidakAktif }}</div>
-
-                            </div>
-                            <div class="col-auto">
-                                <i class="fa fa-ban fa-2x text-danger"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        {{-- Ringkasan perusahaan mitra: komponen & data yang sama dengan Dasbor utama --}}
+        @include('admin.insight.partials.partners-summary')
         <div class="card">
             <div class="card-body">
 

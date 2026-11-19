@@ -19,6 +19,7 @@ use App\Http\Resources\Admin\Ksp\ListKaryawanPendingResource;
 use App\Http\Resources\Admin\Ksp\TenorPinjamanResource;
 use Illuminate\Http\Request;
 use App\Http\Resources\Admin\Pengajuan\DetailPengajuanResource;
+use App\Services\Insight\InsightService;
 use App\Imports\ExportImportData;
 use App\Imports\KaryawanPendingImport;
 use App\Models\amount_pinjaman;
@@ -51,16 +52,12 @@ use Illuminate\Support\Facades\Log;
 
 class KspController extends Controller
 {
-    public function index()
+    public function index(InsightService $insight)
     {
         $provinsis = provinsi::get();
-        $perusahaan = ListPerusahaan::select('id', 'status')->get();
 
-        $perusahaanTidakAktif = $perusahaan->where('status', 'nonactive')->count();
-        $perusahaanAktif = $perusahaan->where('status', 'active')->count();
-
-
-        return view('admin.ksp.perusahaan.index', compact('provinsis', 'perusahaanTidakAktif', 'perusahaanAktif'));
+        // Ringkasan perusahaan mitra (sama dengan Dasbor utama) menggantikan kartu jumlah status active/nonactive lama.
+        return view('admin.ksp.perusahaan.index', compact('provinsis') + ['insight' => $insight->pageContext('partners')]);
     }
 
     public function kabupaten(Request $req)
