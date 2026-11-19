@@ -4,10 +4,6 @@ namespace App\Http\Controllers\Internal\TomiDana;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Internal\Concerns\ScopesCompanies;
-use App\Http\Requests\Admin\Ksp\UpdateKaryawanRequest;
-use App\Http\Requests\Admin\Ksp\UploadListKaryawanRequest;
-use App\Http\Resources\Admin\Bank\BankResource;
-use App\Http\Resources\Admin\Ksp\ListKaryawanPendingResource;
 use App\Imports\Internal\EmployeeImport;
 use App\Models\bank;
 use App\Models\list_karyawan;
@@ -28,7 +24,7 @@ class EmployeeController extends Controller
     public function index(int $company)
     {
         $perusahaan = $this->findVisibleCompany($company)->load(['provinsi', 'kabupaten', 'kecamatan', 'desa']);
-        $banks = BankResource::collection(bank::get());
+        $banks = bank::get(['id', 'code_bank', 'description']);
 
         return view('internal.tomi-dana.employees.index', compact('perusahaan', 'banks'));
     }
@@ -52,8 +48,9 @@ class EmployeeController extends Controller
             ->toJson();
     }
 
-    public function upload(UploadListKaryawanRequest $req, int $company)
+    public function upload(Request $req, int $company)
     {
+        $req->validate(['file' => 'required|mimes:xls,xlsx']);
         $company = $this->findVisibleCompany($company);
         $import = new EmployeeImport($company);
 
@@ -95,7 +92,15 @@ class EmployeeController extends Controller
 
         return response()->json([
             'status' => 200,
-            'data' => ListKaryawanPendingResource::collection($this->pendingQuery($company->id)->get()),
+            'data' => $this->pendingQuery($company->id)->get()->map(fn ($employee) => [
+                'nama' => $employee->nama_karyawan,
+                'nik' => $employee->nik,
+                'nip' => $employee->nip,
+                'whatsapp' => $employee->whatsapp,
+                'alamat' => $employee->alamat,
+                'jabatan' => $employee->jabatan,
+                'max_plafon' => 'Rp'.number_format($employee->max_plafon),
+            ])->values(),
         ], 200);
     }
 
@@ -141,8 +146,25 @@ class EmployeeController extends Controller
         ], 200);
     }
 
-    public function update(UpdateKaryawanRequest $req)
+    public function update(Request $req)
     {
+        $req->validate([
+            'id' => 'required|exists:list_karyawans,id',
+            'nama_karyawan' => 'required',
+            'tanggal_bergabung' => 'required|date',
+            'nik' => 'required|numeric|unique:list_karyawans,nik,'.$req->id,
+            'nip' => 'required|numeric',
+            'whatsapp' => 'required|regex:/(62)[8]/|unique:list_karyawans,whatsapp,'.$req->id,
+            'alamat_lengkap' => 'required',
+            'divisi' => 'required',
+            'departement' => 'required',
+            'jabatan' => 'required',
+            'status' => 'required|in:tetap,percobaan,phk,resign',
+            'statusSp' => 'required|in:0,1,2,3',
+            'bank' => 'required|exists:banks,id',
+            'nomor_bank' => 'required|numeric',
+            'max_plafon' => 'required|numeric',
+        ]);
         $employee = $this->findApprovedEmployee($req->id);
 
         $employee->nama_karyawan = $req->nama_karyawan;

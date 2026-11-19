@@ -5,14 +5,14 @@ namespace App\Http\Controllers\Internal;
 use App\Exports\Internal\CompanyExport;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Internal\Concerns\ScopesCompanies;
-use App\Http\Requests\Admin\Ksp\AddPerusahaanRequest;
-use App\Http\Requests\Admin\Ksp\EditPerusahaanRequest;
-use App\Http\Resources\Admin\Ksp\DetailPerusahaanResource;
 use App\Imports\Internal\CompanyImport;
 use App\Imports\Internal\Concerns\ResolvesWilayah;
 use App\Models\Admin;
 use App\Models\CompanyPks;
 use App\Models\Feature;
+use App\Models\kecamatan;
+use App\Models\kelurahan;
+use App\Models\kota;
 use App\Models\list_karyawan;
 use App\Models\ListPerusahaan;
 use App\Models\pinjaman;
@@ -73,15 +73,67 @@ class CompanyController extends Controller
 
         return response()->json([
             'status' => 200,
-            'data' => new DetailPerusahaanResource($company),
+            'data' => $this->companyDetail($company),
         ], 200);
+    }
+
+    /**
+     * Detail perusahaan untuk form edit, termasuk pilihan wilayah turunan (kabupaten, kecamatan, desa).
+     */
+    private function companyDetail(ListPerusahaan $company): array
+    {
+        return [
+            'pic_perusahaan' => $company->pic_perusahaan,
+            'pic_internal' => $company->picInternalAdmin?->username ?? $company->pic_internal,
+            'admin_id' => $company->admin_id,
+            'nama' => $company->nama,
+            'alamat_lengkap' => $company->alamat_lengkap,
+            'telp' => $company->telp,
+            'nomor_pks' => $company->nomor_pks,
+            'status' => $company->status,
+            'provinsi' => $company->provinsi->provinsi,
+            'list_kabupaten' => kota::where('provinsi', $company->provinsi->provinsi)->get()
+                ->map(fn ($kota) => ['kabupaten' => $kota->kabupaten])->values(),
+            'kabupaten' => $company->kabupaten->kabupaten,
+            'list_kecamatan' => kecamatan::where('kabupaten', $company->kabupaten->kabupaten)->get()
+                ->map(fn ($kecamatan) => ['kecamatan' => $kecamatan->kecamatan])->values(),
+            'kecamatan' => $company->kecamatan->kecamatan,
+            'list_desa' => kelurahan::where('kecamatan', $company->kecamatan->kecamatan)->get()
+                ->map(fn ($desa) => ['id' => $desa->id, 'desa' => $desa->desa, 'kodepos' => $desa->kodepos])->values(),
+            'desa' => $company->desa->desa.'-'.$company->desa->kodepos,
+            'payment_date' => $company->payment_date,
+        ];
+    }
+
+    /** Field perusahaan yang wajib di form tambah maupun ubah. */
+    private function companyRules(): array
+    {
+        return [
+            'admin_id' => 'required|exists:admins,id',
+            'nama_perusahaan' => 'required',
+            'telepon' => 'required|numeric',
+            'provinsi' => 'required',
+            'kabupaten' => 'required',
+            'kecamatan' => 'required',
+            'desa' => 'required',
+            'alamat_lengkap' => 'required',
+            'payment_date' => 'required|numeric',
+            // Nomor perjanjian berformat seperti "012/KSPTOMI-FIT/VIII/2026", jadi tidak boleh dibatasi huruf/angka saja.
+            'nomor_pks' => 'required|string|max:255',
+        ];
     }
 
     /**
      * Tambah perusahaan sekaligus PKS-nya (minimal satu, satu per fitur).
      */
-    public function store(AddPerusahaanRequest $req)
+    public function store(Request $req)
     {
+        $req->validate([
+            'pic_perusahaan' => 'required',
+            'pic_internal' => 'nullable',
+            'email_perusahaan' => 'required|unique:list_perusahaans,email_perusahaan',
+            ...$this->companyRules(),
+        ], [], ['nomor_pks' => 'nomor perjanjian']);
         $this->validatePks($req, required: true);
 
         return $this->withPks($req, function () use ($req) {
@@ -99,8 +151,13 @@ class CompanyController extends Controller
     /**
      * Ubah perusahaan; baris PKS yang dikirim disimpan sebagai PKS baru (boleh kosong).
      */
-    public function update(EditPerusahaanRequest $req)
+    public function update(Request $req)
     {
+        $req->validate([
+            'id' => 'required|exists:list_perusahaans,id',
+            ...$this->companyRules(),
+            'status' => 'required|in:active,nonactive',
+        ], [], ['nomor_pks' => 'nomor perjanjian']);
         $company = $this->findVisibleCompany($req->id);
         $this->validatePks($req, required: false);
 

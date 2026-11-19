@@ -4,9 +4,6 @@ namespace App\Http\Controllers\Internal\TomiDana;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Internal\Concerns\ScopesCompanies;
-use App\Http\Requests\Admin\Ksp\AddKonfigurasiRequest;
-use App\Http\Requests\Admin\Ksp\AmountPinjamanRequest;
-use App\Http\Resources\Admin\Ksp\TenorPinjamanResource;
 use App\Models\amount_pinjaman;
 use App\Models\list_karyawan;
 use App\Models\ListPerusahaan;
@@ -59,8 +56,9 @@ class ConfigurationController extends Controller
             ->toJson();
     }
 
-    public function store(AddKonfigurasiRequest $req)
+    public function store(Request $req)
     {
+        $this->validateKonfigurasi($req);
         $company = $this->findVisibleCompany($req->id);
 
         $tenor = new tenor_pinjaman;
@@ -80,12 +78,16 @@ class ConfigurationController extends Controller
 
         return response()->json([
             'status' => 200,
-            'data' => new TenorPinjamanResource($tenor),
+            'data' => $tenor->only([
+                'tenor', 'rate', 'asuransi', 'provisi', 'biaya_admin', 'fee_tomi', 'iuran_anggota', 'biaya_layanan',
+                'minimal_nominal', 'maximal_nominal', 'profesional_fee_1', 'profesional_fee_2', 'ksp',
+            ]),
         ], 200);
     }
 
-    public function update(AddKonfigurasiRequest $req)
+    public function update(Request $req)
     {
+        $this->validateKonfigurasi($req);
         $tenor = $this->findTenor($req->id);
         $this->fillTenor($tenor, $req, ListPerusahaan::findOrFail($tenor->id_perusahaan));
         $tenor->save();
@@ -106,8 +108,15 @@ class ConfigurationController extends Controller
         ], 200);
     }
 
-    public function amount(AmountPinjamanRequest $req)
+    public function amount(Request $req)
     {
+        $req->validate([
+            'id' => 'required|exists:list_perusahaans,id',
+            'iuran_anggota' => 'required',
+            'minimal' => 'required|numeric',
+            'maximal' => 'required|numeric',
+            'maximal_persentase' => 'required|numeric',
+        ]);
         $company = $this->findVisibleCompany($req->id);
 
         $amount = amount_pinjaman::firstOrNew(['id_perusahaan' => $company->id]);
@@ -121,6 +130,40 @@ class ConfigurationController extends Controller
             'status' => 200,
             'message' => 'Amount pinjaman berhasil diperbarui.',
         ], 200);
+    }
+
+    /**
+     * Field biaya yang kosong dianggap 0, dan biaya admin selalu dihitung ulang
+     * dari profesional fee 1 + profesional fee 2 + KSP + fee Tomi sebelum divalidasi.
+     */
+    private function validateKonfigurasi(Request $req): void
+    {
+        $defaults = [];
+        foreach (['asuransi', 'provisi', 'biaya_admin', 'fee_tomi', 'biaya_layanan', 'minimal_nominal', 'maximal_nominal', 'profesional_fee_1', 'profesional_fee_2', 'ksp'] as $field) {
+            if ($req->input($field) === null || $req->input($field) === '') {
+                $defaults[$field] = 0;
+            }
+        }
+        $req->merge($defaults);
+        $req->merge([
+            'biaya_admin' => array_sum(array_map(
+                fn (string $field): float => (float) $req->input($field, 0),
+                ['profesional_fee_1', 'profesional_fee_2', 'ksp', 'fee_tomi']
+            )),
+        ]);
+
+        $req->validate([
+            'id' => 'required',
+            'tenor' => 'required',
+            'rate' => 'required',
+            'asuransi' => 'required',
+            'provisi' => 'required',
+            'biaya_admin' => 'required',
+            'fee_tomi' => 'required',
+            'biaya_layanan' => 'required',
+            'minimal_nominal' => 'required',
+            'maximal_nominal' => 'required',
+        ]);
     }
 
     /**

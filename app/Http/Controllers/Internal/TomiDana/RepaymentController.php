@@ -4,8 +4,6 @@ namespace App\Http\Controllers\Internal\TomiDana;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Internal\Concerns\ScopesCompanies;
-use App\Http\Requests\Internal\TomiDana\UpdateRepaymentRequest;
-use App\Http\Resources\Internal\TomiDana\ListJatuhTempoResource;
 use App\Models\invoicing_pinjaman;
 use App\Models\jatuh_tempo;
 use App\Models\notification;
@@ -111,12 +109,28 @@ class RepaymentController extends Controller
 
         return response()->json([
             'status' => 200,
-            'data' => ListJatuhTempoResource::collection($this->validJatuhTempo($invoice)->values()),
+            'data' => $this->validJatuhTempo($invoice)->map(fn ($jatuhTempo) => [
+                'id_pinjaman' => $jatuhTempo->pinjaman?->id_pinjaman ?? '-',
+                'nama' => $jatuhTempo->pinjaman?->data_karyawan?->nama_karyawan ?? '-',
+                'angsuran_perbulan' => $jatuhTempo->pinjaman ? 'Rp  '.number_format($jatuhTempo->pinjaman->total_angsuran_perbulan) : '-',
+            ])->values(),
         ], 200);
     }
 
-    public function action(UpdateRepaymentRequest $req)
+    public function action(Request $req)
     {
+        $req->validate([
+            'id' => 'required|integer',
+            'tanggal' => 'required|date_format:Y-m-d\TH:i',
+            'bukti_transfer' => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+        ], [
+            'tanggal.required' => 'Waktu pembayaran wajib diisi.',
+            'tanggal.date_format' => 'Format waktu pembayaran tidak valid.',
+            'bukti_transfer.required' => 'Bukti transfer wajib diupload.',
+            'bukti_transfer.file' => 'Bukti transfer tidak valid.',
+            'bukti_transfer.mimes' => 'Bukti transfer harus berformat JPG, JPEG, PNG, atau PDF.',
+            'bukti_transfer.max' => 'Ukuran bukti transfer maksimal 5 MB.',
+        ]);
         $invoice = $this->findInvoice($req->id);
 
         if ($invoice->status === 'lunas') {
@@ -142,7 +156,7 @@ class RepaymentController extends Controller
     }
 
     /** Lunasi angsuran periode invoice, tandai invoice lunas, dan catat repayment beserta bukti transfernya. */
-    private function settleInvoice(invoicing_pinjaman $invoice, UpdateRepaymentRequest $req, string $proofPath): void
+    private function settleInvoice(invoicing_pinjaman $invoice, Request $req, string $proofPath): void
     {
         DB::transaction(function () use ($invoice, $req, $proofPath) {
             $totalTagihan = $this->tagihanPinjamanQuery($invoice)->sum('total_angsuran_perbulan');

@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Internal\TomiDana;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Internal\Concerns\ScopesCompanies;
-use App\Http\Resources\Admin\Ksp\CheckAngsuranResource;
 use App\Models\history_invoicing_lender;
 use App\Models\invoicing_pinjaman;
 use App\Models\jatuh_tempo;
@@ -107,7 +106,11 @@ class LoanApplicationController extends Controller
 
         return response()->json([
             'status' => 200,
-            'message' => CheckAngsuranResource::collection($loan->angsuran),
+            'message' => $loan->angsuran->map(fn ($angsuran) => [
+                'angsuran_ke' => $angsuran->pembayaran,
+                'jatuh_tempo' => $angsuran->jatuh_tempo,
+                'status' => $angsuran->status == 'lunas' ? 'Lunas' : 'Belum Lunas',
+            ])->values(),
         ], 200);
     }
 
