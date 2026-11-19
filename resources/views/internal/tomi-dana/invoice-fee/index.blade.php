@@ -1,5 +1,5 @@
-@extends('layout.app')
-@section('title', 'Invoice Fee')
+@extends('internal.layouts.app')
+@section('title', 'Biaya Aplikasi')
 @section('content')
-    <h4 class="page-title">Invoice Fee</h4>
+    <h4 class="page-title">Biaya Aplikasi</h4>
 @endsection

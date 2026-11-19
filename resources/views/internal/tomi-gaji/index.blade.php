@@ -1,4 +1,4 @@
-@extends('layout.app')
+@extends('internal.layouts.app')
 @section('title', 'Tomi Gaji')
 @section('content')
     <h4 class="page-title">Tomi Gaji</h4>

@@ -98,6 +98,9 @@ Route::prefix('/tomi-dana')->name('tomi-dana.')->group(function () {
     Route::get('/generate-invoice', [TomiDanaGenerateInvoiceController::class, 'index'])->name('generate-invoice');
     Route::post('/generate-invoice', [TomiDanaGenerateInvoiceController::class, 'store'])->name('generate-invoice.store');
     Route::get('/generate-invoice/{id}/pdf', [TomiDanaGenerateInvoiceController::class, 'pdf'])->whereNumber('id')->name('generate-invoice.pdf');
+
+    // Biaya aplikasi (halaman masih placeholder)
+    Route::view('/invoice-fee', 'internal.tomi-dana.invoice-fee.index')->name('invoice-fee');
 });
 Route::view('/tomi-dana-plus', 'internal.tomi-dana-plus.index')->name('tomi-dana-plus');
 Route::view('/tomi-gaji', 'internal.tomi-gaji.index')->name('tomi-gaji');

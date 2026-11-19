@@ -1,4 +1,4 @@
-@extends('layout.shell')
+@extends('internal.layouts.shell')
 @section('title', 'Dashboard')
 @section('crumbs', 'Internal')
 @section('page-title', 'Dashboard')
