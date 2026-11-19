@@ -72,19 +72,19 @@
                     <div class="modal-body">
                         <input type="hidden" id="companyId">
                         <div class="row">
-                            <div class="col-md-6 form-group"><label>PIC Perusahaan</label><input class="form-control" id="companyPic" name="pic_perusahaan"></div>
-                            <div class="col-md-6 form-group"><label>PIC Internal</label><select class="form-control" id="internalAdmin" name="admin_id"><option value="">Pilih PIC internal</option>@foreach ($internalAdmins as $admin)<option value="{{ $admin->id }}">{{ $admin->username }} ({{ $admin->email }})</option>@endforeach</select></div>
-                            <div class="col-md-6 form-group"><label>Nama Perusahaan</label><input class="form-control" id="companyName" name="nama_perusahaan"></div>
-                            <div class="col-md-6 form-group"><label>Email</label><input class="form-control" id="companyEmail" name="email_perusahaan" type="email"></div>
-                            <div class="col-md-6 form-group"><label>Telepon</label><input class="form-control" id="companyPhone" name="telepon" type="number"></div>
-                            <div class="col-md-6 form-group"><label>Nomor Perjanjian</label><input class="form-control" id="agreementNumber" name="nomor_pks"></div>
-                            <div class="col-md-6 form-group"><label>Provinsi</label><select class="form-control" id="province" name="provinsi"><option value="">Pilih provinsi</option>@foreach ($provinces as $province)<option value="{{ $province->provinsi }}">{{ $province->provinsi }}</option>@endforeach</select></div>
-                            <div class="col-md-6 form-group"><label>Kabupaten / Kota</label><select class="form-control" id="city" name="kabupaten"><option value="">Pilih kabupaten / kota</option></select></div>
-                            <div class="col-md-6 form-group"><label>Kecamatan</label><select class="form-control" id="district" name="kecamatan"><option value="">Pilih kecamatan</option></select></div>
-                            <div class="col-md-6 form-group"><label>Desa</label><select class="form-control" id="village" name="desa"><option value="">Pilih desa</option></select></div>
-                            <div class="col-md-12 form-group"><label>Alamat Lengkap</label><textarea class="form-control" id="address" name="alamat_lengkap" rows="3"></textarea></div>
-                            <div class="col-md-6 form-group"><label>Tanggal Pembayaran</label><input class="form-control" id="paymentDate" name="payment_date" type="number"></div>
-                            <div class="col-md-6 form-group d-none" id="statusGroup"><label>Status</label><select class="form-control" id="status" name="status"><option value="active">Aktif</option><option value="nonactive">Tidak Aktif</option></select></div>
+                            <div class="col-md-6 form-group"><label>PIC Perusahaan</label><input class="form-control" id="companyPic" name="pic_perusahaan"><small class="text-danger" data-error="pic_perusahaan"></small></div>
+                            <div class="col-md-6 form-group"><label>PIC Internal</label><select class="form-control" id="internalAdmin" name="admin_id"><option value="">Pilih PIC internal</option>@foreach ($internalAdmins as $admin)<option value="{{ $admin->id }}">{{ $admin->username }} ({{ $admin->email }})</option>@endforeach</select><small class="text-danger" data-error="admin_id"></small></div>
+                            <div class="col-md-6 form-group"><label>Nama Perusahaan</label><input class="form-control" id="companyName" name="nama_perusahaan"><small class="text-danger" data-error="nama_perusahaan"></small></div>
+                            <div class="col-md-6 form-group"><label>Email</label><input class="form-control" id="companyEmail" name="email_perusahaan" type="email"><small class="text-danger" data-error="email_perusahaan"></small></div>
+                            <div class="col-md-6 form-group"><label>Telepon</label><input class="form-control" id="companyPhone" name="telepon" type="number"><small class="text-danger" data-error="telepon"></small></div>
+                            <div class="col-md-6 form-group"><label>Nomor Perjanjian</label><input class="form-control" id="agreementNumber" name="nomor_pks"><small class="text-danger" data-error="nomor_pks"></small></div>
+                            <div class="col-md-6 form-group"><label>Provinsi</label><select class="form-control" id="province" name="provinsi"><option value="">Pilih provinsi</option>@foreach ($provinces as $province)<option value="{{ $province->provinsi }}">{{ $province->provinsi }}</option>@endforeach</select><small class="text-danger" data-error="provinsi"></small></div>
+                            <div class="col-md-6 form-group"><label>Kabupaten / Kota</label><select class="form-control" id="city" name="kabupaten"><option value="">Pilih kabupaten / kota</option></select><small class="text-danger" data-error="kabupaten"></small></div>
+                            <div class="col-md-6 form-group"><label>Kecamatan</label><select class="form-control" id="district" name="kecamatan"><option value="">Pilih kecamatan</option></select><small class="text-danger" data-error="kecamatan"></small></div>
+                            <div class="col-md-6 form-group"><label>Desa</label><select class="form-control" id="village" name="desa"><option value="">Pilih desa</option></select><small class="text-danger" data-error="desa"></small></div>
+                            <div class="col-md-12 form-group"><label>Alamat Lengkap</label><textarea class="form-control" id="address" name="alamat_lengkap" rows="3"></textarea><small class="text-danger" data-error="alamat_lengkap"></small></div>
+                            <div class="col-md-6 form-group"><label>Tanggal Pembayaran</label><input class="form-control" id="paymentDate" name="payment_date" type="number"><small class="text-danger" data-error="payment_date"></small></div>
+                            <div class="col-md-6 form-group d-none" id="statusGroup"><label>Status</label><select class="form-control" id="status" name="status"><option value="active">Aktif</option><option value="nonactive">Tidak Aktif</option></select><small class="text-danger" data-error="status"></small></div>
                         </div>
 
                         <hr>

@@ -35,7 +35,15 @@ class AddPerusahaanRequest extends FormRequest
             'desa' => 'required',
             'alamat_lengkap' => 'required',
             'payment_date' => 'required|numeric',
-            'nomor_pks' => 'required|alpha_num',
+            // Nomor perjanjian berformat seperti "012/KSPTOMI-FIT/VIII/2026", jadi tidak boleh dibatasi huruf/angka saja.
+            'nomor_pks' => 'required|string|max:255',
+        ];
+    }
+
+    public function attributes(): array
+    {
+        return [
+            'nomor_pks' => 'nomor perjanjian',
         ];
     }
 }

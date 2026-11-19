@@ -69,8 +69,8 @@ class CompanyImport implements SkipsEmptyRows, ToCollection, WithHeadingRow
                 $rowErrors[] = 'Telepon harus berupa angka';
             }
 
-            if ($data['nomor_pks'] !== '' && ! ctype_alnum($data['nomor_pks'])) {
-                $rowErrors[] = 'Nomor PKS hanya boleh huruf dan angka';
+            if (mb_strlen($data['nomor_pks']) > 255) {
+                $rowErrors[] = 'Nomor PKS maksimal 255 karakter';
             }
 
             if ($data['tanggal_pembayaran'] !== '' && (! ctype_digit($data['tanggal_pembayaran']) || (int) $data['tanggal_pembayaran'] < 1 || (int) $data['tanggal_pembayaran'] > 31)) {
