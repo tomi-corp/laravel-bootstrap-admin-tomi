@@ -57,7 +57,12 @@
 @endphp
 
 @section('content')
-    <p class="section-sub -mt-1 mb-5">Ringkasan aktivitas dan performa seluruh produk TOMI dalam satu tampilan</p>
+    <div class="-mt-1 mb-5 flex flex-wrap items-center gap-3">
+        <p class="section-sub">Ringkasan aktivitas dan performa seluruh produk TOMI dalam satu tampilan</p>
+        <a href="{{ route('admin.dashboard.export-report') }}" class="ui-btn primary ml-auto" aria-label="Export report dashboard">
+            <svg class="i !h-4 !w-4"><use href="#i-table"/></svg>Export Report
+        </a>
+    </div>
 
     {{-- ===================== Statistik utama ===================== --}}
     <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
