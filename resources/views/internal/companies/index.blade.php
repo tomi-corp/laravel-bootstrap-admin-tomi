@@ -6,9 +6,29 @@
     <style>
         #companyTable th,
         #companyTable td { white-space: nowrap; vertical-align: middle; }
-        #companyModal .modal-dialog,
-        #companyModal .modal-content { max-height: calc(100vh - 2rem); }
-        #companyModal .modal-body { overflow-y: auto; }
+        #companyModal .modal-content {
+            max-height: calc(100vh - 3.5rem);
+            overflow: hidden;
+        }
+
+        #companyModal .modal-header,
+        #companyModal .modal-footer {
+            flex-shrink: 0;
+        }
+
+        #companyForm {
+            display: flex;
+            flex-direction: column;
+            flex: 1 1 auto;
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        #companyModal .modal-body {
+            flex: 1 1 auto;
+            min-height: 0;
+            overflow-y: auto;
+        }
     </style>
 @endpush
 
