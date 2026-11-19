@@ -5,6 +5,8 @@ use App\Http\Controllers\Internal\LenderController;
 use App\Http\Controllers\Internal\CompanyController;
 use App\Http\Controllers\Internal\TomiDana\CompanyController as TomiDanaCompanyController;
 use App\Http\Controllers\Internal\TomiDana\ConfigurationController as TomiDanaConfigurationController;
+use App\Http\Controllers\Internal\TomiDana\DisbursementController as TomiDanaDisbursementController;
+use App\Http\Controllers\Internal\TomiDana\RepaymentController as TomiDanaRepaymentController;
 use App\Http\Controllers\Internal\TomiDana\EmployeeController as TomiDanaEmployeeController;
 use App\Http\Controllers\Internal\TomiDana\LoanApplicationController as TomiDanaLoanApplicationController;
 use App\Http\Controllers\Internal\WilayahController;
@@ -73,6 +75,23 @@ Route::prefix('/tomi-dana')->name('tomi-dana.')->group(function () {
     Route::post('/employees/approve', [TomiDanaEmployeeController::class, 'approve'])->name('employees.approve');
     Route::post('/employees/detail', [TomiDanaEmployeeController::class, 'show'])->name('employees.detail');
     Route::post('/employees/update', [TomiDanaEmployeeController::class, 'update'])->name('employees.update');
+
+    // Pencairan dana pinjaman
+    Route::get('/disbursement', [TomiDanaDisbursementController::class, 'index'])->name('disbursement');
+    Route::post('/disbursement/table', [TomiDanaDisbursementController::class, 'table'])->name('disbursement.table');
+    Route::post('/disbursement/detail', [TomiDanaDisbursementController::class, 'detail'])->name('disbursement.detail');
+    Route::post('/disbursement/action', [TomiDanaDisbursementController::class, 'action'])->name('disbursement.action');
+    Route::post('/disbursement/utils', [TomiDanaDisbursementController::class, 'utils'])->name('disbursement.utils');
+    Route::post('/disbursement/pk', [TomiDanaDisbursementController::class, 'pk'])->name('disbursement.pk');
+    Route::post('/disbursement/ktp', [TomiDanaDisbursementController::class, 'ktp'])->name('disbursement.ktp');
+    Route::post('/disbursement/selfie', [TomiDanaDisbursementController::class, 'selfie'])->name('disbursement.selfie');
+
+    // Pembayaran invoice perusahaan
+    Route::get('/repayment', [TomiDanaRepaymentController::class, 'index'])->name('repayment');
+    Route::post('/repayment/table', [TomiDanaRepaymentController::class, 'table'])->name('repayment.table');
+    Route::post('/repayment/utils', [TomiDanaRepaymentController::class, 'utils'])->name('repayment.utils');
+    Route::post('/repayment/list', [TomiDanaRepaymentController::class, 'list'])->name('repayment.list');
+    Route::post('/repayment/action', [TomiDanaRepaymentController::class, 'action'])->name('repayment.action');
 });
 Route::view('/tomi-dana-plus', 'internal.tomi-dana-plus.index')->name('tomi-dana-plus');
 Route::view('/tomi-gaji', 'internal.tomi-gaji.index')->name('tomi-gaji');

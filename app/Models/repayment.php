@@ -6,5 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class repayment extends Model
 {
-    //
+    public function invoice()
+    {
+        return $this->belongsTo(invoicing_pinjaman::class, 'id_invoicing');
+    }
+
+    public function admin()
+    {
+        return $this->belongsTo(Admin::class, 'admin_id');
+    }
 }

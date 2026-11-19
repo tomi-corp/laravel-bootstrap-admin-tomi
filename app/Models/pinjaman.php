@@ -50,6 +50,11 @@ class pinjaman extends Model
         return $this->hasOne(disbursement::class, 'pinjaman_id', 'id');
     }
 
+    public function kyc()
+    {
+        return $this->hasOne(kyc_user::class, 'id', 'id_kyc');
+    }
+
     public function lender()
     {
         return $this->hasOne(lender::class, 'id', 'id_lender');
