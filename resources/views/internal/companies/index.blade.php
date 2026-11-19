@@ -88,19 +88,37 @@
                         </div>
 
                         <hr>
-                        <h6 class="mt-0 mb-1">PKS</h6>
-                        <p class="text-muted small mb-3" id="pksHelp">Wajib diisi saat menambah perusahaan.</p>
+                        <div class="d-flex align-items-start mb-3">
+                            <div>
+                                <h6 class="mt-0 mb-1">PKS</h6>
+                                <p class="text-muted small mb-0" id="pksHelp">Minimal satu PKS. Satu fitur satu PKS.</p>
+                            </div>
+                            <button class="btn btn-sm btn-outline-primary ml-auto" type="button" id="addPksRowButton" onclick="addPksRow()">
+                                <i class="mdi mdi-plus mr-1"></i>Tambah PKS
+                            </button>
+                        </div>
                         @if ($features->isEmpty())
                             <div class="alert alert-warning py-2">Belum ada fitur aktif. Tambahkan data fitur terlebih dahulu.</div>
                         @endif
-                        <div class="row" id="pksFields">
-                            <div class="col-md-6 form-group"><label>Fitur</label><select class="form-control" name="pks_feature_id"><option value="">Pilih fitur</option>@foreach ($features as $feature)<option value="{{ $feature->id }}">{{ strtoupper($feature->name) }}</option>@endforeach</select><small class="text-danger" data-error="pks_feature_id"></small></div>
-                            <div class="col-md-6 form-group"><label>Nomor PKS</label><input class="form-control" name="pks_nomor" maxlength="255"><small class="text-danger" data-error="pks_nomor"></small></div>
-                            <div class="col-md-4 form-group"><label>Tanggal PKS</label><input class="form-control" name="pks_tanggal" type="date"><small class="text-danger" data-error="pks_tanggal"></small></div>
-                            <div class="col-md-4 form-group"><label>Mulai Berlaku</label><input class="form-control" name="pks_mulai_berlaku" type="date"><small class="text-danger" data-error="pks_mulai_berlaku"></small></div>
-                            <div class="col-md-4 form-group"><label>Berakhir</label><input class="form-control" name="pks_berakhir" type="date"><small class="text-danger" data-error="pks_berakhir"></small></div>
-                            <div class="col-md-12 form-group"><label>Upload Dokumen (PDF, maks 5 MB)</label><input class="form-control" name="pks_dokumen" type="file" accept="application/pdf"><small class="text-danger" data-error="pks_dokumen"></small></div>
-                        </div>
+                        <small class="text-danger d-block mb-2" data-error="pks"></small>
+                        <div id="pksRows"></div>
+
+                        <template id="pksRowTemplate">
+                            <div class="pks-row border rounded p-3 mb-3">
+                                <div class="d-flex align-items-center mb-2">
+                                    <strong class="pks-row-title">PKS</strong>
+                                    <button class="btn btn-sm btn-outline-danger ml-auto pks-row-remove" type="button" title="Hapus baris PKS"><i class="mdi mdi-close"></i></button>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 form-group"><label>Fitur</label><select class="form-control" data-field="feature_id"><option value="">Pilih fitur</option>@foreach ($features as $feature)<option value="{{ $feature->id }}">{{ strtoupper($feature->name) }}</option>@endforeach</select><small class="text-danger" data-error-field="feature_id"></small></div>
+                                    <div class="col-md-6 form-group"><label>Nomor PKS</label><input class="form-control" data-field="nomor" maxlength="255"><small class="text-danger" data-error-field="nomor"></small></div>
+                                    <div class="col-md-4 form-group"><label>Tanggal PKS</label><input class="form-control" data-field="tanggal" type="date"><small class="text-danger" data-error-field="tanggal"></small></div>
+                                    <div class="col-md-4 form-group"><label>Mulai Berlaku</label><input class="form-control" data-field="mulai_berlaku" type="date"><small class="text-danger" data-error-field="mulai_berlaku"></small></div>
+                                    <div class="col-md-4 form-group"><label>Berakhir</label><input class="form-control" data-field="berakhir" type="date"><small class="text-danger" data-error-field="berakhir"></small></div>
+                                    <div class="col-md-12 form-group mb-0"><label>Upload Dokumen (PDF, maks 5 MB)</label><input class="form-control" data-field="dokumen" type="file" accept="application/pdf"><small class="text-danger" data-error-field="dokumen"></small></div>
+                                </div>
+                            </div>
+                        </template>
 
                         <div class="d-none" id="pksListGroup">
                             <h6 class="mb-2">PKS Terdaftar</h6>
@@ -208,11 +226,33 @@
                 .always(() => button.prop('disabled', selectedCompanies.size === 0));
         }
 
+        let pksRowIndex = 0;
+
         function resetPksSection(isEdit) {
             $('#companyForm [data-error]').text('');
-            $('#pksHelp').text(isEdit ? 'Isi bagian ini hanya jika ingin menambah PKS baru.' : 'Wajib diisi saat menambah perusahaan.');
+            $('#pksHelp').text(isEdit ? 'Klik Tambah PKS untuk menambah PKS fitur lain. Satu fitur satu PKS.' : 'Minimal satu PKS. Satu fitur satu PKS.');
             $('#pksListGroup').toggleClass('d-none', !isEdit);
             $('#pksTableBody').empty();
+            $('#pksRows').empty();
+            if (!isEdit) addPksRow();
+        }
+
+        // Setiap baris memakai index unik agar nama field (pks[i][...]) dan pesan error (pks.i.field) tetap cocok walau ada baris yang dihapus.
+        function addPksRow() {
+            const index = pksRowIndex++;
+            const row = $($('#pksRowTemplate').html()).attr('data-index', index);
+            row.find('[data-field]').each((_, el) => $(el).attr('name', `pks[${index}][${el.dataset.field}]`));
+            row.find('[data-error-field]').each((_, el) => $(el).attr('data-error', `pks.${index}.${el.dataset.errorField}`));
+            row.find('.pks-row-remove').on('click', () => { row.remove(); renumberPksRows(); });
+            $('#pksRows').append(row);
+            renumberPksRows();
+        }
+
+        function renumberPksRows() {
+            const rows = $('#pksRows .pks-row');
+            rows.each((i, el) => $(el).find('.pks-row-title').text(`PKS ${i + 1}`));
+            // Saat tambah perusahaan minimal satu PKS, jadi baris terakhir tidak bisa dihapus.
+            rows.find('.pks-row-remove').prop('disabled', !editingCompany && rows.length === 1);
         }
 
         function loadPks(id) {

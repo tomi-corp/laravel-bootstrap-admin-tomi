@@ -148,7 +148,8 @@ class CompanyController extends KspController
     }
 
     /**
-     * Tambah perusahaan sekaligus PKS pertamanya. Data perusahaan tetap disimpan oleh KspController::addPerusahaan().
+     * Tambah perusahaan sekaligus PKS-nya (minimal satu, satu per fitur).
+     * Data perusahaan tetap disimpan oleh KspController::addPerusahaan().
      */
     public function addPerusahaan(AddPerusahaanRequest $req)
     {
@@ -163,7 +164,7 @@ class CompanyController extends KspController
     }
 
     /**
-     * Ubah perusahaan; PKS baru hanya ditambahkan jika bagian PKS di form diisi.
+     * Ubah perusahaan; baris PKS yang dikirim disimpan sebagai PKS baru (boleh kosong).
      */
     public function editPerusahaan(EditPerusahaanRequest $req)
     {
@@ -174,39 +175,34 @@ class CompanyController extends KspController
     }
 
     /**
-     * Validasi field PKS di modal perusahaan. Saat edit, semua field PKS wajib jika salah satunya diisi.
+     * Validasi baris PKS di modal perusahaan (field pks[i][...]).
+     * Fitur dalam satu kiriman tidak boleh sama; saat tambah perusahaan minimal satu baris.
      */
     private function validatePks(Request $req, bool $required): void
     {
-        if (! $required && ! $this->hasPksInput($req)) {
-            return;
-        }
-
         $req->validate([
-            'pks_feature_id' => ['required', 'integer', Rule::exists('features', 'id')->where('status', 'active')->whereNull('deleted_at')],
-            'pks_nomor' => 'required|string|max:255',
-            'pks_tanggal' => 'required|date',
-            'pks_mulai_berlaku' => 'required|date',
-            'pks_berakhir' => 'required|date|after_or_equal:pks_mulai_berlaku',
-            'pks_dokumen' => 'required|file|mimes:pdf|max:5120',
+            'pks' => [$required ? 'required' : 'nullable', 'array', $required ? 'min:1' : 'min:0'],
+            'pks.*.feature_id' => ['required', 'integer', 'distinct', Rule::exists('features', 'id')->where('status', 'active')->whereNull('deleted_at')],
+            'pks.*.nomor' => 'required|string|max:255',
+            'pks.*.tanggal' => 'required|date',
+            'pks.*.mulai_berlaku' => 'required|date',
+            'pks.*.berakhir' => 'required|date|after_or_equal:pks.*.mulai_berlaku',
+            'pks.*.dokumen' => 'required|file|mimes:pdf|max:5120',
         ], [
-            'pks_feature_id.required' => 'Fitur PKS wajib dipilih.',
-            'pks_feature_id.exists' => 'Fitur tidak ditemukan atau tidak aktif.',
-            'pks_nomor.required' => 'Nomor PKS wajib diisi.',
-            'pks_tanggal.required' => 'Tanggal PKS wajib diisi.',
-            'pks_mulai_berlaku.required' => 'Tanggal mulai berlaku wajib diisi.',
-            'pks_berakhir.required' => 'Tanggal berakhir wajib diisi.',
-            'pks_berakhir.after_or_equal' => 'Tanggal berakhir tidak boleh sebelum tanggal mulai berlaku.',
-            'pks_dokumen.required' => 'Dokumen PKS wajib diunggah.',
-            'pks_dokumen.mimes' => 'Dokumen PKS harus berformat PDF.',
-            'pks_dokumen.max' => 'Ukuran dokumen PKS maksimal 5 MB.',
+            'pks.required' => 'Minimal satu PKS wajib diisi.',
+            'pks.min' => 'Minimal satu PKS wajib diisi.',
+            'pks.*.feature_id.required' => 'Fitur wajib dipilih.',
+            'pks.*.feature_id.distinct' => 'Fitur tidak boleh sama dengan baris PKS lain.',
+            'pks.*.feature_id.exists' => 'Fitur tidak ditemukan atau tidak aktif.',
+            'pks.*.nomor.required' => 'Nomor PKS wajib diisi.',
+            'pks.*.tanggal.required' => 'Tanggal PKS wajib diisi.',
+            'pks.*.mulai_berlaku.required' => 'Tanggal mulai berlaku wajib diisi.',
+            'pks.*.berakhir.required' => 'Tanggal berakhir wajib diisi.',
+            'pks.*.berakhir.after_or_equal' => 'Tanggal berakhir tidak boleh sebelum tanggal mulai berlaku.',
+            'pks.*.dokumen.required' => 'Dokumen PKS wajib diunggah.',
+            'pks.*.dokumen.mimes' => 'Dokumen PKS harus berformat PDF.',
+            'pks.*.dokumen.max' => 'Ukuran dokumen PKS maksimal 5 MB.',
         ]);
-    }
-
-    private function hasPksInput(Request $req): bool
-    {
-        return $req->hasFile('pks_dokumen')
-            || collect(['pks_feature_id', 'pks_nomor', 'pks_tanggal', 'pks_mulai_berlaku', 'pks_berakhir'])->contains(fn ($field) => $req->filled($field));
     }
 
     /**
@@ -216,34 +212,33 @@ class CompanyController extends KspController
      */
     private function withPks(Request $req, callable $saveCompany)
     {
-        $filename = null;
+        $storedFiles = [];
 
         try {
-            return DB::transaction(function () use ($req, $saveCompany, &$filename) {
+            return DB::transaction(function () use ($req, $saveCompany, &$storedFiles) {
                 [$response, $companyId] = $saveCompany();
 
-                if (! $this->hasPksInput($req)) {
-                    return $response;
+                foreach ((array) $req->input('pks', []) as $index => $row) {
+                    $filename = 'PKS_'.$companyId.'_'.now()->format('YmdHis').'_'.Str::random(6).'.pdf';
+                    $req->file("pks.{$index}.dokumen")->storeAs('pks_perusahaan', $filename, 'local');
+                    $storedFiles[] = $filename;
+
+                    CompanyPks::create([
+                        'id_perusahaan' => $companyId,
+                        'feature_id' => $row['feature_id'],
+                        'nomor_pks' => Str::upper(trim($row['nomor'])),
+                        'tanggal_pks' => $row['tanggal'],
+                        'mulai_berlaku' => $row['mulai_berlaku'],
+                        'berakhir' => $row['berakhir'],
+                        'file_dokumen' => $filename,
+                        'created_by' => auth('admin')->id(),
+                    ]);
                 }
-
-                $filename = 'PKS_'.$companyId.'_'.now()->format('YmdHis').'_'.Str::random(6).'.pdf';
-                $req->file('pks_dokumen')->storeAs('pks_perusahaan', $filename, 'local');
-
-                CompanyPks::create([
-                    'id_perusahaan' => $companyId,
-                    'feature_id' => $req->pks_feature_id,
-                    'nomor_pks' => Str::upper(trim($req->pks_nomor)),
-                    'tanggal_pks' => $req->pks_tanggal,
-                    'mulai_berlaku' => $req->pks_mulai_berlaku,
-                    'berakhir' => $req->pks_berakhir,
-                    'file_dokumen' => $filename,
-                    'created_by' => auth('admin')->id(),
-                ]);
 
                 return $response;
             });
         } catch (\Throwable $e) {
-            if ($filename) {
+            foreach ($storedFiles as $filename) {
                 Storage::disk('local')->delete('pks_perusahaan/'.$filename);
             }
 
