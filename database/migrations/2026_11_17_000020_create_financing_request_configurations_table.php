@@ -10,24 +10,29 @@ return new class extends Migration
     {
         Schema::create('financing_request_configurations', function (Blueprint $table) {
             $table->charset = 'utf8mb4';
-            $table->collation = 'utf8mb4_general_ci';
+            $table->collation = 'utf8mb4_unicode_ci';
             $table->bigIncrements('id');
-            $table->bigInteger('id_perusahaan')->unsigned()->nullable();
-            $table->integer('tenor');
-            $table->double('rate');
-            $table->double('asuransi');
-            $table->double('provisi');
-            $table->double('biaya_admin');
-            $table->double('fee_tomi');
-            $table->double('biaya_layanan')->nullable();
-            $table->double('minimal_nominal')->nullable();
-            $table->double('maximal_nominal')->nullable();
-            $table->double('profesional_fee_1')->default(0);
-            $table->double('profesional_fee_2')->default(0);
-            $table->double('ksp')->default(0);
+            $table->bigInteger('company_id')->unsigned();
+            $table->bigInteger('lender_id')->unsigned();
+            $table->smallInteger('tenor')->unsigned();
+            $table->decimal('rate', 5, 2)->default(0.00);
+            $table->decimal('asuransi', 5, 2)->default(0.00);
+            $table->string('provinsi', 255)->nullable();
+            $table->decimal('biaya_admin', 5, 2)->default(0.00);
+            $table->decimal('fee_tomi', 5, 2)->default(0.00);
+            $table->decimal('profesional_fee_1', 5, 2)->default(0.00);
+            $table->decimal('profesional_fee_2', 5, 2)->default(0.00);
+            $table->decimal('ksp', 5, 2)->default(0.00);
+            $table->decimal('iuran_anggota', 15, 2)->default(0.00);
+            $table->decimal('biaya_layanan', 15, 2)->default(0.00);
+            $table->decimal('minimal_nominal', 15, 2)->default(0.00);
+            $table->decimal('maximal_nominal', 15, 2)->default(0.00);
             $table->timestamp('created_at')->nullable();
             $table->timestamp('updated_at')->nullable();
-            $table->index(['id_perusahaan'], 'financing_request_configurations_id_perusahaan_index');
+            $table->timestamp('deleted_at')->nullable();
+            $table->index(['company_id'], 'idx_financing_request_config_company');
+            $table->index(['lender_id'], 'idx_financing_request_config_lender');
+            $table->index(['company_id', 'tenor'], 'idx_financing_request_config_company_tenor');
         });
     }
 

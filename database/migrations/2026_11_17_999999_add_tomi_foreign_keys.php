@@ -54,7 +54,10 @@ return new class extends Migration
             $table->foreign(['admin_id'], 'fk_disbursements_admin_id')->references(['id'])->on('admins')->onUpdate('cascade');
         });
         Schema::table('financing_request_configurations', function (Blueprint $table) {
-            $table->foreign(['id_perusahaan'], 'financing_request_configurations_id_perusahaan_fk')->references(['id'])->on('list_perusahaans');
+            $table->foreign(['company_id'], 'fk_financing_request_config_company')->references(['id'])->on('list_perusahaans')->onDelete('cascade')->onUpdate('cascade');
+        });
+        Schema::table('financing_request_configurations', function (Blueprint $table) {
+            $table->foreign(['lender_id'], 'fk_financing_request_config_lender')->references(['id'])->on('lenders')->onUpdate('cascade');
         });
         Schema::table('financing_request_invoices', function (Blueprint $table) {
             $table->foreign(['approved_by'], 'fk_financing_request_approved_by')->references(['id'])->on('admins')->onDelete('set null')->onUpdate('cascade');
@@ -231,7 +234,7 @@ return new class extends Migration
             $table->foreign(['admin_id'], 'role_ksps_admin_id_foreign')->references(['id'])->on('ksp_admins');
         });
         Schema::table('salary_financing_configurations', function (Blueprint $table) {
-            $table->foreign(['id_perusahaan'], 'salary_financing_configurations_id_perusahaan_fk')->references(['id'])->on('list_perusahaans');
+            $table->foreign(['company_id'], 'fk_salary_financing_company')->references(['id'])->on('list_perusahaans')->onDelete('cascade')->onUpdate('cascade');
         });
         Schema::table('tenor_pinjamen', function (Blueprint $table) {
             $table->foreign(['id_perusahaan'], 'tenor_pinjamen_list_perusahaans_FK')->references(['id'])->on('list_perusahaans');
@@ -310,7 +313,7 @@ return new class extends Migration
             $table->dropForeign('tenor_pinjamen_list_perusahaans_FK');
         });
         Schema::table('salary_financing_configurations', function (Blueprint $table) {
-            $table->dropForeign('salary_financing_configurations_id_perusahaan_fk');
+            $table->dropForeign('fk_salary_financing_company');
         });
         Schema::table('role_ksps', function (Blueprint $table) {
             $table->dropForeign('role_ksps_admin_id_foreign');
@@ -487,7 +490,10 @@ return new class extends Migration
             $table->dropForeign('fk_financing_request_approved_by');
         });
         Schema::table('financing_request_configurations', function (Blueprint $table) {
-            $table->dropForeign('financing_request_configurations_id_perusahaan_fk');
+            $table->dropForeign('fk_financing_request_config_lender');
+        });
+        Schema::table('financing_request_configurations', function (Blueprint $table) {
+            $table->dropForeign('fk_financing_request_config_company');
         });
         Schema::table('disbursements', function (Blueprint $table) {
             $table->dropForeign('fk_disbursements_admin_id');
