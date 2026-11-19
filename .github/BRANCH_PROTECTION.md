@@ -80,15 +80,12 @@ File `.github/dependabot.yml` akan membuat Pull Request otomatis ke branch `loca
 
 ## Deployment server
 
-Branch `staging` dan `main` tidak boleh membuat server update sendiri saat ada push atau merge.
-
-Gunakan panduan `.github/DEPLOYMENT_PROTECTION.md` dan workflow `.github/workflows/manual-deploy.yml`.
+Deploy ke server cPanel hanya lewat workflow `.github/workflows/deploy.yml`. Lihat aturannya di `.github/DEPLOYMENT_PROTECTION.md` dan panduan setup di `docs/deployment-cpanel.md`.
 
 Intinya:
 
-1. Jangan pakai trigger deploy `push` untuk `staging` atau `main`.
-2. Deploy hanya boleh manual lewat `workflow_dispatch`.
-3. Environment `staging` dan `production` wajib approval dari `@rezasaputra4250`.
-4. Matikan webhook, cron, atau panel hosting yang auto-pull dari `staging` atau `main`.
+1. Merge ke `develop` dan `staging` langsung men-deploy ke server development dan staging.
+2. Merge ke `main` men-deploy ke production setelah di-approve `@rezasaputra4250` (required reviewer di Environment `production`).
+3. Matikan webhook, cron, atau panel hosting yang auto-pull sendiri, supaya approval production tidak bisa dilewati.
 
 Dengan pengaturan ini, branch kerja seperti `feature/*` dan `bugfix/*` tetap fleksibel untuk developer, sedangkan `local`, `develop`, `staging`, dan `main` hanya bisa diubah lewat Pull Request yang sudah disetujui oleh `@rezasaputra4250` dan lolos semua check.

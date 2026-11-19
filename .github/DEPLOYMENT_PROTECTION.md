@@ -1,50 +1,43 @@
 # Perlindungan Deployment Server
 
-Repo ini tidak boleh membuat server staging atau production update sendiri hanya karena branch `staging` atau `main` berubah.
+Semua deploy ke server cPanel **hanya** lewat workflow `.github/workflows/deploy.yml`. Server tidak boleh meng-update dirinya sendiri, supaya approval production tidak bisa dilewati dan setiap deploy tercatat di tab Actions.
 
 ## Aturan utama
 
-1. Jangan buat workflow deploy dengan trigger `push` ke `staging` atau `main`.
-2. Deploy harus memakai `workflow_dispatch` atau proses manual yang disetujui.
-3. Deploy ke staging hanya boleh memakai ref `staging`.
-4. Deploy ke production hanya boleh memakai ref `main`.
-5. Environment GitHub `staging` dan `production` wajib punya required reviewer `@rezasaputra4250`.
-6. Server tidak boleh memasang webhook auto-pull dari GitHub.
-7. Server tidak boleh menjalankan cron `git pull` otomatis untuk branch `staging` atau `main`.
+| Branch    | Environment GitHub | Kapan deploy                      | Approval |
+|-----------|--------------------|-----------------------------------|----------|
+| `develop` | `development`      | Otomatis setiap push/merge        | Tidak    |
+| `staging` | `staging`          | Otomatis setiap push/merge        | Tidak    |
+| `main`    | `production`       | Otomatis, menunggu approval dulu  | **Wajib** |
+
+1. Environment `production` wajib punya required reviewer `@rezasaputra4250` dan batasan deployment branch `main`.
+2. Deploy ke tiap environment selalu memakai branch miliknya (development=`develop`, staging=`staging`, production=`main`). Workflow memaksa ini, termasuk saat deploy ulang manual.
+3. Server tidak boleh memasang webhook auto-pull dari GitHub.
+4. Server tidak boleh menjalankan cron `git pull` otomatis.
+5. Fitur auto-deploy bawaan panel (cPanel Git Version Control "Deploy HEAD Commit" otomatis, Ploi, Forge, RunCloud, DeployHQ, dan sejenisnya) harus dimatikan.
 
 ## Setting GitHub Environment
 
-Buka `Settings` -> `Environments`, lalu buat:
+Buka `Settings` -> `Environments`, lalu buat `development`, `staging`, dan `production`.
 
-- `staging`
-- `production`
+- `production`:
+  1. Aktifkan `Required reviewers` dan masukkan `@rezasaputra4250`.
+  2. `Deployment branches and tags` -> `Selected branches and tags` -> tambahkan `main`.
+- `staging`: `Deployment branches` -> hanya `staging` (tanpa reviewer).
+- `development`: `Deployment branches` -> hanya `develop` (tanpa reviewer).
 
-Untuk masing-masing environment:
+Secrets dan variables per environment dijelaskan di `docs/deployment-cpanel.md`.
 
-1. Aktifkan `Required reviewers`.
-2. Masukkan `@rezasaputra4250`.
-3. Jika tersedia, aktifkan batasan branch:
-   - Environment `staging` hanya boleh dari branch `staging`.
-   - Environment `production` hanya boleh dari branch `main`.
+## Deploy ulang manual
 
-## Workflow manual
-
-File `.github/workflows/manual-deploy.yml` disediakan sebagai guard. Workflow ini:
-
-- Tidak berjalan saat push.
-- Hanya bisa dijalankan manual.
-- Memakai GitHub Environment agar bisa menunggu approval.
-- Belum menjalankan SSH/rsync/deploy sungguhan.
-
-Jika nanti ingin deploy otomatis setelah approval, tambahkan langkah deploy di workflow tersebut, bukan di workflow yang berjalan saat push.
+Tab `Actions` -> `Deploy ke cPanel` -> `Run workflow`, lalu pilih target. Jalankan dari branch yang sama dengan targetnya (misalnya production dari `main`), karena batasan deployment branch environment mengecek branch tempat workflow dijalankan. Production tetap menunggu approval.
 
 ## Cek di server
 
-Pastikan tidak ada mekanisme auto-update seperti:
+Pastikan tidak ada mekanisme auto-update lain seperti:
 
 - GitHub webhook yang menjalankan `git pull`.
 - Cron job yang menjalankan `git pull`.
-- Panel hosting yang auto-deploy dari branch `main` atau `staging`.
-- Service seperti Ploi, Forge, RunCloud, cPanel Git Deployment, atau DeployHQ yang auto-deploy saat push.
+- cPanel Git Version Control atau service hosting lain yang auto-deploy saat push.
 
-Jika ada, matikan auto-deploy dan ubah menjadi manual deploy dengan approval.
+Jika ada, matikan dan biarkan workflow `deploy.yml` yang melakukan deploy.
