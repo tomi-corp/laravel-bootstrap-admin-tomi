@@ -15,20 +15,29 @@ return new class extends Migration
     public function up(): void
     {
         foreach ($this->tables as $table) {
-            if (! Schema::hasColumn($table, 'company_id')) {
+            if (! Schema::hasColumn($table, 'company_id') && ! Schema::hasColumn($table, 'id_perusahaan')) {
                 continue;
             }
 
-            $this->dropForeignIfExists($table, 'fk_financing_request_config_company');
-            $this->dropForeignIfExists($table, 'fk_financing_request_config_lender');
-            $this->dropForeignIfExists($table, 'fk_salary_financing_company');
+            if (Schema::hasColumn($table, 'company_id')) {
+                $this->dropForeignIfExists($table, 'fk_financing_request_config_company');
+                $this->dropForeignIfExists($table, 'fk_financing_request_config_lender');
+                $this->dropForeignIfExists($table, 'fk_salary_financing_company');
 
-            foreach ($this->indexesFor($table) as $index) {
-                DB::statement("ALTER TABLE `{$table}` DROP INDEX `{$index}`");
+                foreach ($this->indexesFor($table) as $index) {
+                    DB::statement("ALTER TABLE `{$table}` DROP INDEX `{$index}`");
+                }
+
+                DB::statement("ALTER TABLE `{$table}` CHANGE `company_id` `id_perusahaan` BIGINT UNSIGNED NULL");
             }
 
-            DB::statement("ALTER TABLE `{$table}` CHANGE `company_id` `id_perusahaan` BIGINT UNSIGNED NULL");
-            DB::statement("ALTER TABLE `{$table}` DROP COLUMN `lender_id`, DROP COLUMN `provinsi`, DROP COLUMN `iuran_anggota`, DROP COLUMN `deleted_at`");
+            foreach (['lender_id', 'provinsi', 'iuran_anggota', 'deleted_at'] as $column) {
+                if (Schema::hasColumn($table, $column)) {
+                    Schema::table($table, function (Blueprint $blueprint) use ($column): void {
+                        $blueprint->dropColumn($column);
+                    });
+                }
+            }
 
             if (! Schema::hasColumn($table, 'provisi')) {
                 DB::statement("ALTER TABLE `{$table}` ADD `provisi` DOUBLE NOT NULL DEFAULT 0 AFTER `asuransi`");
@@ -51,8 +60,13 @@ return new class extends Migration
                 MODIFY `updated_at` TIMESTAMP NULL");
 
             DB::statement("ALTER TABLE `{$table}` COLLATE = utf8mb4_general_ci");
-            DB::statement("ALTER TABLE `{$table}` ADD INDEX `{$table}_id_perusahaan_index` (`id_perusahaan`)");
-            DB::statement("ALTER TABLE `{$table}` ADD CONSTRAINT `{$table}_id_perusahaan_fk` FOREIGN KEY (`id_perusahaan`) REFERENCES `list_perusahaans` (`id`)");
+            if (! $this->indexExists($table, "{$table}_id_perusahaan_index")) {
+                DB::statement("ALTER TABLE `{$table}` ADD INDEX `{$table}_id_perusahaan_index` (`id_perusahaan`)");
+            }
+
+            if (! $this->foreignKeyExists($table, "{$table}_id_perusahaan_fk")) {
+                DB::statement("ALTER TABLE `{$table}` ADD CONSTRAINT `{$table}_id_perusahaan_fk` FOREIGN KEY (`id_perusahaan`) REFERENCES `list_perusahaans` (`id`)");
+            }
         }
     }
 
@@ -123,5 +137,20 @@ return new class extends Migration
                 ->where('index_name', $index)
                 ->exists(),
         ));
+    }
+
+    private function indexExists(string $table, string $index): bool
+    {
+        return DB::table('information_schema.statistics')
+            ->where('table_schema', DB::raw('DATABASE()'))
+            ->where('table_name', $table)
+            ->where('index_name', $index)
+            ->exists();
+    }
+
+    private function foreignKeyExists(string $table, string $foreign): bool
+    {
+        return collect(Schema::getForeignKeys($table))
+            ->contains(fn (array $key) => ($key['name'] ?? null) === $foreign);
     }
 };
