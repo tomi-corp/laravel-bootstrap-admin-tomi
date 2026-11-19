@@ -2,12 +2,9 @@
 
 namespace App\Imports\Internal;
 
+use App\Imports\Internal\Concerns\ResolvesWilayah;
 use App\Models\bank;
-use App\Models\kecamatan;
-use App\Models\kelurahan;
-use App\Models\kota;
 use App\Models\lender;
-use App\Models\provinsi;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -18,6 +15,8 @@ use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
 class LenderImport implements SkipsEmptyRows, ToCollection, WithHeadingRow
 {
+    use ResolvesWilayah;
+
     private const REQUIRED = [
         'pic_lender' => 'PIC Lender',
         'pic_internal' => 'PIC Internal',
@@ -76,7 +75,7 @@ class LenderImport implements SkipsEmptyRows, ToCollection, WithHeadingRow
                 $rowErrors[] = 'Telepon harus berupa angka';
             }
 
-            $location = $rowErrors ? null : $this->resolveLocation($data, $rowErrors);
+            $location = $rowErrors ? null : $this->resolveWilayah($data, $rowErrors);
             $bankId = $data['kode_bank'] !== '' ? bank::where('code_bank', $data['kode_bank'])->value('id') : null;
             if ($data['kode_bank'] !== '' && ! $bankId) {
                 $rowErrors[] = "Kode bank {$data['kode_bank']} tidak ditemukan";
@@ -149,47 +148,6 @@ class LenderImport implements SkipsEmptyRows, ToCollection, WithHeadingRow
         $data['no_rekening'] = preg_replace('/\s+/', '', $data['no_rekening']);
 
         return $data;
-    }
-
-    private function resolveLocation(array $data, array &$rowErrors): ?array
-    {
-        $provinsi = provinsi::where('provinsi', $data['provinsi'])->first();
-        if (! $provinsi) {
-            $rowErrors[] = "Provinsi {$data['provinsi']} tidak ditemukan";
-
-            return null;
-        }
-
-        $kabupaten = kota::where('provinsi', $provinsi->provinsi)->where('kabupaten', $data['kabupaten'])->first();
-        if (! $kabupaten) {
-            $rowErrors[] = "Kabupaten {$data['kabupaten']} tidak ditemukan di provinsi {$data['provinsi']}";
-
-            return null;
-        }
-
-        $kecamatan = kecamatan::where('kabupaten', $kabupaten->kabupaten)->where('kecamatan', $data['kecamatan'])->first();
-        if (! $kecamatan) {
-            $rowErrors[] = "Kecamatan {$data['kecamatan']} tidak ditemukan di {$data['kabupaten']}";
-
-            return null;
-        }
-
-        $desa = kelurahan::where('kecamatan', $kecamatan->kecamatan)
-            ->where('desa', $data['desa'])
-            ->where('kodepos', $data['kodepos'])
-            ->first();
-        if (! $desa) {
-            $rowErrors[] = "Desa {$data['desa']} ({$data['kodepos']}) tidak ditemukan di kecamatan {$data['kecamatan']}";
-
-            return null;
-        }
-
-        return [
-            'provinsi' => $provinsi->id,
-            'kabupaten' => $kabupaten->id,
-            'kecamatan' => $kecamatan->id,
-            'desa' => $desa->id,
-        ];
     }
 
     private function generateCode(): string

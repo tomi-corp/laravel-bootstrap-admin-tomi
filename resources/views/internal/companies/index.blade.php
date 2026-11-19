@@ -40,14 +40,23 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-body">
-                    <div class="d-flex justify-content-end mb-3">
+                    <div class="d-flex flex-wrap justify-content-end mb-3" style="gap: .5rem;">
+                        <button class="btn btn-success" type="button" data-toggle="modal" data-target="#importCompanyModal" onclick="resetImportCompany()">
+                            <i class="mdi mdi-file-import mr-1"></i>Import
+                        </button>
+                        <a class="btn btn-info" href="{{ route('internal.companies.export') }}">
+                            <i class="mdi mdi-file-export mr-1"></i>Export
+                        </a>
+                        <button class="btn btn-danger" type="button" id="deleteSelectedCompanyButton" onclick="deleteSelectedCompany()" disabled>
+                            <i class="mdi mdi-trash-can mr-1"></i>Hapus Terpilih (<span id="selectedCompanyCount">0</span>)
+                        </button>
                         <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#companyModal" onclick="openCreateCompany()">
                             <i class="mdi mdi-plus-circle mr-1"></i>Tambah Perusahaan
                         </button>
                     </div>
                     <div class="table-responsive">
                         <table id="companyTable" class="table table-hover nowrap" style="width:100%">
-                            <thead><tr><th>#</th><th>Kode Perusahaan</th><th>Nama Perusahaan</th><th>PIC Perusahaan</th><th>PIC Internal</th><th>Email</th><th>Telepon</th><th>Lender</th><th>Status</th><th>Tanggal Pembayaran</th><th>Aksi</th></tr></thead>
+                            <thead><tr><th class="text-center"><input type="checkbox" id="selectAllCompany" title="Pilih semua di halaman ini"></th><th>Kode Perusahaan</th><th>Nama Perusahaan</th><th>PIC Perusahaan</th><th>PIC Internal</th><th>Email</th><th>Telepon</th><th>Lender</th><th>Status</th><th>Tanggal Pembayaran</th><th>Aksi</th></tr></thead>
                         </table>
                     </div>
                 </div>
@@ -83,12 +92,41 @@
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="importCompanyModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Import Perusahaan</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Tutup"><span>&times;</span></button>
+                </div>
+                <form id="importCompanyForm" enctype="multipart/form-data">
+                    <div class="modal-body">
+                        <p class="mb-2">Unggah file Excel sesuai template. Kolom <strong>pic_internal</strong> diisi username atau email admin internal.</p>
+                        <a class="btn btn-sm btn-outline-secondary mb-3" href="{{ route('internal.companies.import.template') }}">
+                            <i class="mdi mdi-download mr-1"></i>Unduh Template
+                        </a>
+                        <div class="form-group mb-0">
+                            <label>File Import (xlsx, xls, csv)</label>
+                            <input class="form-control" id="importCompanyFile" name="file" type="file" accept=".xlsx,.xls,.csv">
+                        </div>
+                        <div class="alert alert-danger mt-3 mb-0 d-none" id="importCompanyErrors" style="max-height: 200px; overflow-y: auto;"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" type="button" data-dismiss="modal">Batal</button>
+                        <button class="btn btn-success" type="submit" id="importCompanyButton">Import</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('js')
     <script>
         let companyTable;
         let editingCompany = false;
+        const selectedCompanies = new Set();
 
         $(function () {
             companyTable = $('#companyTable').DataTable({
@@ -96,19 +134,78 @@
                 serverSide: true,
                 ajax: { url: '{{ route('internal.companies.table') }}', type: 'POST', data: { _token: '{{ csrf_token() }}' } },
                 columns: [
-                    { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
+                    { data: 'id', name: 'id', orderable: false, searchable: false, className: 'text-center', render: id => `<input type="checkbox" class="company-check" value="${id}" ${selectedCompanies.has(String(id)) ? 'checked' : ''}>` },
                     { data: 'id_code_perusahaan', name: 'id_code_perusahaan' }, { data: 'nama', name: 'nama' },
                     { data: 'pic_perusahaan', name: 'pic_perusahaan' }, { data: 'pic_internal', name: 'pic_internal' },
                     { data: 'email_perusahaan', name: 'email_perusahaan' }, { data: 'telp', name: 'telp' },
                     { data: 'lender', name: 'lender' }, { data: 'status', name: 'status' }, { data: 'payment_date', name: 'payment_date' },
                     { data: null, name: 'actions', orderable: false, searchable: false, render: row => `<button class="btn btn-sm btn-primary mr-1" onclick="editCompany(${row.id})"><i class="mdi mdi-pencil"></i></button><button class="btn btn-sm btn-danger" onclick="deleteCompany(${row.id})"><i class="mdi mdi-trash-can"></i></button>` }
-                ]
+                ],
+                order: [[1, 'asc']]
             });
+            $('#companyTable').on('change', '.company-check', function () {
+                this.checked ? selectedCompanies.add(this.value) : selectedCompanies.delete(this.value);
+                updateSelectedCompany();
+            });
+            // Tabel server-side: pilih semua berlaku untuk baris di halaman yang sedang tampil.
+            $('#selectAllCompany').on('change', function () {
+                $('#companyTable .company-check').prop('checked', this.checked).each((_, el) => this.checked ? selectedCompanies.add(el.value) : selectedCompanies.delete(el.value));
+                updateSelectedCompany();
+            });
+            companyTable.on('draw.dt', updateSelectedCompany);
+            $('#importCompanyForm').on('submit', submitImportCompany);
             $('#province').on('change', function () { loadOptions('{{ route('internal.companies.locations.cities') }}', { provinsi: this.value }, '#city', 'kabupaten', 'Pilih kabupaten / kota'); $('#district, #village').html('<option value="">Pilih pilihan</option>'); });
             $('#city').on('change', function () { loadOptions('{{ route('internal.companies.locations.districts') }}', { kabupaten: this.value }, '#district', 'kecamatan', 'Pilih kecamatan'); $('#village').html('<option value="">Pilih desa</option>'); });
             $('#district').on('change', function () { loadOptions('{{ route('internal.companies.locations.villages') }}', { kecamatan: this.value }, '#village', 'desa', 'Pilih desa', true); });
             $('#companyForm').on('submit', submitCompany);
         });
+
+        function escapeHtml(value) {
+            return $('<div>').text(value).html();
+        }
+
+        function updateSelectedCompany() {
+            const visible = $('#companyTable .company-check');
+            const visibleChecked = visible.filter(':checked').length;
+            $('#selectedCompanyCount').text(selectedCompanies.size.toLocaleString('id-ID'));
+            $('#deleteSelectedCompanyButton').prop('disabled', selectedCompanies.size === 0);
+            $('#selectAllCompany').prop('checked', visible.length > 0 && visibleChecked === visible.length).prop('indeterminate', visibleChecked > 0 && visibleChecked < visible.length);
+        }
+
+        function deleteSelectedCompany() {
+            const ids = [...selectedCompanies];
+            if (!ids.length) { toastr.warning('Pilih minimal satu perusahaan.'); return; }
+            if (!confirm(`Apakah Anda yakin ingin menghapus ${ids.length.toLocaleString('id-ID')} perusahaan terpilih beserta data karyawan dan pinjamannya?`)) return;
+            const button = $('#deleteSelectedCompanyButton').prop('disabled', true);
+            $.post('{{ route('internal.companies.delete-selected') }}', { ids, _token: '{{ csrf_token() }}' })
+                .done(response => { selectedCompanies.clear(); companyTable.ajax.reload(null, false); toastr.success(response.message); })
+                .fail(error => { toastr.error(error.responseJSON?.message || 'Gagal menghapus perusahaan terpilih.'); updateSelectedCompany(); })
+                .always(() => button.prop('disabled', selectedCompanies.size === 0));
+        }
+
+        function resetImportCompany() {
+            $('#importCompanyForm')[0].reset(); $('#importCompanyErrors').addClass('d-none').empty();
+        }
+
+        function submitImportCompany(event) {
+            event.preventDefault();
+            const button = $('#importCompanyButton');
+            const data = new FormData(this); data.append('_token', '{{ csrf_token() }}');
+            $('#importCompanyErrors').addClass('d-none').empty();
+            button.prop('disabled', true).text('Mengimport...');
+            $.ajax({ url: '{{ route('internal.companies.import') }}', method: 'POST', data, processData: false, contentType: false })
+                .done(response => { $('#importCompanyModal').modal('hide'); companyTable.ajax.reload(null, false); toastr.success(response.message); })
+                .fail(error => {
+                    const json = error.responseJSON || {};
+                    const messages = json.errors ? (Array.isArray(json.errors) ? json.errors : Object.values(json.errors).flat()) : [];
+                    if (messages.length) {
+                        $('#importCompanyErrors').removeClass('d-none').html(`<strong>${escapeHtml(json.message || 'Import gagal.')}</strong><ul class="mb-0 pl-3">${messages.map(item => `<li>${escapeHtml(item)}</li>`).join('')}</ul>`);
+                    } else {
+                        toastr.error(json.message || 'Gagal mengimport perusahaan.');
+                    }
+                })
+                .always(() => button.prop('disabled', false).text('Import'));
+        }
 
         function loadOptions(url, data, selector, label, placeholder, includePostalCode = false) {
             $.post(url, { ...data, _token: '{{ csrf_token() }}' }, function (response) {

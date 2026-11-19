@@ -14,6 +14,10 @@ Route::post('/companies/add', [CompanyController::class, 'addPerusahaan'])->name
 Route::post('/companies/detail', [CompanyController::class, 'detailPerusahaan'])->name('companies.detail');
 Route::post('/companies/update', [CompanyController::class, 'editPerusahaan'])->name('companies.update');
 Route::post('/companies/delete', [CompanyController::class, 'deletePerusahaan'])->name('companies.delete');
+Route::post('/companies/delete-selected', [CompanyController::class, 'deleteSelectedCompany'])->name('companies.delete-selected');
+Route::get('/companies/export', [CompanyController::class, 'exportCompany'])->name('companies.export');
+Route::get('/companies/import/template', [CompanyController::class, 'importTemplate'])->name('companies.import.template');
+Route::post('/companies/import', [CompanyController::class, 'importCompany'])->name('companies.import');
 Route::post('/companies/locations/cities', [CompanyController::class, 'kabupaten'])->name('companies.locations.cities');
 Route::post('/companies/locations/districts', [CompanyController::class, 'kecamatan'])->name('companies.locations.districts');
 Route::post('/companies/locations/villages', [CompanyController::class, 'desa'])->name('companies.locations.villages');
