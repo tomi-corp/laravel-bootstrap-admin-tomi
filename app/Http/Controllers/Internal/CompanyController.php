@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Facades\Excel;
+use Yajra\DataTables\Facades\DataTables;
 
 class CompanyController extends KspController
 {
@@ -271,6 +272,55 @@ class CompanyController extends KspController
         return Storage::disk('local')->response($path, 'PKS_'.Str::slug($pks->agreement_number).'.pdf', [
             'Content-Type' => 'application/pdf',
         ], 'inline');
+    }
+
+    /**
+     * Halaman daftar perusahaan per produk (mis. TomiDana): hanya perusahaan yang punya PKS untuk fitur tersebut.
+     */
+    public function featureIndex(string $featureCode, string $view)
+    {
+        return view($view, [
+            'feature' => Feature::query()->where('code', $featureCode)->firstOrFail(),
+        ]);
+    }
+
+    public function featureTable(string $featureCode)
+    {
+        $feature = Feature::query()->where('code', $featureCode)->firstOrFail();
+        $pksOfFeature = fn ($query) => $query->where('feature_id', $feature->id);
+
+        $query = $this->visibleCompanies()
+            ->select('list_perusahaans.*')
+            ->whereHas('pks', $pksOfFeature)
+            ->with(['lender:id,nama', 'pks' => fn ($query) => $pksOfFeature($query)->latest('end_date')]);
+
+        return DataTables::eloquent($query)
+            ->addIndexColumn()
+            ->addColumn('lender', fn ($row) => Str::upper($row->lender?->nama ?? '-'))
+            ->addColumn('pks_number', fn ($row) => Str::upper($row->pks->first()?->agreement_number ?? '-'))
+            ->addColumn('pks_period', function ($row) {
+                $pks = $row->pks->first();
+
+                return $pks ? $pks->start_date?->format('d-m-Y').' s/d '.$pks->end_date?->format('d-m-Y') : '-';
+            })
+            ->addColumn('pks_status', function ($row) {
+                $pks = $row->pks->first();
+
+                return $pks && $pks->end_date?->lt(today())
+                    ? '<span class="badge badge-secondary">BERAKHIR</span>'
+                    : '<span class="badge badge-success">AKTIF</span>';
+            })
+            ->editColumn('status', fn ($row) => $row->status === 'active'
+                ? '<span class="badge badge-success">AKTIF</span>'
+                : '<span class="badge badge-warning">TIDAK AKTIF</span>')
+            ->editColumn('nama', fn ($row) => Str::upper($row->nama))
+            ->editColumn('pic_perusahaan', fn ($row) => Str::upper($row->pic_perusahaan))
+            ->editColumn('pic_internal', fn ($row) => Str::upper($row->pic_internal))
+            ->editColumn('email_perusahaan', fn ($row) => Str::lower((string) $row->email_perusahaan))
+            ->filterColumn('lender', fn ($query, $keyword) => $query->whereHas('lender', fn ($q) => $q->where('nama', 'like', "%{$keyword}%")))
+            ->filterColumn('pks_number', fn ($query, $keyword) => $query->whereHas('pks', fn ($q) => $pksOfFeature($q)->where('agreement_number', 'like', "%{$keyword}%")))
+            ->rawColumns(['status', 'pks_status'])
+            ->make(true);
     }
 
     /**

@@ -38,6 +38,12 @@ Route::post('/lenders/locations/cities', [KspController::class, 'kabupaten'])->n
 Route::post('/lenders/locations/districts', [KspController::class, 'kecamatan'])->name('lenders.locations.districts');
 Route::post('/lenders/locations/villages', [KspController::class, 'desa'])->name('lenders.locations.villages');
 Route::view('/tomi-dana', 'internal.tomi-dana.index')->name('tomi-dana');
+Route::get('/tomi-dana/companies', [CompanyController::class, 'featureIndex'])
+    ->defaults('featureCode', 'tomidana')->defaults('view', 'internal.tomi-dana.companies.index')
+    ->name('tomi-dana.companies');
+Route::post('/tomi-dana/companies/table', [CompanyController::class, 'featureTable'])
+    ->defaults('featureCode', 'tomidana')
+    ->name('tomi-dana.companies.table');
 Route::view('/tomi-dana-plus', 'internal.tomi-dana-plus.index')->name('tomi-dana-plus');
 Route::view('/tomi-gaji', 'internal.tomi-gaji.index')->name('tomi-gaji');
 Route::view('/tomi-invoice', 'internal.tomi-invoice.index')->name('tomi-invoice');
