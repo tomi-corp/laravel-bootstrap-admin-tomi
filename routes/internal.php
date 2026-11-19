@@ -8,6 +8,7 @@ Route::view('/ppob', 'internal.ppob.index')->name('ppob');
 Route::view('/companies', 'internal.companies.index')->name('companies');
 Route::view('/lenders', 'internal.lenders.index')->name('lenders');
 Route::view('/tomi-dana', 'internal.tomi-dana.index')->name('tomi-dana');
+Route::view('/tomi-dana-plus', 'internal.tomi-dana-plus.index')->name('tomi-dana-plus');
 Route::view('/tomi-gaji', 'internal.tomi-gaji.index')->name('tomi-gaji');
 Route::view('/tomi-invoice', 'internal.tomi-invoice.index')->name('tomi-invoice');
 Route::view('/tomi-gawai', 'internal.tomi-gawai.index')->name('tomi-gawai');
