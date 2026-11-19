@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Admin;
+use App\Services\Insight\CompanyInsight;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -136,6 +137,42 @@ class InsightDashboardTest extends TestCase
         $day = $this->actingAs($admin, 'admin')->getJson('/backoffice/insight/data?scope=tomidana&mode=day')->json('data');
         $this->assertNull($day['trend']['noa_out']);
         $this->assertNull($day['trend']['outstanding']);
+    }
+
+    public function test_partner_companies_follow_definition(): void
+    {
+        $admin = $this->makeAdmin();
+        foreach ([['mode' => 'all'], ['mode' => 'year'], ['mode' => 'month', 'month' => now()->format('Y-m')], ['mode' => 'day']] as $q) {
+            $p = $this->actingAs($admin, 'admin')->getJson('/backoffice/insight/data?'.http_build_query($q + ['scope' => 'overview', 'lender' => 'all']))
+                ->assertOk()->assertJsonStructure(['data' => ['partners' => ['kpis', 'trend' => ['categories', 'added', 'removed', 'transacting'], 'snapshot', 'rows', 'start_count']]])
+                ->json('data.partners');
+            $kpi = collect($p['kpis'])->pluck('value', 'metric');
+            $rows = collect($p['rows']);
+
+            // angka kotak = jumlah baris tabel dengan tanda yang sama
+            foreach (['registered', 'added', 'removed', 'transacting'] as $m) {
+                $this->assertSame($rows->where($m, true)->count(), (int) $kpi[$m], $q['mode'].' '.$m);
+            }
+            // terdaftar akhir = terdaftar awal + baru − berhenti
+            $this->assertSame($p['start_count'] + $kpi['added'] - $kpi['removed'], (int) $kpi['registered'], $q['mode']);
+            $this->assertSame((int) $kpi['added'], array_sum($p['trend']['added']), $q['mode']);
+            $this->assertCount(count($p['trend']['categories']), $p['trend']['transacting']);
+            // data tes tidak ikut dihitung
+            $excluded = DB::table('list_perusahaans')->whereIn('id', CompanyInsight::EXCLUDED_COMPANY_IDS)->pluck('nama')->map(fn ($n) => mb_strtoupper(trim($n)));
+            $this->assertEmpty($rows->pluck('name')->intersect($excluded)->all());
+        }
+
+        // mulai kerja sama = paling awal antara tanggal didaftarkan dan pinjaman pertama
+        $rows = collect($this->actingAs($admin, 'admin')->getJson('/backoffice/insight/data?scope=overview&mode=all&lender=all')->json('data.partners.rows'))->keyBy('name');
+        $companies = DB::table('list_perusahaans')->whereNotIn('id', CompanyInsight::EXCLUDED_COMPANY_IDS)->get(['id', 'nama', 'created_at']);
+        foreach ($companies as $c) {
+            $firstLoan = DB::table('pinjamen')->where('id_perusahaan', $c->id)->whereNull('deleted_at')->whereIn('status', ['approve', 'done'])->min('created_at');
+            $expected = $firstLoan && substr($firstLoan, 0, 10) < substr((string) $c->created_at, 0, 10) ? substr($firstLoan, 0, 10) : null;
+            if ($expected && isset($rows[mb_strtoupper(trim($c->nama))])) {
+                // ≤ karena transaksi lain (TomiGaji/upload manual) bisa lebih awal lagi
+                $this->assertLessThanOrEqual($expected, $rows[mb_strtoupper(trim($c->nama))]['start'], $c->nama);
+            }
+        }
     }
 
     public function test_real_login_session_can_load_dashboard_data(): void

@@ -91,9 +91,18 @@ class InsightService
             DB::table('salary_financings')->min('created_at'),
             DB::table('financing_request_invoices')->whereNull('deleted_at')->min('created_at'),
             DB::table('gadget_installments')->min('created_at'),
+            $this->companies()->earliestStart(), // perusahaan mitra yang mulai sebelum transaksi pertama
         ]);
 
         return $dates ? CarbonImmutable::parse(min($dates))->startOfDay() : CarbonImmutable::now()->startOfYear();
+    }
+
+    private ?CompanyInsight $companies = null;
+
+    /** Perusahaan mitra (jumlah terdaftar, baru, berhenti, bertransaksi) — lihat CompanyInsight. */
+    public function companies(): CompanyInsight
+    {
+        return $this->companies ??= new CompanyInsight($this);
     }
 
     /* ===================================================================== */
@@ -172,6 +181,7 @@ class InsightService
             'lenders' => $this->lenderSplit($period, $lenderId, $totals['disbursed']['value']),
             'revenue' => $this->revenueBlock($cur, $prev, $buckets),
             'companies' => $this->topCompanies($period, $lenderId),
+            'partners' => $this->companies()->block($period, $lenderId),
             'health' => $danaHealth,
             'feed' => $this->activityFeed($lenderId),
         ];

@@ -259,6 +259,30 @@ function columns(host, categories, data, unit) {
     });
 }
 
+// Perusahaan mitra: garis jumlah terdaftar per akhir bucket + batang baru & berhenti (bilangan bulat kecil).
+function partnerChart(host, categories, t) {
+    const o = baseChart(280);
+    const series = [];
+    if (t.registered) series.push({ name: 'Terdaftar', type: 'line', data: t.registered, color: cssVar('--s1') });
+    series.push({ name: 'Baru', type: 'column', data: t.added, color: cssVar('--good-fill') });
+    series.push({ name: 'Berhenti', type: 'column', data: t.removed, color: cssVar('--crit-fill') });
+    const scale = niceScale(Math.max(1, ...series.flatMap((s) => s.data)) * 1.1);
+    const ticks = scale.max <= 5 ? Math.max(1, Math.round(scale.max)) : scale.ticks;
+    return new ApexCharts(host, {
+        ...o,
+        chart: { ...o.chart, type: 'line' },
+        series: series.map((s) => ({ name: s.name, type: s.type, data: s.data })),
+        colors: series.map((s) => s.color),
+        stroke: { width: series.map((s) => (s.type === 'line' ? 2.5 : 0)), curve: 'straight' },
+        markers: { size: series.map((s) => (s.type === 'line' ? 3 : 0)), strokeColors: cssVar('--surface'), strokeWidth: 2, hover: { size: 5 } },
+        plotOptions: { bar: { columnWidth: columnWidth(categories.length * 2, host), borderRadius: 3, borderRadiusApplication: 'end' } },
+        // label sumbu X dijarangkan sesuai lebar (±64px per label) supaya tidak bertabrakan di layar kecil
+        xaxis: { ...o.xaxis, categories, tickAmount: Math.max(2, Math.min(categories.length, 12, Math.floor(((host?.clientWidth || 600) - 60) / 64))) },
+        yaxis: { ...o.yaxis, max: scale.max, tickAmount: ticks, forceNiceScale: false, labels: { ...o.yaxis.labels, formatter: (v) => fmt.num(Math.round(v)) } },
+        tooltip: { ...o.tooltip, y: { formatter: (v) => fmt.num(v) + ' perusahaan' } },
+        legend: { ...o.legend, show: true },
+    });
+}
 
 /* ===================== Komponen dashboard ===================== */
 Alpine.data('insight', (cfg) => {
@@ -288,6 +312,7 @@ Alpine.data('insight', (cfg) => {
         to: cfg.maxDate,
         lender: cfg.lender,
         revenueKey: 'all',
+        partnerTab: 'registered',
         tables: {},
         // panel rincian kartu KPI
         detail: { open: false, kpi: null, res: null, loading: false, error: null, q: '', page: 1, sort: null, dir: null, req: 0, trigger: null, filters: {} },
@@ -589,6 +614,39 @@ Alpine.data('insight', (cfg) => {
             return categories.map((c, i) => (i === categories.length - 1 ? c + '*' : c));
         },
 
+        /* ---------- perusahaan mitra ---------- */
+        partnerRows(tab) { return (this.d?.partners?.rows || []).filter((r) => r[tab]); },
+        // selisih jumlah (bukan persen): angka perusahaan kecil, "+2" lebih jelas dari "▲ 200%"
+        countDelta(k) {
+            if (k.prev == null || !this.res?.period.prev_label) return { cls: 'flat', text: '—', sub: '' };
+            const diff = (k.value || 0) - k.prev;
+            if (!diff) return { cls: 'flat', text: 'Tetap', sub: 'vs ' + this.res.period.prev_label };
+            return { cls: diff > 0 === k.up_is_good ? 'good' : 'bad', text: (diff > 0 ? '▲ ' : '▼ ') + fmt.num(Math.abs(diff)), sub: 'vs ' + this.res.period.prev_label };
+        },
+        partnerChartSub() {
+            const per = { month: 'bulan', day: 'hari', hour: 'jam' }[this.res?.period.granularity] || 'bulan';
+            return (this.d?.partners?.trend.registered ? 'Terdaftar per akhir ' + per + ', ' : '') + 'baru & berhenti per ' + per + this.partialNote();
+        },
+        partnerSummary() {
+            const p = this.d?.partners;
+            const k = Object.fromEntries((p?.kpis || []).map((x) => [x.metric, x.value]));
+            if (!p) return '';
+            const change = k.registered === p.start_count ? 'tetap ' + fmt.num(k.registered) : 'dari ' + fmt.num(p.start_count) + ' menjadi ' + fmt.num(k.registered);
+            return `${this.res.period.label}: jumlah perusahaan mitra ${change} perusahaan: ${fmt.num(k.added)} baru, ${fmt.num(k.removed)} berhenti. ${fmt.num(k.transacting)} perusahaan ada penyalurannya.`;
+        },
+        partnerTabSub() {
+            const to = this.res ? this.fmtDate(this.res.period.to) : '';
+            return {
+                registered: 'Bekerja sama per ' + to,
+                added: 'Mulai kerja sama pada periode ini',
+                removed: 'Data perusahaan dihapus pada periode ini',
+                transacting: 'Punya penyaluran pada periode ini',
+            }[this.partnerTab];
+        },
+        partnerEmpty() {
+            return { registered: 'Belum ada perusahaan terdaftar pada tanggal ini', added: 'Tidak ada perusahaan baru pada periode ini', removed: 'Tidak ada perusahaan yang berhenti pada periode ini', transacting: 'Tidak ada perusahaan yang bertransaksi pada periode ini' }[this.partnerTab];
+        },
+
         /* ---------- pendapatan ---------- */
         // Komponen diurutkan dari terbesar. Maksimal 4 warna: kalau lebih, komponen ke-4 dst. memakai
         // warna slot 4 dan di grafik gabungan dilipat jadi satu seri "Lainnya".
@@ -610,6 +668,14 @@ Alpine.data('insight', (cfg) => {
             this.drawTrend();
             this.drawRevenue();
             this.drawColumns();
+            this.drawPartners();
+        },
+        drawPartners() {
+            const host = this.$refs.partners;
+            destroy('partners');
+            if (!host || !this.d.partners) return;
+            charts.partners = partnerChart(host, this.withPartial(this.d.partners.trend.categories), this.d.partners.trend);
+            charts.partners.render();
         },
         drawTrend() {
             const host = this.$refs.trend;
