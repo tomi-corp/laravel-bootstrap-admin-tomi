@@ -3,11 +3,20 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\KspController;
 use App\Http\Controllers\Internal\LenderController;
+use App\Http\Controllers\Internal\CompanyController;
 
 Route::view('/', 'internal.dashboard.index')->name('dashboard');
 Route::view('/dashboard', 'internal.dashboard.index')->name('dashboard.page');
 Route::view('/ppob', 'internal.ppob.index')->name('ppob');
-Route::view('/companies', 'internal.companies.index')->name('companies');
+Route::get('/companies', [CompanyController::class, 'index'])->name('companies');
+Route::post('/companies/table', [CompanyController::class, 'listPerusahaanTable'])->name('companies.table');
+Route::post('/companies/add', [CompanyController::class, 'addPerusahaan'])->name('companies.add');
+Route::post('/companies/detail', [CompanyController::class, 'detailPerusahaan'])->name('companies.detail');
+Route::post('/companies/update', [CompanyController::class, 'editPerusahaan'])->name('companies.update');
+Route::post('/companies/delete', [CompanyController::class, 'deletePerusahaan'])->name('companies.delete');
+Route::post('/companies/locations/cities', [CompanyController::class, 'kabupaten'])->name('companies.locations.cities');
+Route::post('/companies/locations/districts', [CompanyController::class, 'kecamatan'])->name('companies.locations.districts');
+Route::post('/companies/locations/villages', [CompanyController::class, 'desa'])->name('companies.locations.villages');
 Route::get('/lenders', [LenderController::class, 'index'])->name('lenders');
 Route::post('/lenders/table', [LenderController::class, 'lenderTable'])->name('lenders.table');
 Route::post('/lenders/add', [LenderController::class, 'addLender'])->name('lenders.add');
