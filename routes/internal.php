@@ -19,7 +19,6 @@ Route::get('/companies/export', [CompanyController::class, 'exportCompany'])->na
 Route::get('/companies/import/template', [CompanyController::class, 'importTemplate'])->name('companies.import.template');
 Route::post('/companies/import', [CompanyController::class, 'importCompany'])->name('companies.import');
 Route::post('/companies/pks/list', [CompanyController::class, 'pksList'])->name('companies.pks.list');
-Route::post('/companies/pks/add', [CompanyController::class, 'addPks'])->name('companies.pks.add');
 Route::post('/companies/pks/delete', [CompanyController::class, 'deletePks'])->name('companies.pks.delete');
 Route::get('/companies/pks/{id}/file', [CompanyController::class, 'pksFile'])->whereNumber('id')->name('companies.pks.file');
 Route::post('/companies/locations/cities', [CompanyController::class, 'kabupaten'])->name('companies.locations.cities');

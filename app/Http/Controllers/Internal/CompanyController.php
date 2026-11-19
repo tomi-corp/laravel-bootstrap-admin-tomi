@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Internal;
 
 use App\Exports\Internal\CompanyExport;
 use App\Http\Controllers\Admin\KspController;
+use App\Http\Requests\Admin\Ksp\AddPerusahaanRequest;
+use App\Http\Requests\Admin\Ksp\EditPerusahaanRequest;
 use App\Imports\Internal\CompanyImport;
 use App\Models\Admin;
 use App\Models\CompanyPks;
@@ -145,48 +147,108 @@ class CompanyController extends KspController
         ], 200);
     }
 
-    public function addPks(Request $req)
+    /**
+     * Tambah perusahaan sekaligus PKS pertamanya. Data perusahaan tetap disimpan oleh KspController::addPerusahaan().
+     */
+    public function addPerusahaan(AddPerusahaanRequest $req)
     {
+        $this->validatePks($req, required: true);
+
+        return $this->withPks($req, function () use ($req) {
+            $response = parent::addPerusahaan($req);
+            $company = ListPerusahaan::where('email_perusahaan', $req->email_perusahaan)->latest('id')->firstOrFail();
+
+            return [$response, $company->id];
+        });
+    }
+
+    /**
+     * Ubah perusahaan; PKS baru hanya ditambahkan jika bagian PKS di form diisi.
+     */
+    public function editPerusahaan(EditPerusahaanRequest $req)
+    {
+        $this->visibleCompanies()->findOrFail($req->id);
+        $this->validatePks($req, required: false);
+
+        return $this->withPks($req, fn () => [parent::editPerusahaan($req), (int) $req->id]);
+    }
+
+    /**
+     * Validasi field PKS di modal perusahaan. Saat edit, semua field PKS wajib jika salah satunya diisi.
+     */
+    private function validatePks(Request $req, bool $required): void
+    {
+        if (! $required && ! $this->hasPksInput($req)) {
+            return;
+        }
+
         $req->validate([
-            'id_perusahaan' => 'required|integer',
-            'feature_id' => ['required', 'integer', Rule::exists('features', 'id')->where('status', 'active')->whereNull('deleted_at')],
-            'nomor_pks' => 'required|string|max:255',
-            'tanggal_pks' => 'required|date',
-            'mulai_berlaku' => 'required|date',
-            'berakhir' => 'required|date|after_or_equal:mulai_berlaku',
-            'file_dokumen' => 'required|file|mimes:pdf|max:5120',
+            'pks_feature_id' => ['required', 'integer', Rule::exists('features', 'id')->where('status', 'active')->whereNull('deleted_at')],
+            'pks_nomor' => 'required|string|max:255',
+            'pks_tanggal' => 'required|date',
+            'pks_mulai_berlaku' => 'required|date',
+            'pks_berakhir' => 'required|date|after_or_equal:pks_mulai_berlaku',
+            'pks_dokumen' => 'required|file|mimes:pdf|max:5120',
         ], [
-            'feature_id.required' => 'Fitur wajib dipilih.',
-            'feature_id.exists' => 'Fitur tidak ditemukan atau tidak aktif.',
-            'nomor_pks.required' => 'Nomor PKS wajib diisi.',
-            'tanggal_pks.required' => 'Tanggal PKS wajib diisi.',
-            'mulai_berlaku.required' => 'Tanggal mulai berlaku wajib diisi.',
-            'berakhir.required' => 'Tanggal berakhir wajib diisi.',
-            'berakhir.after_or_equal' => 'Tanggal berakhir tidak boleh sebelum tanggal mulai berlaku.',
-            'file_dokumen.required' => 'Dokumen PKS wajib diunggah.',
-            'file_dokumen.mimes' => 'Dokumen PKS harus berformat PDF.',
-            'file_dokumen.max' => 'Ukuran dokumen PKS maksimal 5 MB.',
+            'pks_feature_id.required' => 'Fitur PKS wajib dipilih.',
+            'pks_feature_id.exists' => 'Fitur tidak ditemukan atau tidak aktif.',
+            'pks_nomor.required' => 'Nomor PKS wajib diisi.',
+            'pks_tanggal.required' => 'Tanggal PKS wajib diisi.',
+            'pks_mulai_berlaku.required' => 'Tanggal mulai berlaku wajib diisi.',
+            'pks_berakhir.required' => 'Tanggal berakhir wajib diisi.',
+            'pks_berakhir.after_or_equal' => 'Tanggal berakhir tidak boleh sebelum tanggal mulai berlaku.',
+            'pks_dokumen.required' => 'Dokumen PKS wajib diunggah.',
+            'pks_dokumen.mimes' => 'Dokumen PKS harus berformat PDF.',
+            'pks_dokumen.max' => 'Ukuran dokumen PKS maksimal 5 MB.',
         ]);
+    }
 
-        $company = $this->visibleCompanies()->findOrFail($req->id_perusahaan);
-        $filename = 'PKS_'.$company->id.'_'.now()->format('YmdHis').'_'.Str::random(6).'.pdf';
-        $req->file('file_dokumen')->storeAs('pks_perusahaan', $filename, 'local');
+    private function hasPksInput(Request $req): bool
+    {
+        return $req->hasFile('pks_dokumen')
+            || collect(['pks_feature_id', 'pks_nomor', 'pks_tanggal', 'pks_mulai_berlaku', 'pks_berakhir'])->contains(fn ($field) => $req->filled($field));
+    }
 
-        CompanyPks::create([
-            'id_perusahaan' => $company->id,
-            'feature_id' => $req->feature_id,
-            'nomor_pks' => Str::upper(trim($req->nomor_pks)),
-            'tanggal_pks' => $req->tanggal_pks,
-            'mulai_berlaku' => $req->mulai_berlaku,
-            'berakhir' => $req->berakhir,
-            'file_dokumen' => $filename,
-            'created_by' => auth('admin')->id(),
-        ]);
+    /**
+     * Simpan perusahaan dan PKS dalam satu transaksi. Dokumen dihapus lagi jika penyimpanan gagal.
+     *
+     * @param  callable(): array{0: \Illuminate\Http\JsonResponse, 1: int}  $saveCompany
+     */
+    private function withPks(Request $req, callable $saveCompany)
+    {
+        $filename = null;
 
-        return response()->json([
-            'status' => 200,
-            'message' => 'PKS berhasil ditambahkan.',
-        ], 200);
+        try {
+            return DB::transaction(function () use ($req, $saveCompany, &$filename) {
+                [$response, $companyId] = $saveCompany();
+
+                if (! $this->hasPksInput($req)) {
+                    return $response;
+                }
+
+                $filename = 'PKS_'.$companyId.'_'.now()->format('YmdHis').'_'.Str::random(6).'.pdf';
+                $req->file('pks_dokumen')->storeAs('pks_perusahaan', $filename, 'local');
+
+                CompanyPks::create([
+                    'id_perusahaan' => $companyId,
+                    'feature_id' => $req->pks_feature_id,
+                    'nomor_pks' => Str::upper(trim($req->pks_nomor)),
+                    'tanggal_pks' => $req->pks_tanggal,
+                    'mulai_berlaku' => $req->pks_mulai_berlaku,
+                    'berakhir' => $req->pks_berakhir,
+                    'file_dokumen' => $filename,
+                    'created_by' => auth('admin')->id(),
+                ]);
+
+                return $response;
+            });
+        } catch (\Throwable $e) {
+            if ($filename) {
+                Storage::disk('local')->delete('pks_perusahaan/'.$filename);
+            }
+
+            throw $e;
+        }
     }
 
     public function deletePks(Request $req)
