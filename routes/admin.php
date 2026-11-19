@@ -4,7 +4,6 @@ use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\CostController;
 use App\Http\Controllers\Admin\DailyCheckinController;
 use App\Http\Controllers\Admin\DashboardController;
-use App\Http\Controllers\Admin\EntityAdminController;
 use App\Http\Controllers\Admin\GadgetInstallmentController;
 use App\Http\Controllers\Admin\GenerateInvoiceController;
 use App\Http\Controllers\Admin\InsightController;
@@ -210,12 +209,6 @@ Route::middleware(['AdminMiddleware'])->group(
                 Route::post('/manage/admin/add', [AuthController::class, 'manageAdminAdd'])->name('admin.manage.admin.add');
                 Route::post('/manage/admin/delete', [AuthController::class, 'manageAdminDelete'])->name('admin.manage.admin.delete');
                 Route::post('/manage/admin/audit/table', [AuthController::class, 'manageAuditTable'])->name('admin.manage.admin.audit.table');
-                Route::prefix('manage/admin')->name('admin.manage.admin.')->group(function () {
-                    Route::get('/internal', [EntityAdminController::class, 'internal'])->name('internal');
-                    Route::get('/lender', [EntityAdminController::class, 'lender'])->name('lender');
-                    Route::get('/referral', [EntityAdminController::class, 'referral'])->name('referral');
-                    Route::get('/company', [EntityAdminController::class, 'company'])->name('company');
-                });
 
                 // manage pic lender
                 Route::get('/manage/pic-lender', [PicLenderAdminController::class, 'index'])->name('admin.manage.pic-lender.index');

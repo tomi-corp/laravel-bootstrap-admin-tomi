@@ -15,6 +15,22 @@ return Application::configure(basePath: dirname(__DIR__))
             Route::middleware('web')
                 ->prefix('backoffice')
                 ->group(base_path('routes/admin.php'));
+            Route::middleware(['web', 'AdminMiddleware', 'TwoFactorMiddleware'])
+                ->prefix('internal')
+                ->name('internal.')
+                ->group(base_path('routes/internal.php'));
+            Route::middleware(['web', 'AdminMiddleware', 'TwoFactorMiddleware'])
+                ->prefix('lender')
+                ->name('lender.')
+                ->group(base_path('routes/lender.php'));
+            Route::middleware(['web', 'AdminMiddleware', 'TwoFactorMiddleware'])
+                ->prefix('referral')
+                ->name('referral.')
+                ->group(base_path('routes/referral.php'));
+            Route::middleware(['web', 'AdminMiddleware', 'TwoFactorMiddleware'])
+                ->prefix('company')
+                ->name('company.')
+                ->group(base_path('routes/company.php'));
             Route::middleware('web')
                 ->group(base_path('routes/web.php'));
             Route::middleware('api')
