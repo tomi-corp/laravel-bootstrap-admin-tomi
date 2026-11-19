@@ -25,16 +25,30 @@
         ]],
         ['label' => 'Tomi Dana Plus', 'slot' => 1, 'children' => [
             ['label' => 'Daftar Perusahaan', 'route' => 'internal.tomi-dana-plus.companies', 'active' => ['internal.tomi-dana-plus.companies*']],
+            ['label' => 'Pencairan Dana', 'route' => 'internal.tomi-dana-plus.disbursement', 'active' => ['internal.tomi-dana-plus.disbursement*']],
+            ['label' => 'Pembayaran Tagihan', 'route' => 'internal.tomi-dana-plus.repayment', 'active' => ['internal.tomi-dana-plus.repayment*']],
+            ['label' => 'Biaya Aplikasi', 'route' => 'internal.tomi-dana-plus.invoice-fee', 'active' => ['internal.tomi-dana-plus.invoice-fee*']],
         ]],
         ['label' => 'TomiGaji', 'slot' => 2, 'children' => [
             ['label' => 'Daftar Perusahaan', 'route' => 'internal.tomi-gaji.companies', 'active' => ['internal.tomi-gaji.companies*']],
+            ['label' => 'Pencairan Dana', 'route' => 'internal.tomi-gaji.disbursement', 'active' => ['internal.tomi-gaji.disbursement*']],
+            ['label' => 'Pembayaran Tagihan', 'route' => 'internal.tomi-gaji.repayment', 'active' => ['internal.tomi-gaji.repayment*']],
+            ['label' => 'Biaya Aplikasi', 'route' => 'internal.tomi-gaji.invoice-fee', 'active' => ['internal.tomi-gaji.invoice-fee*']],
         ]],
         ['label' => 'TomiInvoice', 'slot' => 3, 'children' => [
             ['label' => 'Daftar Perusahaan', 'route' => 'internal.tomi-invoice.companies', 'active' => ['internal.tomi-invoice.companies*']],
+            ['label' => 'Pencairan Dana', 'route' => 'internal.tomi-invoice.disbursement', 'active' => ['internal.tomi-invoice.disbursement*']],
+            ['label' => 'Pembayaran Tagihan', 'route' => 'internal.tomi-invoice.repayment', 'active' => ['internal.tomi-invoice.repayment*']],
+            ['label' => 'Biaya Aplikasi', 'route' => 'internal.tomi-invoice.invoice-fee', 'active' => ['internal.tomi-invoice.invoice-fee*']],
         ]],
         ['label' => 'TomiGawai', 'slot' => 4, 'children' => [
             ['label' => 'Daftar Perusahaan', 'route' => 'internal.tomi-gawai.companies', 'active' => ['internal.tomi-gawai.companies*']],
+            ['label' => 'Pencairan Dana', 'route' => 'internal.tomi-gawai.disbursement', 'active' => ['internal.tomi-gawai.disbursement*']],
+            ['label' => 'Pembayaran Tagihan', 'route' => 'internal.tomi-gawai.repayment', 'active' => ['internal.tomi-gawai.repayment*']],
+            ['label' => 'Biaya Aplikasi', 'route' => 'internal.tomi-gawai.invoice-fee', 'active' => ['internal.tomi-gawai.invoice-fee*']],
         ]],
+        ['section' => 'Manajemen'],
+        ['label' => 'Kelola Admin', 'icon' => 'shield', 'route' => 'internal.admin-management', 'active' => ['internal.admin-management*']],
     ];
 
     // Menu yang sedang dibuka → judul & breadcrumb header. Halaman menu (route persis) memakai label menu;

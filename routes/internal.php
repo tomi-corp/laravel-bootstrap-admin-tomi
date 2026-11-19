@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Internal\AdminManagementController;
 use App\Http\Controllers\Internal\LenderController;
 use App\Http\Controllers\Internal\CompanyController;
 use App\Http\Controllers\Internal\TomiDana\CompanyController as TomiDanaCompanyController;
@@ -110,28 +111,56 @@ Route::view('/tomi-dana-plus', 'internal.tomi-dana-plus.index')->name('tomi-dana
 Route::prefix('/tomi-dana-plus')->name('tomi-dana-plus.')->group(function () {
     Route::get('/companies', [TomiDanaPlusCompanyController::class, 'index'])->name('companies');
     Route::post('/companies/table', [TomiDanaPlusCompanyController::class, 'table'])->name('companies.table');
+
+    // Pencairan dana, pembayaran tagihan, dan biaya aplikasi (halaman masih placeholder)
+    Route::view('/disbursement', 'internal.tomi-dana-plus.disbursement.index')->name('disbursement');
+    Route::view('/repayment', 'internal.tomi-dana-plus.repayment.index')->name('repayment');
+    Route::view('/invoice-fee', 'internal.tomi-dana-plus.invoice-fee.index')->name('invoice-fee');
 });
 
 Route::view('/tomi-gaji', 'internal.tomi-gaji.index')->name('tomi-gaji');
 Route::prefix('/tomi-gaji')->name('tomi-gaji.')->group(function () {
     Route::get('/companies', [TomiGajiCompanyController::class, 'index'])->name('companies');
     Route::post('/companies/table', [TomiGajiCompanyController::class, 'table'])->name('companies.table');
+
+    // Pencairan dana, pembayaran tagihan, dan biaya aplikasi (halaman masih placeholder)
+    Route::view('/disbursement', 'internal.tomi-gaji.disbursement.index')->name('disbursement');
+    Route::view('/repayment', 'internal.tomi-gaji.repayment.index')->name('repayment');
+    Route::view('/invoice-fee', 'internal.tomi-gaji.invoice-fee.index')->name('invoice-fee');
 });
 
 Route::view('/tomi-invoice', 'internal.tomi-invoice.index')->name('tomi-invoice');
 Route::prefix('/tomi-invoice')->name('tomi-invoice.')->group(function () {
     Route::get('/companies', [TomiInvoiceCompanyController::class, 'index'])->name('companies');
     Route::post('/companies/table', [TomiInvoiceCompanyController::class, 'table'])->name('companies.table');
+
+    // Pencairan dana, pembayaran tagihan, dan biaya aplikasi (halaman masih placeholder)
+    Route::view('/disbursement', 'internal.tomi-invoice.disbursement.index')->name('disbursement');
+    Route::view('/repayment', 'internal.tomi-invoice.repayment.index')->name('repayment');
+    Route::view('/invoice-fee', 'internal.tomi-invoice.invoice-fee.index')->name('invoice-fee');
 });
 
 Route::view('/tomi-gawai', 'internal.tomi-gawai.index')->name('tomi-gawai');
 Route::prefix('/tomi-gawai')->name('tomi-gawai.')->group(function () {
     Route::get('/companies', [TomiGawaiCompanyController::class, 'index'])->name('companies');
     Route::post('/companies/table', [TomiGawaiCompanyController::class, 'table'])->name('companies.table');
+
+    // Pencairan dana, pembayaran tagihan, dan biaya aplikasi (halaman masih placeholder)
+    Route::view('/disbursement', 'internal.tomi-gawai.disbursement.index')->name('disbursement');
+    Route::view('/repayment', 'internal.tomi-gawai.repayment.index')->name('repayment');
+    Route::view('/invoice-fee', 'internal.tomi-gawai.invoice-fee.index')->name('invoice-fee');
 });
 
 Route::view('/daily-attendance', 'internal.daily-attendance.index')->name('daily-attendance');
 Route::view('/mobile', 'internal.mobile.index')->name('mobile');
-Route::view('/admin-management', 'internal.admin-management.index')->name('admin-management');
+Route::get('/admin-management', [AdminManagementController::class, 'index'])->name('admin-management');
+Route::prefix('/admin-management')->name('admin-management.')->group(function () {
+    Route::post('/table', [AdminManagementController::class, 'table'])->name('table');
+    Route::post('/detail', [AdminManagementController::class, 'show'])->name('detail');
+    Route::post('/add', [AdminManagementController::class, 'store'])->name('add');
+    Route::post('/update', [AdminManagementController::class, 'update'])->name('update');
+    Route::post('/delete', [AdminManagementController::class, 'destroy'])->name('delete');
+    Route::post('/audit/table', [AdminManagementController::class, 'auditTable'])->name('audit.table');
+});
 Route::view('/bank-accounts', 'internal.bank-accounts.index')->name('bank-accounts');
 Route::view('/referral', 'internal.referral.index')->name('referral');
