@@ -6,6 +6,12 @@
     <style>
         #featureCompanyTable th,
         #featureCompanyTable td { white-space: nowrap; vertical-align: middle; }
+
+        #companyDetailModal .modal-dialog { max-width: min(1400px, calc(100vw - 2rem)); }
+        #companyDetailModal .modal-content { height: calc(100vh - 3.5rem); overflow: hidden; }
+        #companyDetailModal .modal-body { position: relative; flex: 1 1 auto; min-height: 0; padding: 0; }
+        #companyDetailModal iframe { display: block; width: 100%; height: 100%; border: 0; }
+        #companyDetailModal .modal-loading { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
     </style>
 @endpush
 
@@ -47,12 +53,44 @@
             </div>
         </div>
     </div>
+
+    {{-- Modal konfigurasi / proses pengajuan / daftar karyawan: halaman dimuat lewat iframe mode embed --}}
+    <div class="modal fade" id="companyDetailModal" tabindex="-1" role="dialog" aria-labelledby="companyDetailModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="companyDetailModalTitle"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Tutup"><span>&times;</span></button>
+                </div>
+                <div class="modal-body">
+                    <div class="modal-loading text-muted" id="companyDetailLoading">Memuat...</div>
+                    <iframe id="companyDetailFrame" title="Detail perusahaan"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('js')
     <script>
         $(function () {
-            $('#featureCompanyTable').DataTable({
+            const modal = $('#companyDetailModal');
+            const frame = $('#companyDetailFrame');
+
+            $('#featureCompanyTable').on('click', '.js-company-modal', function () {
+                $('#companyDetailModalTitle').text(this.dataset.title);
+                $('#companyDetailLoading').show();
+                frame.attr('src', this.dataset.url);
+                modal.modal('show');
+            });
+            frame.on('load', () => $('#companyDetailLoading').hide());
+            // Kosongkan iframe saat ditutup, lalu muat ulang tabel karena jumlah karyawan/pengajuan bisa berubah.
+            modal.on('hidden.bs.modal', () => {
+                frame.attr('src', 'about:blank');
+                companyTable.ajax.reload(null, false);
+            });
+
+            const companyTable = $('#featureCompanyTable').DataTable({
                 processing: true,
                 serverSide: true,
                 ajax: { url: '{{ route('internal.tomi-dana.companies.table') }}', type: 'POST', data: { _token: '{{ csrf_token() }}' } },

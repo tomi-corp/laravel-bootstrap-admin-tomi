@@ -65,16 +65,26 @@ class CompanyController extends Controller
             ->editColumn('email_perusahaan', fn ($row) => Str::lower((string) $row->email_perusahaan))
             ->filterColumn('lender', fn ($query, $keyword) => $query->whereHas('lender', fn ($q) => $q->where('nama', 'like', "%{$keyword}%")))
             ->filterColumn('pks_number', fn ($query, $keyword) => $query->whereHas('pks', fn ($q) => $pksOfFeature($q)->where('agreement_number', 'like', "%{$keyword}%")))
-            ->addColumn('configuration', fn ($row) => '<a class="btn btn-sm btn-outline-secondary" title="Konfigurasi pinjaman" href="'.route('internal.tomi-dana.configuration', $row->id).'">'
-                .'<i class="mdi mdi-settings"></i></a>')
-            ->addColumn('applications', fn ($row) => '<a class="btn btn-sm btn-outline-primary" title="Proses pengajuan" href="'.route('internal.tomi-dana.applications', $row->id).'">'
-                .$this->countBadge($row->pengajuan_on_proses_count, 'warning', 'Pengajuan on proses')
-                .$this->countBadge($row->pengajuan_exported_count, 'purple', 'Pengajuan exported').'</a>')
-            ->addColumn('employees', fn ($row) => '<a class="btn btn-sm btn-outline-info" title="Daftar karyawan" href="'.route('internal.tomi-dana.employees', $row->id).'">'
-                .$this->countBadge($row->karyawan_count, 'info', 'Karyawan disetujui 2 layer')
-                .$this->countBadge($row->karyawan_pending_count, 'pink', 'Karyawan menunggu persetujuan').'</a>')
+            ->addColumn('configuration', fn ($row) => $this->modalButton($row, 'internal.tomi-dana.configuration', 'Konfigurasi', 'btn-outline-secondary',
+                '<i class="mdi mdi-settings"></i>'))
+            ->addColumn('applications', fn ($row) => $this->modalButton($row, 'internal.tomi-dana.applications', 'Proses Pengajuan', 'btn-outline-primary',
+                $this->countBadge($row->pengajuan_on_proses_count, 'warning', 'Pengajuan on proses')
+                .$this->countBadge($row->pengajuan_exported_count, 'purple', 'Pengajuan exported')))
+            ->addColumn('employees', fn ($row) => $this->modalButton($row, 'internal.tomi-dana.employees', 'Daftar Karyawan', 'btn-outline-info',
+                $this->countBadge($row->karyawan_count, 'info', 'Karyawan disetujui 2 layer')
+                .$this->countBadge($row->karyawan_pending_count, 'pink', 'Karyawan menunggu persetujuan')))
             ->rawColumns(['status', 'pks_status', 'configuration', 'applications', 'employees'])
             ->make(true);
+    }
+
+    /**
+     * Tombol yang membuka halaman (konfigurasi/pengajuan/karyawan) di modal lewat iframe mode embed.
+     */
+    private function modalButton($row, string $route, string $title, string $class, string $content): string
+    {
+        return '<button type="button" class="btn btn-sm '.$class.' js-company-modal" title="'.e($title).'"'
+            .' data-url="'.e(route($route, ['company' => $row->id, 'embed' => 1])).'"'
+            .' data-title="'.e($title.' - '.Str::upper($row->nama)).'">'.$content.'</button>';
     }
 
     private function countBadge(int $count, string $class, string $title): string
