@@ -511,11 +511,7 @@ class SalaryFinancingController extends Controller
         }
 
         $baseQuery = DB::table('salary_financing_configurations')
-            ->where('company_id', $companyId);
-
-        if (Schema::hasColumn('salary_financing_configurations', 'deleted_at')) {
-            $baseQuery->whereNull('deleted_at');
-        }
+            ->where('id_perusahaan', $companyId);
 
         $query = clone $baseQuery;
 
