@@ -5,9 +5,7 @@ namespace App\Http\Controllers\Internal;
 use App\Http\Controllers\Controller;
 use App\Models\Admin;
 use App\Models\bank;
-use App\Models\CompanyFeatureReferral;
-use App\Models\CompanyPks;
-use App\Models\Feature;
+use App\Models\CompanyReferral;
 use App\Models\Instansi;
 use App\Models\ListPerusahaan;
 use App\Models\Referral;
@@ -27,13 +25,11 @@ use Yajra\DataTables\Facades\DataTables;
 
 /**
  * Kelola referral: data KTP + rekening bank, akun login (admin instansi Referral),
- * dan perusahaan + produk yang direferensikan (posisi Referal 1 / Referal 2).
+ * dan perusahaan yang direferensikan (posisi Referal 1 / Referal 2, maksimal dua referral per perusahaan).
  * Hanya untuk admin instansi Internal karena berisi data pribadi.
  */
 class ReferralController extends Controller implements HasMiddleware
 {
-    private const FEATURE_CODES = ['tomidana', 'tomidanaplus', 'tomigaji', 'tomiinvoice', 'tomigawai'];
-
     /** Jenis file => [kolom, folder penyimpanan]. */
     private const FILES = [
         'ktp' => ['id_card_file', 'referrals/ktp'],
@@ -55,9 +51,8 @@ class ReferralController extends Controller implements HasMiddleware
     {
         return view('internal.referral.index', [
             'banks' => bank::query()->orderBy('code_bank')->get(['id', 'code_bank']),
-            'features' => Feature::query()->whereIn('code', self::FEATURE_CODES)->orderBy('id')->get(['id', 'code', 'name']),
             'companies' => ListPerusahaan::query()->where('status', 'active')->orderBy('nama')->get(['id', 'nama']),
-            'positions' => CompanyFeatureReferral::POSITIONS,
+            'positions' => CompanyReferral::POSITIONS,
         ]);
     }
 
@@ -66,7 +61,7 @@ class ReferralController extends Controller implements HasMiddleware
         $query = Referral::query()
             ->select('referrals.*')
             ->with(['admin:id,username', 'bank:id,code_bank'])
-            ->withCount('companyFeatures');
+            ->withCount('companyReferrals');
 
         $fileBadge = function (Referral $row, string $type) {
             [$column] = self::FILES[$type];
@@ -88,7 +83,7 @@ class ReferralController extends Controller implements HasMiddleware
             ->addColumn('ktp', fn ($row) => $fileBadge($row, 'ktp'))
             ->addColumn('bank_book', fn ($row) => $fileBadge($row, 'bank-book'))
             ->addColumn('companies', fn ($row) => '<button class="btn btn-sm btn-outline-primary" type="button" onclick="openCompanies('.$row->id.')">'
-                .number_format($row->company_features_count, 0, ',', '.').' PERUSAHAAN</button>')
+                .number_format($row->company_referrals_count, 0, ',', '.').' PERUSAHAAN</button>')
             ->addColumn('account', fn ($row) => e($row->admin?->username ?? '-'))
             ->addColumn('status', fn ($row) => $row->is_active
                 ? '<span class="badge badge-success">AKTIF</span>'
@@ -222,16 +217,14 @@ class ReferralController extends Controller implements HasMiddleware
     {
         $referral = Referral::findOrFail($req->id);
 
-        $items = $referral->companyFeatures()
-            ->with(['company:id,nama', 'feature:id,name'])
+        $items = $referral->companyReferrals()
+            ->with('company:id,nama')
             ->orderBy('company_id')
-            ->orderBy('feature_id')
             ->get()
-            ->map(fn (CompanyFeatureReferral $row) => [
+            ->map(fn (CompanyReferral $row) => [
                 'id' => $row->id,
                 'company' => Str::upper($row->company?->nama ?? '-'),
-                'feature' => $row->feature?->name ?? '-',
-                'position' => Str::upper(CompanyFeatureReferral::POSITIONS[$row->position] ?? '-'),
+                'position' => Str::upper(CompanyReferral::POSITIONS[$row->position] ?? '-'),
             ]);
 
         return response()->json([
@@ -240,54 +233,38 @@ class ReferralController extends Controller implements HasMiddleware
         ], 200);
     }
 
+    /**
+     * Tautkan referral ke perusahaan sebagai Referal 1 / Referal 2.
+     * Satu perusahaan maksimal dua referral (satu per posisi); sama seperti pilihan di form Perusahaan.
+     */
     public function attachCompany(Request $req)
     {
         $req->validate([
             'referral_id' => 'required|exists:referrals,id',
             'company_id' => 'required|exists:list_perusahaans,id',
-            'feature_id' => ['required', Rule::exists('features', 'id')->whereIn('code', self::FEATURE_CODES)],
-            'position' => ['required', Rule::in(array_keys(CompanyFeatureReferral::POSITIONS))],
+            'position' => ['required', Rule::in(array_keys(CompanyReferral::POSITIONS))],
         ], [
             'company_id.required' => 'Perusahaan wajib dipilih.',
-            'feature_id.required' => 'Produk wajib dipilih.',
             'position.required' => 'Posisi referal wajib dipilih.',
         ]);
 
-        $hasPks = CompanyPks::where('company_id', $req->company_id)->where('feature_id', $req->feature_id)->exists();
-        if (! $hasPks) {
-            throw ValidationException::withMessages(['company_id' => 'Perusahaan belum memiliki PKS untuk produk ini.']);
+        $companyReferrals = CompanyReferral::where('company_id', $req->company_id);
+        if ((clone $companyReferrals)->where('referral_id', $req->referral_id)->exists()) {
+            throw ValidationException::withMessages(['company_id' => 'Referral ini sudah ditautkan ke perusahaan tersebut.']);
         }
-
-        $sameCompanyFeature = CompanyFeatureReferral::where('company_id', $req->company_id)->where('feature_id', $req->feature_id);
-        if ((clone $sameCompanyFeature)->where('referral_id', $req->referral_id)->exists()) {
-            throw ValidationException::withMessages(['company_id' => 'Referral ini sudah ditautkan ke perusahaan dan produk tersebut.']);
-        }
-        if ((clone $sameCompanyFeature)->where('position', $req->position)->exists()) {
-            $label = CompanyFeatureReferral::POSITIONS[$req->position];
-            throw ValidationException::withMessages(['position' => "{$label} untuk perusahaan dan produk ini sudah dipakai referral lain."]);
+        if ((clone $companyReferrals)->where('position', $req->position)->exists()) {
+            $label = CompanyReferral::POSITIONS[$req->position];
+            throw ValidationException::withMessages(['position' => "{$label} perusahaan ini sudah dipakai referral lain."]);
         }
 
         DB::transaction(function () use ($req) {
-            // Data terhapus (soft delete) dibersihkan agar tidak bentrok dengan unique index.
-            CompanyFeatureReferral::onlyTrashed()
+            // Baris terhapus (soft delete) dibersihkan agar tidak bentrok dengan unique index.
+            CompanyReferral::onlyTrashed()
                 ->where('company_id', $req->company_id)
-                ->where('feature_id', $req->feature_id)
                 ->where(fn ($q) => $q->where('referral_id', $req->referral_id)->orWhere('position', $req->position))
                 ->forceDelete();
 
-            CompanyFeatureReferral::create($req->only(['company_id', 'feature_id', 'referral_id', 'position']));
-
-            $link = DB::table('company_referrals')->where('company_id', $req->company_id)->where('referral_id', $req->referral_id)->first();
-            if (! $link) {
-                DB::table('company_referrals')->insert([
-                    'company_id' => $req->company_id,
-                    'referral_id' => $req->referral_id,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
-            } elseif ($link->deleted_at) {
-                DB::table('company_referrals')->where('id', $link->id)->update(['deleted_at' => null, 'updated_at' => now()]);
-            }
+            CompanyReferral::create($req->only(['company_id', 'referral_id', 'position']));
         });
 
         return response()->json(['status' => 200, 'message' => 'Perusahaan berhasil ditautkan.'], 200);
@@ -295,21 +272,7 @@ class ReferralController extends Controller implements HasMiddleware
 
     public function detachCompany(Request $req)
     {
-        $link = CompanyFeatureReferral::findOrFail($req->id);
-
-        DB::transaction(function () use ($link) {
-            $link->forceDelete();
-
-            // Lepas relasi perusahaan ↔ referral jika sudah tidak ada produk yang ditautkan.
-            $stillLinked = CompanyFeatureReferral::where('company_id', $link->company_id)->where('referral_id', $link->referral_id)->exists();
-            if (! $stillLinked) {
-                DB::table('company_referrals')
-                    ->where('company_id', $link->company_id)
-                    ->where('referral_id', $link->referral_id)
-                    ->whereNull('deleted_at')
-                    ->update(['deleted_at' => now(), 'updated_at' => now()]);
-            }
-        });
+        CompanyReferral::findOrFail($req->id)->forceDelete();
 
         return response()->json(['status' => 200, 'message' => 'Tautan perusahaan berhasil dihapus.'], 200);
     }

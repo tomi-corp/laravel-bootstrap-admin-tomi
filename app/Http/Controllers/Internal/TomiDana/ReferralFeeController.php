@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Internal\TomiDana;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Internal\Concerns\ScopesCompanies;
-use App\Models\CompanyFeatureReferral;
+use App\Models\CompanyReferral;
 use App\Models\CompanyPks;
 use App\Models\Feature;
 use App\Models\ListPerusahaan;
@@ -125,9 +125,8 @@ class ReferralFeeController extends Controller
             $totals[$key] = $rows->sum(fn ($row) => $row['fees'][$key] ?? 0);
         }
 
-        $referrals = CompanyFeatureReferral::with(['referral.bank:id,code_bank'])
+        $referrals = CompanyReferral::with(['referral.bank:id,code_bank'])
             ->where('company_id', $company)
-            ->where('feature_id', $this->featureId())
             ->whereIn('position', $this->positionsFor($columns))
             ->orderBy('position')
             ->get();
@@ -183,10 +182,10 @@ class ReferralFeeController extends Controller
     private function referralNames(): array
     {
         $names = [];
-        CompanyFeatureReferral::with('referral:id,name')
-            ->where('feature_id', $this->featureId())
+        CompanyReferral::with('referral:id,name')
+            ->whereIn('company_id', $this->companyIds())
             ->get()
-            ->each(function (CompanyFeatureReferral $row) use (&$names) {
+            ->each(function (CompanyReferral $row) use (&$names) {
                 $names[$row->company_id][$row->position] = $row->referral?->name;
             });
 

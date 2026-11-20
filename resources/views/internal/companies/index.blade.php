@@ -88,6 +88,15 @@
                         </div>
 
                         <hr>
+                        <h6 class="mt-0 mb-1">Referral</h6>
+                        <p class="text-muted small mb-2">Opsional. Satu perusahaan maksimal punya dua referral.</p>
+                        <div class="row">
+                            @foreach ([1 => 'Referal 1', 2 => 'Referal 2'] as $position => $label)
+                                <div class="col-md-6 form-group"><label>{{ $label }}</label><select class="form-control company-referral" id="referral{{ $position }}" name="referral_{{ $position }}_id"><option value="">Tanpa referral</option>@foreach ($referrals as $referral)<option value="{{ $referral->id }}">{{ strtoupper($referral->name) }}</option>@endforeach</select><small class="text-danger" data-error="referral_{{ $position }}_id"></small></div>
+                            @endforeach
+                        </div>
+
+                        <hr>
                         <div class="d-flex align-items-start mb-3">
                             <div>
                                 <h6 class="mt-0 mb-1">PKS</h6>
@@ -201,7 +210,16 @@
             $('#city').on('change', function () { loadOptions('{{ route('internal.companies.locations.districts') }}', { kabupaten: this.value }, '#district', 'kecamatan', 'Pilih kecamatan'); $('#village').html('<option value="">Pilih desa</option>'); });
             $('#district').on('change', function () { loadOptions('{{ route('internal.companies.locations.villages') }}', { kecamatan: this.value }, '#village', 'desa', 'Pilih desa', true); });
             $('#companyForm').on('submit', submitCompany);
+            $('.company-referral').on('change', syncReferralOptions);
         });
+
+        // Referral yang sudah dipilih di satu posisi tidak bisa dipilih lagi di posisi lain.
+        function syncReferralOptions() {
+            const first = $('#referral1').val();
+            const second = $('#referral2').val();
+            $('#referral1 option').each((_, el) => { el.disabled = el.value !== '' && el.value === second; });
+            $('#referral2 option').each((_, el) => { el.disabled = el.value !== '' && el.value === first; });
+        }
 
         function escapeHtml(value) {
             return $('<div>').text(value).html();
@@ -313,14 +331,14 @@
         }
 
         function openCreateCompany() {
-            editingCompany = false; $('#companyForm')[0].reset(); $('#companyId').val(''); $('#companyModalTitle').text('Tambah Perusahaan'); $('#saveCompanyButton').text('Simpan Perusahaan'); $('#statusGroup').addClass('d-none'); $('#city, #district, #village').html('<option value="">Pilih pilihan</option>'); resetPksSection(false);
+            editingCompany = false; $('#companyForm')[0].reset(); $('#companyId').val(''); $('#companyModalTitle').text('Tambah Perusahaan'); $('#saveCompanyButton').text('Simpan Perusahaan'); $('#statusGroup').addClass('d-none'); $('#city, #district, #village').html('<option value="">Pilih pilihan</option>'); syncReferralOptions(); resetPksSection(false);
         }
 
         function editCompany(id) {
             editingCompany = true;
             $('#companyForm')[0].reset(); resetPksSection(true); loadPks(id);
             $.post('{{ route('internal.companies.detail') }}', { id, _token: '{{ csrf_token() }}' }, function (response) {
-                const item = response.data; $('#companyId').val(id); $('#companyPic').val(item.pic_perusahaan); $('#internalAdmin').val(item.admin_id); $('#companyName').val(item.nama); $('#companyPhone').val(item.telp); $('#agreementNumber').val(item.nomor_pks); $('#address').val(item.alamat_lengkap); $('#paymentDate').val(item.payment_date); $('#status').val(item.status); $('#statusGroup').removeClass('d-none'); $('#province').val(item.provinsi).trigger('change');
+                const item = response.data; $('#companyId').val(id); $('#companyPic').val(item.pic_perusahaan); $('#internalAdmin').val(item.admin_id); $('#companyName').val(item.nama); $('#companyPhone').val(item.telp); $('#agreementNumber').val(item.nomor_pks); $('#address').val(item.alamat_lengkap); $('#paymentDate').val(item.payment_date); $('#referral1').val(item.referral_1_id ?? ''); $('#referral2').val(item.referral_2_id ?? ''); syncReferralOptions(); $('#status').val(item.status); $('#statusGroup').removeClass('d-none'); $('#province').val(item.provinsi).trigger('change');
                 setTimeout(() => { $('#city').html(`<option value="${item.kabupaten}">${item.kabupaten}</option>`).val(item.kabupaten).trigger('change'); setTimeout(() => { $('#district').html(`<option value="${item.kecamatan}">${item.kecamatan}</option>`).val(item.kecamatan).trigger('change'); setTimeout(() => $('#village').html(`<option value="${item.desa}">${item.desa}</option>`).val(item.desa), 500); }, 500); }, 500);
                 $('#companyModalTitle').text('Edit Perusahaan'); $('#saveCompanyButton').text('Perbarui Perusahaan'); $('#companyModal').modal('show');
             });

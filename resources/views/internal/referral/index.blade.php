@@ -206,7 +206,7 @@
                 <div class="modal-body">
                     <form id="companyForm" class="row" autocomplete="off">
                         <input type="hidden" id="companyReferralId" name="referral_id">
-                        <div class="col-md-5 form-group">
+                        <div class="col-md-6 form-group">
                             <label for="companyId">PERUSAHAAN</label>
                             <select class="form-control" id="companyId" name="company_id">
                                 <option value="">Pilih perusahaan</option>
@@ -217,16 +217,6 @@
                             <small class="text-danger" data-error="company_id"></small>
                         </div>
                         <div class="col-md-3 form-group">
-                            <label for="featureId">PRODUK</label>
-                            <select class="form-control" id="featureId" name="feature_id">
-                                <option value="">Pilih produk</option>
-                                @foreach ($features as $feature)
-                                    <option value="{{ $feature->id }}">{{ $feature->name }}</option>
-                                @endforeach
-                            </select>
-                            <small class="text-danger" data-error="feature_id"></small>
-                        </div>
-                        <div class="col-md-2 form-group">
                             <label for="position">POSISI</label>
                             <select class="form-control" id="position" name="position">
                                 @foreach ($positions as $value => $label)
@@ -235,17 +225,16 @@
                             </select>
                             <small class="text-danger" data-error="position"></small>
                         </div>
-                        <div class="col-md-2 form-group d-flex align-items-end">
+                        <div class="col-md-3 form-group d-flex align-items-end">
                             <button class="btn btn-primary btn-block" type="submit" id="saveCompanyButton">TAUTKAN</button>
                         </div>
                     </form>
-                    <small class="text-muted d-block mb-2">Perusahaan harus memiliki PKS untuk produk yang dipilih. Tiap perusahaan + produk hanya punya satu Referal 1 dan satu Referal 2.</small>
+                    <small class="text-muted d-block mb-2">Satu perusahaan maksimal punya dua referral: satu Referal 1 dan satu Referal 2. Bisa juga diatur dari form Perusahaan.</small>
                     <div class="table-responsive">
                         <table id="companyTable" class="table table-sm table-hover">
                             <thead>
                                 <tr>
                                     <th>PERUSAHAAN</th>
-                                    <th>PRODUK</th>
                                     <th>POSISI</th>
                                     <th class="text-right">AKSI</th>
                                 </tr>
@@ -412,13 +401,12 @@
                     const rows = response.data.items.map(item => `
                         <tr>
                             <td>${escapeHtml(item.company)}</td>
-                            <td>${escapeHtml(item.feature)}</td>
                             <td><span class="badge badge-info">${escapeHtml(item.position)}</span></td>
                             <td class="text-right">
                                 <button class="btn btn-sm btn-danger" type="button" title="Hapus" onclick="detachCompany(${item.id})"><i class="mdi mdi-trash-can"></i></button>
                             </td>
                         </tr>`);
-                    $('#companyTable tbody').html(rows.length ? rows.join('') : '<tr><td colspan="4" class="text-center text-muted">Belum ada perusahaan yang ditautkan.</td></tr>');
+                    $('#companyTable tbody').html(rows.length ? rows.join('') : '<tr><td colspan="3" class="text-center text-muted">Belum ada perusahaan yang ditautkan.</td></tr>');
                 })
                 .fail(error => toastr.error(error.responseJSON?.message || 'Gagal memuat perusahaan.'));
         }
@@ -433,7 +421,7 @@
             $.post('{{ route('internal.referral.companies.add') }}', $(this).serialize() + '&_token=' + csrfToken)
                 .done(response => {
                     toastr.success(response.message);
-                    $('#companyId, #featureId').val('');
+                    $('#companyId').val('');
                     loadCompanies(referralId);
                     referralTable.ajax.reload(null, false);
                 })

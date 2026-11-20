@@ -29,8 +29,8 @@ class Referral extends Model
         return $this->belongsTo(bank::class);
     }
 
-    public function companyFeatures()
+    public function companyReferrals()
     {
-        return $this->hasMany(CompanyFeatureReferral::class);
+        return $this->hasMany(CompanyReferral::class);
     }
 }

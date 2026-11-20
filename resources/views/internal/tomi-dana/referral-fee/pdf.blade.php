@@ -8,7 +8,7 @@
 
     $rupiah = fn ($value) => 'Rp. '.number_format((float) $value, 0, ',', '.');
     $companyName = strtoupper($company->nama ?? '-');
-    $positionLabels = \App\Models\CompanyFeatureReferral::POSITIONS;
+    $positionLabels = \App\Models\CompanyReferral::POSITIONS;
 @endphp
 
 <head>
@@ -66,7 +66,7 @@
         <div class="mt-3">
             <h6>REFERRAL</h6>
             @if ($referrals->isEmpty())
-                <small>Belum ada referral yang ditautkan ke perusahaan ini untuk TomiDana.</small>
+                <small>Belum ada referral yang ditautkan ke perusahaan ini.</small>
             @else
                 <table class="referral-table">
                     @foreach ($referrals as $link)
