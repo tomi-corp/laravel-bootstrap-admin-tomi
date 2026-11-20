@@ -7,6 +7,13 @@
         #referralTable th, #referralTable td,
         #companyTable th, #companyTable td { white-space: nowrap; vertical-align: middle; }
         .form-section { font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: #6c757d; }
+
+        /* Form membungkus body + footer, jadi scroll diatur manual: header & footer tetap, body bisa di-scroll. */
+        #referralModal .modal-content { max-height: calc(100vh - 3.5rem); overflow: hidden; }
+        #referralModal .modal-header,
+        #referralModal .modal-footer { flex-shrink: 0; }
+        #referralForm { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; overflow: hidden; }
+        #referralModal .modal-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; }
     </style>
 @endpush
 
