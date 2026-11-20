@@ -95,6 +95,12 @@ class ListPerusahaan extends Model
         return $this->hasMany(CompanyPks::class, 'company_id', 'id');
     }
 
+    /** Referral perusahaan (maksimal dua: Referal 1 dan Referal 2). */
+    public function referrals()
+    {
+        return $this->hasMany(CompanyReferral::class, 'company_id', 'id')->orderBy('position');
+    }
+
     public function pinjamanBerjalan()
     {
         return $this->hasMany(pinjaman::class, 'id_perusahaan', 'id')

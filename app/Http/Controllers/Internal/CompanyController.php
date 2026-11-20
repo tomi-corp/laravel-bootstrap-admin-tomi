@@ -9,6 +9,7 @@ use App\Imports\Internal\CompanyImport;
 use App\Imports\Internal\Concerns\ResolvesWilayah;
 use App\Models\Admin;
 use App\Models\CompanyPks;
+use App\Models\CompanyReferral;
 use App\Models\Feature;
 use App\Models\kecamatan;
 use App\Models\kelurahan;
@@ -17,6 +18,7 @@ use App\Models\list_karyawan;
 use App\Models\ListPerusahaan;
 use App\Models\pinjaman;
 use App\Models\provinsi;
+use App\Models\Referral;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -41,6 +43,7 @@ class CompanyController extends Controller
             'provinces' => provinsi::query()->orderBy('provinsi')->get(),
             'internalAdmins' => $this->internalAdmins()->orderBy('username')->get(['id', 'username', 'email']),
             'features' => Feature::query()->active()->orderBy('name')->get(['id', 'code', 'name']),
+            'referrals' => Referral::query()->where('is_active', 1)->orderBy('name')->get(['id', 'name']),
         ]);
     }
 
@@ -69,7 +72,7 @@ class CompanyController extends Controller
 
     public function show(Request $req)
     {
-        $company = $this->findVisibleCompany($req->id)->load(['provinsi', 'kabupaten', 'kecamatan', 'desa', 'picInternalAdmin']);
+        $company = $this->findVisibleCompany($req->id)->load(['provinsi', 'kabupaten', 'kecamatan', 'desa', 'picInternalAdmin', 'referrals']);
 
         return response()->json([
             'status' => 200,
@@ -102,6 +105,8 @@ class CompanyController extends Controller
                 ->map(fn ($desa) => ['id' => $desa->id, 'desa' => $desa->desa, 'kodepos' => $desa->kodepos])->values(),
             'desa' => $company->desa->desa.'-'.$company->desa->kodepos,
             'payment_date' => $company->payment_date,
+            'referral_1_id' => $company->referrals->firstWhere('position', 1)?->referral_id,
+            'referral_2_id' => $company->referrals->firstWhere('position', 2)?->referral_id,
         ];
     }
 
@@ -120,7 +125,25 @@ class CompanyController extends Controller
             'payment_date' => 'required|numeric',
             // Nomor perjanjian berformat seperti "012/KSPTOMI-FIT/VIII/2026", jadi tidak boleh dibatasi huruf/angka saja.
             'nomor_pks' => 'required|string|max:255',
+            // Maksimal dua referral per perusahaan, dan tidak boleh orang yang sama.
+            'referral_1_id' => 'nullable|exists:referrals,id',
+            'referral_2_id' => 'nullable|exists:referrals,id|different:referral_1_id',
         ];
+    }
+
+    private function companyMessages(): array
+    {
+        return [
+            'referral_2_id.different' => 'Referal 2 harus berbeda dengan Referal 1.',
+        ];
+    }
+
+    private function syncReferrals(ListPerusahaan $company, Request $req): void
+    {
+        CompanyReferral::syncForCompany($company->id, [
+            1 => $req->filled('referral_1_id') ? (int) $req->referral_1_id : null,
+            2 => $req->filled('referral_2_id') ? (int) $req->referral_2_id : null,
+        ]);
     }
 
     /**
@@ -133,7 +156,7 @@ class CompanyController extends Controller
             'pic_internal' => 'nullable',
             'email_perusahaan' => 'required|unique:list_perusahaans,email_perusahaan',
             ...$this->companyRules(),
-        ], [], ['nomor_pks' => 'nomor perjanjian']);
+        ], $this->companyMessages(), ['nomor_pks' => 'nomor perjanjian']);
         $this->validatePks($req, required: true);
 
         return $this->withPks($req, function () use ($req) {
@@ -143,6 +166,7 @@ class CompanyController extends Controller
             $company->email_perusahaan = Str::lower(trim($req->email_perusahaan));
             $this->fillCompany($company, $req);
             $company->save();
+            $this->syncReferrals($company, $req);
 
             return [response()->json(['status' => 200, 'message' => 'Perusahaan berhasil ditambahkan.'], 200), $company->id];
         });
@@ -157,7 +181,7 @@ class CompanyController extends Controller
             'id' => 'required|exists:list_perusahaans,id',
             ...$this->companyRules(),
             'status' => 'required|in:active,nonactive',
-        ], [], ['nomor_pks' => 'nomor perjanjian']);
+        ], $this->companyMessages(), ['nomor_pks' => 'nomor perjanjian']);
         $company = $this->findVisibleCompany($req->id);
         $this->validatePks($req, required: false);
 
@@ -165,6 +189,7 @@ class CompanyController extends Controller
             $this->fillCompany($company, $req);
             $company->status = $req->status;
             $company->save();
+            $this->syncReferrals($company, $req);
 
             return [response()->json(['status' => 200, 'message' => 'Perusahaan berhasil diperbarui.'], 200), $company->id];
         });

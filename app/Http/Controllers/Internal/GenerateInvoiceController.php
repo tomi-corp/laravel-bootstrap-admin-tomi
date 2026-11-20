@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Controllers\Internal\TomiDana;
+namespace App\Http\Controllers\Internal;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Internal\Concerns\ScopesCompanies;
-use App\Imports\TomiDana\GenerateInvoiceImport;
+use App\Imports\GenerateInvoiceImport;
 use App\Models\invoice_generate_manual;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
@@ -18,7 +18,8 @@ use Maatwebsite\Excel\Facades\Excel;
 use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
 
 /**
- * Generate invoice TomiDana: upload Excel pencairan, ringkas per perusahaan, lalu cetak invoice PDF.
+ * Fitur Buat Tagihan (generate invoice), terpisah dari produk TomiDana:
+ * upload Excel pencairan, ringkas per perusahaan, lalu cetak invoice PDF.
  * Port dari Generate Invoice KspDDT.
  */
 class GenerateInvoiceController extends Controller
@@ -42,7 +43,7 @@ class GenerateInvoiceController extends Controller
             ->orderBy('nama_perusahaan')
             ->pluck('nama_perusahaan');
 
-        return view('internal.tomi-dana.generate-invoice.index', compact('invoices', 'companies', 'selectedCompany'));
+        return view('internal.generate-invoice.index', compact('invoices', 'companies', 'selectedCompany'));
     }
 
     public function store(Request $request)
@@ -84,7 +85,7 @@ class GenerateInvoiceController extends Controller
         }
 
         return redirect()
-            ->route('internal.tomi-dana.generate-invoice')
+            ->route('internal.generate-invoice')
             ->with('success', count($summaries).' invoice perusahaan berhasil dibuat dari file yang diupload.');
     }
 
@@ -95,13 +96,13 @@ class GenerateInvoiceController extends Controller
 
         if (blank($invoice->filename) || ! Storage::disk('local')->exists($relativePath)) {
             return redirect()
-                ->route('internal.tomi-dana.generate-invoice')
+                ->route('internal.generate-invoice')
                 ->with('error', 'File Excel sumber tidak ditemukan di storage: '.$relativePath);
         }
 
         $rows = Excel::toArray([], Storage::disk('local')->path($relativePath))[0] ?? [];
         if (empty($rows)) {
-            return redirect()->route('internal.tomi-dana.generate-invoice')->with('error', 'Data Excel tidak ditemukan.');
+            return redirect()->route('internal.generate-invoice')->with('error', 'Data Excel tidak ditemukan.');
         }
 
         $headers = array_map(fn ($header) => Str::snake(Str::lower(preg_replace('/\s+/', ' ', trim((string) $header)))), array_shift($rows));
@@ -133,7 +134,7 @@ class GenerateInvoiceController extends Controller
         $summary = ['total_fee' => array_sum(array_column($items, 'fee_tomi'))];
         $rekening = null;
 
-        return Pdf::loadView('internal.tomi-dana.generate-invoice.pdf', compact('invoice', 'items', 'summary', 'rekening'))
+        return Pdf::loadView('internal.generate-invoice.pdf', compact('invoice', 'items', 'summary', 'rekening'))
             ->setPaper('a4', 'landscape')
             ->stream('invoice_'.Str::slug($invoice->nama_perusahaan).'.pdf');
     }

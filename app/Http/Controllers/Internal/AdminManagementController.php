@@ -11,6 +11,7 @@ use App\Models\Referral;
 use App\Models\Role;
 use App\Models\user_activity_logs;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -24,11 +25,13 @@ use Yajra\DataTables\Facades\DataTables;
  */
 class AdminManagementController extends Controller
 {
-    /** Instansi yang wajib memilih entitas => kolom entitas di tabel admins. */
+    /**
+     * Instansi yang wajib memilih entitas => kolom entitas di tabel admins.
+     * Referral juga wajib memilih entitas, tapi relasinya disimpan di referrals.admin_id (lihat syncReferral).
+     */
     private const ENTITY_COLUMNS = [
         'lender' => 'lender_id',
         'perusahaan' => 'company_id',
-        'referral' => 'referral_id',
     ];
 
     public function index()
@@ -40,14 +43,14 @@ class AdminManagementController extends Controller
             'entities' => [
                 'lender' => ['label' => 'Lender', 'items' => lender::query()->where('status', 'active')->orderBy('nama')->get(['id', 'nama as name'])],
                 'perusahaan' => ['label' => 'Perusahaan', 'items' => ListPerusahaan::query()->where('status', 'active')->orderBy('nama')->get(['id', 'nama as name'])],
-                'referral' => ['label' => 'Referral', 'items' => Referral::query()->where('is_active', 1)->orderBy('name')->get(['id', 'name'])],
+                'referral' => ['label' => 'Referral', 'items' => Referral::query()->where('is_active', 1)->orderBy('name')->get(['id', 'name', 'admin_id'])],
             ],
         ]);
     }
 
     public function table()
     {
-        $query = Admin::query()->select('admins.*')->with(['instansi:id,name', 'role:id,name', 'lender:id,nama', 'company:id,nama', 'referral:id,name']);
+        $query = Admin::query()->select('admins.*')->with(['instansi:id,name', 'role:id,name', 'lender:id,nama', 'company:id,nama', 'referral:id,name,admin_id']);
 
         return DataTables::eloquent($query)
             ->addIndexColumn()
@@ -75,7 +78,7 @@ class AdminManagementController extends Controller
 
     public function show(Request $req)
     {
-        $admin = Admin::findOrFail($req->id);
+        $admin = Admin::with('referral:id,admin_id')->findOrFail($req->id);
 
         return response()->json([
             'status' => 200,
@@ -86,7 +89,7 @@ class AdminManagementController extends Controller
                 'email' => $admin->email,
                 'instansi_id' => $admin->instansi_id,
                 'role_id' => $admin->role_id,
-                'entity_id' => $admin->lender_id ?? $admin->company_id ?? $admin->referral_id,
+                'entity_id' => $admin->lender_id ?? $admin->company_id ?? $admin->referral?->id,
             ],
         ], 200);
     }
@@ -96,9 +99,13 @@ class AdminManagementController extends Controller
         $req->validate($this->rules(), $this->messages());
 
         $admin = new Admin;
-        $this->fillAdmin($admin, $req);
+        $referralId = $this->fillAdmin($admin, $req);
         $admin->password = Hash::make($req->password);
-        $admin->save();
+
+        DB::transaction(function () use ($admin, $referralId) {
+            $admin->save();
+            $this->syncReferral($admin, $referralId);
+        });
 
         return response()->json(['status' => 200, 'message' => 'Admin berhasil ditambahkan.'], 200);
     }
@@ -108,11 +115,15 @@ class AdminManagementController extends Controller
         $admin = Admin::findOrFail($req->id);
         $req->validate($this->rules($admin), $this->messages());
 
-        $this->fillAdmin($admin, $req);
+        $referralId = $this->fillAdmin($admin, $req);
         if ($req->filled('password')) {
             $admin->password = Hash::make($req->password);
         }
-        $admin->save();
+
+        DB::transaction(function () use ($admin, $referralId) {
+            $admin->save();
+            $this->syncReferral($admin, $referralId);
+        });
 
         return response()->json(['status' => 200, 'message' => 'Admin berhasil diperbarui.'], 200);
     }
@@ -181,8 +192,10 @@ class AdminManagementController extends Controller
      * Isi instansi, role, entitas, dan tipe admin. Role harus milik instansi yang dipilih,
      * entitas wajib untuk instansi lender/perusahaan/referral, dan role Super Admin hanya
      * boleh diberikan oleh super admin.
+     *
+     * @return int|null ID referral yang dipilih (instansi referral), untuk ditautkan lewat syncReferral.
      */
-    private function fillAdmin(Admin $admin, Request $req): void
+    private function fillAdmin(Admin $admin, Request $req): ?int
     {
         $role = Role::with('instansi')->findOrFail($req->role_id);
 
@@ -197,7 +210,7 @@ class AdminManagementController extends Controller
         }
 
         $entityColumn = self::ENTITY_COLUMNS[$instansi] ?? null;
-        if ($entityColumn) {
+        if ($entityColumn || $instansi === 'referral') {
             $entityExists = match ($instansi) {
                 'lender' => lender::whereKey($req->entity_id)->exists(),
                 'perusahaan' => ListPerusahaan::whereKey($req->entity_id)->exists(),
@@ -205,6 +218,16 @@ class AdminManagementController extends Controller
             };
             if (! $req->filled('entity_id') || ! $entityExists) {
                 throw ValidationException::withMessages(['entity_id' => ucfirst($instansi).' wajib dipilih.']);
+            }
+        }
+
+        if ($instansi === 'referral') {
+            $ownedByOther = Referral::whereKey($req->entity_id)
+                ->whereNotNull('admin_id')
+                ->when($admin->exists, fn ($q) => $q->where('admin_id', '!=', $admin->id))
+                ->exists();
+            if ($ownedByOther) {
+                throw ValidationException::withMessages(['entity_id' => 'Referral ini sudah memiliki akun admin lain.']);
             }
         }
 
@@ -216,6 +239,23 @@ class AdminManagementController extends Controller
         $admin->type = $isSuperAdmin ? 'master' : 'admin';
         foreach (self::ENTITY_COLUMNS as $column) {
             $admin->{$column} = $column === $entityColumn ? (int) $req->entity_id : null;
+        }
+
+        return $instansi === 'referral' ? (int) $req->entity_id : null;
+    }
+
+    /**
+     * Tautkan referral ke admin lewat referrals.admin_id. Referral lain yang sebelumnya milik
+     * admin ini dilepas (termasuk jika instansinya diganti dari referral ke instansi lain).
+     */
+    private function syncReferral(Admin $admin, ?int $referralId): void
+    {
+        Referral::where('admin_id', $admin->id)
+            ->when($referralId, fn ($q) => $q->whereKeyNot($referralId))
+            ->update(['admin_id' => null]);
+
+        if ($referralId) {
+            Referral::whereKey($referralId)->update(['admin_id' => $admin->id]);
         }
     }
 }

@@ -29,8 +29,9 @@ class Admin extends Authenticatable
         return $this->belongsTo(ListPerusahaan::class, 'company_id');
     }
 
+    /** Data referral milik akun ini (referral adalah turunan admin, lewat referrals.admin_id). */
     public function referral()
     {
-        return $this->belongsTo(Referral::class);
+        return $this->hasOne(Referral::class, 'admin_id');
     }
 }

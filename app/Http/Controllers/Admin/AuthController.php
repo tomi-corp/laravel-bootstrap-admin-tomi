@@ -16,6 +16,7 @@ use App\Models\Role;
 use App\Models\user_activity_logs;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
@@ -175,7 +176,7 @@ class AuthController extends Controller
             'roles' => Role::query()->with('instansi')->orderBy('name')->get(),
             'lenders' => lender::query()->where('status', 'active')->orderBy('nama')->get(['id', 'nama']),
             'companies' => ListPerusahaan::query()->where('status', 'active')->orderBy('nama')->get(['id', 'nama']),
-            'referrals' => Referral::query()->where('is_active', 1)->orderBy('name')->get(['id', 'name']),
+            'referrals' => Referral::query()->where('is_active', 1)->whereNull('admin_id')->orderBy('name')->get(['id', 'name']),
         ]);
     }
 
@@ -270,6 +271,13 @@ class AuthController extends Controller
             ]);
         }
 
+        // Referral adalah turunan admin: relasinya disimpan di referrals.admin_id, satu referral satu akun.
+        if ($instansi === 'referral' && Referral::whereKey($req->referral_id)->whereNotNull('admin_id')->exists()) {
+            throw ValidationException::withMessages([
+                'referral_id' => 'Referral ini sudah memiliki akun admin.',
+            ]);
+        }
+
         $admin = new Admin;
         $admin->name = $req->name;
         $admin->username = $req->username;
@@ -278,10 +286,16 @@ class AuthController extends Controller
         $admin->role_id = $role->id;
         $admin->lender_id = $instansi === 'lender' ? $req->lender_id : null;
         $admin->company_id = $instansi === 'perusahaan' ? $req->company_id : null;
-        $admin->referral_id = $instansi === 'referral' ? $req->referral_id : null;
         $admin->type = $instansi === 'internal' && $role->code === 'super_admin' ? 'master' : 'admin';
         $admin->password = Hash::make($req->password);
-        $admin->save();
+
+        DB::transaction(function () use ($admin, $instansi, $req) {
+            $admin->save();
+
+            if ($instansi === 'referral') {
+                Referral::whereKey($req->referral_id)->update(['admin_id' => $admin->id]);
+            }
+        });
 
         return response()->json([
             'status' => 200,

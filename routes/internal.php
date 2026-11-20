@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Internal\AdminManagementController;
 use App\Http\Controllers\Internal\DashboardController;
+use App\Http\Controllers\Internal\GenerateInvoiceController;
+use App\Http\Controllers\Internal\ReferralController;
 use App\Http\Controllers\Internal\LenderController;
 use App\Http\Controllers\Internal\CompanyController;
 use App\Http\Controllers\Internal\TomiDana\ApplicationHistoryController as TomiDanaApplicationHistoryController;
@@ -10,14 +12,19 @@ use App\Http\Controllers\Internal\TomiDana\CompanyController as TomiDanaCompanyC
 use App\Http\Controllers\Internal\TomiDana\ConfigurationController as TomiDanaConfigurationController;
 use App\Http\Controllers\Internal\TomiDana\DisbursementController as TomiDanaDisbursementController;
 use App\Http\Controllers\Internal\TomiDana\RepaymentController as TomiDanaRepaymentController;
-use App\Http\Controllers\Internal\TomiDana\GenerateInvoiceController as TomiDanaGenerateInvoiceController;
 use App\Http\Controllers\Internal\TomiDana\InvoiceFeeController as TomiDanaInvoiceFeeController;
+use App\Http\Controllers\Internal\TomiDana\ReferralFeeController as TomiDanaReferralFeeController;
 use App\Http\Controllers\Internal\TomiDana\EmployeeController as TomiDanaEmployeeController;
 use App\Http\Controllers\Internal\TomiDana\LoanApplicationController as TomiDanaLoanApplicationController;
 use App\Http\Controllers\Internal\TomiDanaPlus\CompanyController as TomiDanaPlusCompanyController;
 use App\Http\Controllers\Internal\TomiGaji\CompanyController as TomiGajiCompanyController;
 use App\Http\Controllers\Internal\TomiInvoice\CompanyController as TomiInvoiceCompanyController;
 use App\Http\Controllers\Internal\TomiGawai\CompanyController as TomiGawaiCompanyController;
+use App\Http\Controllers\Internal\TomiDana\DashboardController as TomiDanaDashboardController;
+use App\Http\Controllers\Internal\TomiDanaPlus\DashboardController as TomiDanaPlusDashboardController;
+use App\Http\Controllers\Internal\TomiGaji\DashboardController as TomiGajiDashboardController;
+use App\Http\Controllers\Internal\TomiInvoice\DashboardController as TomiInvoiceDashboardController;
+use App\Http\Controllers\Internal\TomiGawai\DashboardController as TomiGawaiDashboardController;
 use App\Http\Controllers\Internal\WilayahController;
 
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
@@ -54,6 +61,7 @@ Route::post('/lenders/locations/districts', [WilayahController::class, 'district
 Route::post('/lenders/locations/villages', [WilayahController::class, 'villages'])->name('lenders.locations.villages');
 Route::view('/tomi-dana', 'internal.tomi-dana.index')->name('tomi-dana');
 Route::prefix('/tomi-dana')->name('tomi-dana.')->group(function () {
+    Route::get('/dashboard', [TomiDanaDashboardController::class, 'index'])->name('dashboard');
     Route::get('/companies', [TomiDanaCompanyController::class, 'index'])->name('companies');
     Route::post('/companies/table', [TomiDanaCompanyController::class, 'table'])->name('companies.table');
 
@@ -107,11 +115,6 @@ Route::prefix('/tomi-dana')->name('tomi-dana.')->group(function () {
     Route::post('/application-history/statistic', [TomiDanaApplicationHistoryController::class, 'statistic'])->name('application-history.statistic');
     Route::post('/application-history/table', [TomiDanaApplicationHistoryController::class, 'table'])->name('application-history.table');
 
-    // Generate invoice dari upload Excel
-    Route::get('/generate-invoice', [TomiDanaGenerateInvoiceController::class, 'index'])->name('generate-invoice');
-    Route::post('/generate-invoice', [TomiDanaGenerateInvoiceController::class, 'store'])->name('generate-invoice.store');
-    Route::get('/generate-invoice/{id}/pdf', [TomiDanaGenerateInvoiceController::class, 'pdf'])->whereNumber('id')->name('generate-invoice.pdf');
-
     // Biaya aplikasi (invoice lender)
     Route::get('/invoice-fee', [TomiDanaInvoiceFeeController::class, 'index'])->name('invoice-fee');
     Route::post('/invoice-fee/pending/table', [TomiDanaInvoiceFeeController::class, 'pendingTable'])->name('invoice-fee.pending.table');
@@ -119,11 +122,14 @@ Route::prefix('/tomi-dana')->name('tomi-dana.')->group(function () {
     Route::post('/invoice-fee/update', [TomiDanaInvoiceFeeController::class, 'update'])->name('invoice-fee.update');
     Route::get('/invoice-fee/{id}/download', [TomiDanaInvoiceFeeController::class, 'download'])->name('invoice-fee.download');
 
-    // Biaya referal (halaman masih placeholder)
-    Route::view('/referral-fee', 'internal.tomi-dana.referral-fee.index')->name('referral-fee');
+    // Biaya referal per perusahaan per bulan
+    Route::get('/referral-fee', [TomiDanaReferralFeeController::class, 'index'])->name('referral-fee');
+    Route::post('/referral-fee/table/{type}', [TomiDanaReferralFeeController::class, 'table'])->whereIn('type', ['current', 'history'])->name('referral-fee.table');
+    Route::get('/referral-fee/{company}/{period}/download', [TomiDanaReferralFeeController::class, 'download'])->whereNumber('company')->where('period', '\d{4}-\d{2}')->name('referral-fee.download');
 });
 Route::view('/tomi-dana-plus', 'internal.tomi-dana-plus.index')->name('tomi-dana-plus');
 Route::prefix('/tomi-dana-plus')->name('tomi-dana-plus.')->group(function () {
+    Route::get('/dashboard', [TomiDanaPlusDashboardController::class, 'index'])->name('dashboard');
     Route::get('/companies', [TomiDanaPlusCompanyController::class, 'index'])->name('companies');
     Route::post('/companies/table', [TomiDanaPlusCompanyController::class, 'table'])->name('companies.table');
 
@@ -137,6 +143,7 @@ Route::prefix('/tomi-dana-plus')->name('tomi-dana-plus.')->group(function () {
 
 Route::view('/tomi-gaji', 'internal.tomi-gaji.index')->name('tomi-gaji');
 Route::prefix('/tomi-gaji')->name('tomi-gaji.')->group(function () {
+    Route::get('/dashboard', [TomiGajiDashboardController::class, 'index'])->name('dashboard');
     Route::get('/companies', [TomiGajiCompanyController::class, 'index'])->name('companies');
     Route::post('/companies/table', [TomiGajiCompanyController::class, 'table'])->name('companies.table');
 
@@ -150,6 +157,7 @@ Route::prefix('/tomi-gaji')->name('tomi-gaji.')->group(function () {
 
 Route::view('/tomi-invoice', 'internal.tomi-invoice.index')->name('tomi-invoice');
 Route::prefix('/tomi-invoice')->name('tomi-invoice.')->group(function () {
+    Route::get('/dashboard', [TomiInvoiceDashboardController::class, 'index'])->name('dashboard');
     Route::get('/companies', [TomiInvoiceCompanyController::class, 'index'])->name('companies');
     Route::post('/companies/table', [TomiInvoiceCompanyController::class, 'table'])->name('companies.table');
 
@@ -163,6 +171,7 @@ Route::prefix('/tomi-invoice')->name('tomi-invoice.')->group(function () {
 
 Route::view('/tomi-gawai', 'internal.tomi-gawai.index')->name('tomi-gawai');
 Route::prefix('/tomi-gawai')->name('tomi-gawai.')->group(function () {
+    Route::get('/dashboard', [TomiGawaiDashboardController::class, 'index'])->name('dashboard');
     Route::get('/companies', [TomiGawaiCompanyController::class, 'index'])->name('companies');
     Route::post('/companies/table', [TomiGawaiCompanyController::class, 'table'])->name('companies.table');
 
@@ -185,5 +194,21 @@ Route::prefix('/admin-management')->name('admin-management.')->group(function ()
     Route::post('/delete', [AdminManagementController::class, 'destroy'])->name('delete');
     Route::post('/audit/table', [AdminManagementController::class, 'auditTable'])->name('audit.table');
 });
+// Fitur: Buat Tagihan (generate invoice dari upload Excel), terpisah dari produk
+Route::get('/generate-invoice', [GenerateInvoiceController::class, 'index'])->name('generate-invoice');
+Route::post('/generate-invoice', [GenerateInvoiceController::class, 'store'])->name('generate-invoice.store');
+Route::get('/generate-invoice/{id}/pdf', [GenerateInvoiceController::class, 'pdf'])->whereNumber('id')->name('generate-invoice.pdf');
+
 Route::view('/bank-accounts', 'internal.bank-accounts.index')->name('bank-accounts');
-Route::view('/referral', 'internal.referral.index')->name('referral');
+Route::get('/referral', [ReferralController::class, 'index'])->name('referral');
+Route::prefix('/referral')->name('referral.')->group(function () {
+    Route::post('/table', [ReferralController::class, 'table'])->name('table');
+    Route::post('/detail', [ReferralController::class, 'show'])->name('detail');
+    Route::post('/add', [ReferralController::class, 'store'])->name('add');
+    Route::post('/update', [ReferralController::class, 'update'])->name('update');
+    Route::post('/delete', [ReferralController::class, 'destroy'])->name('delete');
+    Route::get('/{referral}/file/{type}', [ReferralController::class, 'file'])->whereNumber('referral')->whereIn('type', ['ktp', 'bank-book'])->name('file');
+    Route::post('/companies', [ReferralController::class, 'companies'])->name('companies');
+    Route::post('/companies/add', [ReferralController::class, 'attachCompany'])->name('companies.add');
+    Route::post('/companies/delete', [ReferralController::class, 'detachCompany'])->name('companies.delete');
+});

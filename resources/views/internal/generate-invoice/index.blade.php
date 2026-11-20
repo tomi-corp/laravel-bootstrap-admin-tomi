@@ -21,8 +21,8 @@
             <div class="page-title-box">
                 <div class="page-title-right">
                     <ol class="breadcrumb m-0">
-                        <li class="breadcrumb-item"><a href="javascript: void(0);">Tomi Dana</a></li>
-                        <li class="breadcrumb-item active">Generate Invoice</li>
+                        <li class="breadcrumb-item"><a href="javascript: void(0);">Fitur</a></li>
+                        <li class="breadcrumb-item active">Buat Tagihan</li>
                     </ol>
                 </div>
                 <h4 class="page-title">Generate Invoice</h4>
@@ -55,7 +55,7 @@
                         untuk proses generate invoice.
                     </p>
 
-                    <form action="{{ route('internal.tomi-dana.generate-invoice.store') }}" method="POST" enctype="multipart/form-data" id="generateInvoiceForm">
+                    <form action="{{ route('internal.generate-invoice.store') }}" method="POST" enctype="multipart/form-data" id="generateInvoiceForm">
                         @csrf
 
                         <div class="form-group">
@@ -107,12 +107,12 @@
                             <ul class="nav nav-pills flex-nowrap">
                                 <li class="nav-item">
                                     <a class="nav-link {{ empty($selectedCompany) ? 'active' : '' }}"
-                                        href="{{ route('internal.tomi-dana.generate-invoice') }}">Semua Perusahaan</a>
+                                        href="{{ route('internal.generate-invoice') }}">Semua Perusahaan</a>
                                 </li>
                                 @foreach ($companies as $company)
                                     <li class="nav-item">
                                         <a class="nav-link {{ $selectedCompany == $company ? 'active' : '' }}"
-                                            href="{{ route('internal.tomi-dana.generate-invoice', ['nama_perusahaan' => $company]) }}">{{ $company }}</a>
+                                            href="{{ route('internal.generate-invoice', ['nama_perusahaan' => $company]) }}">{{ $company }}</a>
                                     </li>
                                 @endforeach
                             </ul>
@@ -143,7 +143,7 @@
                                     <td>Rp {{ number_format($invoice->total_fee ?? 0, 0, ',', '.') }}</td>
                                     <td data-order="{{ $invoice->created_at?->timestamp }}">{{ $invoice->created_at?->format('d-m-Y H:i') ?? '-' }}</td>
                                     <td>
-                                        <a href="{{ route('internal.tomi-dana.generate-invoice.pdf', $invoice->id) }}"
+                                        <a href="{{ route('internal.generate-invoice.pdf', $invoice->id) }}"
                                             class="btn btn-sm btn-danger" target="_blank">
                                             <i class="mdi mdi-file-pdf-outline"></i> Download Invoice
                                         </a>
