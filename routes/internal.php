@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Internal\AdminManagementController;
 use App\Http\Controllers\Internal\DashboardController;
+use App\Http\Controllers\Internal\GenerateInvoiceController;
 use App\Http\Controllers\Internal\ReferralController;
 use App\Http\Controllers\Internal\LenderController;
 use App\Http\Controllers\Internal\CompanyController;
@@ -11,7 +12,6 @@ use App\Http\Controllers\Internal\TomiDana\CompanyController as TomiDanaCompanyC
 use App\Http\Controllers\Internal\TomiDana\ConfigurationController as TomiDanaConfigurationController;
 use App\Http\Controllers\Internal\TomiDana\DisbursementController as TomiDanaDisbursementController;
 use App\Http\Controllers\Internal\TomiDana\RepaymentController as TomiDanaRepaymentController;
-use App\Http\Controllers\Internal\TomiDana\GenerateInvoiceController as TomiDanaGenerateInvoiceController;
 use App\Http\Controllers\Internal\TomiDana\InvoiceFeeController as TomiDanaInvoiceFeeController;
 use App\Http\Controllers\Internal\TomiDana\ReferralFeeController as TomiDanaReferralFeeController;
 use App\Http\Controllers\Internal\TomiDana\EmployeeController as TomiDanaEmployeeController;
@@ -115,11 +115,6 @@ Route::prefix('/tomi-dana')->name('tomi-dana.')->group(function () {
     Route::post('/application-history/statistic', [TomiDanaApplicationHistoryController::class, 'statistic'])->name('application-history.statistic');
     Route::post('/application-history/table', [TomiDanaApplicationHistoryController::class, 'table'])->name('application-history.table');
 
-    // Generate invoice dari upload Excel
-    Route::get('/generate-invoice', [TomiDanaGenerateInvoiceController::class, 'index'])->name('generate-invoice');
-    Route::post('/generate-invoice', [TomiDanaGenerateInvoiceController::class, 'store'])->name('generate-invoice.store');
-    Route::get('/generate-invoice/{id}/pdf', [TomiDanaGenerateInvoiceController::class, 'pdf'])->whereNumber('id')->name('generate-invoice.pdf');
-
     // Biaya aplikasi (invoice lender)
     Route::get('/invoice-fee', [TomiDanaInvoiceFeeController::class, 'index'])->name('invoice-fee');
     Route::post('/invoice-fee/pending/table', [TomiDanaInvoiceFeeController::class, 'pendingTable'])->name('invoice-fee.pending.table');
@@ -199,6 +194,11 @@ Route::prefix('/admin-management')->name('admin-management.')->group(function ()
     Route::post('/delete', [AdminManagementController::class, 'destroy'])->name('delete');
     Route::post('/audit/table', [AdminManagementController::class, 'auditTable'])->name('audit.table');
 });
+// Fitur: Buat Tagihan (generate invoice dari upload Excel), terpisah dari produk
+Route::get('/generate-invoice', [GenerateInvoiceController::class, 'index'])->name('generate-invoice');
+Route::post('/generate-invoice', [GenerateInvoiceController::class, 'store'])->name('generate-invoice.store');
+Route::get('/generate-invoice/{id}/pdf', [GenerateInvoiceController::class, 'pdf'])->whereNumber('id')->name('generate-invoice.pdf');
+
 Route::view('/bank-accounts', 'internal.bank-accounts.index')->name('bank-accounts');
 Route::get('/referral', [ReferralController::class, 'index'])->name('referral');
 Route::prefix('/referral')->name('referral.')->group(function () {

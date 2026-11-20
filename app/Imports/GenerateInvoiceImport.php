@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Imports\TomiDana;
+namespace App\Imports;
 
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\SkipsEmptyRows;

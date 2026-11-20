@@ -24,7 +24,6 @@
             ['label' => 'Riwayat Pengajuan', 'route' => 'internal.tomi-dana.application-history', 'active' => ['internal.tomi-dana.application-history*']],
             ['label' => 'Biaya Aplikasi', 'route' => 'internal.tomi-dana.invoice-fee', 'active' => ['internal.tomi-dana.invoice-fee*']],
             ['label' => 'Biaya Referal', 'route' => 'internal.tomi-dana.referral-fee', 'active' => ['internal.tomi-dana.referral-fee*']],
-            ['label' => 'Buat Tagihan', 'route' => 'internal.tomi-dana.generate-invoice', 'active' => ['internal.tomi-dana.generate-invoice*']],
         ]],
         ['label' => 'Tomi Dana Plus', 'slot' => 1, 'children' => [
             ['label' => 'Dashboard', 'route' => 'internal.tomi-dana-plus.dashboard', 'active' => ['internal.tomi-dana-plus.dashboard']],
@@ -62,6 +61,8 @@
             ['label' => 'Biaya Aplikasi', 'route' => 'internal.tomi-gawai.invoice-fee', 'active' => ['internal.tomi-gawai.invoice-fee*']],
             ['label' => 'Biaya Referal', 'route' => 'internal.tomi-gawai.referral-fee', 'active' => ['internal.tomi-gawai.referral-fee*']],
         ]],
+        ['section' => 'Fitur'],
+        ['label' => 'Buat Tagihan', 'icon' => 'table', 'route' => 'internal.generate-invoice', 'active' => ['internal.generate-invoice*']],
         ['section' => 'Manajemen'],
         ['label' => 'Kelola Admin', 'icon' => 'shield', 'route' => 'internal.admin-management', 'active' => ['internal.admin-management*']],
         ['label' => 'Referral', 'icon' => 'users', 'route' => 'internal.referral', 'active' => ['internal.referral', 'internal.referral.*']],
