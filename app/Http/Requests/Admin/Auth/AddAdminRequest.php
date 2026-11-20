@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin\Auth;
 
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Password;
 
@@ -18,14 +19,20 @@ class AddAdminRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
         return [
+            'name' => 'required|string|max:255',
             'username' => 'required|unique:admins,username',
             'email' => 'required|unique:admins,email',
-            'type_admin' => 'required|in:admin,master',
+            'instansi_id' => 'required|exists:instansis,id',
+            'role_id' => 'required|exists:roles,id',
+            'lender_id' => 'nullable|exists:lenders,id',
+            'company_id' => 'nullable|exists:list_perusahaans,id',
+            'referral_id' => 'nullable|exists:referrals,id',
+            'type_admin' => 'nullable|in:admin,master',
             'password' => ['required', Password::min(8)
                 ->letters()
                 ->mixedCase()

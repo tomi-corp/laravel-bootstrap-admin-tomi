@@ -2,9 +2,8 @@
 
 namespace App\Http\Requests\Admin\Ksp;
 
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rules\Password;
-
 
 class AddPerusahaanRequest extends FormRequest
 {
@@ -19,13 +18,14 @@ class AddPerusahaanRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
         return [
             'pic_perusahaan' => 'required',
-            'pic_internal' => 'required',
+            'pic_internal' => 'nullable',
+            'admin_id' => 'required|exists:admins,id',
             'nama_perusahaan' => 'required',
             'email_perusahaan' => 'required|unique:list_perusahaans,email_perusahaan',
             'telepon' => 'required|numeric',
@@ -35,7 +35,15 @@ class AddPerusahaanRequest extends FormRequest
             'desa' => 'required',
             'alamat_lengkap' => 'required',
             'payment_date' => 'required|numeric',
-            'nomor_pks' => 'required|alpha_num',
+            // Nomor perjanjian berformat seperti "012/KSPTOMI-FIT/VIII/2026", jadi tidak boleh dibatasi huruf/angka saja.
+            'nomor_pks' => 'required|string|max:255',
+        ];
+    }
+
+    public function attributes(): array
+    {
+        return [
+            'nomor_pks' => 'nomor perjanjian',
         ];
     }
 }

@@ -15,43 +15,8 @@
     </div>
 
     <div class="col-12">
-        <div class="row">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="row align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-uppercase mb-1">PERUSAHAAN DENGAN STATUS
-                                    ACTIVE</div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $perusahaanAktif }}</div>
-
-                            </div>
-                            <div class="col-auto">
-                                <i class="fa fa-check fa-2x text-primary"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="row align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-uppercase mb-1">PERUSAHAAN DENGAN STATUS
-                                    NON ACTIVE</div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $perusahaanTidakAktif }}</div>
-
-                            </div>
-                            <div class="col-auto">
-                                <i class="fa fa-ban fa-2x text-danger"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        {{-- Ringkasan perusahaan mitra: komponen & data yang sama dengan Dasbor utama --}}
+        @include('admin.insight.partials.partners-summary')
         <div class="card">
             <div class="card-body">
 
@@ -159,8 +124,15 @@
 
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label>Nama PIC HC / HRD</label>
-                            <input class="form-control" id="namaPicInternal" placeholder="PIC Internal"></input>
+                            <label>PIC Internal</label>
+                            <select class="form-control" id="adminPicInternal">
+                                <option value="">Pilih PIC Internal</option>
+                                @foreach ($internalAdmins as $internalAdmin)
+                                    <option value="{{ $internalAdmin->id }}">
+                                        {{ $internalAdmin->username }} - {{ $internalAdmin->email }}
+                                    </option>
+                                @endforeach
+                            </select>
                             <small class="text-danger" id="errNamaPicInternal"></small>
                         </div>
                     </div>
@@ -331,8 +303,15 @@
 
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label>Nama PIC HC / HRD</label>
-                            <input class="form-control" id="namaPicInternalEdit" placeholder="PIC Internal"></input>
+                            <label>PIC Internal</label>
+                            <select class="form-control" id="adminPicInternalEdit">
+                                <option value="">Pilih PIC Internal</option>
+                                @foreach ($internalAdmins as $internalAdmin)
+                                    <option value="{{ $internalAdmin->id }}">
+                                        {{ $internalAdmin->username }} - {{ $internalAdmin->email }}
+                                    </option>
+                                @endforeach
+                            </select>
                             <small class="text-danger" id="errNamaPicInternalEdit"></small>
                         </div>
                     </div>
@@ -860,7 +839,8 @@
                 '_token': "{{ csrf_token() }}",
 
                 'pic_perusahaan': $("#namaPicPerusahaan").val(),
-                'pic_internal': $("#namaPicInternal").val(),
+                'admin_id': $("#adminPicInternal").val(),
+                'pic_internal': '',
                 'nama_perusahaan': $("#namaPerusahaan").val(),
                 'email_perusahaan': $("#emailPerusahaan").val(),
                 'telepon': $("#telepon").val(),
@@ -917,7 +897,7 @@
             dataType: 'json',
             success: function (detail) {
                 $("#namaPicPerusahaanEdit").val(detail.data.pic_perusahaan);
-                $("#namaPicInternalEdit").val(detail.data.pic_internal);
+                $("#adminPicInternalEdit").val(detail.data.admin_id);
                 $("#namaPerusahaanEdit").val(detail.data.nama);
                 $("#teleponEdit").val(detail.data.telp);
                 $("#alamatEdit").val(detail.data.alamat_lengkap);
@@ -965,6 +945,7 @@
             data: {
                 '_token': "{{ csrf_token() }}",
                 'id': editID,
+                'admin_id': $("#adminPicInternalEdit").val(),
                 'nama_perusahaan': $("#namaPerusahaanEdit").val(),
                 'telepon': $("#teleponEdit").val(),
                 'provinsi': $("#provinsiSelectEdit").val(),

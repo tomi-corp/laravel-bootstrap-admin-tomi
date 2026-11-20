@@ -9,4 +9,6 @@
 @source "../views/layout/shell.blade.php";
 @source "../views/layout/partials/shell";
 @source "../views/admin/insight";
+@source "../views/internal/dashboard";
+@source "../views/internal/tomi-dana/dashboard";
 @source "../js/backoffice.js";

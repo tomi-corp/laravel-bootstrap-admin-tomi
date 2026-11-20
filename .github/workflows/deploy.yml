@@ -1,0 +1,163 @@
+name: Deploy ke cPanel
+
+# develop  -> environment "development" (otomatis)
+# staging  -> environment "staging"     (otomatis)
+# main     -> environment "production"  (otomatis, tapi menunggu approval required reviewer di GitHub Environment)
+# Deploy ulang manual lewat tab Actions (workflow_dispatch); ref selalu mengikuti branch milik target.
+# Panduan setup server & secrets: docs/deployment-cpanel.md
+
+on:
+  push:
+    branches:
+      - develop
+      - staging
+      - main
+  workflow_dispatch:
+    inputs:
+      target:
+        description: Server tujuan deploy ulang.
+        required: true
+        type: choice
+        options:
+          - development
+          - staging
+          - production
+
+permissions:
+  contents: read
+
+jobs:
+  tentukan-target:
+    name: Tentukan target deploy
+    runs-on: ubuntu-latest
+    outputs:
+      environment: ${{ steps.target.outputs.environment }}
+      branch: ${{ steps.target.outputs.branch }}
+    steps:
+      - name: Petakan branch ke environment
+        id: target
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_TARGET: ${{ inputs.target }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            environment="$INPUT_TARGET"
+          else
+            case "$REF_NAME" in
+              develop) environment=development ;;
+              staging) environment=staging ;;
+              main) environment=production ;;
+              *) echo "Branch $REF_NAME tidak punya target deploy."; exit 1 ;;
+            esac
+          fi
+
+          case "$environment" in
+            development) branch=develop ;;
+            staging) branch=staging ;;
+            production) branch=main ;;
+            *) echo "Target $environment tidak dikenal."; exit 1 ;;
+          esac
+
+          echo "Deploy branch $branch ke environment $environment"
+          echo "environment=$environment" >> "$GITHUB_OUTPUT"
+          echo "branch=$branch" >> "$GITHUB_OUTPUT"
+
+  deploy:
+    name: Deploy ${{ needs.tentukan-target.outputs.branch }} ke ${{ needs.tentukan-target.outputs.environment }}
+    needs: tentukan-target
+    runs-on: ubuntu-latest
+    # Approval production diatur di Settings -> Environments -> production -> Required reviewers.
+    environment: ${{ needs.tentukan-target.outputs.environment }}
+    concurrency:
+      group: deploy-${{ needs.tentukan-target.outputs.environment }}
+      cancel-in-progress: false
+    env:
+      BRANCH: ${{ needs.tentukan-target.outputs.branch }}
+      DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+      PHP_BIN: ${{ vars.PHP_BIN || 'php' }}
+      COMPOSER_BIN: ${{ vars.COMPOSER_BIN || 'composer' }}
+    steps:
+      - name: Checkout ${{ needs.tentukan-target.outputs.branch }}
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.tentukan-target.outputs.branch }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Build aset Vite
+        run: |
+          npm ci
+          npm run build
+          test -f public/build/manifest.json
+
+      - name: Siapkan SSH
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+        run: |
+          for name in SSH_PRIVATE_KEY SSH_KNOWN_HOSTS SSH_HOST SSH_USER DEPLOY_PATH; do
+            if [ -z "${!name}" ]; then echo "Secret $name belum diisi di environment ini."; exit 1; fi
+          done
+
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_deploy
+          chmod 600 ~/.ssh/id_deploy
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+          cat > ~/.ssh/config <<EOF
+          Host deploy-target
+            HostName $SSH_HOST
+            Port ${SSH_PORT:-22}
+            User $SSH_USER
+            IdentityFile ~/.ssh/id_deploy
+            IdentitiesOnly yes
+            StrictHostKeyChecking yes
+            ServerAliveInterval 30
+          EOF
+          chmod 600 ~/.ssh/config
+
+      - name: Maintenance mode dan tarik kode terbaru
+        run: |
+          ssh deploy-target bash -se <<EOF
+          set -euo pipefail
+          cd "$DEPLOY_PATH"
+          "$PHP_BIN" artisan down --retry=60 || true
+          git fetch --prune origin "$BRANCH"
+          git reset --hard "origin/$BRANCH"
+          echo "Commit server: \$(git rev-parse --short HEAD)"
+          EOF
+
+      - name: Upload aset Vite
+        run: rsync -az --delete -e ssh public/build/ "deploy-target:$DEPLOY_PATH/public/build/"
+
+      - name: Composer, migrate, dan cache
+        run: |
+          ssh deploy-target bash -se <<EOF
+          set -euo pipefail
+          cd "$DEPLOY_PATH"
+          "$COMPOSER_BIN" install --no-dev --prefer-dist --optimize-autoloader --no-interaction
+          "$PHP_BIN" artisan migrate --force
+          [ -e public/storage ] || "$PHP_BIN" artisan storage:link
+          "$PHP_BIN" artisan optimize:clear
+          "$PHP_BIN" artisan config:cache
+          "$PHP_BIN" artisan route:cache
+          "$PHP_BIN" artisan view:cache
+          "$PHP_BIN" artisan up
+          EOF
+
+      # Jika langkah di atas gagal, situs jangan dibiarkan terkunci di maintenance mode.
+      - name: Keluarkan dari maintenance mode (saat gagal)
+        if: failure()
+        run: ssh deploy-target "cd '$DEPLOY_PATH' && '$PHP_BIN' artisan up" || true
+
+      - name: Hapus key SSH
+        if: always()
+        run: rm -f ~/.ssh/id_deploy

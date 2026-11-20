@@ -37,14 +37,17 @@ class InsightController extends Controller
     public function data(Request $request)
     {
         $scope = (string) $request->query('scope', 'overview');
-        abort_unless($scope === 'overview' || isset(InsightService::PRODUCTS[$scope]), 404);
+        abort_unless(in_array($scope, ['overview', 'partners'], true) || isset(InsightService::PRODUCTS[$scope]), 404);
 
         $lenderId = $this->resolveLender($request);
         $period = InsightPeriod::fromRequest($request, $this->insight->earliest());
 
-        $data = $scope === 'overview'
-            ? $this->insight->overview($period, $lenderId)
-            : $this->insight->product($scope, $period, $lenderId);
+        $data = match (true) {
+            $scope === 'overview' => $this->insight->overview($period, $lenderId),
+            // ringkasan perusahaan mitra saja (halaman Perusahaan), sama persis dengan blok di Dasbor utama
+            $scope === 'partners' => ['partners' => $this->insight->companies()->block($period, $lenderId)],
+            default => $this->insight->product($scope, $period, $lenderId),
+        };
 
         return response()->json([
             'period' => $period->toArray(),
@@ -136,26 +139,6 @@ class InsightController extends Controller
 
     private function pageContext(string $scope): array
     {
-        $earliest = $this->insight->earliest();
-        $today = now()->startOfDay();
-
-        return [
-            'scope' => $scope,
-            'lenders' => DB::table('lenders')->orderBy('id')->get(['id', 'nama']),
-            'canSwitchLender' => true,
-            'lockedLenderName' => null,
-            'cfg' => [
-                'scope' => $scope,
-                'endpoint' => route('admin.insight.data'),
-                'detailEndpoint' => route('admin.insight.detail'),
-                'productUrls' => collect(InsightService::PRODUCTS)->map(fn ($p, $key) => route('admin.insight.product', $key))->all(),
-                'years' => range($today->year, min($earliest->year, $today->year)),
-                'minDate' => $earliest->toDateString(),
-                'maxDate' => $today->toDateString(),
-                'defaultFrom' => $today->copy()->subDays(29)->max($earliest)->toDateString(),
-                'lender' => 'all',
-                'canSwitch' => true,
-            ],
-        ];
+        return $this->insight->pageContext($scope);
     }
 }

@@ -13,6 +13,8 @@
     $pageTitle = $__env->hasSection('page-title') ? trim($__env->yieldContent('page-title'))
         : ($fromNav ? $here['label'] : trim($__env->yieldContent('title', 'Backoffice')));
     $crumbs = $here ? ($fromNav ? ($here['group'] ?? 'Menu') : implode(' / ', array_filter([$here['group'], $here['label']]))) : 'Backoffice';
+    // ?embed=1 → halaman dimuat di dalam modal (iframe): tanpa sidebar & header, hanya konten.
+    $embed = request()->boolean('embed');
 @endphp
 <!doctype html>
 <html lang="id">
@@ -37,10 +39,23 @@
     </script>
     @vite([trim($__env->yieldContent('ui-css', 'resources/css/backoffice.css')), 'resources/js/backoffice.js'])
     @stack('head')
+    @if ($embed)
+        {{-- Di dalam modal, judul & breadcrumb halaman sudah diwakili judul modal --}}
+        <style>.page-title-box { display: none !important; }</style>
+    @endif
 </head>
 <body class="font-sans" x-data="{ navOpen: false }">
 @include('layout.partials.shell.icons')
 
+@if ($embed)
+<main style="padding: 16px;">
+    @hasSection('shell-main')
+        @yield('shell-main')
+    @else
+        @yield('content')
+    @endif
+</main>
+@else
 <div class="min-h-screen lg:grid lg:grid-cols-[244px_minmax(0,1fr)]">
     {{-- ===================== Sidebar ===================== --}}
     <div class="fixed inset-0 z-40 bg-black/30 lg:hidden" x-show="navOpen" x-transition.opacity x-cloak @click="navOpen = false"></div>
@@ -130,6 +145,7 @@
         </main>
     </div>
 </div>
+@endif
 <div class="tip" id="tip" role="tooltip"></div>
 @stack('scripts')
 </body>

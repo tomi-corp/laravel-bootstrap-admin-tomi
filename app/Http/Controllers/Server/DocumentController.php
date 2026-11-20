@@ -2,28 +2,29 @@
 
 namespace App\Http\Controllers\Server;
 
+use App\Http\Controllers\Concerns\ReadsUserDocuments;
 use App\Http\Controllers\Controller;
 use App\Models\PrivyDigitalIdSession;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 
 class DocumentController extends Controller
 {
+    use ReadsUserDocuments;
+
     public function pk(Request $request)
     {
         $disk = Storage::disk('local');
         $fileName = $request->document;
+        $path = $this->pkDocumentPath($fileName);
 
-        if ($this->hasInvalidFileName($fileName)) {
+        if ($path === null) {
             return response()->json([
                 'success' => false,
                 'message' => 'Invalid filename',
             ], 400);
         }
-
-        $path = 'assets/pk/' . $fileName;
 
         if (!$disk->exists($path)) {
             return response()->json([
@@ -78,34 +79,9 @@ class DocumentController extends Controller
                 return null;
             }
 
-            $session = PrivyDigitalIdSession::find($sessionId);
-            $path = $session?->{$imageType === 'ktp' ? 'local_ktp_path' : 'local_selfie_path'};
-
-            return $this->isValidStoredImagePath($path) ? $path : null;
+            return $this->privySessionImagePath(PrivyDigitalIdSession::find($sessionId), $imageType);
         }
 
-        $fileName = $request->input('image');
-
-        if ($this->hasInvalidFileName($fileName)) {
-            return null;
-        }
-
-        return 'assets/users/' . $fileName;
-    }
-
-    private function isValidStoredImagePath(?string $path): bool
-    {
-        return filled($path)
-            && !$this->hasInvalidStoragePath($path);
-    }
-
-    private function hasInvalidStoragePath(?string $path): bool
-    {
-        return blank($path) || Str::contains($path, ['..', '\\']) || Str::startsWith($path, '/');
-    }
-
-    private function hasInvalidFileName(?string $fileName): bool
-    {
-        return blank($fileName) || Str::contains($fileName, ['..', '/', '\\']);
+        return $this->userImagePath($request->input('image'));
     }
 }

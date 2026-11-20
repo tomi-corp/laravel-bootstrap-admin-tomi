@@ -11,4 +11,7 @@
 
 @source "../views/layout/shell.blade.php";
 @source "../views/layout/partials/shell";
+@source "../views/admin/insight/partials/partners-summary.blade.php";
+@source "../views/admin/insight/partials/partners.blade.php";
+@source "../views/admin/insight/partials/filters.blade.php";
 @source "../js/backoffice.js";

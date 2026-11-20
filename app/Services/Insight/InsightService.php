@@ -91,9 +91,48 @@ class InsightService
             DB::table('salary_financings')->min('created_at'),
             DB::table('financing_request_invoices')->whereNull('deleted_at')->min('created_at'),
             DB::table('gadget_installments')->min('created_at'),
+            $this->companies()->earliestStart(), // perusahaan mitra yang mulai sebelum transaksi pertama
         ]);
 
         return $dates ? CarbonImmutable::parse(min($dates))->startOfDay() : CarbonImmutable::now()->startOfYear();
+    }
+
+    private ?CompanyInsight $companies = null;
+
+    /** Perusahaan mitra (jumlah terdaftar, baru, berhenti, bertransaksi) — lihat CompanyInsight. */
+    public function companies(): CompanyInsight
+    {
+        return $this->companies ??= new CompanyInsight($this);
+    }
+
+    /**
+     * Data halaman untuk komponen Alpine `insight` + baris filter (Dasbor utama, dasbor produk, ringkasan di halaman Perusahaan).
+     * $scope 'partners' = ringkasan perusahaan mitra; URL halaman tidak ditulis ulang karena halaman induknya bukan dasbor.
+     */
+    public function pageContext(string $scope): array
+    {
+        $earliest = $this->earliest();
+        $today = now()->startOfDay();
+
+        return [
+            'scope' => $scope,
+            'lenders' => DB::table('lenders')->orderBy('id')->get(['id', 'nama']),
+            'canSwitchLender' => true,
+            'lockedLenderName' => null,
+            'cfg' => [
+                'scope' => $scope,
+                'endpoint' => route('admin.insight.data'),
+                'detailEndpoint' => route('admin.insight.detail'),
+                'productUrls' => collect(self::PRODUCTS)->map(fn ($p, $key) => route('admin.insight.product', $key))->all(),
+                'years' => range($today->year, min($earliest->year, $today->year)),
+                'minDate' => $earliest->toDateString(),
+                'maxDate' => $today->toDateString(),
+                'defaultFrom' => $today->copy()->subDays(29)->max($earliest)->toDateString(),
+                'lender' => 'all',
+                'canSwitch' => true,
+                'syncUrl' => $scope !== 'partners',
+            ],
+        ];
     }
 
     /* ===================================================================== */
@@ -172,6 +211,7 @@ class InsightService
             'lenders' => $this->lenderSplit($period, $lenderId, $totals['disbursed']['value']),
             'revenue' => $this->revenueBlock($cur, $prev, $buckets),
             'companies' => $this->topCompanies($period, $lenderId),
+            'partners' => $this->companies()->block($period, $lenderId),
             'health' => $danaHealth,
             'feed' => $this->activityFeed($lenderId),
         ];

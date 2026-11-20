@@ -22,6 +22,12 @@
                             <h4>Tambah Admin</h4>
 
                             <div class="form-group">
+                                <label>Name</label>
+                                <input class="form-control" id="name" type="text" placeholder="Nama lengkap">
+                                <small id="errName" class="text-danger"></small>
+                            </div>
+
+                            <div class="form-group">
                                 <label>Username</label>
                                 <input class="form-control" name="nama" id="username" type="text"
                                     placeholder="Nama Admin">
@@ -38,12 +44,33 @@
                             </div>
 
                             <div class="form-group">
-                                <label>Type Admin</label>
-                                <select class="form-control" id="type_admin">
-                                    <option value="master">Master</option>
-                                    <option value="master">Admin</option>
+                                <label>Instansi</label>
+                                <select class="form-control" id="instansi_id">
+                                    <option value="">Pilih instansi</option>
+                                    @foreach ($instansis as $instansi)
+                                        <option value="{{ $instansi->id }}">{{ $instansi->name }}</option>
+                                    @endforeach
                                 </select>
-                                <small id="errTypeAdmin" class="text-danger"></small>
+                                <small id="errInstansi" class="text-danger"></small>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Role</label>
+                                <select class="form-control" id="role_id">
+                                    <option value="">Pilih role</option>
+                                    @foreach ($roles as $role)
+                                        <option value="{{ $role->id }}" data-instansi="{{ $role->instansi_id }}">
+                                            {{ $role->name }} ({{ $role->instansi->name }})
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <small id="errRole" class="text-danger"></small>
+                            </div>
+
+                            <div class="form-group d-none" id="entityGroup">
+                                <label id="entityLabel">Entity</label>
+                                <select class="form-control" id="entity_id"></select>
+                                <small id="errEntity" class="text-danger"></small>
                             </div>
 
                             <div class="form-group">
@@ -94,8 +121,12 @@
                                         <th>Last Updated AT</th>
                                         <th>Auth 2 FA</th>
                                         <th>Username</th>
+                                        <th>Name</th>
                                         <th>email</th>
                                         <th>Type</th>
+                                        <th>Instansi</th>
+                                        <th>Role</th>
+                                        <th>Entity</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
@@ -241,9 +272,17 @@
             }, {
                 data: 'username'
             }, {
+                data: 'name'
+            }, {
                 data: 'email'
             }, {
                 data: 'type'
+            }, {
+                data: 'instansi'
+            }, {
+                data: 'role'
+            }, {
+                data: 'entity'
             }, {
                 data: 'action'
             }]
@@ -315,14 +354,22 @@
 
 
         $('#buttonSubmit').on('click', function() {
+            const instansiId = $("#instansi_id").val();
+            const selectedInstansi = $("#instansi_id option:selected").text().trim().toLowerCase();
+            const entityId = $("#entity_id").val();
             $.ajax({
                 url: '{!! route('admin.manage.admin.add') !!}',
                 data: {
                     '_token': "{{ csrf_token() }}",
 
+                    'name': $("#name").val(),
                     'username': $("#username").val(),
                     'email': $("#email").val(),
-                    'type_admin': $("#type_admin").val(),
+                    'instansi_id': instansiId,
+                    'role_id': $("#role_id").val(),
+                    'lender_id': selectedInstansi === 'lender' ? entityId : '',
+                    'company_id': selectedInstansi === 'perusahaan' ? entityId : '',
+                    'referral_id': selectedInstansi === 'referral' ? entityId : '',
                     'password': $("#password").val(),
                     'password_confirmation': $("#password_confirmation").val(),
                 },
@@ -338,8 +385,12 @@
                     $('#buttonSubmit').attr("disabled", false);
                     $('#loadingText').removeClass("spinner-border");
                     $("#username").val('');
+                    $("#name").val('');
                     $("#email").val('');
-                    $("#type_admin").val('');
+                    $("#instansi_id").val('');
+                    $("#role_id").val('');
+                    $("#entity_id").empty();
+                    $('#entityGroup').addClass('d-none');
                     $("#password").val('');
                     $("#password_confirmation").val('');
 
@@ -349,12 +400,51 @@
                     $('#buttonSubmit').attr("disabled", false);
                     $('#loadingText').removeClass("spinner-border");
                     $('#errUsername').text(err.responseJSON.errors.username);
+                    $('#errName').text(err.responseJSON.errors.name ?? '');
                     $('#errEmail').text(err.responseJSON.errors.email);
-                    $('#errTypeAdmin').text(err.responseJSON.errors.type_admin);
+                    $('#errInstansi').text(err.responseJSON.errors.instansi_id ?? '');
+                    $('#errRole').text(err.responseJSON.errors.role_id ?? '');
+                    $('#errEntity').text(
+                        err.responseJSON.errors.lender_id?.[0]
+                        ?? err.responseJSON.errors.company_id?.[0]
+                        ?? err.responseJSON.errors.referral_id?.[0]
+                        ?? '');
                     $('#errPassword').text(err.responseJSON.errors.password);
                 }
             });
         })
+
+        const entityOptions = {
+            lender: @json($lenders),
+            perusahaan: @json($companies),
+            referral: @json($referrals),
+        };
+
+        function refreshRoleAndEntityFields() {
+            const instansiId = $('#instansi_id').val();
+            const instansiName = $('#instansi_id option:selected').text().trim().toLowerCase();
+            $('#role_id option').each(function() {
+                $(this).toggle(!$(this).val() || $(this).data('instansi') == instansiId);
+            });
+            if ($('#role_id option:selected').data('instansi') != instansiId) {
+                $('#role_id').val('');
+            }
+
+            const items = entityOptions[instansiName] ?? [];
+            if (!items.length) {
+                $('#entityGroup').addClass('d-none');
+                $('#entity_id').empty();
+                return;
+            }
+
+            $('#entityGroup').removeClass('d-none');
+            $('#entityLabel').text(instansiName.charAt(0).toUpperCase() + instansiName.slice(1));
+            $('#entity_id').html('<option value="">Pilih ' + instansiName + '</option>' + items.map(function(item) {
+                return '<option value="' + item.id + '">' + (item.nama ?? item.name) + '</option>';
+            }).join(''));
+        }
+
+        $('#instansi_id').on('change', refreshRoleAndEntityFields);
 
 
         deleteAdmin = (id) => {
