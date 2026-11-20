@@ -53,7 +53,7 @@
 
     {{-- Modal tambah / ubah referral --}}
     <div class="modal fade" id="referralModal" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="referralModalTitle">TAMBAH REFERRAL</h5>
@@ -64,27 +64,27 @@
                         <input type="hidden" id="referralId" name="id">
                         <div class="row">
                             <div class="col-12 form-section mb-2">Data KTP</div>
-                            <div class="col-md-4 form-group">
+                            <div class="col-md-6 form-group">
                                 <label for="nik">NIK</label>
                                 <input class="form-control" id="nik" name="national_id_number" maxlength="16" inputmode="numeric" placeholder="16 digit NIK">
                                 <small class="text-danger" data-error="national_id_number"></small>
                             </div>
-                            <div class="col-md-8 form-group">
+                            <div class="col-md-6 form-group">
                                 <label for="name">NAMA LENGKAP</label>
                                 <input class="form-control" id="name" name="name" placeholder="Sesuai KTP">
                                 <small class="text-danger" data-error="name"></small>
                             </div>
-                            <div class="col-md-4 form-group">
+                            <div class="col-md-6 form-group">
                                 <label for="birthPlace">TEMPAT LAHIR</label>
                                 <input class="form-control" id="birthPlace" name="birth_place">
                                 <small class="text-danger" data-error="birth_place"></small>
                             </div>
-                            <div class="col-md-4 form-group">
+                            <div class="col-md-6 form-group">
                                 <label for="birthDate">TANGGAL LAHIR</label>
                                 <input class="form-control" id="birthDate" name="birth_date" type="date">
                                 <small class="text-danger" data-error="birth_date"></small>
                             </div>
-                            <div class="col-md-4 form-group">
+                            <div class="col-md-6 form-group">
                                 <label for="gender">JENIS KELAMIN</label>
                                 <select class="form-control" id="gender" name="gender">
                                     <option value="">Pilih</option>
@@ -93,28 +93,28 @@
                                 </select>
                                 <small class="text-danger" data-error="gender"></small>
                             </div>
-                            <div class="col-md-8 form-group">
+                            <div class="col-md-6 form-group">
                                 <label for="address">ALAMAT</label>
                                 <textarea class="form-control" id="address" name="address" rows="2"></textarea>
                                 <small class="text-danger" data-error="address"></small>
                             </div>
-                            <div class="col-md-4 form-group">
+                            <div class="col-md-6 form-group">
                                 <label for="idCardFile">FILE KTP</label>
                                 <input class="form-control-file" id="idCardFile" name="id_card_file" type="file" accept=".jpg,.jpeg,.png,.pdf">
                                 <small class="text-muted d-block" id="idCardHint">JPG, PNG, atau PDF. Maksimal 5 MB.</small>
                                 <small class="text-danger" data-error="id_card_file"></small>
                             </div>
-                            <div class="col-md-4 form-group">
+                            <div class="col-md-6 form-group">
                                 <label for="phone">TELEPON / WHATSAPP</label>
                                 <input class="form-control" id="phone" name="phone_number">
                                 <small class="text-danger" data-error="phone_number"></small>
                             </div>
-                            <div class="col-md-4 form-group">
+                            <div class="col-md-6 form-group">
                                 <label for="email">EMAIL</label>
                                 <input class="form-control" id="email" name="email" type="email">
                                 <small class="text-danger" data-error="email"></small>
                             </div>
-                            <div class="col-md-4 form-group">
+                            <div class="col-md-6 form-group">
                                 <label for="isActive">STATUS</label>
                                 <select class="form-control" id="isActive" name="is_active">
                                     <option value="1">AKTIF</option>
@@ -124,7 +124,7 @@
 
                             <div class="col-12"><hr class="mt-0"></div>
                             <div class="col-12 form-section mb-2">Rekening Bank</div>
-                            <div class="col-md-4 form-group">
+                            <div class="col-md-6 form-group">
                                 <label for="bankId">BANK</label>
                                 <select class="form-control" id="bankId" name="bank_id">
                                     <option value="">Pilih bank</option>
@@ -134,23 +134,23 @@
                                 </select>
                                 <small class="text-danger" data-error="bank_id"></small>
                             </div>
-                            <div class="col-md-4 form-group">
+                            <div class="col-md-6 form-group">
                                 <label for="accountNumber">NOMOR REKENING</label>
                                 <input class="form-control" id="accountNumber" name="bank_account_number" inputmode="numeric">
                                 <small class="text-danger" data-error="bank_account_number"></small>
                             </div>
-                            <div class="col-md-4 form-group">
+                            <div class="col-md-6 form-group">
                                 <label for="accountName">NAMA PEMILIK REKENING</label>
                                 <input class="form-control" id="accountName" name="bank_account_name">
                                 <small class="text-danger" data-error="bank_account_name"></small>
                             </div>
-                            <div class="col-md-4 form-group">
+                            <div class="col-md-6 form-group">
                                 <label for="bankBookFile">FILE BUKU REKENING</label>
                                 <input class="form-control-file" id="bankBookFile" name="bank_book_file" type="file" accept=".jpg,.jpeg,.png,.pdf">
                                 <small class="text-muted d-block" id="bankBookHint">JPG, PNG, atau PDF. Maksimal 5 MB.</small>
                                 <small class="text-danger" data-error="bank_book_file"></small>
                             </div>
-                            <div class="col-md-8 form-group">
+                            <div class="col-md-6 form-group">
                                 <label for="notes">CATATAN</label>
                                 <textarea class="form-control" id="notes" name="notes" rows="2"></textarea>
                             </div>
