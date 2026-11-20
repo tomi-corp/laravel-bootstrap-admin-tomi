@@ -13,6 +13,7 @@ use App\Http\Controllers\Internal\TomiDana\DisbursementController as TomiDanaDis
 use App\Http\Controllers\Internal\TomiDana\RepaymentController as TomiDanaRepaymentController;
 use App\Http\Controllers\Internal\TomiDana\GenerateInvoiceController as TomiDanaGenerateInvoiceController;
 use App\Http\Controllers\Internal\TomiDana\InvoiceFeeController as TomiDanaInvoiceFeeController;
+use App\Http\Controllers\Internal\TomiDana\ReferralFeeController as TomiDanaReferralFeeController;
 use App\Http\Controllers\Internal\TomiDana\EmployeeController as TomiDanaEmployeeController;
 use App\Http\Controllers\Internal\TomiDana\LoanApplicationController as TomiDanaLoanApplicationController;
 use App\Http\Controllers\Internal\TomiDanaPlus\CompanyController as TomiDanaPlusCompanyController;
@@ -120,8 +121,10 @@ Route::prefix('/tomi-dana')->name('tomi-dana.')->group(function () {
     Route::post('/invoice-fee/update', [TomiDanaInvoiceFeeController::class, 'update'])->name('invoice-fee.update');
     Route::get('/invoice-fee/{id}/download', [TomiDanaInvoiceFeeController::class, 'download'])->name('invoice-fee.download');
 
-    // Biaya referal (halaman masih placeholder)
-    Route::view('/referral-fee', 'internal.tomi-dana.referral-fee.index')->name('referral-fee');
+    // Biaya referal per perusahaan per bulan
+    Route::get('/referral-fee', [TomiDanaReferralFeeController::class, 'index'])->name('referral-fee');
+    Route::post('/referral-fee/table/{type}', [TomiDanaReferralFeeController::class, 'table'])->whereIn('type', ['current', 'history'])->name('referral-fee.table');
+    Route::get('/referral-fee/{company}/{period}/download', [TomiDanaReferralFeeController::class, 'download'])->whereNumber('company')->where('period', '\d{4}-\d{2}')->name('referral-fee.download');
 });
 Route::view('/tomi-dana-plus', 'internal.tomi-dana-plus.index')->name('tomi-dana-plus');
 Route::prefix('/tomi-dana-plus')->name('tomi-dana-plus.')->group(function () {
