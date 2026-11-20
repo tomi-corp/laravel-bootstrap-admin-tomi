@@ -136,13 +136,14 @@ class DashboardController extends Controller
             ->groupBy('p.status')
             ->pluck('total', 'status');
 
+        // token = variabel warna tema (resources/css/ui-core.css), dipakai view & grafik.
         $items = [
-            ['label' => 'Disetujui', 'color' => '#2f7cf6', 'value' => (int) ($counts['approve'] ?? 0)],
-            ['label' => 'Proses', 'color' => '#fbbf24', 'value' => (int) (($counts['on_proses'] ?? 0) + ($counts['pending'] ?? 0))],
-            ['label' => 'Selesai', 'color' => '#34d399', 'value' => (int) ($counts['done'] ?? 0)],
+            ['label' => 'Disetujui', 'token' => '--s1', 'value' => (int) ($counts['approve'] ?? 0)],
+            ['label' => 'Proses', 'token' => '--warn-fill', 'value' => (int) (($counts['on_proses'] ?? 0) + ($counts['pending'] ?? 0))],
+            ['label' => 'Selesai', 'token' => '--good-fill', 'value' => (int) ($counts['done'] ?? 0)],
         ];
         if (($counts['reject'] ?? 0) > 0) {
-            $items[] = ['label' => 'Ditolak', 'color' => '#f87171', 'value' => (int) $counts['reject']];
+            $items[] = ['label' => 'Ditolak', 'token' => '--crit-fill', 'value' => (int) $counts['reject']];
         }
 
         $total = array_sum(array_column($items, 'value'));
