@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Internal\AdminManagementController;
+use App\Http\Controllers\Internal\DashboardController;
 use App\Http\Controllers\Internal\LenderController;
 use App\Http\Controllers\Internal\CompanyController;
 use App\Http\Controllers\Internal\TomiDana\ApplicationHistoryController as TomiDanaApplicationHistoryController;
@@ -19,8 +20,8 @@ use App\Http\Controllers\Internal\TomiInvoice\CompanyController as TomiInvoiceCo
 use App\Http\Controllers\Internal\TomiGawai\CompanyController as TomiGawaiCompanyController;
 use App\Http\Controllers\Internal\WilayahController;
 
-Route::view('/', 'internal.dashboard.index')->name('dashboard');
-Route::view('/dashboard', 'internal.dashboard.index')->name('dashboard.page');
+Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.page');
 Route::view('/ppob', 'internal.ppob.index')->name('ppob');
 Route::get('/companies', [CompanyController::class, 'index'])->name('companies');
 Route::post('/companies/table', [CompanyController::class, 'table'])->name('companies.table');
