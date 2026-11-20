@@ -90,6 +90,11 @@ class ListPerusahaan extends Model
         return $this->hasOne(amount_pinjaman::class, 'id_perusahaan', 'id');
     }
 
+    public function pks()
+    {
+        return $this->hasMany(CompanyPks::class, 'company_id', 'id');
+    }
+
     public function pinjamanBerjalan()
     {
         return $this->hasMany(pinjaman::class, 'id_perusahaan', 'id')

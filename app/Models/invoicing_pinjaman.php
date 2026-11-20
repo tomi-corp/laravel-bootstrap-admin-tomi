@@ -15,4 +15,9 @@ class invoicing_pinjaman extends Model
     {
         return $this->hasOne(ListPerusahaan::class, 'id', 'id_list_perusahaan');
     }
+
+    public function jatuh_tempo()
+    {
+        return $this->hasMany(jatuh_tempo::class, 'jatuh_tempo', 'period');
+    }
 }
