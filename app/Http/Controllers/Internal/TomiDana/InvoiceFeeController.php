@@ -23,15 +23,19 @@ use Yajra\DataTables\Facades\DataTables;
  */
 class InvoiceFeeController extends Controller
 {
-    private const PDF_COLUMNS = [
-        'tanggal_pinjaman',
-        'nip',
-        'nominal_pinjaman',
-        'rate',
-        'fee_tomi',
-        'biaya_layanan',
-        'biaya_admin',
-        'total',
+    /**
+     * Kolom biaya yang bisa dipilih saat download PDF, urutan sama dengan konfigurasi tenor pinjaman.
+     */
+    public const FEE_COLUMNS = [
+        'rate' => 'RATE',
+        'asuransi' => 'ASURANSI',
+        'provisi' => 'PROVISI',
+        'biaya_admin' => 'BIAYA ADMIN',
+        'fee_tomi' => 'FEE TOMI',
+        'biaya_layanan' => 'BIAYA LAYANAN',
+        'referal_1' => 'REFERAL 1',
+        'referal_2' => 'REFERAL 2',
+        'ksp_fee' => 'KSP FEE',
     ];
 
     public function index()
@@ -147,57 +151,61 @@ class InvoiceFeeController extends Controller
         if (! is_array($selectedColumns)) {
             $selectedColumns = [];
         }
-        $selectedColumns = array_values(array_intersect($selectedColumns, self::PDF_COLUMNS));
-        if (empty($selectedColumns)) {
-            $selectedColumns = self::PDF_COLUMNS;
+        // Pertahankan urutan kolom sesuai FEE_COLUMNS, bukan urutan dari request.
+        $columns = array_intersect_key(self::FEE_COLUMNS, array_flip($selectedColumns));
+        if (empty($columns)) {
+            $columns = self::FEE_COLUMNS;
         }
 
-        $historyInvoicingLenderPending = history_invoicing_lender::where('id', $id)
+        $invoice = history_invoicing_lender::where('id', $id)
             ->with([
                 'lender.pinjaman.disbursement',
                 'lender.pinjaman.data_karyawan',
                 'lender.pinjaman.perusahaan',
-                'pendingApproval',
             ])
             ->first();
 
-        abort_unless($historyInvoicingLenderPending, 404, 'Data invoice tidak ditemukan.');
+        abort_unless($invoice, 404, 'Data invoice tidak ditemukan.');
 
-        if ($historyInvoicingLenderPending->lender) {
-            $period = Carbon::parse($historyInvoicingLenderPending->period)->format('Y-m');
+        $period = Carbon::parse($invoice->period)->format('Y-m');
+        $pinjamans = ($invoice->lender?->pinjaman ?? collect())
+            ->filter(function ($pinjaman) use ($period) {
+                return in_array(strtolower((string) $pinjaman->status), ['approve', 'done'], true)
+                    && $pinjaman->disbursement
+                    && Carbon::parse($pinjaman->disbursement->created_at)->format('Y-m') === $period;
+            })
+            ->sortBy('created_at')
+            ->values();
 
-            $filteredPinjaman = $historyInvoicingLenderPending->lender->pinjaman
-                ->filter(function ($pinjaman) use ($period) {
-                    return in_array(strtolower((string) $pinjaman->status), ['approve', 'done'], true)
-                        && $pinjaman->disbursement
-                        && Carbon::parse($pinjaman->disbursement->created_at)->format('Y-m') === $period;
-                })
-                ->values();
+        $totals = array_fill_keys(array_keys($columns), 0.0);
+        $grandTotal = 0.0;
 
-            // Rate 1,5% (= Fee TOMI), biaya layanan Rp 10.000 per pinjaman, biaya admin 1%.
-            $ratePersen = 1.5;
-            $biayaLayananPerPinjaman = 10000;
+        $rows = $pinjamans->map(function ($pinjaman) use ($columns, &$totals, &$grandTotal) {
+            $fees = array_intersect_key($this->feeAmounts($pinjaman), $columns);
+            $subtotal = array_sum($fees);
 
-            $totalRate = $filteredPinjaman->sum(fn ($pinjaman) => ($pinjaman->nominal ?? 0) * ($ratePersen / 100));
-            $totalBiayaLayanan = $filteredPinjaman->count() * $biayaLayananPerPinjaman;
-            $totalBiayaAdmin = $filteredPinjaman->sum(fn ($pinjaman) => ($pinjaman->nominal ?? 0) * 0.01);
-            $totalFeeTomi = $totalRate;
+            foreach ($fees as $key => $amount) {
+                $totals[$key] += $amount;
+            }
+            $grandTotal += $subtotal;
 
-            $lender = $historyInvoicingLenderPending->lender;
-            $lender->total_pinjaman = $filteredPinjaman->count();
-            $lender->total_rate = $totalRate;
-            $lender->total_fee_tomi = $totalFeeTomi;
-            $lender->total_biaya_layanan = $totalBiayaLayanan;
-            $lender->total_biaya_admin = $totalBiayaAdmin;
-            $lender->total_keseluruhan = $totalFeeTomi + $totalBiayaLayanan + $totalBiayaAdmin;
-            $lender->setRelation('pinjaman', $filteredPinjaman);
-        }
+            return [
+                'tanggal' => Carbon::parse($pinjaman->created_at)->format('d-m-Y'),
+                'id_pinjaman' => $pinjaman->id_pinjaman,
+                'nama_karyawan' => $pinjaman->data_karyawan->nama_karyawan ?? '-',
+                'perusahaan' => $pinjaman->perusahaan->nama ?? '-',
+                'nip' => $pinjaman->data_karyawan->nip ?? '-',
+                'nominal' => (float) ($pinjaman->nominal ?? 0),
+                'fees' => $fees,
+                'subtotal' => $subtotal,
+            ];
+        });
 
         $rekening = rekening_pandu::with('bank')->first();
 
         $pdf = Pdf::loadView(
-            'admin.ksp.lender.invoicing.invoicing',
-            compact('historyInvoicingLenderPending', 'rekening', 'selectedColumns')
+            'internal.tomi-dana.invoice-fee.pdf',
+            compact('invoice', 'rekening', 'columns', 'rows', 'totals', 'grandTotal')
         )
             ->setPaper('legal', 'landscape')
             ->setOptions([
@@ -206,7 +214,29 @@ class InvoiceFeeController extends Controller
                 'defaultFont' => 'DejaVu Sans',
             ]);
 
-        return $pdf->stream('invoice-lender-'.$historyInvoicingLenderPending->no_invoice.'.pdf');
+        return $pdf->stream('invoice-lender-'.$invoice->no_invoice.'.pdf');
+    }
+
+    /**
+     * Nominal rupiah tiap biaya per pinjaman, diambil dari nilai yang disimpan saat pengajuan.
+     * Jika nilai rupiah kosong (data lama), dihitung dari persentase x nominal.
+     */
+    private function feeAmounts(pinjaman $pinjaman): array
+    {
+        $nominal = (float) ($pinjaman->nominal ?? 0);
+        $percent = fn ($value) => (float) $value / 100 * $nominal;
+
+        return [
+            'rate' => (float) ($pinjaman->pendapatan_bunga ?? $percent($pinjaman->rate) * (int) $pinjaman->tenor),
+            'asuransi' => (float) ($pinjaman->jumlah_asuransi ?? $percent($pinjaman->asuransi)),
+            'provisi' => (float) ($pinjaman->jumlah_provisi ?? $percent($pinjaman->provisi)),
+            'biaya_admin' => (float) ($pinjaman->total_biaya_admin ?? $percent($pinjaman->biaya_admin)),
+            'fee_tomi' => (float) ($pinjaman->biaya_admin_pandu ?? 0),
+            'biaya_layanan' => (float) ($pinjaman->biaya_layanan ?? 0),
+            'referal_1' => (float) ($pinjaman->jumlah_profesional_1 ?? $percent($pinjaman->profesional_fee_1)),
+            'referal_2' => (float) ($pinjaman->jumlah_profesional_2 ?? $percent($pinjaman->profesional_fee_2)),
+            'ksp_fee' => (float) ($pinjaman->ksp_fee ?? 0),
+        ];
     }
 
     private function invoiceTableQuery(string $status): Builder

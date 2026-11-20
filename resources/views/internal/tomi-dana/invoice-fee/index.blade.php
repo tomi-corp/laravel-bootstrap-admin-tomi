@@ -126,16 +126,8 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        @foreach ([
-                            'tanggal_pinjaman' => 'TANGGAL PINJAMAN',
-                            'nip' => 'NIP / NAMA',
-                            'nominal_pinjaman' => 'NOMINAL PINJAMAN',
-                            'rate' => 'RATE',
-                            'fee_tomi' => 'FEE TOMI',
-                            'biaya_layanan' => 'BIAYA LAYANAN',
-                            'biaya_admin' => 'BIAYA ADMIN',
-                            'total' => 'TOTAL',
-                        ] as $value => $label)
+                        <small class="text-muted d-block mb-2">Tanggal, NIP, nominal pinjaman, dan total selalu ditampilkan. Total = jumlah kolom biaya yang dipilih.</small>
+                        @foreach (\App\Http\Controllers\Internal\TomiDana\InvoiceFeeController::FEE_COLUMNS as $value => $label)
                             <div class="form-check mb-2">
                                 <input class="form-check-input" type="checkbox" name="columns[]" value="{{ $value }}" id="col_{{ $value }}" checked>
                                 <label class="form-check-label" for="col_{{ $value }}">{{ $label }}</label>
