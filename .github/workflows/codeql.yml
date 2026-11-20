@@ -22,21 +22,22 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # CodeQL belum mendukung PHP, jadi PHP tidak ikut dipindai di sini.
         language:
-          - php
           - javascript-typescript
+          - actions
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Inisialisasi CodeQL
-        uses: github/codeql-action/init@v3
+        uses: github/codeql-action/init@v4
         with:
           languages: ${{ matrix.language }}
-
-      - name: Autobuild
-        uses: github/codeql-action/autobuild@v3
+          build-mode: none
 
       - name: Jalankan analisis CodeQL
-        uses: github/codeql-action/analyze@v3
+        uses: github/codeql-action/analyze@v4
+        with:
+          category: "/language:${{ matrix.language }}"
