@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Internal\AdminManagementController;
 use App\Http\Controllers\Internal\LenderController;
 use App\Http\Controllers\Internal\CompanyController;
+use App\Http\Controllers\Internal\TomiDana\ApplicationHistoryController as TomiDanaApplicationHistoryController;
 use App\Http\Controllers\Internal\TomiDana\CompanyController as TomiDanaCompanyController;
 use App\Http\Controllers\Internal\TomiDana\ConfigurationController as TomiDanaConfigurationController;
 use App\Http\Controllers\Internal\TomiDana\DisbursementController as TomiDanaDisbursementController;
@@ -100,8 +101,10 @@ Route::prefix('/tomi-dana')->name('tomi-dana.')->group(function () {
     Route::post('/repayment/list', [TomiDanaRepaymentController::class, 'list'])->name('repayment.list');
     Route::post('/repayment/action', [TomiDanaRepaymentController::class, 'action'])->name('repayment.action');
 
-    // Riwayat pengajuan (halaman masih placeholder)
-    Route::view('/application-history', 'internal.tomi-dana.application-history.index')->name('application-history');
+    // Riwayat pengajuan pinjaman semua perusahaan
+    Route::get('/application-history', [TomiDanaApplicationHistoryController::class, 'index'])->name('application-history');
+    Route::post('/application-history/statistic', [TomiDanaApplicationHistoryController::class, 'statistic'])->name('application-history.statistic');
+    Route::post('/application-history/table', [TomiDanaApplicationHistoryController::class, 'table'])->name('application-history.table');
 
     // Generate invoice dari upload Excel
     Route::get('/generate-invoice', [TomiDanaGenerateInvoiceController::class, 'index'])->name('generate-invoice');
