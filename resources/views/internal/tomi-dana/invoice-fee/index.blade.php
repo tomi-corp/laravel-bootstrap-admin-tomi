@@ -7,6 +7,7 @@
         #tableInvoicingPending td,
         #tableInvoicingDone th,
         #tableInvoicingDone td { white-space: nowrap; vertical-align: middle; }
+        .table-scroll { clear: both; overflow-x: auto; margin-top: 1rem; }
     </style>
 @endpush
 
@@ -41,7 +42,7 @@
                     <div class="tab-content" id="nav-tabContent">
                         <div class="tab-pane fade show active" id="nav-pending" role="tabpanel" aria-labelledby="nav-pending-tab">
                             <h4 class="mt-3">INVOICING LENDER PENDING</h4>
-                            <table id="tableInvoicingPending" class="table dt-responsive table-hover mt-4 text-center" style="width:100%">
+                            <table id="tableInvoicingPending" class="table table-hover nowrap text-center" style="width:100%">
                                 <thead>
                                     <tr>
                                         <th>PENDING APPROVAL</th>
@@ -59,7 +60,7 @@
                         </div>
                         <div class="tab-pane fade" id="nav-done" role="tabpanel" aria-labelledby="nav-done-tab">
                             <h4 class="mt-3">INVOICING LENDER SUCCESS</h4>
-                            <table id="tableInvoicingDone" class="table dt-responsive table-hover mt-4 text-center" style="width:100%">
+                            <table id="tableInvoicingDone" class="table table-hover nowrap text-center" style="width:100%">
                                 <thead>
                                     <tr>
                                         <th>PERIOD</th>
@@ -182,11 +183,10 @@
         }];
 
         const tablePending = $('#tableInvoicingPending').DataTable({
-            dom: 'B<"clear">lfrtip',
+            dom: 'B<"clear">lf<"table-scroll"t>rip',
             buttons: exportButtons('Invoicing Lender Pending', [0, 1, 2, 3, 4, 5, 6]),
             lengthMenu: [10, 50, 100, 500, 1000],
             processing: true,
-            responsive: true,
             serverSide: true,
             language: {
                 processing: '<i class="dripicons-loading">autorenew</i>'
@@ -216,11 +216,10 @@
             }
 
             tableDone = $('#tableInvoicingDone').DataTable({
-                dom: 'B<"clear">lfrtip',
+                dom: 'B<"clear">lf<"table-scroll"t>rip',
                 buttons: exportButtons('Invoicing Lender Done', [0, 1, 2, 3, 4, 5]),
                 lengthMenu: [10, 50, 100, 500, 1000],
                 processing: true,
-                responsive: true,
                 serverSide: true,
                 language: {
                     processing: '<i class="dripicons-loading">autorenew</i>'
