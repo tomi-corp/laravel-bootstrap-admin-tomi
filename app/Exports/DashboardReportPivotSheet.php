@@ -16,8 +16,10 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class DashboardReportPivotSheet implements FromCollection, WithHeadings, WithStyles, WithTitle, ShouldAutoSize
 {
-    public function __construct(private readonly Collection $allProductRows)
-    {
+    public function __construct(
+        private readonly Collection $allProductRows,
+        private readonly string $sheetTitle = 'Pivot All Produk',
+    ) {
     }
 
     public function collection(): Collection
@@ -84,7 +86,7 @@ class DashboardReportPivotSheet implements FromCollection, WithHeadings, WithSty
 
     public function title(): string
     {
-        return 'Pivot All Produk';
+        return $this->sheetTitle;
     }
 
     public function styles(Worksheet $sheet): array
