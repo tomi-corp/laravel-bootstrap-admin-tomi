@@ -9,6 +9,7 @@ use App\Http\Controllers\Internal\TomiDana\ConfigurationController as TomiDanaCo
 use App\Http\Controllers\Internal\TomiDana\DisbursementController as TomiDanaDisbursementController;
 use App\Http\Controllers\Internal\TomiDana\RepaymentController as TomiDanaRepaymentController;
 use App\Http\Controllers\Internal\TomiDana\GenerateInvoiceController as TomiDanaGenerateInvoiceController;
+use App\Http\Controllers\Internal\TomiDana\InvoiceFeeController as TomiDanaInvoiceFeeController;
 use App\Http\Controllers\Internal\TomiDana\EmployeeController as TomiDanaEmployeeController;
 use App\Http\Controllers\Internal\TomiDana\LoanApplicationController as TomiDanaLoanApplicationController;
 use App\Http\Controllers\Internal\TomiDanaPlus\CompanyController as TomiDanaPlusCompanyController;
@@ -104,8 +105,12 @@ Route::prefix('/tomi-dana')->name('tomi-dana.')->group(function () {
     Route::post('/generate-invoice', [TomiDanaGenerateInvoiceController::class, 'store'])->name('generate-invoice.store');
     Route::get('/generate-invoice/{id}/pdf', [TomiDanaGenerateInvoiceController::class, 'pdf'])->whereNumber('id')->name('generate-invoice.pdf');
 
-    // Biaya aplikasi (halaman masih placeholder)
-    Route::view('/invoice-fee', 'internal.tomi-dana.invoice-fee.index')->name('invoice-fee');
+    // Biaya aplikasi (invoice lender)
+    Route::get('/invoice-fee', [TomiDanaInvoiceFeeController::class, 'index'])->name('invoice-fee');
+    Route::post('/invoice-fee/pending/table', [TomiDanaInvoiceFeeController::class, 'pendingTable'])->name('invoice-fee.pending.table');
+    Route::post('/invoice-fee/done/table', [TomiDanaInvoiceFeeController::class, 'doneTable'])->name('invoice-fee.done.table');
+    Route::post('/invoice-fee/update', [TomiDanaInvoiceFeeController::class, 'update'])->name('invoice-fee.update');
+    Route::get('/invoice-fee/{id}/download', [TomiDanaInvoiceFeeController::class, 'download'])->name('invoice-fee.download');
 });
 Route::view('/tomi-dana-plus', 'internal.tomi-dana-plus.index')->name('tomi-dana-plus');
 Route::prefix('/tomi-dana-plus')->name('tomi-dana-plus.')->group(function () {
