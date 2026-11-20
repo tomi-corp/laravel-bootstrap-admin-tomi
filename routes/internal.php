@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Internal\AdminManagementController;
 use App\Http\Controllers\Internal\DashboardController;
+use App\Http\Controllers\Internal\ReferralController;
 use App\Http\Controllers\Internal\LenderController;
 use App\Http\Controllers\Internal\CompanyController;
 use App\Http\Controllers\Internal\TomiDana\ApplicationHistoryController as TomiDanaApplicationHistoryController;
@@ -186,4 +187,15 @@ Route::prefix('/admin-management')->name('admin-management.')->group(function ()
     Route::post('/audit/table', [AdminManagementController::class, 'auditTable'])->name('audit.table');
 });
 Route::view('/bank-accounts', 'internal.bank-accounts.index')->name('bank-accounts');
-Route::view('/referral', 'internal.referral.index')->name('referral');
+Route::get('/referral', [ReferralController::class, 'index'])->name('referral');
+Route::prefix('/referral')->name('referral.')->group(function () {
+    Route::post('/table', [ReferralController::class, 'table'])->name('table');
+    Route::post('/detail', [ReferralController::class, 'show'])->name('detail');
+    Route::post('/add', [ReferralController::class, 'store'])->name('add');
+    Route::post('/update', [ReferralController::class, 'update'])->name('update');
+    Route::post('/delete', [ReferralController::class, 'destroy'])->name('delete');
+    Route::get('/{referral}/file/{type}', [ReferralController::class, 'file'])->whereNumber('referral')->whereIn('type', ['ktp', 'bank-book'])->name('file');
+    Route::post('/companies', [ReferralController::class, 'companies'])->name('companies');
+    Route::post('/companies/add', [ReferralController::class, 'attachCompany'])->name('companies.add');
+    Route::post('/companies/delete', [ReferralController::class, 'detachCompany'])->name('companies.delete');
+});

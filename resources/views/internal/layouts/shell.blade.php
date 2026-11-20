@@ -59,6 +59,7 @@
         ]],
         ['section' => 'Manajemen'],
         ['label' => 'Kelola Admin', 'icon' => 'shield', 'route' => 'internal.admin-management', 'active' => ['internal.admin-management*']],
+        ['label' => 'Referral', 'icon' => 'users', 'route' => 'internal.referral', 'active' => ['internal.referral', 'internal.referral.*']],
     ];
 
     // Menu yang sedang dibuka → judul & breadcrumb header. Halaman menu (route persis) memakai label menu;

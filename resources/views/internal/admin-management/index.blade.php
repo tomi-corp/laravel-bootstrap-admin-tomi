@@ -244,8 +244,12 @@
                 $('#adminEntity').empty();
                 return;
             }
+            // Referral hanya boleh dimiliki satu akun: tampilkan yang belum punya akun atau milik admin yang sedang diubah.
+            const currentAdminId = String($('#adminId').val() || '');
+            const items = entity.items.filter(item => item.admin_id === undefined || item.admin_id === null
+                || String(item.admin_id) === currentAdminId);
             $('#entityLabel').text(entity.label);
-            $('#adminEntity').html(`<option value="">Pilih ${entity.label.toLowerCase()}</option>` + entity.items
+            $('#adminEntity').html(`<option value="">Pilih ${entity.label.toLowerCase()}</option>` + items
                 .map(item => `<option value="${item.id}">${escapeHtml(item.name)}</option>`).join('')).val(entityId);
             $('#entityGroup').removeClass('d-none');
         }
