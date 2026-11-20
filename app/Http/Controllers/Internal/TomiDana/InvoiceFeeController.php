@@ -1,0 +1,286 @@
+<?php
+
+namespace App\Http\Controllers\Internal\TomiDana;
+
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\Lender\UpdateInvoiceRequest;
+use App\Models\disbursement;
+use App\Models\history_invoicing_lender;
+use App\Models\history_invoicing_lender_update;
+use App\Models\lender;
+use App\Models\pinjaman;
+use App\Models\rekening_pandu;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Request;
+use Yajra\DataTables\Facades\DataTables;
+
+/**
+ * Biaya aplikasi TomiDana: invoice lender (pending & done).
+ * Logika disalin dari Admin\LenderController (halaman KSP > Lender > Invoicing).
+ * Approval perubahan status tetap dilakukan di halaman KSP.
+ */
+class InvoiceFeeController extends Controller
+{
+    /**
+     * Kolom biaya yang bisa dipilih saat download PDF, urutan sama dengan konfigurasi tenor pinjaman.
+     */
+    public const FEE_COLUMNS = [
+        'rate' => 'RATE',
+        'asuransi' => 'ASURANSI',
+        'provisi' => 'PROVISI',
+        'biaya_admin' => 'BIAYA ADMIN',
+        'fee_tomi' => 'FEE TOMI',
+        'biaya_layanan' => 'BIAYA LAYANAN',
+        'referal_1' => 'REFERAL 1',
+        'referal_2' => 'REFERAL 2',
+        'ksp_fee' => 'KSP FEE',
+    ];
+
+    public function index()
+    {
+        return view('internal.tomi-dana.invoice-fee.index');
+    }
+
+    public function pendingTable()
+    {
+        return DataTables::of($this->invoiceTableQuery('belum_lunas'))
+            ->addIndexColumn()
+            ->filterColumn('id_code_lender', fn ($query, $keyword) => $query->where('lenders.id_code_lender', 'like', "%{$keyword}%"))
+            ->filterColumn('nama_lender', fn ($query, $keyword) => $query->where('lenders.nama', 'like', "%{$keyword}%"))
+            ->addColumn('pendingApproval', function ($row) {
+                return $row->has_pending_approval
+                    ? '<span class="badge badge-warning">LOCKED</span>'
+                    : '<span class="badge badge-success">AVAILABLE TO EDIT</span>';
+            })
+            ->addColumn('period', fn ($row) => Carbon::parse($row->period)->format('Y-m-d'))
+            ->addColumn('no_invoice', fn ($row) => e(strtoupper((string) $row->no_invoice)))
+            ->addColumn('id_code_lender', fn ($row) => e(strtoupper((string) $row->id_code_lender)))
+            ->addColumn('nama_lender', fn ($row) => e(strtoupper((string) $row->nama_lender)))
+            ->addColumn('total_pinjaman', fn ($row) => '<span class="badge badge-success">'.number_format((int) $row->total_pinjaman, 0, ',', '.').'</span>')
+            ->addColumn('revenue', fn ($row) => $this->rupiah($row->revenue))
+            ->addColumn('download', function ($row) {
+                return '<a href="javascript:void(0)" class="btn-download-invoice" data-id="'.encryptSecure($row->id).'"><i class="mdi mdi-download"></i></a>';
+            })
+            ->addColumn('action', function ($row) {
+                return $row->has_pending_approval
+                    ? '<button class="btn btn-sm btn-primary mr-2 disabled"><i class="mdi mdi-pencil"></i></button>'
+                    : '<button class="btn btn-sm btn-primary mr-2" onclick="editInvoiceFee('.$row->id.')"><i class="mdi mdi-pencil"></i></button>';
+            })
+            ->rawColumns(['pendingApproval', 'no_invoice', 'id_code_lender', 'nama_lender', 'total_pinjaman', 'download', 'action'])
+            ->only([
+                'DT_RowIndex',
+                'pendingApproval',
+                'period',
+                'no_invoice',
+                'id_code_lender',
+                'nama_lender',
+                'total_pinjaman',
+                'revenue',
+                'download',
+                'action',
+            ])
+            ->toJson();
+    }
+
+    public function doneTable()
+    {
+        return DataTables::of($this->invoiceTableQuery('lunas'))
+            ->addIndexColumn()
+            ->filterColumn('id_code_lender', fn ($query, $keyword) => $query->where('lenders.id_code_lender', 'like', "%{$keyword}%"))
+            ->filterColumn('nama_lender', fn ($query, $keyword) => $query->where('lenders.nama', 'like', "%{$keyword}%"))
+            ->addColumn('period', fn ($row) => Carbon::parse($row->period)->format('Y-m-d'))
+            ->addColumn('no_invoice', fn ($row) => e(strtoupper((string) $row->no_invoice)))
+            ->addColumn('id_code_lender', fn ($row) => e(strtoupper((string) $row->id_code_lender)))
+            ->addColumn('nama_lender', fn ($row) => e(strtoupper((string) $row->nama_lender)))
+            ->addColumn('total_pinjaman', fn ($row) => '<span class="badge badge-success">'.number_format((int) $row->total_pinjaman, 0, ',', '.').'</span>')
+            ->addColumn('revenue', fn ($row) => $this->rupiah($row->revenue))
+            ->addColumn('download', function ($row) {
+                return '<a href="javascript:void(0)" class="btn-download-invoice" data-id="'.encryptSecure($row->id).'"><i class="mdi mdi-download"></i></a>';
+            })
+            ->rawColumns(['no_invoice', 'id_code_lender', 'nama_lender', 'total_pinjaman', 'download'])
+            ->only([
+                'DT_RowIndex',
+                'period',
+                'no_invoice',
+                'id_code_lender',
+                'nama_lender',
+                'total_pinjaman',
+                'revenue',
+                'download',
+            ])
+            ->toJson();
+    }
+
+    public function update(UpdateInvoiceRequest $req)
+    {
+        $invoice = history_invoicing_lender::findOrFail($req->id);
+        $oldData = $invoice->getOriginal();
+
+        $invoice->status = 'lunas';
+        $invoice->update_by = auth('admin')->id();
+        $invoice->tanggal_pembayaran = $req->tanggal;
+
+        $changedData = $invoice->getDirty();
+
+        $logData = [
+            'old_data' => array_intersect_key($oldData, $changedData),
+            'new_data' => $changedData,
+        ];
+
+        $invoiceUpdate = new history_invoicing_lender_update;
+        $invoiceUpdate->invoicing_lender_id = $invoice->id;
+        $invoiceUpdate->new_data = json_encode($logData);
+        $invoiceUpdate->requester_id = auth('admin')->id();
+        $invoiceUpdate->status_pertama = 'pending';
+        $invoiceUpdate->status_kedua = 'pending';
+        $invoiceUpdate->save();
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Request perubahan transaksi invoicing Lender Berhasil, Harap menunggu approval',
+        ], 200);
+    }
+
+    public function download(Request $request, $id)
+    {
+        $id = decryptSecure($id);
+
+        $selectedColumns = $request->get('columns', []);
+        if (! is_array($selectedColumns)) {
+            $selectedColumns = [];
+        }
+        // Pertahankan urutan kolom sesuai FEE_COLUMNS, bukan urutan dari request.
+        $columns = array_intersect_key(self::FEE_COLUMNS, array_flip($selectedColumns));
+        if (empty($columns)) {
+            $columns = self::FEE_COLUMNS;
+        }
+
+        $invoice = history_invoicing_lender::where('id', $id)
+            ->with([
+                'lender.pinjaman.disbursement',
+                'lender.pinjaman.data_karyawan',
+                'lender.pinjaman.perusahaan',
+            ])
+            ->first();
+
+        abort_unless($invoice, 404, 'Data invoice tidak ditemukan.');
+
+        $period = Carbon::parse($invoice->period)->format('Y-m');
+        $pinjamans = ($invoice->lender?->pinjaman ?? collect())
+            ->filter(function ($pinjaman) use ($period) {
+                return in_array(strtolower((string) $pinjaman->status), ['approve', 'done'], true)
+                    && $pinjaman->disbursement
+                    && Carbon::parse($pinjaman->disbursement->created_at)->format('Y-m') === $period;
+            })
+            ->sortBy('created_at')
+            ->values();
+
+        $totals = array_fill_keys(array_keys($columns), 0.0);
+        $grandTotal = 0.0;
+
+        $rows = $pinjamans->map(function ($pinjaman) use ($columns, &$totals, &$grandTotal) {
+            $fees = array_intersect_key($this->feeAmounts($pinjaman), $columns);
+            $subtotal = array_sum($fees);
+
+            foreach ($fees as $key => $amount) {
+                $totals[$key] += $amount;
+            }
+            $grandTotal += $subtotal;
+
+            return [
+                'tanggal' => Carbon::parse($pinjaman->created_at)->format('d-m-Y'),
+                'id_pinjaman' => $pinjaman->id_pinjaman,
+                'nama_karyawan' => $pinjaman->data_karyawan->nama_karyawan ?? '-',
+                'perusahaan' => $pinjaman->perusahaan->nama ?? '-',
+                'nip' => $pinjaman->data_karyawan->nip ?? '-',
+                'nominal' => (float) ($pinjaman->nominal ?? 0),
+                'fees' => $fees,
+                'subtotal' => $subtotal,
+            ];
+        });
+
+        $rekening = rekening_pandu::with('bank')->first();
+
+        $pdf = Pdf::loadView(
+            'internal.tomi-dana.invoice-fee.pdf',
+            compact('invoice', 'rekening', 'columns', 'rows', 'totals', 'grandTotal')
+        )
+            ->setPaper('legal', 'landscape')
+            ->setOptions([
+                'isHtml5ParserEnabled' => true,
+                'isRemoteEnabled' => false,
+                'defaultFont' => 'DejaVu Sans',
+            ]);
+
+        return $pdf->stream('invoice-lender-'.$invoice->no_invoice.'.pdf');
+    }
+
+    /**
+     * Nominal rupiah tiap biaya per pinjaman, diambil dari nilai yang disimpan saat pengajuan.
+     * Jika nilai rupiah kosong (data lama), dihitung dari persentase x nominal.
+     */
+    private function feeAmounts(pinjaman $pinjaman): array
+    {
+        $nominal = (float) ($pinjaman->nominal ?? 0);
+        $percent = fn ($value) => (float) $value / 100 * $nominal;
+
+        return [
+            'rate' => (float) ($pinjaman->pendapatan_bunga ?? $percent($pinjaman->rate) * (int) $pinjaman->tenor),
+            'asuransi' => (float) ($pinjaman->jumlah_asuransi ?? $percent($pinjaman->asuransi)),
+            'provisi' => (float) ($pinjaman->jumlah_provisi ?? $percent($pinjaman->provisi)),
+            'biaya_admin' => (float) ($pinjaman->total_biaya_admin ?? $percent($pinjaman->biaya_admin)),
+            'fee_tomi' => (float) ($pinjaman->biaya_admin_pandu ?? 0),
+            'biaya_layanan' => (float) ($pinjaman->biaya_layanan ?? 0),
+            'referal_1' => (float) ($pinjaman->jumlah_profesional_1 ?? $percent($pinjaman->profesional_fee_1)),
+            'referal_2' => (float) ($pinjaman->jumlah_profesional_2 ?? $percent($pinjaman->profesional_fee_2)),
+            'ksp_fee' => (float) ($pinjaman->ksp_fee ?? 0),
+        ];
+    }
+
+    private function invoiceTableQuery(string $status): Builder
+    {
+        $invoiceTable = (new history_invoicing_lender)->getTable();
+        $lenderTable = (new lender)->getTable();
+        $pinjamanTable = (new pinjaman)->getTable();
+        $disbursementTable = (new disbursement)->getTable();
+
+        $matchingPeriodSql = "DATE_FORMAT({$disbursementTable}.created_at, '%Y-%m') = DATE_FORMAT({$invoiceTable}.period, '%Y-%m')";
+
+        return history_invoicing_lender::query()
+            ->where("{$invoiceTable}.status", $status)
+            ->leftJoin($lenderTable, "{$lenderTable}.id", '=', "{$invoiceTable}.id_lender")
+            ->select([
+                "{$invoiceTable}.*",
+                "{$lenderTable}.id_code_lender as id_code_lender",
+                "{$lenderTable}.nama as nama_lender",
+            ])
+            ->withExists(['pendingApproval as has_pending_approval'])
+            ->selectSub(function ($query) use ($invoiceTable, $pinjamanTable, $disbursementTable, $matchingPeriodSql) {
+                $query->from($pinjamanTable)
+                    ->join($disbursementTable, "{$disbursementTable}.pinjaman_id", '=', "{$pinjamanTable}.id")
+                    ->whereColumn("{$pinjamanTable}.id_lender", "{$invoiceTable}.id_lender")
+                    ->whereIn("{$pinjamanTable}.status", ['approve', 'done'])
+                    ->whereNull("{$pinjamanTable}.deleted_at")
+                    ->whereRaw($matchingPeriodSql)
+                    ->selectRaw("COUNT(DISTINCT {$pinjamanTable}.id)");
+            }, 'total_pinjaman')
+            ->selectSub(function ($query) use ($invoiceTable, $pinjamanTable, $disbursementTable, $matchingPeriodSql) {
+                $query->from($pinjamanTable)
+                    ->join($disbursementTable, "{$disbursementTable}.pinjaman_id", '=', "{$pinjamanTable}.id")
+                    ->whereColumn("{$pinjamanTable}.id_lender", "{$invoiceTable}.id_lender")
+                    ->whereIn("{$pinjamanTable}.status", ['approve', 'done'])
+                    ->whereNull("{$pinjamanTable}.deleted_at")
+                    ->whereRaw($matchingPeriodSql)
+                    ->selectRaw(
+                        "COALESCE(SUM(CASE WHEN DATE({$pinjamanTable}.created_at) < STR_TO_DATE(CONCAT(YEAR({$invoiceTable}.period), '-04-17'), '%Y-%m-%d') THEN (COALESCE({$pinjamanTable}.nominal, 0) * 0.03) + 20000 ELSE 10000 + (COALESCE({$pinjamanTable}.nominal, 0) * 0.01) END), 0)"
+                    );
+            }, 'revenue');
+    }
+
+    private function rupiah($value): string
+    {
+        return 'Rp. '.number_format((float) $value, 0, ',', '.');
+    }
+}
