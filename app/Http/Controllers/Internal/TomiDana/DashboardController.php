@@ -5,17 +5,17 @@ namespace App\Http\Controllers\Internal\TomiDana;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Internal\Concerns\ScopesCompanies;
 use App\Models\CompanyPks;
-use App\Models\disbursement;
 use App\Models\Feature;
 use App\Models\invoicing_pinjaman;
-use App\Models\list_karyawan;
-use App\Models\pinjaman;
-use App\Models\repayment;
 use Carbon\Carbon;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 /**
- * Dashboard TomiDana: KPI pinjaman, PKS, dan pekerjaan operasional, dibatasi perusahaan yang boleh diakses admin.
+ * Dashboard TomiDana: ringkasan kinerja produk (pengajuan, pencairan, outstanding, pendapatan TOMI),
+ * tren bulanan, status pengajuan, perusahaan mitra, dan insight. Dibatasi perusahaan yang boleh diakses admin.
  */
 class DashboardController extends Controller
 {
@@ -23,71 +23,249 @@ class DashboardController extends Controller
 
     private const FEATURE_CODE = 'tomidana';
 
+    /**
+     * Pendapatan TOMI per pinjaman (sama dengan perhitungan revenue invoice lender / Biaya Aplikasi):
+     * sebelum 17 April tahun pinjaman = 3% + Rp 20.000, sesudahnya = Rp 10.000 + 1%.
+     */
+    private const REVENUE_SQL = "CASE WHEN DATE(p.created_at) < STR_TO_DATE(CONCAT(YEAR(p.created_at), '-04-17'), '%Y-%m-%d') THEN (COALESCE(p.nominal, 0) * 0.03) + 20000 ELSE 10000 + (COALESCE(p.nominal, 0) * 0.01) END";
+
     public function index(Request $request)
     {
-        [$from, $to, $periodLabel] = $this->period($request);
-        $companyIds = $this->visibleCompanies()->select('list_perusahaans.id');
-        $num = fn ($value) => number_format((float) $value, 0, ',', '.');
-        $rupiah = fn ($value) => 'Rp. '.number_format((float) $value, 0, ',', '.');
+        $filter = $this->filterValues($request);
+        [$from, $to, $periodLabel, $prevFrom, $prevTo, $prevLabel] = $this->period($filter);
 
-        $loans = fn () => pinjaman::query()->whereIn('id_perusahaan', $companyIds)->where('status_otp', 'success');
-        $pinjamanTable = (new pinjaman)->getTable();
-        $disbursementTable = (new disbursement)->getTable();
-        $disbursed = disbursement::query()
-            ->join($pinjamanTable, "{$pinjamanTable}.id", '=', "{$disbursementTable}.pinjaman_id")
-            ->whereIn("{$pinjamanTable}.id_perusahaan", $companyIds)
-            ->whereNull("{$pinjamanTable}.deleted_at")
-            ->when($from, fn ($q) => $q->whereBetween("{$disbursementTable}.created_at", [$from, $to]));
-        $repaid = repayment::query()
-            ->whereHas('invoice', fn ($q) => $q->whereIn('id_list_perusahaan', $companyIds))
-            ->when($from, fn ($q) => $q->whereBetween('created_at', [$from, $to]));
+        $current = $this->totals($from, $to);
+        $previous = $prevFrom ? $this->totals($prevFrom, $prevTo) : null;
 
         $kpis = [
-            ['label' => 'PENGAJUAN MASUK', 'value' => $num($loans()->when($from, fn ($q) => $q->whereBetween('created_at', [$from, $to]))->count()), 'sub' => 'tervalidasi WhatsApp', 'icon' => 'mdi-file-document-outline', 'color' => 'info'],
-            ['label' => 'PENYALURAN', 'value' => $rupiah((clone $disbursed)->sum("{$disbursementTable}.dana_yang_dicairkan")), 'sub' => $num((clone $disbursed)->count()).' pinjaman dicairkan', 'icon' => 'mdi-bank-transfer-out', 'color' => 'primary'],
-            ['label' => 'PINJAMAN BERJALAN', 'value' => $rupiah($loans()->where('status', 'approve')->sum('nominal')), 'sub' => $num($loans()->where('status', 'approve')->count()).' pinjaman aktif saat ini', 'icon' => 'mdi-cash-multiple', 'color' => 'success'],
-            ['label' => 'PINJAMAN LUNAS', 'value' => $num($loans()->where('status', 'done')->when($from, fn ($q) => $q->whereBetween('updated_at', [$from, $to]))->count()), 'sub' => 'pinjaman selesai', 'icon' => 'mdi-check-decagram-outline', 'color' => 'success'],
-            ['label' => 'PEMBAYARAN DITERIMA', 'value' => $rupiah((clone $repaid)->sum('amount_total')), 'sub' => $num((clone $repaid)->count()).' pembayaran tagihan', 'icon' => 'mdi-cash-check', 'color' => 'warning'],
+            ['label' => 'Total Pengajuan', 'icon' => 'mdi-file-document-outline', 'tone' => 'blue', 'value' => $current['applications'], 'prev' => $previous['applications'] ?? null, 'sub' => $this->num($current['application_count']).' pengajuan'],
+            ['label' => 'Total Pencairan', 'icon' => 'mdi-cash-fast', 'tone' => 'green', 'value' => $current['disbursed'], 'prev' => $previous['disbursed'] ?? null, 'sub' => $this->num($current['disbursed_count']).' pinjaman dicairkan'],
+            ['label' => 'Outstanding', 'icon' => 'mdi-layers-outline', 'tone' => 'violet', 'value' => $current['outstanding'], 'prev' => null, 'sub' => 'sisa angsuran per hari ini'],
+            ['label' => 'Pendapatan TOMI', 'icon' => 'mdi-chart-bar', 'tone' => 'pink', 'value' => $current['revenue'], 'prev' => $previous['revenue'] ?? null, 'sub' => 'biaya aplikasi dari pinjaman dicairkan'],
         ];
+        foreach ($kpis as &$kpi) {
+            $kpi['delta'] = $this->delta($kpi['value'], $kpi['prev']);
+        }
+        unset($kpi);
 
-        $operations = [
-            ['label' => 'PENGAJUAN DIPROSES', 'value' => $num($loans()->whereIn('status', ['on_proses', 'pending'])->count()), 'sub' => 'menunggu persetujuan / pencairan', 'icon' => 'mdi-file-clock-outline', 'color' => 'info', 'url' => route('internal.tomi-dana.application-history')],
-            ['label' => 'MENUNGGU PENCAIRAN', 'value' => $num($loans()->where('status', 'pending')->where('document_privy', 'y')->count()), 'sub' => 'dokumen sudah ditandatangani', 'icon' => 'mdi-bank-transfer', 'color' => 'danger', 'url' => route('internal.tomi-dana.disbursement')],
-            ['label' => 'TAGIHAN BELUM LUNAS', 'value' => $num(invoicing_pinjaman::query()->whereIn('id_list_perusahaan', $companyIds)->where('status', 'belum_lunas')->count()), 'sub' => 'invoice perusahaan', 'icon' => 'mdi-file-alert-outline', 'color' => 'warning', 'url' => route('internal.tomi-dana.repayment')],
-            ['label' => 'KARYAWAN MENUNGGU APPROVAL', 'value' => $num(list_karyawan::query()->whereIn('id_list_perusahaan', $companyIds)->where(fn ($q) => $q->where('approve_satu', 'pending')->orWhere('approve_dua', 'pending'))->count()), 'sub' => 'approval layer 1 / 2', 'icon' => 'mdi-account-clock-outline', 'color' => 'secondary', 'url' => route('internal.tomi-dana.companies')],
-        ];
+        $companies = $this->partnerCompanies($from, $to);
 
         return view('internal.tomi-dana.dashboard.index', [
             'kpis' => $kpis,
-            'operations' => $operations,
-            'pks' => $this->pksStats(),
+            'prevLabel' => $prevLabel,
+            'trend' => $this->trend($filter),
+            'status' => $this->statusBreakdown($from, $to),
+            'companies' => $companies,
+            'insights' => $this->insights($current, $previous, $prevLabel, $companies),
             'periodLabel' => $periodLabel,
-            'filter' => $this->filterValues($request),
+            'filter' => $filter,
+            'products' => [
+                ['name' => 'TomiDana', 'route' => 'internal.tomi-dana.dashboard', 'active' => true],
+                ['name' => 'TomiDanaPlus', 'route' => 'internal.tomi-dana-plus.dashboard', 'active' => false],
+                ['name' => 'TomiGaji', 'route' => 'internal.tomi-gaji.dashboard', 'active' => false],
+                ['name' => 'TomiInvoice', 'route' => 'internal.tomi-invoice.dashboard', 'active' => false],
+                ['name' => 'TomiGawai', 'route' => 'internal.tomi-gawai.dashboard', 'active' => false],
+            ],
         ]);
     }
 
-    /**
-     * Periode dari query: periode=bulan (default, bulan=Y-m) / tahun (tahun=Y) / semua.
-     *
-     * @return array{0: ?Carbon, 1: ?Carbon, 2: string}
-     */
-    private function period(Request $request): array
+    /** Total KPI pada rentang tanggal (null = semua waktu). */
+    private function totals(?Carbon $from, ?Carbon $to): array
     {
-        $filter = $this->filterValues($request);
+        $applications = $this->loans()->when($from, fn ($q) => $q->whereBetween('p.created_at', [$from, $to]));
+        $disbursed = $this->disbursedLoans()->when($from, fn ($q) => $q->whereBetween('d.created_at', [$from, $to]));
 
+        // Outstanding = angsuran yang belum dibayar x angsuran per bulan pinjaman itu (posisi saat ini).
+        $outstanding = DB::table('jatuh_tempos as j')
+            ->join('pinjamen as p', 'p.id', '=', 'j.id_pinjaman')
+            ->whereIn('p.id_perusahaan', $this->visibleCompanies()->select('list_perusahaans.id'))
+            ->whereNull('p.deleted_at')
+            ->whereNull('j.deleted_at')
+            ->where('j.status', '!=', 'lunas')
+            ->whereIn('p.status', ['approve'])
+            ->sum('p.total_angsuran_perbulan');
+
+        return [
+            'applications' => (float) (clone $applications)->sum('p.nominal'),
+            'application_count' => (clone $applications)->count(),
+            'disbursed' => (float) (clone $disbursed)->sum('d.dana_yang_dicairkan'),
+            'disbursed_count' => (clone $disbursed)->count(),
+            'outstanding' => (float) $outstanding,
+            'revenue' => (float) (clone $disbursed)->sum(DB::raw(self::REVENUE_SQL)),
+        ];
+    }
+
+    /** Tren bulanan: pencairan (batang) dan pendapatan TOMI (garis). */
+    private function trend(array $filter): array
+    {
+        if ($filter['periode'] === 'tahun') {
+            $start = Carbon::create((int) $filter['tahun'], 1, 1);
+            $months = 12;
+        } else {
+            $end = $filter['periode'] === 'bulan' ? Carbon::createFromFormat('Y-m', $filter['bulan']) : Carbon::now();
+            $start = $end->copy()->startOfMonth()->subMonths(9);
+            $months = 10;
+        }
+
+        $rows = $this->disbursedLoans()
+            ->whereBetween('d.created_at', [$start->copy()->startOfMonth(), $start->copy()->addMonths($months - 1)->endOfMonth()])
+            ->selectRaw("DATE_FORMAT(d.created_at, '%Y-%m') as period")
+            ->selectRaw('SUM(d.dana_yang_dicairkan) as disbursed')
+            ->selectRaw('SUM('.self::REVENUE_SQL.') as revenue')
+            ->groupBy('period')
+            ->get()
+            ->keyBy('period');
+
+        $labels = $disbursed = $revenue = [];
+        for ($i = 0; $i < $months; $i++) {
+            $month = $start->copy()->addMonths($i);
+            $labels[] = [$month->isoFormat('MMM'), $month->format('Y')];
+            $disbursed[] = round((float) ($rows[$month->format('Y-m')]->disbursed ?? 0));
+            $revenue[] = round((float) ($rows[$month->format('Y-m')]->revenue ?? 0));
+        }
+
+        return compact('labels', 'disbursed', 'revenue');
+    }
+
+    /** Status pengajuan pada periode. */
+    private function statusBreakdown(?Carbon $from, ?Carbon $to): array
+    {
+        $counts = $this->loans()
+            ->when($from, fn ($q) => $q->whereBetween('p.created_at', [$from, $to]))
+            ->selectRaw('p.status, COUNT(*) as total')
+            ->groupBy('p.status')
+            ->pluck('total', 'status');
+
+        $items = [
+            ['label' => 'Disetujui', 'color' => '#2f7cf6', 'value' => (int) ($counts['approve'] ?? 0)],
+            ['label' => 'Proses', 'color' => '#fbbf24', 'value' => (int) (($counts['on_proses'] ?? 0) + ($counts['pending'] ?? 0))],
+            ['label' => 'Selesai', 'color' => '#34d399', 'value' => (int) ($counts['done'] ?? 0)],
+        ];
+        if (($counts['reject'] ?? 0) > 0) {
+            $items[] = ['label' => 'Ditolak', 'color' => '#f87171', 'value' => (int) $counts['reject']];
+        }
+
+        $total = array_sum(array_column($items, 'value'));
+        foreach ($items as &$item) {
+            $item['percent'] = $total > 0 ? round($item['value'] / $total * 100, 1) : 0;
+        }
+        unset($item);
+
+        return ['total' => $total, 'items' => $items];
+    }
+
+    /** Perusahaan ber-PKS TomiDana: jumlah karyawan terverifikasi dan nominal pencairan pada periode. */
+    private function partnerCompanies(?Carbon $from, ?Carbon $to): array
+    {
+        $featureId = Feature::where('code', self::FEATURE_CODE)->value('id');
+        $companyIds = CompanyPks::where('feature_id', $featureId)
+            ->whereIn('company_id', $this->visibleCompanies()->select('list_perusahaans.id'))
+            ->distinct()
+            ->pluck('company_id');
+
+        $disbursed = $this->disbursedLoans()
+            ->whereIn('p.id_perusahaan', $companyIds)
+            ->when($from, fn ($q) => $q->whereBetween('d.created_at', [$from, $to]))
+            ->selectRaw('p.id_perusahaan, SUM(d.dana_yang_dicairkan) as total')
+            ->groupBy('p.id_perusahaan')
+            ->pluck('total', 'id_perusahaan');
+
+        $employees = DB::table('list_karyawans')
+            ->whereNull('deleted_at')
+            ->whereIn('id_list_perusahaan', $companyIds)
+            ->where('approve_satu', 'approve')
+            ->where('approve_dua', 'approve')
+            ->selectRaw('id_list_perusahaan, COUNT(*) as total')
+            ->groupBy('id_list_perusahaan')
+            ->pluck('total', 'id_list_perusahaan');
+
+        return $this->visibleCompanies()
+            ->whereIn('list_perusahaans.id', $companyIds)
+            ->get(['list_perusahaans.id', 'list_perusahaans.nama', 'list_perusahaans.status'])
+            ->map(fn ($company) => [
+                'id' => $company->id,
+                'name' => Str::upper($company->nama),
+                'employees' => (int) ($employees[$company->id] ?? 0),
+                'nominal' => (float) ($disbursed[$company->id] ?? 0),
+                'active' => $company->status === 'active',
+            ])
+            ->sortByDesc('nominal')
+            ->values()
+            ->take(5)
+            ->all();
+    }
+
+    /** Kalimat insight dari data periode ini. */
+    private function insights(array $current, ?array $previous, ?string $prevLabel, array $companies): array
+    {
+        $lines = [];
+
+        $delta = $this->delta($current['disbursed'], $previous['disbursed'] ?? null);
+        if ($delta) {
+            $lines[] = 'Pencairan TomiDana '.($delta['up'] ? 'naik' : 'turun').' '.$delta['text'].' dibanding '.$prevLabel.'.';
+        } elseif ($current['disbursed'] > 0) {
+            $lines[] = 'Total pencairan TomiDana mencapai '.$this->rupiah($current['disbursed']).'.';
+        } else {
+            $lines[] = 'Belum ada pencairan TomiDana pada periode ini.';
+        }
+
+        $top = collect($companies)->firstWhere('nominal', '>', 0);
+        if ($top) {
+            $lines[] = 'Pencairan terbesar dari '.$top['name'].' sebesar '.$this->rupiah($top['nominal']).'.';
+        }
+
+        $unpaid = invoicing_pinjaman::query()
+            ->whereIn('id_list_perusahaan', $this->visibleCompanies()->select('list_perusahaans.id'))
+            ->where('status', 'belum_lunas')
+            ->count();
+        if ($unpaid > 0) {
+            $lines[] = $this->num($unpaid).' tagihan perusahaan masih belum lunas.';
+        }
+
+        return $lines;
+    }
+
+    /** Pengajuan TomiDana tervalidasi WhatsApp milik perusahaan yang boleh diakses (alias p). */
+    private function loans(): Builder
+    {
+        return DB::table('pinjamen as p')
+            ->whereNull('p.deleted_at')
+            ->where('p.status_otp', 'success')
+            ->whereIn('p.id_perusahaan', $this->visibleCompanies()->select('list_perusahaans.id'));
+    }
+
+    /** Pinjaman yang sudah dicairkan (alias p = pinjamen, d = disbursements). */
+    private function disbursedLoans(): Builder
+    {
+        return DB::table('disbursements as d')
+            ->join('pinjamen as p', 'p.id', '=', 'd.pinjaman_id')
+            ->whereNull('d.deleted_at')
+            ->whereNull('p.deleted_at')
+            ->whereIn('p.id_perusahaan', $this->visibleCompanies()->select('list_perusahaans.id'));
+    }
+
+    /**
+     * Periode terpilih beserta periode pembanding.
+     *
+     * @return array{0: ?Carbon, 1: ?Carbon, 2: string, 3: ?Carbon, 4: ?Carbon, 5: ?string}
+     */
+    private function period(array $filter): array
+    {
         if ($filter['periode'] === 'semua') {
-            return [null, null, 'Semua waktu'];
+            return [null, null, 'Semua waktu', null, null, null];
         }
 
         if ($filter['periode'] === 'tahun') {
             $start = Carbon::create((int) $filter['tahun'], 1, 1)->startOfDay();
+            $prev = $start->copy()->subYear();
 
-            return [$start, $start->copy()->endOfYear(), 'Tahun '.$start->year];
+            return [$start, $start->copy()->endOfYear(), 'Tahun '.$start->year, $prev, $prev->copy()->endOfYear(), 'tahun '.$prev->year];
         }
 
         $start = Carbon::createFromFormat('Y-m', $filter['bulan'])->startOfMonth();
+        $prev = $start->copy()->subMonthNoOverflow()->startOfMonth();
 
-        return [$start, $start->copy()->endOfMonth(), $start->isoFormat('MMMM Y')];
+        return [$start, $start->copy()->endOfMonth(), $start->isoFormat('MMMM Y'), $prev, $prev->copy()->endOfMonth(), $prev->isoFormat('MMMM Y')];
     }
 
     private function filterValues(Request $request): array
@@ -99,27 +277,25 @@ class DashboardController extends Controller
         return compact('periode', 'bulan', 'tahun');
     }
 
-    /** PKS TomiDana: PKS terakhir per perusahaan (berakhir paling lambat; tanpa tanggal berakhir = aktif). */
-    private function pksStats(): array
+    /** Persentase perubahan; null jika tidak ada pembanding atau pembanding 0. */
+    private function delta(float $current, ?float $previous): ?array
     {
-        $today = Carbon::today();
-        $featureId = Feature::where('code', self::FEATURE_CODE)->value('id');
+        if ($previous === null || $previous == 0) {
+            return null;
+        }
 
-        $latest = CompanyPks::query()
-            ->where('feature_id', $featureId)
-            ->whereIn('company_id', $this->visibleCompanies()->select('list_perusahaans.id'))
-            ->get(['company_id', 'end_date'])
-            ->groupBy('company_id')
-            ->map(fn ($rows) => $rows->contains(fn ($row) => $row->end_date === null) ? null : $rows->max(fn ($row) => Carbon::parse($row->end_date)));
+        $percent = ($current - $previous) / $previous * 100;
 
-        $activeCompanies = $latest->isEmpty() ? 0 : $this->visibleCompanies()->whereIn('list_perusahaans.id', $latest->keys())->where('status', 'active')->count();
+        return ['up' => $percent >= 0, 'text' => $this->num(abs($percent)).'%'];
+    }
 
-        return [
-            'companies' => $latest->count(),
-            'active_companies' => $activeCompanies,
-            'active' => $latest->filter(fn ($end) => $end === null || $end->gte($today))->count(),
-            'expiring' => $latest->filter(fn ($end) => $end !== null && $end->between($today, $today->copy()->addDays(30)))->count(),
-            'expired' => $latest->filter(fn ($end) => $end !== null && $end->lt($today))->count(),
-        ];
+    private function num($value): string
+    {
+        return number_format((float) $value, 0, ',', '.');
+    }
+
+    private function rupiah($value): string
+    {
+        return 'Rp. '.number_format((float) $value, 0, ',', '.');
     }
 }
