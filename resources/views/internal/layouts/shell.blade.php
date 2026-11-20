@@ -15,6 +15,7 @@
         ['label' => 'Pemberi Pinjaman', 'icon' => 'bank', 'route' => 'internal.lenders', 'active' => ['internal.lenders*']],
         ['section' => 'Produk'],
         ['label' => 'Tomi Dana', 'slot' => 1, 'children' => [
+            ['label' => 'Dashboard', 'route' => 'internal.tomi-dana.dashboard', 'active' => ['internal.tomi-dana.dashboard']],
             ['label' => 'Daftar Perusahaan', 'route' => 'internal.tomi-dana.companies', 'active' => [
                 'internal.tomi-dana.companies*', 'internal.tomi-dana.configuration*', 'internal.tomi-dana.applications*', 'internal.tomi-dana.employees*',
             ]],
@@ -26,6 +27,7 @@
             ['label' => 'Buat Tagihan', 'route' => 'internal.tomi-dana.generate-invoice', 'active' => ['internal.tomi-dana.generate-invoice*']],
         ]],
         ['label' => 'Tomi Dana Plus', 'slot' => 1, 'children' => [
+            ['label' => 'Dashboard', 'route' => 'internal.tomi-dana-plus.dashboard', 'active' => ['internal.tomi-dana-plus.dashboard']],
             ['label' => 'Daftar Perusahaan', 'route' => 'internal.tomi-dana-plus.companies', 'active' => ['internal.tomi-dana-plus.companies*']],
             ['label' => 'Pencairan Dana', 'route' => 'internal.tomi-dana-plus.disbursement', 'active' => ['internal.tomi-dana-plus.disbursement*']],
             ['label' => 'Pembayaran Tagihan', 'route' => 'internal.tomi-dana-plus.repayment', 'active' => ['internal.tomi-dana-plus.repayment*']],
@@ -34,6 +36,7 @@
             ['label' => 'Biaya Referal', 'route' => 'internal.tomi-dana-plus.referral-fee', 'active' => ['internal.tomi-dana-plus.referral-fee*']],
         ]],
         ['label' => 'TomiGaji', 'slot' => 2, 'children' => [
+            ['label' => 'Dashboard', 'route' => 'internal.tomi-gaji.dashboard', 'active' => ['internal.tomi-gaji.dashboard']],
             ['label' => 'Daftar Perusahaan', 'route' => 'internal.tomi-gaji.companies', 'active' => ['internal.tomi-gaji.companies*']],
             ['label' => 'Pencairan Dana', 'route' => 'internal.tomi-gaji.disbursement', 'active' => ['internal.tomi-gaji.disbursement*']],
             ['label' => 'Pembayaran Tagihan', 'route' => 'internal.tomi-gaji.repayment', 'active' => ['internal.tomi-gaji.repayment*']],
@@ -42,6 +45,7 @@
             ['label' => 'Biaya Referal', 'route' => 'internal.tomi-gaji.referral-fee', 'active' => ['internal.tomi-gaji.referral-fee*']],
         ]],
         ['label' => 'TomiInvoice', 'slot' => 3, 'children' => [
+            ['label' => 'Dashboard', 'route' => 'internal.tomi-invoice.dashboard', 'active' => ['internal.tomi-invoice.dashboard']],
             ['label' => 'Daftar Perusahaan', 'route' => 'internal.tomi-invoice.companies', 'active' => ['internal.tomi-invoice.companies*']],
             ['label' => 'Pencairan Dana', 'route' => 'internal.tomi-invoice.disbursement', 'active' => ['internal.tomi-invoice.disbursement*']],
             ['label' => 'Pembayaran Tagihan', 'route' => 'internal.tomi-invoice.repayment', 'active' => ['internal.tomi-invoice.repayment*']],
@@ -50,6 +54,7 @@
             ['label' => 'Biaya Referal', 'route' => 'internal.tomi-invoice.referral-fee', 'active' => ['internal.tomi-invoice.referral-fee*']],
         ]],
         ['label' => 'TomiGawai', 'slot' => 4, 'children' => [
+            ['label' => 'Dashboard', 'route' => 'internal.tomi-gawai.dashboard', 'active' => ['internal.tomi-gawai.dashboard']],
             ['label' => 'Daftar Perusahaan', 'route' => 'internal.tomi-gawai.companies', 'active' => ['internal.tomi-gawai.companies*']],
             ['label' => 'Pencairan Dana', 'route' => 'internal.tomi-gawai.disbursement', 'active' => ['internal.tomi-gawai.disbursement*']],
             ['label' => 'Pembayaran Tagihan', 'route' => 'internal.tomi-gawai.repayment', 'active' => ['internal.tomi-gawai.repayment*']],
