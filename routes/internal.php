@@ -100,6 +100,9 @@ Route::prefix('/tomi-dana')->name('tomi-dana.')->group(function () {
     Route::post('/repayment/list', [TomiDanaRepaymentController::class, 'list'])->name('repayment.list');
     Route::post('/repayment/action', [TomiDanaRepaymentController::class, 'action'])->name('repayment.action');
 
+    // Riwayat pengajuan (halaman masih placeholder)
+    Route::view('/application-history', 'internal.tomi-dana.application-history.index')->name('application-history');
+
     // Generate invoice dari upload Excel
     Route::get('/generate-invoice', [TomiDanaGenerateInvoiceController::class, 'index'])->name('generate-invoice');
     Route::post('/generate-invoice', [TomiDanaGenerateInvoiceController::class, 'store'])->name('generate-invoice.store');
@@ -120,9 +123,10 @@ Route::prefix('/tomi-dana-plus')->name('tomi-dana-plus.')->group(function () {
     Route::get('/companies', [TomiDanaPlusCompanyController::class, 'index'])->name('companies');
     Route::post('/companies/table', [TomiDanaPlusCompanyController::class, 'table'])->name('companies.table');
 
-    // Pencairan dana, pembayaran tagihan, biaya aplikasi, dan biaya referal (halaman masih placeholder)
+    // Pencairan dana, pembayaran tagihan, riwayat pengajuan, biaya aplikasi, dan biaya referal (halaman masih placeholder)
     Route::view('/disbursement', 'internal.tomi-dana-plus.disbursement.index')->name('disbursement');
     Route::view('/repayment', 'internal.tomi-dana-plus.repayment.index')->name('repayment');
+    Route::view('/application-history', 'internal.tomi-dana-plus.application-history.index')->name('application-history');
     Route::view('/invoice-fee', 'internal.tomi-dana-plus.invoice-fee.index')->name('invoice-fee');
     Route::view('/referral-fee', 'internal.tomi-dana-plus.referral-fee.index')->name('referral-fee');
 });
@@ -132,9 +136,10 @@ Route::prefix('/tomi-gaji')->name('tomi-gaji.')->group(function () {
     Route::get('/companies', [TomiGajiCompanyController::class, 'index'])->name('companies');
     Route::post('/companies/table', [TomiGajiCompanyController::class, 'table'])->name('companies.table');
 
-    // Pencairan dana, pembayaran tagihan, biaya aplikasi, dan biaya referal (halaman masih placeholder)
+    // Pencairan dana, pembayaran tagihan, riwayat pengajuan, biaya aplikasi, dan biaya referal (halaman masih placeholder)
     Route::view('/disbursement', 'internal.tomi-gaji.disbursement.index')->name('disbursement');
     Route::view('/repayment', 'internal.tomi-gaji.repayment.index')->name('repayment');
+    Route::view('/application-history', 'internal.tomi-gaji.application-history.index')->name('application-history');
     Route::view('/invoice-fee', 'internal.tomi-gaji.invoice-fee.index')->name('invoice-fee');
     Route::view('/referral-fee', 'internal.tomi-gaji.referral-fee.index')->name('referral-fee');
 });
@@ -144,9 +149,10 @@ Route::prefix('/tomi-invoice')->name('tomi-invoice.')->group(function () {
     Route::get('/companies', [TomiInvoiceCompanyController::class, 'index'])->name('companies');
     Route::post('/companies/table', [TomiInvoiceCompanyController::class, 'table'])->name('companies.table');
 
-    // Pencairan dana, pembayaran tagihan, biaya aplikasi, dan biaya referal (halaman masih placeholder)
+    // Pencairan dana, pembayaran tagihan, riwayat pengajuan, biaya aplikasi, dan biaya referal (halaman masih placeholder)
     Route::view('/disbursement', 'internal.tomi-invoice.disbursement.index')->name('disbursement');
     Route::view('/repayment', 'internal.tomi-invoice.repayment.index')->name('repayment');
+    Route::view('/application-history', 'internal.tomi-invoice.application-history.index')->name('application-history');
     Route::view('/invoice-fee', 'internal.tomi-invoice.invoice-fee.index')->name('invoice-fee');
     Route::view('/referral-fee', 'internal.tomi-invoice.referral-fee.index')->name('referral-fee');
 });
@@ -156,9 +162,10 @@ Route::prefix('/tomi-gawai')->name('tomi-gawai.')->group(function () {
     Route::get('/companies', [TomiGawaiCompanyController::class, 'index'])->name('companies');
     Route::post('/companies/table', [TomiGawaiCompanyController::class, 'table'])->name('companies.table');
 
-    // Pencairan dana, pembayaran tagihan, biaya aplikasi, dan biaya referal (halaman masih placeholder)
+    // Pencairan dana, pembayaran tagihan, riwayat pengajuan, biaya aplikasi, dan biaya referal (halaman masih placeholder)
     Route::view('/disbursement', 'internal.tomi-gawai.disbursement.index')->name('disbursement');
     Route::view('/repayment', 'internal.tomi-gawai.repayment.index')->name('repayment');
+    Route::view('/application-history', 'internal.tomi-gawai.application-history.index')->name('application-history');
     Route::view('/invoice-fee', 'internal.tomi-gawai.invoice-fee.index')->name('invoice-fee');
     Route::view('/referral-fee', 'internal.tomi-gawai.referral-fee.index')->name('referral-fee');
 });
